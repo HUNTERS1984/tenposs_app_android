@@ -23,6 +23,6 @@
         <item name="colorPrimaryDark">@color/colorNavItem</item>
         <item name="colorAccent">@color/colorNavSubTextColor</item>
     </style>
-
+    <declare-styleable name="CircleImageView"><attr format="dimension" name="border_width"/><attr format="color" name="border_color"/><attr format="boolean" name="border_overlay"/></declare-styleable>
 
 </resources>

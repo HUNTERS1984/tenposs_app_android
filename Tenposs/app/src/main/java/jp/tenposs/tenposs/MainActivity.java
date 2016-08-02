@@ -1,33 +1,36 @@
 package jp.tenposs.tenposs;
 
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.widget.TextViewCompat;
-import android.support.v7.app.ActionBar;
-import android.view.Gravity;
-import android.view.View;
-import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import jp.tenposs.datamodel.HomeScreenItem;
+import jp.tenposs.datamodel.HomeObject;
 import jp.tenposs.utils.ThemifyIcon;
+import jp.tenposs.view.LeftMenuView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements
+        AbstractFragment.MainActivityListener,
+        LeftMenuView.OnLeftMenuItemClickListener {
 
+    static final String HOME_DATA = "HOME_DATA";
     FragmentManager fragmentManager;
+    boolean needUpdateNavigationBar;
+    FragmentHome fragmentHome;
 
     ImageButton toggleMenuButton;
     ImageButton backButton;
@@ -37,17 +40,32 @@ public class MainActivity extends AppCompatActivity {
     ImageButton searchButton;
 
     DrawerLayout drawerLayout;
+    LeftMenuView leftMenuView;
+    FrameLayout contentContainer;
 
-    boolean needUpdateNavigationBar;
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AbstractFragment topFragment = getTopFragment();
+        if (topFragment != null) {
+            updateNavigationBar(topFragment.toolbarSettings);
+        }
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /*Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -56,23 +74,24 @@ public class MainActivity extends AppCompatActivity {
             }
         });*/
 
+
         toggleMenuButton = (ImageButton) findViewById(R.id.toggle_menu_button);
         backButton = (ImageButton) findViewById(R.id.back_button);
+
         navTitleLabel = (TextView) findViewById(R.id.nav_title_label);
         navSubtitleLabel = (TextView) findViewById(R.id.nav_subtitle_label);
         searchButton = (ImageButton) findViewById(R.id.search_button);
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        //ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-        //      this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        //drawer.setDrawerListener(toggle);
-        ///toggle.syncState();
+        leftMenuView = (LeftMenuView) findViewById(R.id.left_menu_view);
+        contentContainer = (FrameLayout) findViewById(R.id.content_container);
+
         toggleMenuButton.setImageBitmap(ThemifyIcon.fromThemifyIcon(getApplication().getAssets(),
                 "ti-menu",
                 28,
                 Color.argb(0, 0, 0, 0),
                 Color.parseColor("#00CECB")
-                ));
+        ));
         toggleMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         this.fragmentManager = getSupportFragmentManager();
         this.fragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
@@ -95,8 +113,17 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-    }
 
+        this.fragmentHome = (FragmentHome) getFragmentForTag(FragmentHome.class.getCanonicalName());
+        if (this.fragmentHome == null) {
+            this.fragmentHome = new FragmentHome();
+            showFragment(this.fragmentHome, FragmentHome.class.getCanonicalName());
+        } else {
+            updateMenuItems(fragmentHome.screenData);
+        }
+
+        leftMenuView.setOnItemClickListener(this);
+    }
 
     @Override
     public void onBackPressed() {
@@ -108,33 +135,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        //return true;
-        return false;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     AbstractFragment getTopFragment() {
-        /**
-         * Get Top fragment
-         */
         AbstractFragment topFragment = null;
         try {
             int size = fragmentManager.getBackStackEntryCount();
@@ -151,18 +152,89 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void updateNavigationBar(AbstractFragment.ToolbarSettings toolbarSettings) {
+    @Override
+    public void updateMenuItems(HomeObject homeObject) {
+        if (leftMenuView != null) {
+            leftMenuView.updateMenuItems(homeObject);
+        }
+    }
+
+    void loadAppSettings() {
 
     }
 
-
-    void showFragmentHome(){
-
-    }
-    void showFragmentMenu(){
+    void saveAppSettings() {
 
     }
-    void showFragmentNews(){
 
+    void showFragment(AbstractFragment fragment, String fragmentTag) {
+        if (fragment.isAdded()) {
+            Log.d("Fragment " + fragmentTag, "IS ADDED!!!");
+            if (fragmentManager.popBackStackImmediate(fragmentTag, 0)) {
+                Log.e("Fragment", "IS ADDED AND POPPED!!!");
+            } else {
+                Log.e("Fragment", "IS ADDED BUT NOT POPPED!!!");
+            }
+            updateNavigationBar(((AbstractFragment) fragment).toolbarSettings);
+        } else {
+            Log.d("Fragment " + fragmentTag, "IS NOT ADDED!!!");
+            FragmentTransaction ft = fragmentManager.beginTransaction();
+            ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
+            ft.add(contentContainer.getId(), fragment, fragmentTag);
+            ft.addToBackStack(fragmentTag);
+            ft.commit();
+        }
+    }
+
+    @Override
+    public void updateNavigationBar(AbstractFragment.ToolbarSettings toolbarSettings) {
+
+        if (toolbarSettings.toolbarType == 1) {
+            toggleMenuButton.setVisibility(View.VISIBLE);
+            backButton.setVisibility(View.INVISIBLE);
+            toggleMenuButton.setImageBitmap(ThemifyIcon.fromThemifyIcon(getApplication().getAssets(),
+                    toolbarSettings.toolbarIcon,
+                    28,
+                    Color.argb(0, 0, 0, 0),
+                    toolbarSettings.settings.getColor()
+            ));
+
+        } else {
+            toggleMenuButton.setVisibility(View.INVISIBLE);
+            backButton.setVisibility(View.VISIBLE);
+            backButton.setImageBitmap(ThemifyIcon.fromThemifyIcon(getApplication().getAssets(),
+                    toolbarSettings.toolbarIcon,
+                    28,
+                    Color.argb(0, 0, 0, 0),
+                    toolbarSettings.settings.getColor()
+            ));
+        }
+
+        navTitleLabel.setText(toolbarSettings.toolbarTitle);
+        navTitleLabel.setTextColor(toolbarSettings.titleSettings.getColor());
+        try {
+            Typeface type = Typeface.createFromAsset(getAssets(), toolbarSettings.settings.getFont());
+            navTitleLabel.setTypeface(type);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void showScreen(HomeScreenItem screenItem) {
+
+    }
+
+    @Override
+    public void onClick(int position, Bundle params) {
+        if (position == -1) {
+            showSignIn();
+        }
+    }
+
+    void showSignIn() {
+        FragmentSignin fragmentSignin = new FragmentSignin();
+        showFragment(fragmentSignin, FragmentSignin.class.getCanonicalName());
     }
 }

@@ -114,9 +114,6 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <FrameLayout
-        android:id="@+id/content_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <include layout="@layout/app_content_main" />
 
 </android.support.design.widget.CoordinatorLayout>

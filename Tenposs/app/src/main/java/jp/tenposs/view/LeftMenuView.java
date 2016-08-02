@@ -1,41 +1,86 @@
 package jp.tenposs.view;
 
 import android.content.Context;
-import android.support.v7.widget.ActionMenuView;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.graphics.Color;
+import android.os.Bundle;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import java.util.List;
+
+import jp.tenposs.datamodel.HomeScreenItem;
+import jp.tenposs.datamodel.HomeObject;
 import jp.tenposs.tenposs.R;
+import jp.tenposs.utils.ThemifyIcon;
+
 
 /**
  * Created by ambient on 7/28/16.
  */
 public class LeftMenuView extends FrameLayout {
 
-    public class MenuItem {
+    public interface OnLeftMenuItemClickListener {
+        void onClick(int position, Bundle params);
+    }
 
-        public MenuItem(long id, String title, String pathName) {
-            this.id = id;
-            this.title = title;
-            this.pathName = pathName;
+    class LeftMenuAdapter extends ArrayAdapter<HomeScreenItem> {
+        LayoutInflater mInflater;
+
+        public LeftMenuAdapter(Context context, int resource, List<HomeScreenItem> objects) {
+            super(context, resource, objects);
+            mInflater = LayoutInflater.from(context);
         }
 
-        public long id;
-        public String title;
-        public String pathName;
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View row;
+            if (null == convertView) {
+                row = mInflater.inflate(R.layout.nav_content_item, null);
+            } else {
+                row = convertView;
+            }
+            HomeScreenItem item = getItem(position);
+            ImageView menuIcon = (ImageView) row.findViewById(R.id.item_image);
+            TextView menuTitle = (TextView) row.findViewById(R.id.item_label);
+            menuTitle.setText(item.itemName);
+            menuIcon.setImageBitmap(ThemifyIcon.fromThemifyIcon(getContext().getAssets(),
+                    item.itemIcon,
+                    60,
+                    Color.argb(0, 0, 0, 0),
+                    Color.argb(255, 255, 255, 255)
+            ));
+            return row;
+        }
     }
 
     Context mContext;
 
+    ImageView userAvatarImage;
+    TextView userNameLabel;
+
+    LinearLayout userInfoLayout;
+    Button signinButton;
+
+    ListView listView;
+    LeftMenuAdapter leftMenuAdapter;
+
+    HomeObject screenData;
+    OnLeftMenuItemClickListener onItemClickListener;
+
     public LeftMenuView(Context context) {
         super(context);
         this.mContext = context;
+        initView(this.mContext);
     }
 
     public LeftMenuView(Context context, AttributeSet attrs) {
@@ -50,22 +95,29 @@ public class LeftMenuView extends FrameLayout {
         initView(this.mContext);
     }
 
-    OnMenuItemClickListener mListener;
-
-    ImageView avatar;
-    TextView userName;
-    TextView userInfo;
-
-    FrameLayout headerLogin;
-    FrameLayout headerUser;
-    Button headerLoginButton;
-
-    RecyclerView menuList;
+    public void setOnItemClickListener(OnLeftMenuItemClickListener listener) {
+        this.onItemClickListener = listener;
+    }
 
     void initView(Context context) {
-//        inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//        this.addView(inflater.inflate(R.layout.left_menu_header, null));
-        View.inflate(context, R.layout.nav_content_main, this);
+        View rootView = View.inflate(context, R.layout.nav_content_main, this);
+        this.userInfoLayout = (LinearLayout) rootView.findViewById(R.id.user_info_layout);
+        this.signinButton = (Button) rootView.findViewById(R.id.signin_button);
+        this.userAvatarImage = (ImageView) rootView.findViewById(R.id.user_avatar_image);
+        this.userNameLabel = (TextView) rootView.findViewById(R.id.user_name_label);
+        this.listView = (ListView) rootView.findViewById(R.id.list_view);
+
+        this.userInfoLayout.setVisibility(View.GONE);
+        this.signinButton.setVisibility(View.VISIBLE);
+        this.signinButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onItemClickListener != null) {
+                    Bundle params = new Bundle();
+                    onItemClickListener.onClick(-1, params);
+                }
+            }
+        });
     }
 
     @Override
@@ -73,18 +125,18 @@ public class LeftMenuView extends FrameLayout {
         super.onLayout(changed, left, top, right, bottom);
     }
 
-    public void performLeftMenuClick(int position) {
-        if (position != -1 && this.menuList != null) {
-            if (this.menuList.findViewHolderForAdapterPosition(position).itemView != null) {
-                RecyclerView.ViewHolder holder = this.menuList.findViewHolderForAdapterPosition(position);
-                this.menuList.findViewHolderForAdapterPosition(position).itemView.performClick();
+    public void updateMenuItems(HomeObject homeObject) {
+        screenData = homeObject;
+        leftMenuAdapter = new LeftMenuAdapter(mContext, R.layout.nav_content_item, screenData.items);
+        this.listView.setAdapter(leftMenuAdapter);
+        this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (onItemClickListener != null) {
+                    Bundle params = new Bundle();
+                    onItemClickListener.onClick(position, params);
+                }
             }
-        }
-    }
-
-    public interface OnMenuItemClickListener {
-        void onMenuHeaderClick();
-
-        void onMenuItemClick(int index, MenuItem item);
+        });
     }
 }

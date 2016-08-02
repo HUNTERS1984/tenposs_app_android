@@ -21,4 +21,5 @@ public class CommonResponse {
 
     public String code;
     public String message;
+    //public Object data;
 }
