@@ -33,7 +33,7 @@ public class FragmentSignin extends AbstractFragment {
         toolbarSettings = new ToolbarSettings();
         toolbarSettings.toolbarTitle = "Sign In";
         toolbarSettings.toolbarIcon = "ti-angle-left";
-        toolbarSettings.toolbarType = 1;//1 Home, 0 child
+        toolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
 
         toolbarSettings.settings = new AppSettings.Settings();
         toolbarSettings.settings.fontColor = "#00CECB";

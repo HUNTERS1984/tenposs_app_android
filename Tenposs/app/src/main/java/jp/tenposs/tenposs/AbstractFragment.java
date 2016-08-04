@@ -30,11 +30,6 @@ public abstract class AbstractFragment extends Fragment {
         void showScreen(HomeScreenItem screenItem);
     }
 
-    public class FragmentSettings {
-        public AppSettings.Settings toolbar;
-
-    }
-
     public enum ScreenDataStatus {
         ScreenDataStatusUnload,
         ScreenDataStatusLoading,
@@ -51,6 +46,10 @@ public abstract class AbstractFragment extends Fragment {
     }
 
     public class ToolbarSettings {
+
+        public static final int LEFT_MENU_BUTTON = 1;
+        public static final int LEFT_BACK_BUTTON = 2;
+
         public String toolbarTitle;
         public String toolbarIcon;
         public int toolbarType;

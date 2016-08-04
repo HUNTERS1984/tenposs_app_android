@@ -42,7 +42,6 @@ public class FragmentHome
 
     List<RecyclerItemWrapper> screenDataItems;
 
-    SwipeRefreshLayout swipeRefreshLayout;
     RecyclerView recyclerView;
     CommonAdapter recyclerAdapter;
 
@@ -67,12 +66,6 @@ public class FragmentHome
         super.onViewCreated(view, savedInstanceState);
         if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
             this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
-            this.swipeRefreshLayout.post(new Runnable() {
-                @Override
-                public void run() {
-                    swipeRefreshLayout.setRefreshing(true);
-                }
-            });
             String userInfoStr = getKeyString(Key.UserObject);
             String sessionId = getKeyString(Key.API_SessionKey);
 
@@ -142,7 +135,7 @@ public class FragmentHome
         toolbarSettings = new ToolbarSettings();
         toolbarSettings.toolbarTitle = "GLOBAL WORK";
         toolbarSettings.toolbarIcon = "ti-menu";
-        toolbarSettings.toolbarType = 1;//1 Home, 0 child
+        toolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
 
         toolbarSettings.settings = new AppSettings.Settings();
         toolbarSettings.settings.fontColor = "#00CECB";
@@ -163,10 +156,9 @@ public class FragmentHome
                         "{\"itemIcon\":\"ti-calendar\",\"itemName\":\"Reserve\",\"itemId\":2}," +
                         "{\"itemIcon\":\"ti-news\",\"itemName\":\"News\",\"itemId\":3}," +
                         "{\"itemIcon\":\"ti-gallery\",\"itemName\":\"Photo Gallery\",\"itemId\":4}," +
-                        "{\"itemIcon\":\"ti-user\",\"itemName\":\"Staff\",\"itemId\":5}," +
-                        "{\"itemIcon\":\"ti-news\",\"itemName\":\"Coupon\",\"itemId\":6}," +
-                        "{\"itemIcon\":\"ti-news\",\"itemName\":\"Chat\",\"itemId\":7}," +
-                        "{\"itemIcon\":\"ti-settings\",\"itemName\":\"Setting\",\"itemId\":8}]," +
+                        "{\"itemIcon\":\"ti-news\",\"itemName\":\"Coupon\",\"itemId\":5}," +
+                        "{\"itemIcon\":\"ti-news\",\"itemName\":\"Chat\",\"itemId\":6}," +
+                        "{\"itemIcon\":\"ti-settings\",\"itemName\":\"Setting\",\"itemId\":7}]," +
                         "\"hotProducts\":[{\"productImageUrl\":\"http://static.vn.zalora.net/p/eternal-coast-7766-526226-1.jpg\"," +
                         "\"productName\":\"Eternal Coast\"},{\"productImageUrl\":\"http://static.vn.zalora.net/p/demona-2572-755226-1.jpg\"," +
                         "\"productName\":\"Demona\"},{\"productImageUrl\":\"http://static.vn.zalora.net/p/quyen-1463-478885-1.jpg\"," +
@@ -279,7 +271,6 @@ public class FragmentHome
 
     @Override
     protected void previewScreenData() {
-        this.swipeRefreshLayout.setRefreshing(false);
         this.recyclerAdapter = new CommonAdapter(getActivity(), this, this);
         GridLayoutManager manager = new GridLayoutManager(getActivity(), 6);//);
         manager.setSpanSizeLookup(new CommonAdapter.GridSpanSizeLookup(recyclerAdapter));
@@ -291,20 +282,7 @@ public class FragmentHome
     @Override
     public View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View mRoot = inflater.inflate(R.layout.fragment_home, null);
-        this.swipeRefreshLayout = (SwipeRefreshLayout) mRoot.findViewById(R.id.swipe_refresh_layout);
         this.recyclerView = (RecyclerView) mRoot.findViewById(R.id.recycler_view);
-
-        this.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        swipeRefreshLayout.setRefreshing(false);
-                    }
-                }, 3000);
-            }
-        });
         return mRoot;
     }
 

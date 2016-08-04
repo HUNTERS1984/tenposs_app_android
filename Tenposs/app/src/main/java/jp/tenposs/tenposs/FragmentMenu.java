@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import jp.tenposs.datamodel.AppSettings;
+
 /**
  * Created by ambient on 7/27/16.
  */
@@ -17,7 +19,17 @@ public class FragmentMenu extends AbstractFragment {
 
     @Override
     protected void customToolbarInit() {
+        toolbarSettings = new ToolbarSettings();
+        toolbarSettings.toolbarTitle = "Menu";
+        toolbarSettings.toolbarIcon = "ti-angle-left";
+        toolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
 
+        toolbarSettings.settings = new AppSettings.Settings();
+        toolbarSettings.settings.fontColor = "#00CECB";
+
+        toolbarSettings.titleSettings = new AppSettings.Settings();
+        toolbarSettings.titleSettings.fontColor = "#000000";
+        toolbarSettings.titleSettings.fontSize = 20;
     }
 
     @Override
@@ -32,7 +44,8 @@ public class FragmentMenu extends AbstractFragment {
 
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return null;
+        View mRoot = inflater.inflate(R.layout.fragment_reserve, null);
+        return mRoot;
     }
 
     @Override

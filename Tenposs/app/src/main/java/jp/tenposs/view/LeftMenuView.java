@@ -18,8 +18,9 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import jp.tenposs.datamodel.HomeScreenItem;
 import jp.tenposs.datamodel.HomeObject;
+import jp.tenposs.datamodel.HomeScreenItem;
+import jp.tenposs.datamodel.Key;
 import jp.tenposs.tenposs.R;
 import jp.tenposs.utils.ThemifyIcon;
 
@@ -114,6 +115,7 @@ public class LeftMenuView extends FrameLayout {
             public void onClick(View v) {
                 if (onItemClickListener != null) {
                     Bundle params = new Bundle();
+//                    params.putSerializable(Key.RequestObject, );
                     onItemClickListener.onClick(-1, params);
                 }
             }
@@ -134,6 +136,7 @@ public class LeftMenuView extends FrameLayout {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (onItemClickListener != null) {
                     Bundle params = new Bundle();
+                    params.putSerializable(Key.RequestObject, screenData.items.get(position));
                     onItemClickListener.onClick(position, params);
                 }
             }

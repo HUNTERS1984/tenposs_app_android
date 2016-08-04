@@ -1,5 +1,6 @@
 package jp.tenposs.tenposs;
 
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
@@ -17,8 +19,11 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import jp.tenposs.datamodel.HomeScreenItem;
+import junit.framework.Assert;
+
 import jp.tenposs.datamodel.HomeObject;
+import jp.tenposs.datamodel.HomeScreenItem;
+import jp.tenposs.datamodel.Key;
 import jp.tenposs.utils.ThemifyIcon;
 import jp.tenposs.view.LeftMenuView;
 
@@ -86,12 +91,6 @@ public class MainActivity extends AppCompatActivity
         leftMenuView = (LeftMenuView) findViewById(R.id.left_menu_view);
         contentContainer = (FrameLayout) findViewById(R.id.content_container);
 
-        toggleMenuButton.setImageBitmap(ThemifyIcon.fromThemifyIcon(getApplication().getAssets(),
-                "ti-menu",
-                28,
-                Color.argb(0, 0, 0, 0),
-                Color.parseColor("#00CECB")
-        ));
         toggleMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -101,14 +100,19 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MainActivity.this.onBackPressed();
+            }
+        });
 
         this.fragmentManager = getSupportFragmentManager();
         this.fragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
             public void onBackStackChanged() {
-                if (needUpdateNavigationBar == true) {
-                    needUpdateNavigationBar = false;
-                    AbstractFragment topFragment = getTopFragment();
+                AbstractFragment topFragment = getTopFragment();
+                if (topFragment != null) {
                     updateNavigationBar(topFragment.toolbarSettings);
                 }
             }
@@ -127,30 +131,59 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            return;
+        } else if (fragmentManager.getBackStackEntryCount() > 0) {
+
+            /**
+             * Get Top fragment
+             */
+            AbstractFragment topFragment = null;
+            try {
+                int size = fragmentManager.getBackStackEntryCount();
+                FragmentManager.BackStackEntry backStackEntry = this.fragmentManager.getBackStackEntryAt(size - 1);
+                topFragment = (AbstractFragment) this.fragmentManager.findFragmentByTag(backStackEntry.getName());
+
+            } catch (Exception ex) {
+
+            }
+            if (topFragment == fragmentHome) {
+                /**
+                 * Do something
+                 */
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case DialogInterface.BUTTON_POSITIVE:
+                                exitActivity();
+
+
+                                break;
+
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                break;
+                        }
+                    }
+                };
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage("Are you sure you want to exit?")
+                        .setPositiveButton("Yes", dialogClickListener)
+                        .setNegativeButton("No", dialogClickListener)
+                        .show();
+
+            } else {
+                /**
+                 * Back and update NavigationBar
+                 */
+                fragmentManager.popBackStackImmediate();
+            }
         } else {
             super.onBackPressed();
         }
     }
-
-    AbstractFragment getTopFragment() {
-        AbstractFragment topFragment = null;
-        try {
-            int size = fragmentManager.getBackStackEntryCount();
-            FragmentManager.BackStackEntry backStackEntry = this.fragmentManager.getBackStackEntryAt(size - 1);
-            topFragment = (AbstractFragment) this.fragmentManager.findFragmentByTag(backStackEntry.getName());
-        } catch (Exception ex) {
-
-        }
-        return topFragment;
-    }
-
-    Fragment getFragmentForTag(String tag) {
-        return fragmentManager.findFragmentByTag(tag);
-    }
-
 
     @Override
     public void updateMenuItems(HomeObject homeObject) {
@@ -159,39 +192,12 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    void loadAppSettings() {
-
-    }
-
-    void saveAppSettings() {
-
-    }
-
-    void showFragment(AbstractFragment fragment, String fragmentTag) {
-        if (fragment.isAdded()) {
-            Log.d("Fragment " + fragmentTag, "IS ADDED!!!");
-            if (fragmentManager.popBackStackImmediate(fragmentTag, 0)) {
-                Log.e("Fragment", "IS ADDED AND POPPED!!!");
-            } else {
-                Log.e("Fragment", "IS ADDED BUT NOT POPPED!!!");
-            }
-            updateNavigationBar(((AbstractFragment) fragment).toolbarSettings);
-        } else {
-            Log.d("Fragment " + fragmentTag, "IS NOT ADDED!!!");
-            FragmentTransaction ft = fragmentManager.beginTransaction();
-            ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
-            ft.add(contentContainer.getId(), fragment, fragmentTag);
-            ft.addToBackStack(fragmentTag);
-            ft.commit();
-        }
-    }
-
     @Override
     public void updateNavigationBar(AbstractFragment.ToolbarSettings toolbarSettings) {
 
-        if (toolbarSettings.toolbarType == 1) {
+        if (toolbarSettings.toolbarType == AbstractFragment.ToolbarSettings.LEFT_MENU_BUTTON) {
             toggleMenuButton.setVisibility(View.VISIBLE);
-            backButton.setVisibility(View.INVISIBLE);
+            backButton.setVisibility(View.GONE);
             toggleMenuButton.setImageBitmap(ThemifyIcon.fromThemifyIcon(getApplication().getAssets(),
                     toolbarSettings.toolbarIcon,
                     28,
@@ -200,7 +206,7 @@ public class MainActivity extends AppCompatActivity
             ));
 
         } else {
-            toggleMenuButton.setVisibility(View.INVISIBLE);
+            toggleMenuButton.setVisibility(View.GONE);
             backButton.setVisibility(View.VISIBLE);
             backButton.setImageBitmap(ThemifyIcon.fromThemifyIcon(getApplication().getAssets(),
                     toolbarSettings.toolbarIcon,
@@ -228,13 +234,159 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onClick(int position, Bundle params) {
+        drawerLayout.closeDrawer(Gravity.LEFT);
+
+
         if (position == -1) {
-            showSignIn();
+            showSignInScreen();
+        } else {
+            HomeScreenItem item = (HomeScreenItem) params.getSerializable(Key.RequestObject);
+            long menuId = item.itemId;
+            if (menuId == HomeScreenItem.HOME_SCREEN) {
+                showHomeScreen();
+
+            } else if (menuId == HomeScreenItem.MENU_SCREEN) {
+                showMenuScreen();
+
+            } else if (menuId == HomeScreenItem.RESERVE_SCREEN) {
+                showReserveScreen();
+
+            } else if (menuId == HomeScreenItem.NEWS_SCREEN) {
+                showNewsScreen();
+
+            } else if (menuId == HomeScreenItem.PHOTO_SCREEN) {
+                showPhotoScreen();
+
+            } else if (menuId == HomeScreenItem.COUPON_SCREEN) {
+                showCouponScreen();
+
+            } else if (menuId == HomeScreenItem.CHAT_SCREEN) {
+                showChatScreen();
+
+            } else if (menuId == HomeScreenItem.SETTING_SCREEN) {
+                showSettingScreen();
+
+            }
         }
     }
 
-    void showSignIn() {
-        FragmentSignin fragmentSignin = new FragmentSignin();
+    void exitActivity() {
+        MainActivity.this.finish();
+    }
+
+    void loadAppSettings() {
+
+    }
+
+    void saveAppSettings() {
+
+    }
+
+    AbstractFragment getTopFragment() {
+        AbstractFragment topFragment = null;
+        try {
+            int size = fragmentManager.getBackStackEntryCount();
+            FragmentManager.BackStackEntry backStackEntry = this.fragmentManager.getBackStackEntryAt(size - 1);
+            topFragment = (AbstractFragment) this.fragmentManager.findFragmentByTag(backStackEntry.getName());
+        } catch (Exception ex) {
+
+        }
+        return topFragment;
+    }
+
+    Fragment getFragmentForTag(String tag) {
+        return fragmentManager.findFragmentByTag(tag);
+    }
+
+    void showFragment(AbstractFragment fragment, String fragmentTag) {
+        if (fragment.isAdded()) {
+            Log.d("Fragment " + fragmentTag, "IS ADDED!!!");
+            if (fragmentManager.popBackStackImmediate(fragmentTag, 0)) {
+                Log.e("Fragment", "IS ADDED AND POPPED!!!");
+            } else {
+                Log.e("Fragment", "IS ADDED BUT NOT POPPED!!!");
+            }
+            updateNavigationBar(((AbstractFragment) fragment).toolbarSettings);
+        } else {
+            Log.d("Fragment " + fragmentTag, "IS NOT ADDED!!!");
+            FragmentTransaction ft = fragmentManager.beginTransaction();
+            ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
+            ft.add(contentContainer.getId(), fragment, fragmentTag);
+            ft.addToBackStack(fragmentTag);
+            ft.commit();
+        }
+    }
+
+    void showHomeScreen() {
+        if (this.fragmentHome == null) {
+            Assert.assertFalse("Should never be here ;(", false);
+            this.fragmentHome = new FragmentHome();
+        }
+        showFragment(this.fragmentHome, FragmentHome.class.getCanonicalName());
+    }
+
+    void showSignInScreen() {
+        FragmentSignin fragmentSignin = (FragmentSignin) getFragmentForTag(FragmentSignin.class.getCanonicalName());
+        if (fragmentSignin == null) {
+            fragmentSignin = new FragmentSignin();
+        }
         showFragment(fragmentSignin, FragmentSignin.class.getCanonicalName());
     }
+
+    void showMenuScreen() {
+        FragmentMenu fragmentMenu = (FragmentMenu) getFragmentForTag(FragmentMenu.class.getCanonicalName());
+        if (fragmentMenu == null) {
+            fragmentMenu = new FragmentMenu();
+        }
+        showFragment(fragmentMenu, FragmentMenu.class.getCanonicalName());
+    }
+
+    void showReserveScreen() {
+        FragmentReserve fragmentReserve = (FragmentReserve) getFragmentForTag(FragmentReserve.class.getCanonicalName());
+        if (fragmentReserve == null) {
+            fragmentReserve = new FragmentReserve();
+        }
+        showFragment(fragmentReserve, FragmentReserve.class.getCanonicalName());
+    }
+
+    void showNewsScreen() {
+        FragmentNews fragmentNews = (FragmentNews) getFragmentForTag(FragmentNews.class.getCanonicalName());
+        if (fragmentNews == null) {
+            fragmentNews = new FragmentNews();
+        }
+        showFragment(fragmentNews, FragmentNews.class.getCanonicalName());
+    }
+
+    void showPhotoScreen() {
+        FragmentPhotoGallery fragmentPhotoGallery = (FragmentPhotoGallery) getFragmentForTag(FragmentPhotoGallery.class.getCanonicalName());
+        if (fragmentPhotoGallery == null) {
+            fragmentPhotoGallery = new FragmentPhotoGallery();
+        }
+        showFragment(fragmentPhotoGallery, FragmentPhotoGallery.class.getCanonicalName());
+    }
+
+    void showCouponScreen() {
+        FragmentCoupon fragmentCoupon = (FragmentCoupon) getFragmentForTag(FragmentCoupon.class.getCanonicalName());
+        if (fragmentCoupon == null) {
+            fragmentCoupon = new FragmentCoupon();
+        }
+        showFragment(fragmentCoupon, FragmentCoupon.class.getCanonicalName());
+    }
+
+    void showChatScreen() {
+        FragmentChat fragmentChat = (FragmentChat) getFragmentForTag(FragmentChat.class.getCanonicalName());
+        if (fragmentChat == null) {
+            fragmentChat = new FragmentChat();
+        }
+        showFragment(fragmentChat, FragmentChat.class.getCanonicalName());
+    }
+
+    void showSettingScreen() {
+        FragmentSetting fragmentSetting = (FragmentSetting) getFragmentForTag(FragmentSetting.class.getCanonicalName());
+        if (fragmentSetting == null) {
+            fragmentSetting = new FragmentSetting();
+        }
+        showFragment(fragmentSetting, FragmentSetting.class.getCanonicalName());
+    }
+
 }

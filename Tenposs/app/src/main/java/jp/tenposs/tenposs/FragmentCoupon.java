@@ -9,9 +9,9 @@ import android.view.ViewGroup;
 import jp.tenposs.datamodel.AppSettings;
 
 /**
- * Created by ambient on 7/27/16.
+ * Created by ambient on 8/4/16.
  */
-public class FragmentProduct extends AbstractFragment {
+public class FragmentCoupon extends AbstractFragment{
     @Override
     protected void customClose() {
 
@@ -20,7 +20,7 @@ public class FragmentProduct extends AbstractFragment {
     @Override
     protected void customToolbarInit() {
         toolbarSettings = new ToolbarSettings();
-        toolbarSettings.toolbarTitle = "Product";
+        toolbarSettings.toolbarTitle = "Coupon";
         toolbarSettings.toolbarIcon = "ti-angle-left";
         toolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
 
