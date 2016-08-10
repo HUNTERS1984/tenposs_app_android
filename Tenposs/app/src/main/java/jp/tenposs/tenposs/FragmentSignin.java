@@ -2,13 +2,11 @@ package jp.tenposs.tenposs;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import jp.tenposs.datamodel.AppSettings;
@@ -17,11 +15,19 @@ import jp.tenposs.utils.ThemifyIcon;
 /**
  * Created by ambient on 7/29/16.
  */
-public class FragmentSignin extends AbstractFragment {
+public class FragmentSignin extends AbstractFragment implements View.OnClickListener {
 
     ImageView facebookIcon;
+    Button facebookButton;
+
     ImageView twitterIcon;
+    Button twitterButton;
+
     ImageView emailIcon;
+    Button emailButton;
+
+    Button skipButton;
+
 
     @Override
     protected void customClose() {
@@ -32,7 +38,7 @@ public class FragmentSignin extends AbstractFragment {
     protected void customToolbarInit() {
         toolbarSettings = new ToolbarSettings();
         toolbarSettings.toolbarTitle = "Sign In";
-        toolbarSettings.toolbarIcon = "ti-angle-left";
+        toolbarSettings.toolbarIcon = "ti-arrow-left";
         toolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
 
         toolbarSettings.settings = new AppSettings.Settings();
@@ -57,8 +63,15 @@ public class FragmentSignin extends AbstractFragment {
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View mRoot = inflater.inflate(R.layout.fragment_signin, null);
         facebookIcon = (ImageView) mRoot.findViewById(R.id.facebook_image);
+        facebookButton = (Button) mRoot.findViewById(R.id.facebook_button);
+
         twitterIcon = (ImageView) mRoot.findViewById(R.id.twitter_image);
+        twitterButton = (Button) mRoot.findViewById(R.id.twitter_button);
+
         emailIcon = (ImageView) mRoot.findViewById(R.id.email_image);
+        emailButton = (Button) mRoot.findViewById(R.id.email_button);
+
+        skipButton = (Button) mRoot.findViewById(R.id.skip_button);
 
 
         facebookIcon.setImageBitmap(ThemifyIcon.fromThemifyIcon(getContext().getAssets(),
@@ -81,14 +94,33 @@ public class FragmentSignin extends AbstractFragment {
                 Color.argb(0, 0, 0, 0),
                 Color.argb(255, 255, 255, 255)
         ));
-        //ti-email
-        //ti-facebook
-        //ti-twitter-alt
+
+
+        facebookButton.setOnClickListener(this);
+        twitterButton.setOnClickListener(this);
+        emailButton.setOnClickListener(this);
+        skipButton.setOnClickListener(this);
         return mRoot;
     }
 
     @Override
     void loadSavedInstanceState(@Nullable Bundle savedInstanceState) {
 
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == facebookButton) {
+            //TODO: Login with Facebook
+
+        } else if (v == twitterButton) {
+            //TODO: Login with Twitter
+
+        } else if (v == emailButton) {
+            //TODO: Login with email and password
+
+        } else {
+            close();
+        }
     }
 }

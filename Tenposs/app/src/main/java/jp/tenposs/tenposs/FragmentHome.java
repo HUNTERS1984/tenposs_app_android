@@ -1,29 +1,34 @@
 package jp.tenposs.tenposs;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import jp.tenposs.adapter.CommonAdapter;
-import jp.tenposs.adapter.CommonDataSource;
 import jp.tenposs.adapter.RecyclerItemType;
 import jp.tenposs.adapter.RecyclerItemWrapper;
+import jp.tenposs.communicator.AppInfoCommunicator;
+import jp.tenposs.communicator.SideMenuCommunicator;
+import jp.tenposs.communicator.TenpossCommunicator;
+import jp.tenposs.communicator.TopInfoCommunicator;
+import jp.tenposs.communicator.UserInfoCommunicator;
+import jp.tenposs.datamodel.AppInfo;
 import jp.tenposs.datamodel.AppSettings;
-import jp.tenposs.datamodel.HomeScreenItem;
-import jp.tenposs.datamodel.CommonObject;
-import jp.tenposs.datamodel.HomeObject;
+import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
-import jp.tenposs.datamodel.UserObject;
+import jp.tenposs.datamodel.LoginInfo;
+import jp.tenposs.datamodel.ScreenDataStatus;
+import jp.tenposs.datamodel.SideMenuInfo;
+import jp.tenposs.datamodel.TopInfo;
 import jp.tenposs.listener.OnCommonItemClickListener;
 
 
@@ -34,16 +39,24 @@ public class FragmentHome
         extends
         AbstractFragment
         implements
-        CommonDataSource,
+        CommonAdapter.CommonDataSource,
         OnCommonItemClickListener {
 
-    public HomeObject screenData;
+    SideMenuInfo.Response menuInfo = null;
+    AppInfo.Response appInfo = null;
+    AppInfo.Response.ResponseData storeInfo = null;
 
+    TopInfo.Response topData = null;
+    TopInfo.Response.ResponseData screenData = null;
 
-    List<RecyclerItemWrapper> screenDataItems;
+    LoginInfo.Response userInfo = null;
+
+    List<RecyclerItemWrapper> screenDataItems = new ArrayList<>();
 
     RecyclerView recyclerView;
     CommonAdapter recyclerAdapter;
+
+    SwipeRefreshLayout swipeRefreshLayout;
 
     /**
      * Fragment Override
@@ -65,22 +78,12 @@ public class FragmentHome
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
-            this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
-            String userInfoStr = getKeyString(Key.UserObject);
-            String sessionId = getKeyString(Key.API_SessionKey);
-
-            UserObject userInfo = null;
-            if (userInfoStr != "") {
-                userInfo = (UserObject) CommonObject.fromJSONString(userInfoStr, UserObject.class, null);
-            }
-            if ((sessionId == "") || (userInfo == null) || (userInfo.userId == 0)) {
-            } else {
-                loadUserDetails();
-            }
+            startup();
+        } else if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusLoading) {
+            //Do nothing
         } else {
             previewScreenData();
         }
-        loadUserDetails();
     }
 
     @Override
@@ -88,7 +91,7 @@ public class FragmentHome
         if (savedInstanceState != null) {
 
             if (savedInstanceState.containsKey(SCREEN_DATA)) {
-                this.screenData = (HomeObject) savedInstanceState.getSerializable(SCREEN_DATA);
+                this.screenData = (TopInfo.Response.ResponseData) savedInstanceState.getSerializable(SCREEN_DATA);
             }
         }
     }
@@ -102,23 +105,11 @@ public class FragmentHome
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(SCREEN_DATA)) {
-                this.screenData = (HomeObject) savedInstanceState.getSerializable(SCREEN_DATA);
+                this.screenData = (TopInfo.Response.ResponseData) savedInstanceState.getSerializable(SCREEN_DATA);
+                startup();
             }
         } else {
-            if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
-                this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
-                String userInfoStr = getKeyString(Key.UserObject);
-                String sessionId = getKeyString(Key.API_SessionKey);
-
-                UserObject userInfo = null;
-                if (userInfoStr != "") {
-                    userInfo = (UserObject) CommonObject.fromJSONString(userInfoStr, UserObject.class, null);
-                }
-                if ((sessionId == "") || (userInfo == null) || (userInfo.userId == 0)) {
-                } else {
-                    loadUserDetails();
-                }
-            }
+            startup();
         }
     }
 
@@ -147,142 +138,73 @@ public class FragmentHome
 
     @Override
     protected void reloadScreenData() {
-        //TODO: fake data
-
-        screenDataItems = new ArrayList<>();
-        screenData = (HomeObject) CommonObject.fromJSONString("{\"items\":[" +
-                        "{\"itemIcon\":\"ti-home\",\"itemName\":\"Home\",\"itemId\":-1}," +
-                        "{\"itemIcon\":\"ti-menu-alt\",\"itemName\":\"Menu\",\"itemId\":1}," +
-                        "{\"itemIcon\":\"ti-calendar\",\"itemName\":\"Reserve\",\"itemId\":2}," +
-                        "{\"itemIcon\":\"ti-news\",\"itemName\":\"News\",\"itemId\":3}," +
-                        "{\"itemIcon\":\"ti-gallery\",\"itemName\":\"Photo Gallery\",\"itemId\":4}," +
-                        "{\"itemIcon\":\"ti-news\",\"itemName\":\"Coupon\",\"itemId\":5}," +
-                        "{\"itemIcon\":\"ti-news\",\"itemName\":\"Chat\",\"itemId\":6}," +
-                        "{\"itemIcon\":\"ti-settings\",\"itemName\":\"Setting\",\"itemId\":7}]," +
-                        "\"hotProducts\":[{\"productImageUrl\":\"http://static.vn.zalora.net/p/eternal-coast-7766-526226-1.jpg\"," +
-                        "\"productName\":\"Eternal Coast\"},{\"productImageUrl\":\"http://static.vn.zalora.net/p/demona-2572-755226-1.jpg\"," +
-                        "\"productName\":\"Demona\"},{\"productImageUrl\":\"http://static.vn.zalora.net/p/quyen-1463-478885-1.jpg\"," +
-                        "\"productName\":\"Quyên\"}]}",
-                HomeObject.class,
-                null);
-
-        if (screenData.hotProducts != null && screenData.items.size() > 0) {
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeTopItem, 6, screenData.hotProducts));
+        if (this.screenDataStatus != ScreenDataStatus.ScreenDataStatusUnload) {
+            return;
         }
-        for (HomeScreenItem item : screenData.items) {
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, 6, item.itemName));
-
-            //for
-            if (item.itemId % 3 == 0) {
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, 3, item.itemName));
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, 3, item.itemName));
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, 3, item.itemName));
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, 3, item.itemName));
-            } else if (item.itemId % 3 == 1) {
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, 2, item.itemName));
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, 2, item.itemName));
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, 2, item.itemName));
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, 2, item.itemName));
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, 2, item.itemName));
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, 2, item.itemName));
-            } else if (item.itemId % 3 == 2) {
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemMap, 6, item.itemName));
-            }
-            //endfor
-
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, 6, item.itemName));
-        }
-            /*screenData = new HomeObject();
-        screenData.hotProducts = new ArrayList<>();
-        ProductObject productObject = new ProductObject();
-        productObject.productName = "Eternal Coast";
-        productObject.productImageUrl = "http://static.vn.zalora.net/p/eternal-coast-7766-526226-1.jpg";
-        screenData.hotProducts.add(productObject);
-
-        productObject = new ProductObject();
-        productObject.productName = "Demona";
-        productObject.productImageUrl = "http://static.vn.zalora.net/p/demona-2572-755226-1.jpg";
-        screenData.hotProducts.add(productObject);
-
-        productObject = new ProductObject();
-        productObject.productName = "Quyên";
-        productObject.productImageUrl = "http://static.vn.zalora.net/p/quyen-1463-478885-1.jpg";
-        screenData.hotProducts.add(productObject);
-
-        screenData.categories = new ArrayList<>();
-        CategoryObject category = new CategoryObject();
-        category.categoryName = "Home";
-        category.categoryId = -1;
-        category.categoryIcon = "ti-home";
-        screenData.categories.add(category);
-
-        category = new CategoryObject();
-        category.categoryName = "Menu";
-        category.categoryId = 1;
-        category.categoryIcon = "ti-menu";
-        screenData.categories.add(category);
-
-        category = new CategoryObject();
-        category.categoryName = "Reserve";
-        category.categoryId = 2;
-        category.categoryIcon = "ti-home";
-        screenData.categories.add(category);
-
-
-        category = new CategoryObject();
-        category.categoryName = "News";
-        category.categoryId = 3;
-        category.categoryIcon = "ti-news";
-        screenData.categories.add(category);
-
-        category = new CategoryObject();
-        category.categoryName = "Photo Gallery";
-        category.categoryId = 4;
-        category.categoryIcon = "ti-photo";
-        screenData.categories.add(category);
-
-        category = new CategoryObject();
-        category.categoryName = "Staff";
-        category.categoryId = 5;
-        category.categoryIcon = "ti-news";
-        screenData.categories.add(category);
-
-        category = new CategoryObject();
-        category.categoryName = "Coupon";
-        category.categoryId = 6;
-        category.categoryIcon = "ti-news";
-        screenData.categories.add(category);
-
-        category = new CategoryObject();
-        category.categoryName = "Chat";
-        category.categoryId = 7;
-        category.categoryIcon = "ti-news";
-        screenData.categories.add(category);
-
-        category = new CategoryObject();
-        category.categoryName = "Setting";
-        category.categoryId = 8;
-        category.categoryIcon = "ti-news";
-        screenData.categories.add(category);
-
-        String json = screenData.toJSONString();
-        System.out.println(json);*/
+        this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
+        loadAppInfo();
     }
+
 
     @Override
     protected void previewScreenData() {
-        this.recyclerAdapter = new CommonAdapter(getActivity(), this, this);
+        //TODO: screenData = TopInfo.fakeData();
+        screenDataItems = new ArrayList<>();
+
+        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeTopItem, 6, screenData.images));
+
+        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, 6, "Recentry"));
+        for (TopInfo.Response.ResponseData.Item item : screenData.items) {
+            RecyclerItemWrapper.RecyclerItemObject obj = RecyclerItemWrapper.createItem(item.id, item.title, item.description, item.image_url);
+            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, 3, obj));
+        }
+        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, 6, "More"));
+
+        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, 6, "Photo Gallery"));
+        for (TopInfo.Response.ResponseData.Photo item : screenData.photos) {
+            RecyclerItemWrapper.RecyclerItemObject obj = RecyclerItemWrapper.createItem(item.id, item.categoryname, "", item.image_url);
+            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, 2, obj));
+        }
+        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, 6, "More"));
+
+
+        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, 6, "News"));
+        for (TopInfo.Response.ResponseData.News item : screenData.news) {
+            RecyclerItemWrapper.RecyclerItemObject obj = RecyclerItemWrapper.createItem(item.id, item.title, item.description, item.image_url);
+            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemList, 6, obj));
+        }
+        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, 6, "More"));
+
+        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemStore, 6, "map"));
+        //screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, 6, "More"));
+        //
+        this.swipeRefreshLayout.setRefreshing(false);
+        this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
+
         GridLayoutManager manager = new GridLayoutManager(getActivity(), 6);//);
+
+        this.recyclerAdapter = new CommonAdapter(getActivity(), this, this);
         manager.setSpanSizeLookup(new CommonAdapter.GridSpanSizeLookup(recyclerAdapter));
         this.recyclerView.setLayoutManager(manager);
         this.recyclerView.setAdapter(recyclerAdapter);
-        this.activityListener.updateMenuItems(screenData);
+
+        this.activityListener.updateSideMenuItems(this.menuInfo);
+        this.activityListener.updateAppInfo(this.appInfo, storeInfo.id);
+        this.activityListener.updateUserInfo(this.userInfo);
     }
 
     @Override
     public View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View mRoot = inflater.inflate(R.layout.fragment_home, null);
         this.recyclerView = (RecyclerView) mRoot.findViewById(R.id.recycler_view);
+        this.swipeRefreshLayout = (SwipeRefreshLayout) mRoot.findViewById(R.id.swipe_refresh_layout);
+        this.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                FragmentHome.this.screenDataStatus = ScreenDataStatus.ScreenDataStatusUnload;
+                reloadScreenData();
+            }
+        });
         return mRoot;
     }
 
@@ -301,8 +223,122 @@ public class FragmentHome
 
     }
 
-    void loadUserDetails() {
-        reloadScreenData();
-        previewScreenData();
+    void startup() {
+        if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
+            //load needed data
+            this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
+            this.swipeRefreshLayout.post(new Runnable() {
+                @Override
+                public void run() {
+                    FragmentHome.this.swipeRefreshLayout.setRefreshing(true);
+                    loadAppInfo();
+                }
+            });
+
+        } else if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusLoading) {
+            //just waiting
+
+        } else {
+            //reload screen, this case application return from background or from other activity
+            previewScreenData();
+        }
+    }
+
+    void errorWithMessage(String message) {
+        Toast.makeText(this.getContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    void loadAppInfo() {
+        Bundle params = new Bundle();
+        AppInfoCommunicator communicator = new AppInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
+            @Override
+            public void completed(TenpossCommunicator request, Bundle responseParams) {
+                int result = responseParams.getInt(Key.ResponseResult);
+                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                    if (resultApi == CommonResponse.ResultSuccess) {
+                        FragmentHome.this.appInfo = (AppInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                        if (FragmentHome.this.appInfo.data != null && FragmentHome.this.appInfo.data.size() > 0) {
+                            FragmentHome.this.storeInfo = FragmentHome.this.appInfo.data.get(0);
+                            loadTopInfo(FragmentHome.this.storeInfo.id);
+                        } else {
+                            String strMessage = "Invalid response data!";
+                            errorWithMessage(strMessage);
+                        }
+                    } else {
+                        String strMessage = responseParams.getString(Key.ResponseMessage);
+                        errorWithMessage(strMessage);
+                    }
+                } else {
+                    String strMessage = responseParams.getString(Key.ResponseMessage);
+                    errorWithMessage(strMessage);
+                }
+            }
+        });
+        communicator.execute(params);
+    }
+
+    void loadTopInfo(final int storeId) {
+        Bundle params = new Bundle();
+        params.putString(Key.RequestObject, Integer.toString(storeId));
+        TopInfoCommunicator communicator = new TopInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
+            @Override
+            public void completed(TenpossCommunicator request, Bundle responseParams) {
+                int result = responseParams.getInt(Key.ResponseResult);
+                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                    if (resultApi == CommonResponse.ResultSuccess) {
+                        FragmentHome.this.topData = (TopInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                        FragmentHome.this.screenData = FragmentHome.this.topData.get(storeId);
+                        loadSideMenuInfo();
+                    } else {
+                        String strMessage = responseParams.getString(Key.ResponseMessage);
+                        errorWithMessage(strMessage);
+                    }
+                } else {
+                    String strMessage = responseParams.getString(Key.ResponseMessage);
+                    errorWithMessage(strMessage);
+                }
+            }
+        });
+        communicator.execute(params);
+    }
+
+    void loadSideMenuInfo() {
+        Bundle params = new Bundle();
+        SideMenuCommunicator communicator = new SideMenuCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
+            @Override
+            public void completed(TenpossCommunicator request, Bundle responseParams) {
+                /*TODO: chua co API
+                int result = responseParams.getInt(Key.ResponseResult);
+                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                    if (resultApi == CommonResponse.ResultSuccess) {
+                        FragmentHome.this.menuInfo = (SideMenuInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                        loadUserInfo();
+                    } else {
+                        String strMessage = responseParams.getString(Key.ResponseMessage);
+                        errorWithMessage(strMessage);
+                    }
+                } else {
+                    String strMessage = responseParams.getString(Key.ResponseMessage);
+                    errorWithMessage(strMessage);
+                }*/
+                FragmentHome.this.menuInfo = SideMenuInfo.fakeData();
+                loadUserInfo();
+            }
+        });
+        communicator.execute(params);
+    }
+
+    void loadUserInfo() {
+        Bundle params = new Bundle();
+        UserInfoCommunicator communicator = new UserInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
+            @Override
+            public void completed(TenpossCommunicator request, Bundle responseParams) {
+                previewScreenData();
+            }
+        });
+        communicator.execute(params);
     }
 }

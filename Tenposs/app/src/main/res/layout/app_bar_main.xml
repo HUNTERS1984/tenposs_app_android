@@ -32,28 +32,19 @@
                 android:baselineAligned="false"
                 android:orientation="horizontal">
 
-                <android.support.percent.PercentFrameLayout
-                    android:id="@+id/nav_left"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent">
+                <ImageButton
+                    android:id="@+id/toggle_menu_button"
+                    android:layout_width="?attr/actionBarSize"
+                    android:layout_height="?attr/actionBarSize"
+                    android:layout_gravity="center"
+                    android:background="@android:color/transparent" />
 
-                    <ImageButton
-                        android:id="@+id/toggle_menu_button"
-                        android:layout_gravity="center"
-                        android:background="@android:color/transparent"
-                        android:textAppearance="?android:attr/textAppearanceMedium"
-                        app:layout_aspectRatio="100%"
-                        app:layout_heightPercent="100%" />
-
-                    <ImageButton
-                        android:id="@+id/back_button"
-                        android:layout_gravity="center"
-                        android:background="@android:color/transparent"
-                        android:visibility="gone"
-                        app:layout_aspectRatio="100%"
-                        app:layout_heightPercent="100%" />
-
-                </android.support.percent.PercentFrameLayout>
+                <ImageButton
+                    android:id="@+id/back_button"
+                    android:layout_width="?attr/actionBarSize"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="@android:color/transparent"
+                    android:visibility="gone" />
 
                 <FrameLayout
                     android:id="@+id/nav_center"
@@ -74,8 +65,10 @@
                             android:ellipsize="end"
                             android:gravity="center"
                             android:maxLines="1"
-                            android:text="Category"
+                            android:text="@string/app_name"
                             android:textAlignment="center"
+                            android:textAllCaps="true"
+                            android:textAppearance="@android:style/TextAppearance.Medium"
                             android:visibility="visible" />
 
                         <TextView
@@ -84,29 +77,16 @@
                             android:layout_height="22dp"
                             android:gravity="center"
                             android:padding="3dp"
-                            android:text="Sub Category"
                             android:visibility="gone" />
                     </LinearLayout>
 
                 </FrameLayout>
 
-                <android.support.percent.PercentRelativeLayout
-                    android:id="@+id/nav_right"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:visibility="invisible">
-
-                    <ImageButton
-                        android:id="@+id/search_button"
-                        android:layout_gravity="center_vertical"
-                        android:background="@android:color/transparent"
-                        android:textColor="@android:color/white"
-                        android:textSize="18sp"
-                        app:layout_aspectRatio="100%"
-                        app:layout_heightPercent="100%" />
-
-                </android.support.percent.PercentRelativeLayout>
+                <ImageButton
+                    android:id="@+id/search_button"
+                    android:layout_width="?attr/actionBarSize"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="@android:color/transparent" />
 
             </LinearLayout>
 

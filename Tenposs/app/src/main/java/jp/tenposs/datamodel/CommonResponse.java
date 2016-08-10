@@ -1,9 +1,11 @@
 package jp.tenposs.datamodel;
 
+import java.io.Serializable;
+
 /**
  * Created by ambient on 7/25/16.
  */
-public class CommonResponse {
+public class CommonResponse implements Serializable {
 
     public final static int ResultSuccess = 1000;//	OK
     public final static int ResultErrorNoCharacterRegisted = 9993;//		No character is registed on server
@@ -19,7 +21,7 @@ public class CommonResponse {
     public final static int ResultErrorInvalidValue = 1004;//		Value cua parameter khong hop le
     public final static int ResultErrorUnknown = 1005;//		Unknown error
 
-    public String code;
+    public int code;
     public String message;
     //public Object data;
 }

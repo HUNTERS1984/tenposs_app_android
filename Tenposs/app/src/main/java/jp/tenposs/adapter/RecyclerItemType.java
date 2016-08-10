@@ -10,7 +10,7 @@ public enum RecyclerItemType {
 
     RecyclerItemTypeHeader,
     RecyclerItemTypeItemList,
-    RecyclerItemTypeItemMap,
+    RecyclerItemTypeItemStore,
     RecyclerItemTypeItemGrid,
     RecyclerItemTypeItemGridImageOnly,
     RecyclerItemTypeFooter;

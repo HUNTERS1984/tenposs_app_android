@@ -5,12 +5,13 @@
     android:id="@+id/fragment_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="jp.tenposs.tenposs.FragmentSignin">
 
-    <View
+    <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/white" />
+        android:background="@mipmap/signin_bg" />
 
     <ImageView
         android:id="@+id/background_image"
@@ -99,7 +100,7 @@
             android:layout_width="match_parent"
             android:layout_height="45dip"
             android:layout_marginBottom="10dip"
-            android:background="#99FFFFFF">
+            android:background="#AAAAAAAA">
 
             <ImageView
                 android:layout_width="25dip"

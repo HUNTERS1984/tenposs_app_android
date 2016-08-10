@@ -1,10 +1,7 @@
 package jp.tenposs.tenposs;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,9 +9,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import jp.tenposs.datamodel.AppSettings;
-import jp.tenposs.datamodel.CommonObject;
-import jp.tenposs.datamodel.Key;
-import jp.tenposs.datamodel.UserObject;
 
 /**
  * Created by ambient on 7/29/16.
@@ -31,8 +25,8 @@ public class FragmentReserve extends AbstractFragment {
     protected void customToolbarInit() {
         toolbarSettings = new ToolbarSettings();
         toolbarSettings.toolbarTitle = "Reserve";
-        toolbarSettings.toolbarIcon = "ti-angle-left";
-        toolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+        toolbarSettings.toolbarIcon = "ti-menu";
+        toolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
 
         toolbarSettings.settings = new AppSettings.Settings();
         toolbarSettings.settings.fontColor = "#00CECB";

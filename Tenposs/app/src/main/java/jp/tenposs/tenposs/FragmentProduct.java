@@ -21,8 +21,8 @@ public class FragmentProduct extends AbstractFragment {
     protected void customToolbarInit() {
         toolbarSettings = new ToolbarSettings();
         toolbarSettings.toolbarTitle = "Product";
-        toolbarSettings.toolbarIcon = "ti-angle-left";
-        toolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+        toolbarSettings.toolbarIcon = "ti-menu";
+        toolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
 
         toolbarSettings.settings = new AppSettings.Settings();
         toolbarSettings.settings.fontColor = "#00CECB";
@@ -44,7 +44,7 @@ public class FragmentProduct extends AbstractFragment {
 
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View mRoot = inflater.inflate(R.layout.fragment_reserve, null);
+        View mRoot = inflater.inflate(R.layout.fragment_product, null);
         return mRoot;
     }
 

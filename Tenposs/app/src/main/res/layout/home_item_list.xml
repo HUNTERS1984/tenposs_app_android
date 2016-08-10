@@ -19,27 +19,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/item_image"
-        android:background="@android:color/black"
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/item_info_label"
+            android:id="@+id/item_title_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <TextView
+            android:id="@+id/item_description_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/item_price_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
 
     </LinearLayout>
 </android.support.percent.PercentRelativeLayout>

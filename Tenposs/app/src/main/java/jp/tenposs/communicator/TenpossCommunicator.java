@@ -54,6 +54,26 @@ import jp.tenposs.utils.SharedPreferencesHelper;
  * Created by ambient on 7/25/16.
  */
 public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bundle> {
+
+    public final static String API_ADDRESS_DEV = "http://dev.tenposs.jp/api";
+    public final static String API_ADDRESS = "http://ec2-54-204-210-230.compute-1.amazonaws.com/tenposs/api/public/index.php/api/v1";
+    public final static String API_LOGIN = "/login?";
+    public final static String API_LOGOUT = "/logout?";
+    public final static String API_TOP = "/top?";
+    public final static String API_SIDEMENU = "/slidemenu?";
+    public final static String API_APPINFO = "/appinfo?";
+    public final static String API_ITEMS = "/items?";
+    public final static String API_ITEMS_DETAIL = "/items/detail?";
+    public final static String API_ITEMS_RELATE = "/items/related?";
+    public final static String API_PHOTO = "/photo?";
+    public final static String API_NEWS = "/news?";
+    public final static String API_NEWS_DETAIL = "/news/detail?";
+    public final static String API_RESERVE = "/reserve?";
+    public final static String API_COUPON = "/coupon?";
+    public final static String API_COUPON_DETAIL = "/coupon/detail?";
+    public final static String API_APPUSER = "/appuser?";
+    public final static String API_SETPUSHKEY = "/setpushkey?";
+
     public interface TenpossCommunicatorListener {
         void completed(TenpossCommunicator request, Bundle responseParams);
     }
@@ -64,7 +84,6 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
         this.listener = listener;
     }
 
-
     static CookieManager cookieManager;
     static KeyStore trustStore;
     static MySSLSocketFactory sf;
@@ -73,24 +92,29 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
     protected HttpURLConnection m_pUrlConnection;
 
     static void loadCookies(Context context, URI uri) {
-        SharedPreferences sharedPreferences = SharedPreferencesHelper.getSharedPreferences(context);
-        Set<String> cookieArray = sharedPreferences.getStringSet(uri.getHost(), null);
-        String str = uri.getHost();
-        if (cookieArray != null) {
-            CookieStore cookieStore = cookieManager.getCookieStore();
-            for (String cookie : cookieArray) {
-                HttpCookie ck = HttpCookie.parse(cookie).get(0);
-                cookieArray.add(cookie);
-                List<HttpCookie> cookies = cookieStore.getCookies();
-                if (cookies.contains(ck) == false) {
-                    try {
-                        cookieStore.add(new URI(str), ck);
-                    } catch (URISyntaxException e) {
-                        e.printStackTrace();
+        try {
+            SharedPreferences sharedPreferences = SharedPreferencesHelper.getSharedPreferences(context);
+            Set<String> cookieArray = sharedPreferences.getStringSet(uri.getHost(), null);
+            String str = uri.getHost();
+            if (cookieArray != null) {
+                CookieStore cookieStore = cookieManager.getCookieStore();
+                for (String cookie : cookieArray) {
+                    HttpCookie ck = HttpCookie.parse(cookie).get(0);
+                    cookieArray.add(cookie);
+                    List<HttpCookie> cookies = cookieStore.getCookies();
+                    if (cookies.contains(ck) == false) {
+                        try {
+                            cookieStore.add(new URI(str), ck);
+                        } catch (URISyntaxException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
+
     }
 
     static boolean generateOnce() {
@@ -363,7 +387,7 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
         try {
             m_pUrlConnection = getConnection(url, nTimeout, false, dataUpload, (HashMap<String, String>) bundle.get(Key.RequestHeader));
         } catch (Exception e) {
-            bundle.putString(Key.ResponseData, e.getMessage());
+            bundle.putString(Key.ResponseMessage, e.getMessage());
             bundle.putInt(Key.ResponseResult, CommunicationCode.GeneralError.ordinal());
             System.out.println(e.toString());
             return CommunicationCode.ConnectionFailed.ordinal();
@@ -386,13 +410,13 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
 
             if (code < 200 || code > 300) {
                 //if (code != 200) {
-                bundle.putString(Key.ResponseData, m_pUrlConnection.getResponseMessage());
+                bundle.putString(Key.ResponseMessage, m_pUrlConnection.getResponseMessage());
                 bundle.putInt(Key.ResponseResult, CommunicationCode.GeneralError.ordinal());
                 System.out.println("HTTP Code: " + code);
                 return CommunicationCode.ConnectionFailed.ordinal();
             }
         } catch (Exception e) {
-            bundle.putString(Key.ResponseData, e.getMessage());
+            bundle.putString(Key.ResponseMessage, e.getMessage());
             bundle.putInt(Key.ResponseResult, CommunicationCode.GeneralError.ordinal());
             System.out.println(e.toString());
             return CommunicationCode.ConnectionFailed.ordinal();
@@ -411,7 +435,7 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                bundle.putString(Key.ResponseData, e.getMessage());
+                bundle.putString(Key.ResponseMessage, e.getMessage());
                 bundle.putInt(Key.ResponseResult, CommunicationCode.GeneralError.ordinal());
                 System.out.println(e.toString());
                 return CommunicationCode.ConnectionErrorReadInput.ordinal();
@@ -419,7 +443,7 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
             return CommunicationCode.ConnectionSuccess.ordinal();
         } catch (Exception e) {
             e.printStackTrace();
-            bundle.putString(Key.ResponseData, e.getMessage());
+            bundle.putString(Key.ResponseMessage, e.getMessage());
             bundle.putInt(Key.ResponseResult, CommunicationCode.GeneralError.ordinal());
             System.out.println(e.toString());
             return CommunicationCode.ConnectionFailed.ordinal();

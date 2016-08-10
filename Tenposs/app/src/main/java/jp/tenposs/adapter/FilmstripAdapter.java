@@ -7,16 +7,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.Key;
-import jp.tenposs.datamodel.ProductObject;
+import jp.tenposs.datamodel.TopInfo;
 import jp.tenposs.listener.OnCommonItemClickListener;
 import jp.tenposs.tenposs.R;
 
@@ -25,15 +22,15 @@ import jp.tenposs.tenposs.R;
  */
 public class FilmstripAdapter extends PagerAdapter {
     Context mContext;
-    List<ProductObject> mainData;
+    List<TopInfo.Response.ResponseData.Image> mainData;
     OnCommonItemClickListener mClickListener;
 
-    public FilmstripAdapter(Context context, List<ProductObject> data) {
+    public FilmstripAdapter(Context context, List<TopInfo.Response.ResponseData.Image> data) {
         this.mContext = context;
         this.mainData = data;
     }
 
-    public FilmstripAdapter(Context context, List<ProductObject> data, OnCommonItemClickListener l) {
+    public FilmstripAdapter(Context context, List<TopInfo.Response.ResponseData.Image> data, OnCommonItemClickListener l) {
         this.mContext = context;
         this.mainData = data;
         this.mClickListener = l;
@@ -53,8 +50,8 @@ public class FilmstripAdapter extends PagerAdapter {
 
         itemThumbnail = (ImageView) root.findViewById(R.id.item_thumbnail);
 
-        ProductObject product = (ProductObject) getItem(position);
-        String strThumbUrl = product.productImageUrl;
+        TopInfo.Response.ResponseData.Image image = getItem(position);
+        String strThumbUrl = image.image_url;
         Picasso ps = Picasso.with(mContext);
         ps.load(strThumbUrl)
                 .resize(640, 360)
@@ -91,7 +88,7 @@ public class FilmstripAdapter extends PagerAdapter {
         return 0;
     }
 
-    public CommonObject getItem(int position) {
+    public TopInfo.Response.ResponseData.Image getItem(int position) {
         return this.mainData.get(position);
     }
 

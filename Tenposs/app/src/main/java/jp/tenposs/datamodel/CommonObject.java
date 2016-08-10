@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * Created by ambient on 7/29/16.
  */
-public class CommonObject implements Serializable{
+public class CommonObject implements Serializable {
     public static Type customTypeJsonDeserializer() {
         return null;
     }
@@ -29,15 +29,19 @@ public class CommonObject implements Serializable{
     }
 
     public static Object fromJSONString(String json, Class<?> cls, CustomListDeserializer customDeserializer) {
+        try {
+            GsonBuilder builder = new GsonBuilder();
+            Gson gs;
+            if (customDeserializer != null) {
+                builder.registerTypeAdapter(customDeserializer.typeOfModel, customDeserializer);
+            }
+            gs = builder.create();
 
-        GsonBuilder builder = new GsonBuilder();
-        Gson gs;
-        if (customDeserializer != null) {
-            builder.registerTypeAdapter(customDeserializer.typeOfModel, customDeserializer);
+            return gs.fromJson(json, cls);
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-        gs = builder.create();
-
-        return gs.fromJson(json, cls);
+        return null;
     }
 
     public static CustomListDeserializer buildCustomDeserializer(Type type, String elementName) {

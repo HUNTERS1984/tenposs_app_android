@@ -15,9 +15,11 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeSet;
 
+import jp.tenposs.datamodel.AppInfo;
 import jp.tenposs.datamodel.AppSettings;
-import jp.tenposs.datamodel.HomeScreenItem;
-import jp.tenposs.datamodel.HomeObject;
+import jp.tenposs.datamodel.LoginInfo;
+import jp.tenposs.datamodel.ScreenDataStatus;
+import jp.tenposs.datamodel.SideMenuInfo;
 
 /**
  * Created by ambient on 7/26/16.
@@ -26,24 +28,12 @@ public abstract class AbstractFragment extends Fragment {
 
     public interface MainActivityListener {
         void updateNavigationBar(ToolbarSettings toolbarSettings);
-        void updateMenuItems(HomeObject homeObject);
-        void showScreen(HomeScreenItem screenItem);
+        void updateAppInfo(AppInfo.Response appInfo, int storeId);
+        void updateSideMenuItems(SideMenuInfo.Response menus);
+        void updateUserInfo(LoginInfo.Response userInfo);
+        void showScreen(SideMenuInfo.Response.ResponseData.Menu menuItem);
     }
 
-    public enum ScreenDataStatus {
-        ScreenDataStatusUnload,
-        ScreenDataStatusLoading,
-        ScreenDataStatusLoaded;
-
-        public static ScreenDataStatus fromInt(int item) {
-            for (ScreenDataStatus type : ScreenDataStatus.values()) {
-                if (type.ordinal() == item) {
-                    return type;
-                }
-            }
-            return ScreenDataStatusUnload;
-        }
-    }
 
     public class ToolbarSettings {
 

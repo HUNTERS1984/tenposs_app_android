@@ -8,4 +8,5 @@
     <color name="colorNavTextColor">#000000</color>
     <color name="colorNavSubTextColor">#AAAAAA</color>
     <color name="colorMenuBackground">#2F455B</color>
+    <color name="colorButtonPress">#AAAAAAAA</color>
 </resources>
