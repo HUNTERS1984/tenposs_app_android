@@ -22,10 +22,11 @@ import android.widget.TextView;
 
 import junit.framework.Assert;
 
+import java.util.ArrayList;
+
 import jp.tenposs.datamodel.AppInfo;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.LoginInfo;
-import jp.tenposs.datamodel.SideMenuInfo;
 import jp.tenposs.utils.ThemifyIcon;
 import jp.tenposs.view.LeftMenuView;
 
@@ -34,20 +35,12 @@ public class MainActivity extends AppCompatActivity
         AbstractFragment.MainActivityListener,
         LeftMenuView.OnLeftMenuItemClickListener {
 
-    public final static long HOME_SCREEN = 0;
-    public final static long MENU_SCREEN = 1;
-    public final static long RESERVE_SCREEN = 2;
-    public final static long NEWS_SCREEN = 3;
-    public final static long PHOTO_SCREEN = 4;
-    public final static long COUPON_SCREEN = 5;
-    public final static long CHAT_SCREEN = 6;
-    public final static long SETTING_SCREEN = 7;
 
     AppInfo.Response appInfo;
     int storeId;
     AppInfo.Response.ResponseData storeInfo;
 
-    SideMenuInfo.Response sideMenuInfo;
+    ArrayList<AppInfo.Response.ResponseData.SideMenu> sideMenuInfo;
 
     LoginInfo.Response userInfo;
 
@@ -168,7 +161,9 @@ public class MainActivity extends AppCompatActivity
             } catch (Exception ex) {
 
             }
-            if (topFragment == fragmentHome) {
+
+            //if (topFragment == fragmentHome) {
+            if (topFragment.toolbarSettings.toolbarType == AbstractFragment.ToolbarSettings.LEFT_MENU_BUTTON) {
                 /**
                  * Do something
                  */
@@ -200,20 +195,23 @@ public class MainActivity extends AppCompatActivity
                  */
                 fragmentManager.popBackStackImmediate();
             }
-        } else {
+        } else
+
+        {
             super.onBackPressed();
         }
+
     }
 
     @Override
     public void updateAppInfo(AppInfo.Response appInfo, int storeId) {
         this.appInfo = appInfo;
         this.storeId = storeId;
-        this.storeInfo = this.appInfo.get(this.storeId);
+//        this.storeInfo = this.appInfo.get(this.storeId);
     }
 
     @Override
-    public void updateSideMenuItems(SideMenuInfo.Response menuInfo) {
+    public void updateSideMenuItems(ArrayList<AppInfo.Response.ResponseData.SideMenu> menuInfo) {
         this.sideMenuInfo = menuInfo;
         if (leftMenuView != null && this.sideMenuInfo != null) {
             leftMenuView.updateMenuItems(menuInfo);
@@ -225,6 +223,35 @@ public class MainActivity extends AppCompatActivity
         this.userInfo = userInfo;
         if (leftMenuView != null) {
             leftMenuView.updateUserInfo(userInfo);
+        }
+    }
+
+    @Override
+    public void showScreen(int menuId) {
+        if (menuId == AbstractFragment.HOME_SCREEN) {
+            showHomeScreen();
+
+        } else if (menuId == AbstractFragment.MENU_SCREEN) {
+            showMenuScreen();
+
+        } else if (menuId == AbstractFragment.RESERVE_SCREEN) {
+            showReserveScreen();
+
+        } else if (menuId == AbstractFragment.NEWS_SCREEN) {
+            showNewsScreen();
+
+        } else if (menuId == AbstractFragment.PHOTO_SCREEN) {
+            showPhotoScreen();
+
+        } else if (menuId == AbstractFragment.COUPON_SCREEN) {
+            showCouponScreen();
+
+        } else if (menuId == AbstractFragment.CHAT_SCREEN) {
+            showChatScreen();
+
+        } else if (menuId == AbstractFragment.SETTING_SCREEN) {
+            showSettingScreen();
+
         }
     }
 
@@ -262,10 +289,6 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    @Override
-    public void showScreen(SideMenuInfo.Response.ResponseData.Menu menuItem) {
-
-    }
 
     @Override
     public void onClick(int position, Bundle params) {
@@ -273,33 +296,9 @@ public class MainActivity extends AppCompatActivity
         if (position == -1) {
             showSignInScreen();
         } else {
-            SideMenuInfo.Response.ResponseData.Menu menuItem = (SideMenuInfo.Response.ResponseData.Menu) params.getSerializable(Key.RequestObject);
+            AppInfo.Response.ResponseData.SideMenu menuItem = (AppInfo.Response.ResponseData.SideMenu) params.getSerializable(Key.RequestObject);
             int menuId = menuItem.id;
-            if (menuId == HOME_SCREEN) {
-                showHomeScreen();
-
-            } else if (menuId == MENU_SCREEN) {
-                showMenuScreen();
-
-            } else if (menuId == RESERVE_SCREEN) {
-                showReserveScreen();
-
-            } else if (menuId == NEWS_SCREEN) {
-                showNewsScreen();
-
-            } else if (menuId == PHOTO_SCREEN) {
-                showPhotoScreen();
-
-            } else if (menuId == COUPON_SCREEN) {
-                showCouponScreen();
-
-            } else if (menuId == CHAT_SCREEN) {
-                showChatScreen();
-
-            } else if (menuId == SETTING_SCREEN) {
-                showSettingScreen();
-
-            }
+            showScreen(menuId);
         }
     }
 
@@ -365,7 +364,7 @@ public class MainActivity extends AppCompatActivity
         if (fragmentMenu == null) {
             fragmentMenu = new FragmentMenu();
             Bundle b = new Bundle();
-            b.putSerializable(AbstractFragment.SCREEN_DATA, this.storeInfo.menus);
+//            b.putSerializable(AbstractFragment.SCREEN_DATA, this.storeInfo.menus);
             fragmentMenu.setArguments(b);
         }
         showFragment(fragmentMenu, FragmentMenu.class.getCanonicalName(), true);
@@ -379,7 +378,7 @@ public class MainActivity extends AppCompatActivity
         showFragment(fragmentReserve, FragmentReserve.class.getCanonicalName(), true);
     }
 
-    void showNewsScreen() {
+    public void showNewsScreen() {
         FragmentNews fragmentNews = (FragmentNews) getFragmentForTag(FragmentNews.class.getCanonicalName());
         if (fragmentNews == null) {
             fragmentNews = new FragmentNews();

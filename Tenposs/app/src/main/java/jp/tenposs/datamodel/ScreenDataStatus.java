@@ -6,7 +6,7 @@ package jp.tenposs.datamodel;
 public enum ScreenDataStatus {
     ScreenDataStatusUnload,
     ScreenDataStatusLoading,
-    ScreenDataStatusLoaded, ScreenDataStatus;
+    ScreenDataStatusLoaded;
 
     public static ScreenDataStatus fromInt(int item) {
         for (ScreenDataStatus type : ScreenDataStatus.values()) {

@@ -50,6 +50,11 @@ public class FragmentSignin extends AbstractFragment implements View.OnClickList
     }
 
     @Override
+    protected void startup() {
+
+    }
+
+    @Override
     protected void reloadScreenData() {
 
     }

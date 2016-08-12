@@ -16,4 +16,6 @@
     <string name="chat">Chat</string>
     <string name="setting">Setting</string>
     <string name="username">Username</string>
+    <string name="image_description">Image Description</string>
+
 </resources>

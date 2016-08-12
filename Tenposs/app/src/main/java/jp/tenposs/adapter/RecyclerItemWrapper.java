@@ -9,6 +9,7 @@ public class RecyclerItemWrapper {
         public String title;
         public String description;
         public String image;
+        public String moreDescription;
 
     }
 
@@ -27,12 +28,14 @@ public class RecyclerItemWrapper {
     public static RecyclerItemObject createItem(int id,
                                                 String title,
                                                 String description,
+                                                String moreDescription,
                                                 String image
     ) {
         RecyclerItemObject obj = new RecyclerItemObject();
         obj.id = id;
         obj.title = title;
         obj.description = description;
+        obj.moreDescription = moreDescription;
         obj.image = image;
         return obj;
     }

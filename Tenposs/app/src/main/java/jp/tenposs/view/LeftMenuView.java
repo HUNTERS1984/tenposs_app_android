@@ -16,11 +16,11 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.util.List;
+import java.util.ArrayList;
 
+import jp.tenposs.datamodel.AppInfo;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.LoginInfo;
-import jp.tenposs.datamodel.SideMenuInfo;
 import jp.tenposs.tenposs.R;
 import jp.tenposs.utils.ThemifyIcon;
 
@@ -34,10 +34,10 @@ public class LeftMenuView extends FrameLayout {
         void onClick(int position, Bundle params);
     }
 
-    class LeftMenuAdapter extends ArrayAdapter<SideMenuInfo.Response.ResponseData.Menu> {
+    class LeftMenuAdapter extends ArrayAdapter<AppInfo.Response.ResponseData.SideMenu> {
         LayoutInflater mInflater;
 
-        public LeftMenuAdapter(Context context, int resource, List<SideMenuInfo.Response.ResponseData.Menu> objects) {
+        public LeftMenuAdapter(Context context, int resource, ArrayList<AppInfo.Response.ResponseData.SideMenu> objects) {
             super(context, resource, objects);
             mInflater = LayoutInflater.from(context);
         }
@@ -50,13 +50,14 @@ public class LeftMenuView extends FrameLayout {
             } else {
                 row = convertView;
             }
-            SideMenuInfo.Response.ResponseData.Menu item = getItem(position);
+            AppInfo.Response.ResponseData.SideMenu item = getItem(position);
             ImageView menuIcon = (ImageView) row.findViewById(R.id.item_image);
             TextView menuTitle = (TextView) row.findViewById(R.id.item_label);
             menuTitle.setText(item.name);
             menuIcon.setImageBitmap(ThemifyIcon.fromThemifyIcon(getContext().getAssets(),
                     //item.itemIcon,
-                    item.icon,
+                    //item.icon,
+                    "ti-menu-alt",
                     60,
                     Color.argb(0, 0, 0, 0),
                     Color.argb(255, 255, 255, 255)
@@ -76,7 +77,7 @@ public class LeftMenuView extends FrameLayout {
     ListView listView;
     LeftMenuAdapter leftMenuAdapter;
 
-    SideMenuInfo.Response screenData;
+    ArrayList<AppInfo.Response.ResponseData.SideMenu> screenData;
     LoginInfo.Response userInfo;
 
     OnLeftMenuItemClickListener onItemClickListener;
@@ -134,16 +135,16 @@ public class LeftMenuView extends FrameLayout {
         this.userInfo = userInfo;
     }
 
-    public void updateMenuItems(SideMenuInfo.Response menuInfo) {
-        screenData = menuInfo;
-        leftMenuAdapter = new LeftMenuAdapter(mContext, R.layout.nav_content_item, screenData.data.menus);
+    public void updateMenuItems(ArrayList<AppInfo.Response.ResponseData.SideMenu> sideMenus) {
+        screenData = sideMenus;
+        leftMenuAdapter = new LeftMenuAdapter(mContext, R.layout.nav_content_item, screenData);
         this.listView.setAdapter(leftMenuAdapter);
         this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (onItemClickListener != null) {
                     Bundle params = new Bundle();
-                    params.putSerializable(Key.RequestObject, screenData.data.menus.get(position));
+                    params.putSerializable(Key.RequestObject, screenData.get(position));
                     onItemClickListener.onClick(position, params);
                 }
             }

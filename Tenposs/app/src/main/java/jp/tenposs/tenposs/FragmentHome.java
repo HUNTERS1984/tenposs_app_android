@@ -8,16 +8,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import jp.tenposs.adapter.CommonAdapter;
 import jp.tenposs.adapter.RecyclerItemType;
 import jp.tenposs.adapter.RecyclerItemWrapper;
 import jp.tenposs.communicator.AppInfoCommunicator;
-import jp.tenposs.communicator.SideMenuCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
 import jp.tenposs.communicator.TopInfoCommunicator;
 import jp.tenposs.communicator.UserInfoCommunicator;
@@ -27,7 +24,6 @@ import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.LoginInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
-import jp.tenposs.datamodel.SideMenuInfo;
 import jp.tenposs.datamodel.TopInfo;
 import jp.tenposs.listener.OnCommonItemClickListener;
 
@@ -42,16 +38,15 @@ public class FragmentHome
         CommonAdapter.CommonDataSource,
         OnCommonItemClickListener {
 
-    SideMenuInfo.Response menuInfo = null;
+    ArrayList<AppInfo.Response.ResponseData.SideMenu> sideMenuInfo = null;
     AppInfo.Response appInfo = null;
-    AppInfo.Response.ResponseData storeInfo = null;
+    AppInfo.Response.ResponseData.Store storeInfo = null;
 
     TopInfo.Response topData = null;
     TopInfo.Response.ResponseData screenData = null;
 
     LoginInfo.Response userInfo = null;
 
-    List<RecyclerItemWrapper> screenDataItems = new ArrayList<>();
 
     RecyclerView recyclerView;
     CommonAdapter recyclerAdapter;
@@ -72,18 +67,7 @@ public class FragmentHome
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
-            startup();
-        } else if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusLoading) {
-            //Do nothing
-        } else {
-            previewScreenData();
-        }
+        spanCount = 6;
     }
 
     @Override
@@ -148,47 +132,83 @@ public class FragmentHome
 
     @Override
     protected void previewScreenData() {
-        //TODO: screenData = TopInfo.fakeData();
         screenDataItems = new ArrayList<>();
 
-        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeTopItem, 6, screenData.images));
-
-        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, 6, "Recentry"));
-        for (TopInfo.Response.ResponseData.Item item : screenData.items) {
-            RecyclerItemWrapper.RecyclerItemObject obj = RecyclerItemWrapper.createItem(item.id, item.title, item.description, item.image_url);
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, 3, obj));
+        if (screenData.images != null && screenData.images.size() > 0) {
+            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeTopItem, spanCount, screenData.images));
         }
-        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, 6, "More"));
 
-        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, 6, "Photo Gallery"));
-        for (TopInfo.Response.ResponseData.Photo item : screenData.photos) {
-            RecyclerItemWrapper.RecyclerItemObject obj = RecyclerItemWrapper.createItem(item.id, item.categoryname, "", item.image_url);
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, 2, obj));
+        if (screenData.items != null && screenData.items.size() > 0) {
+            RecyclerItemWrapper.RecyclerItemObject obj = new RecyclerItemWrapper.RecyclerItemObject();
+            obj.title = "Recently";
+            obj.id = AbstractFragment.MENU_SCREEN;
+
+            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, spanCount, obj));
+            for (TopInfo.Response.ResponseData.Item item : screenData.items) {
+                obj = RecyclerItemWrapper.createItem(item.id, item.title, item.price, item.description, item.image_url);
+                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, spanCount / 2, obj));
+            }
+            obj = new RecyclerItemWrapper.RecyclerItemObject();
+            obj.title = "More";
+            obj.id = AbstractFragment.MENU_SCREEN;
+
+            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, obj));
         }
-        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, 6, "More"));
+        if (screenData.photos != null && screenData.photos.size() > 0) {
+            RecyclerItemWrapper.RecyclerItemObject obj = new RecyclerItemWrapper.RecyclerItemObject();
+            obj.title = "Photo Gallery";
+            obj.id = AbstractFragment.PHOTO_SCREEN;
 
-
-        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, 6, "News"));
-        for (TopInfo.Response.ResponseData.News item : screenData.news) {
-            RecyclerItemWrapper.RecyclerItemObject obj = RecyclerItemWrapper.createItem(item.id, item.title, item.description, item.image_url);
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemList, 6, obj));
+            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, spanCount, obj));
+            for (TopInfo.Response.ResponseData.Photo item : screenData.photos) {
+                obj = RecyclerItemWrapper.createItem(item.id, null, null, null, item.image_url);
+                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, spanCount / 3, obj));
+            }
+            obj = new RecyclerItemWrapper.RecyclerItemObject();
+            obj.title = "More";
+            obj.id = AbstractFragment.PHOTO_SCREEN;
+            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, obj));
         }
-        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, 6, "More"));
 
-        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemStore, 6, "map"));
-        //screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, 6, "More"));
-        //
+        if (screenData.news != null && screenData.news.size() > 0) {
+            RecyclerItemWrapper.RecyclerItemObject obj = new RecyclerItemWrapper.RecyclerItemObject();
+            obj.title = "News";
+            obj.id = AbstractFragment.NEWS_SCREEN;
+            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, spanCount, obj));
+            for (TopInfo.Response.ResponseData.News item : screenData.news) {
+                //TODO: cho nay chua hoan thien
+                obj = RecyclerItemWrapper.createItem(item.id, item.category_name, item.title, item.description, item.image_url);
+                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemList, spanCount, obj));
+            }
+            obj = new RecyclerItemWrapper.RecyclerItemObject();
+            obj.title = "More";
+            obj.id = AbstractFragment.NEWS_SCREEN;
+
+            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, obj));
+        }
+
+        /*TODO:if (screenData.addresses != null && screenData.addresses.size() > 0) {
+            for (TopInfo.Response.ResponseData.Address item : screenData.addresses) {
+                //TODO: cho nay chua hoan thien
+                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemStore, spanCount, item));
+            }
+        }*/
+
         this.swipeRefreshLayout.setRefreshing(false);
         this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
 
-        GridLayoutManager manager = new GridLayoutManager(getActivity(), 6);//);
+        if (this.recyclerAdapter == null) {
+            GridLayoutManager manager = new GridLayoutManager(getActivity(), spanCount);//);
+            this.recyclerAdapter = new CommonAdapter(getActivity(), this, this);
+            manager.setSpanSizeLookup(new CommonAdapter.GridSpanSizeLookup(recyclerAdapter));
+            this.recyclerView.setLayoutManager(manager);
+            this.recyclerView.addItemDecoration(new CommonAdapter.MarginDecoration(getActivity()));
+            this.recyclerView.setAdapter(recyclerAdapter);
+        } else {
+            this.recyclerAdapter.notifyDataSetChanged();
+        }
 
-        this.recyclerAdapter = new CommonAdapter(getActivity(), this, this);
-        manager.setSpanSizeLookup(new CommonAdapter.GridSpanSizeLookup(recyclerAdapter));
-        this.recyclerView.setLayoutManager(manager);
-        this.recyclerView.setAdapter(recyclerAdapter);
-
-        this.activityListener.updateSideMenuItems(this.menuInfo);
+        this.activityListener.updateSideMenuItems(this.sideMenuInfo);
         this.activityListener.updateAppInfo(this.appInfo, storeInfo.id);
         this.activityListener.updateUserInfo(this.userInfo);
     }
@@ -214,16 +234,56 @@ public class FragmentHome
     }
 
     @Override
-    public Object getItemData(int position) {
+    public RecyclerItemWrapper getItemData(int position) {
         return screenDataItems.get(position);
     }
 
     @Override
     public void onCommonItemClick(int position, Bundle extraData) {
+        RecyclerItemWrapper item = (RecyclerItemWrapper) getItemData(position);
+
+        switch (item.itemType) {
+            case RecyclerItemTypeTopItem: {
+
+            }
+            break;
+
+            case RecyclerItemTypeHeader: {
+                RecyclerItemWrapper.RecyclerItemObject obj = (RecyclerItemWrapper.RecyclerItemObject) item.itemData;
+                this.activityListener.showScreen(obj.id);
+            }
+            break;
+            case RecyclerItemTypeItemList: {
+
+            }
+            break;
+            case RecyclerItemTypeItemStore: {
+
+            }
+            break;
+            case RecyclerItemTypeItemGrid: {
+
+            }
+            break;
+            case RecyclerItemTypeItemGridImageOnly: {
+
+            }
+            break;
+            case RecyclerItemTypeFooter: {
+
+            }
+            break;
+
+            default: {
+
+            }
+            break;
+        }
+        System.out.println(item.itemType);
 
     }
 
-    void startup() {
+    protected void startup() {
         if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
             //load needed data
             this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
@@ -244,12 +304,12 @@ public class FragmentHome
         }
     }
 
-    void errorWithMessage(String message) {
-        Toast.makeText(this.getContext(), message, Toast.LENGTH_SHORT).show();
-    }
-
     void loadAppInfo() {
         Bundle params = new Bundle();
+        AppInfo.Request requestParams = new AppInfo.Request();
+        requestParams.app_id = 1;
+
+        params.putSerializable(Key.RequestObject, requestParams);
         AppInfoCommunicator communicator = new AppInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
             @Override
             public void completed(TenpossCommunicator request, Bundle responseParams) {
@@ -258,8 +318,9 @@ public class FragmentHome
                     int resultApi = responseParams.getInt(Key.ResponseResultApi);
                     if (resultApi == CommonResponse.ResultSuccess) {
                         FragmentHome.this.appInfo = (AppInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                        if (FragmentHome.this.appInfo.data != null && FragmentHome.this.appInfo.data.size() > 0) {
-                            FragmentHome.this.storeInfo = FragmentHome.this.appInfo.data.get(0);
+                        if (FragmentHome.this.appInfo.data != null && FragmentHome.this.appInfo.data.stores.size() > 0) {
+                            FragmentHome.this.storeInfo = FragmentHome.this.appInfo.data.stores.get(0);
+                            FragmentHome.this.sideMenuInfo = FragmentHome.this.appInfo.data.side_menu;
                             loadTopInfo(FragmentHome.this.storeInfo.id);
                         } else {
                             String strMessage = "Invalid response data!";
@@ -280,7 +341,9 @@ public class FragmentHome
 
     void loadTopInfo(final int storeId) {
         Bundle params = new Bundle();
-        params.putString(Key.RequestObject, Integer.toString(storeId));
+        TopInfo.Request requestParams = new TopInfo.Request();
+        requestParams.app_id = 1;
+        params.putSerializable(Key.RequestObject, requestParams);
         TopInfoCommunicator communicator = new TopInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
             @Override
             public void completed(TenpossCommunicator request, Bundle responseParams) {
@@ -289,32 +352,8 @@ public class FragmentHome
                     int resultApi = responseParams.getInt(Key.ResponseResultApi);
                     if (resultApi == CommonResponse.ResultSuccess) {
                         FragmentHome.this.topData = (TopInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                        FragmentHome.this.screenData = FragmentHome.this.topData.get(storeId);
-                        loadSideMenuInfo();
-                    } else {
-                        String strMessage = responseParams.getString(Key.ResponseMessage);
-                        errorWithMessage(strMessage);
-                    }
-                } else {
-                    String strMessage = responseParams.getString(Key.ResponseMessage);
-                    errorWithMessage(strMessage);
-                }
-            }
-        });
-        communicator.execute(params);
-    }
+                        FragmentHome.this.screenData = FragmentHome.this.topData.data;
 
-    void loadSideMenuInfo() {
-        Bundle params = new Bundle();
-        SideMenuCommunicator communicator = new SideMenuCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-            @Override
-            public void completed(TenpossCommunicator request, Bundle responseParams) {
-                /*TODO: chua co API
-                int result = responseParams.getInt(Key.ResponseResult);
-                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                    if (resultApi == CommonResponse.ResultSuccess) {
-                        FragmentHome.this.menuInfo = (SideMenuInfo.Response) responseParams.getSerializable(Key.ResponseObject);
                         loadUserInfo();
                     } else {
                         String strMessage = responseParams.getString(Key.ResponseMessage);
@@ -323,9 +362,7 @@ public class FragmentHome
                 } else {
                     String strMessage = responseParams.getString(Key.ResponseMessage);
                     errorWithMessage(strMessage);
-                }*/
-                FragmentHome.this.menuInfo = SideMenuInfo.fakeData();
-                loadUserInfo();
+                }
             }
         });
         communicator.execute(params);

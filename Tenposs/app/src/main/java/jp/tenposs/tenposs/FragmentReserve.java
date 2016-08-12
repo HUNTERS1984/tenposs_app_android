@@ -8,14 +8,22 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import java.util.Locale;
+
+import jp.tenposs.communicator.ReserveInfoCommunicator;
+import jp.tenposs.communicator.TenpossCommunicator;
 import jp.tenposs.datamodel.AppSettings;
+import jp.tenposs.datamodel.Key;
+import jp.tenposs.datamodel.MenuInfo;
+import jp.tenposs.datamodel.ReserveInfo;
+import jp.tenposs.datamodel.ScreenDataStatus;
 
 /**
  * Created by ambient on 7/29/16.
  */
 public class FragmentReserve extends AbstractFragment {
     WebView webView;
-
+ReserveInfo.Response screenData;
     @Override
     protected void customClose() {
 
@@ -37,13 +45,36 @@ public class FragmentReserve extends AbstractFragment {
     }
 
     @Override
+    protected void startup() {
+        if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
+            //load needed data
+            this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
+            loadReserveInfo();
+
+        } else if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusLoading) {
+            //just waiting
+
+        } else {
+            //reload screen, this case application return from background or from other activity
+            previewScreenData();
+        }
+    }
+
+    @Override
     protected void reloadScreenData() {
 
     }
 
     @Override
     protected void previewScreenData() {
+        String strUrl = screenData.data.reserve.reserve_url.toLowerCase(Locale.US);
+        String strTemp= screenData.data.reserve.reserve_url.toLowerCase(Locale.US);
 
+        if (strTemp.contains("http://") == false && strTemp.contains("https://") == false)
+            strUrl  = "http://" + strUrl ;
+
+        this.webView.loadUrl(strUrl);
+        //this.webView.loadUrl("http://tabelog.com");
     }
 
     @Override
@@ -65,14 +96,19 @@ public class FragmentReserve extends AbstractFragment {
 
     }
 
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-//        if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
-//            this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
-//        } else {
-//            previewScreenData();
-//        }
-        this.webView.loadUrl("http://tabelog.com");
+    void loadReserveInfo() {
+        ReserveInfo.Request requestParams = new ReserveInfo.Request();
+        requestParams.store_id = 1;
+
+        Bundle params = new Bundle();
+        params.putSerializable(Key.RequestObject, requestParams);
+        ReserveInfoCommunicator communicator = new ReserveInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
+            @Override
+            public void completed(TenpossCommunicator request, Bundle responseParams) {
+                screenData = (ReserveInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                previewScreenData();
+            }
+        });
+        communicator.execute(params);
     }
 }

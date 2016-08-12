@@ -56,11 +56,12 @@ import jp.tenposs.utils.SharedPreferencesHelper;
 public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bundle> {
 
     public final static String API_ADDRESS_DEV = "http://dev.tenposs.jp/api";
-    public final static String API_ADDRESS = "http://ec2-54-204-210-230.compute-1.amazonaws.com/tenposs/api/public/index.php/api/v1";
+    //public final static String API_ADDRESS = "http://ec2-54-204-210-230.compute-1.amazonaws.com/tenposs/api/public/index.php/api/v1";
+    public final static String API_ADDRESS = "http://54.153.78.127/api/v1";
     public final static String API_LOGIN = "/login?";
     public final static String API_LOGOUT = "/logout?";
     public final static String API_TOP = "/top?";
-    public final static String API_SIDEMENU = "/slidemenu?";
+    public final static String API_MENU = "/menu?";
     public final static String API_APPINFO = "/appinfo?";
     public final static String API_ITEMS = "/items?";
     public final static String API_ITEMS_DETAIL = "/items/detail?";
@@ -374,6 +375,7 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
     protected int request(String url, OutputStream output, byte[] dataUpload, Bundle bundle) {
         //int nTimeout = bundle.getInt(GammaKey.RequestTimeout) * 1000;
 
+        System.out.println(url);
         int nTimeout = 0;
         if (nTimeout == 0)
             nTimeout = 10000;

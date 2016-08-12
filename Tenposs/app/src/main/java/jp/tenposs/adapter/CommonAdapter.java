@@ -2,6 +2,7 @@ package jp.tenposs.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.GridLayoutManager;
@@ -12,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -34,7 +34,63 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
     public interface CommonDataSource {
         int getItemCount();
 
-        Object getItemData(int position);
+        RecyclerItemWrapper getItemData(int position);
+    }
+
+    public static class MarginDecoration extends RecyclerView.ItemDecoration {
+        private int margin;
+
+        public MarginDecoration(Context context) {
+            margin = context.getResources().getDimensionPixelSize(R.dimen.item_margin);
+        }
+
+        public boolean needDecoration(View view, RecyclerView parent) {
+            RecyclerView.ViewHolder holder = parent.getChildViewHolder(view);
+            if (holder instanceof CommonViewHolder) {
+                CommonViewHolder parentHolder = (CommonViewHolder) holder;
+                if (parentHolder.itemType == RecyclerItemType.RecyclerItemTypeTopItem ||
+                        parentHolder.itemType == RecyclerItemType.RecyclerItemTypeItemStore) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+            if (needDecoration(view, parent)) {
+                GridLayoutManager.LayoutParams layoutParams
+                        = (GridLayoutManager.LayoutParams) view.getLayoutParams();
+
+                GridLayoutManager parentLayoutManager = (GridLayoutManager) parent.getLayoutManager();
+
+                int left, top, right, bottom;
+                int itemSpanIndex = layoutParams.getSpanIndex();
+                int itemSpanSize = layoutParams.getSpanSize();
+
+                int itemPosition = parent.getChildLayoutPosition(view);
+                if (itemSpanIndex == 0) {
+                    left = margin;
+                    right = margin / 2;
+
+                } else if (itemSpanIndex + itemSpanSize == parentLayoutManager.getSpanCount()) {
+                    left = margin / 2;
+                    right = margin;
+
+                } else {
+                    left = margin / 2;
+                    right = margin / 2;
+                }
+
+                top = margin / 2;
+                bottom = margin / 2;
+
+                outRect.set(left, top, right, bottom);
+
+            } else {
+                outRect.set(0, 0, 0, 0);
+            }
+        }
     }
 
     public static class GridSpanSizeLookup extends GridLayoutManager.SpanSizeLookup {
@@ -58,13 +114,14 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
         Context mContext;
         OnCommonItemClickListener mClickListener;
         View mRow;
-        RecyclerItemType recyclerItemType;
+        RecyclerItemType itemType;
 
         //Grid
         LinearLayout itemInfoLayout;
         ImageView itemImage;
         TextView itemTitleLabel;
         TextView itemDescriptionLabel;
+        TextView itemMoreDescriptionLabel;
 
         //Store
         ImageView mapImage;
@@ -82,26 +139,22 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
         //Top Item
         ViewPager topItemViewPager;
 
-        ImageView headerIcon;
         TextView headerTitle;
 
         //Footer
         Button footerButton;
-        TextView footerShowAll;
-        ImageView footerLoadMore;
-        ProgressBar footerLoading;
 
         public CommonViewHolder(View v, RecyclerItemType itemType, Context context, OnCommonItemClickListener l) {
             super(v);
             this.mRow = v;
             this.mContext = context;
             this.mClickListener = l;
-            this.recyclerItemType = itemType;
-            setUpView(itemType);
+            this.itemType = itemType;
+            setUpView();
         }
 
-        public void setUpView(RecyclerItemType itemType) {
-            switch (itemType) {
+        public void setUpView() {
+            switch (this.itemType) {
                 case RecyclerItemTypeTopItem: {
                     this.topItemViewPager = (ViewPager) this.mRow.findViewById(R.id.view_pager);
                 }
@@ -128,11 +181,12 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
 
                 case RecyclerItemTypeItemList:
                 case RecyclerItemTypeItemGrid:
-                case RecyclerItemTypeItemGridImageOnly:{
+                case RecyclerItemTypeItemGridImageOnly: {
                     itemImage = (ImageView) this.mRow.findViewById(R.id.item_image);
                     itemInfoLayout = (LinearLayout) this.mRow.findViewById(R.id.item_info_layout);
                     itemTitleLabel = (TextView) this.mRow.findViewById(R.id.item_title_label);
                     itemDescriptionLabel = (TextView) this.mRow.findViewById(R.id.item_description_label);
+                    itemMoreDescriptionLabel = (TextView) this.mRow.findViewById(R.id.item_more_description_label);
                 }
                 break;
 
@@ -146,14 +200,14 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
             }
         }
 
-        public void configureCell(final int itemPosition, RecyclerItemWrapper itemDataWrapper, boolean isLandscape, boolean isShowGrid) {
-            switch (this.recyclerItemType) {
+        public void configureCell(final int itemPosition, RecyclerItemWrapper itemDataWrapper) {
+            switch (this.itemType) {
                 case RecyclerItemTypeTopItem: {
                     List<TopInfo.Response.ResponseData.Image> topItems = (List<TopInfo.Response.ResponseData.Image>) itemDataWrapper.itemData;
                     FilmstripAdapter adapter = new FilmstripAdapter(mContext, topItems, new OnCommonItemClickListener() {
                         @Override
                         public void onCommonItemClick(int position, Bundle extraData) {
-                            extraData.putInt(RecyclerItemType.class.getName(), recyclerItemType.ordinal());
+                            extraData.putInt(RecyclerItemType.class.getName(), itemType.ordinal());
                             mClickListener.onCommonItemClick(itemPosition, extraData);
                         }
                     });
@@ -162,15 +216,17 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                 break;
 
                 case RecyclerItemTypeHeader: {
-                    headerTitle.setText((String) itemDataWrapper.itemData);
+                    RecyclerItemWrapper.RecyclerItemObject object = (RecyclerItemWrapper.RecyclerItemObject) itemDataWrapper.itemData;
+                    headerTitle.setText(object.title);
                 }
                 break;
 
                 case RecyclerItemTypeItemStore: {
+                    //AppInfo.Response.ResponseData.Info storeInfo = (AppInfo.Response.ResponseData.Info) itemDataWrapper.itemData;
                     Picasso ps = Picasso.with(mContext);
-                    String latEiffelTower = "48.858235";
-                    String lngEiffelTower = "2.294571";
-                    String url = "http://maps.google.com/maps/api/staticmap?center=" + latEiffelTower + "," + lngEiffelTower + "&zoom=15&size=500x200&sensor=false";
+                    String lat = "35.6585848";//storeInfo.latitude
+                    String lng = "139.7432496";//storeInfo.longitude
+                    String url = "http://maps.google.com/maps/api/staticmap?center=" + lat + "," + lng + "&zoom=15&size=500x200&sensor=false";
 
                     ps.load(url)
                             .resize(640, 360)
@@ -189,6 +245,11 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                             Color.argb(0, 0, 0, 0),
                             Color.argb(255, 128, 128, 128)
                     ));
+
+                    //String time = storeInfo.start_time + " - " + storeInfo.end_time;
+                    //timeLabel.setText(time);
+
+                    //phoneLabel.setText(storeInfo.tel);
                 }
                 break;
 
@@ -196,22 +257,43 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                 case RecyclerItemTypeItemGrid: {
                     RecyclerItemWrapper.RecyclerItemObject item = (RecyclerItemWrapper.RecyclerItemObject) itemDataWrapper.itemData;
                     Picasso ps = Picasso.with(mContext);
-                    ps.load(item.image)
-                            .resize(640, 360)
+                    //ps.load(item.image)
+                    ps.load("http://media.foody.vn/images/blogs/s320x320/1(74).jpg")
+                            .resize(320, 320)
                             .centerInside()
                             .into(itemImage);
 
                     itemInfoLayout.setVisibility(View.VISIBLE);
-                    itemTitleLabel.setText(item.title);
-                    itemDescriptionLabel.setText(item.description);
+                    if (itemTitleLabel != null) {
+                        if (item.title != null) {
+                            itemTitleLabel.setText(item.title);
+                        } else {
+                            itemTitleLabel.setVisibility(View.GONE);
+                        }
+                    }
+                    if (itemDescriptionLabel != null) {
+                        if (item.description != null) {
+                            itemDescriptionLabel.setText(item.description);
+                        } else {
+                            itemDescriptionLabel.setVisibility(View.GONE);
+                        }
+                    }
+                    if (itemMoreDescriptionLabel != null) {
+                        if (item.moreDescription != null) {
+                            itemMoreDescriptionLabel.setText(item.moreDescription);
+                        } else {
+                            itemMoreDescriptionLabel.setVisibility(View.GONE);
+                        }
+                    }
                 }
                 break;
 
                 case RecyclerItemTypeItemGridImageOnly: {
                     RecyclerItemWrapper.RecyclerItemObject item = (RecyclerItemWrapper.RecyclerItemObject) itemDataWrapper.itemData;
                     Picasso ps = Picasso.with(mContext);
-                    ps.load(item.image)
-                            .resize(640, 360)
+                    //ps.load(item.image)
+                    ps.load("http://media.foody.vn/images/blogs/s320x320/1(74).jpg")
+                            .resize(320, 320)
                             .centerInside()
                             .into(itemImage);
 
@@ -220,7 +302,8 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                 break;
 
                 case RecyclerItemTypeFooter: {
-                    footerButton.setText((String) itemDataWrapper.itemData);
+                    RecyclerItemWrapper.RecyclerItemObject object = (RecyclerItemWrapper.RecyclerItemObject) itemDataWrapper.itemData;
+                    footerButton.setText(object.title);
                 }
                 break;
                 default:
@@ -293,7 +376,7 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
 
         final int itemPosition = position;
 
-        holder.configureCell(itemPosition, itemData, false, false);
+        holder.configureCell(itemPosition, itemData);
 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override

@@ -9,4 +9,6 @@
     <color name="colorNavSubTextColor">#AAAAAA</color>
     <color name="colorMenuBackground">#2F455B</color>
     <color name="colorButtonPress">#AAAAAAAA</color>
+
+    <color name="colorSeparate">#44222222</color>
 </resources>

@@ -10,16 +10,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import jp.tenposs.adapter.RecyclerItemWrapper;
 import jp.tenposs.datamodel.AppInfo;
 import jp.tenposs.datamodel.AppSettings;
 import jp.tenposs.datamodel.LoginInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
-import jp.tenposs.datamodel.SideMenuInfo;
 
 /**
  * Created by ambient on 7/26/16.
@@ -28,12 +30,25 @@ public abstract class AbstractFragment extends Fragment {
 
     public interface MainActivityListener {
         void updateNavigationBar(ToolbarSettings toolbarSettings);
+
         void updateAppInfo(AppInfo.Response appInfo, int storeId);
-        void updateSideMenuItems(SideMenuInfo.Response menus);
+
+        void updateSideMenuItems(ArrayList<AppInfo.Response.ResponseData.SideMenu> menus);
+
         void updateUserInfo(LoginInfo.Response userInfo);
-        void showScreen(SideMenuInfo.Response.ResponseData.Menu menuItem);
+
+        void showScreen(int menuId);
     }
 
+    public final static int HOME_SCREEN = 0;
+    public final static int NEWS_SCREEN = 2;
+    public final static int MENU_SCREEN = 4;
+    public final static int COUPON_SCREEN = 5;
+    public final static int CHAT_SCREEN = 6;
+    public final static int SETTING_SCREEN = 7;
+
+    public final static int PHOTO_SCREEN = 1000;
+    public final static int RESERVE_SCREEN = 2000;
 
     public class ToolbarSettings {
 
@@ -50,6 +65,7 @@ public abstract class AbstractFragment extends Fragment {
     public static String SCREEN_DATA = "SCREEN_DATA";
     public static String SCREEN_DATA_STATUS = "SCREEN_DATA_STATUS";
 
+    protected int spanCount = 1;
     public ToolbarSettings toolbarSettings;
     protected ScreenDataStatus screenDataStatus = ScreenDataStatus.ScreenDataStatusUnload;
     protected SharedPreferences appPreferences;
@@ -57,9 +73,13 @@ public abstract class AbstractFragment extends Fragment {
 
     protected ViewGroup fragmentContent;
 
+    List<RecyclerItemWrapper> screenDataItems = new ArrayList<>();
+
     protected abstract void customClose();
 
     protected abstract void customToolbarInit();
+
+    protected abstract void startup();
 
     protected abstract void reloadScreenData();
 
@@ -111,6 +131,18 @@ public abstract class AbstractFragment extends Fragment {
         View view = onCustomCreateView(inflater, container, savedInstanceState);
         fragmentContent = (ViewGroup) view.findViewById(R.id.fragment_content);
         return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
+            startup();
+        } else if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusLoading) {
+            //Do nothing
+        } else {
+            previewScreenData();
+        }
     }
 
     void setupVariables() {
@@ -207,5 +239,9 @@ public abstract class AbstractFragment extends Fragment {
                 .beginTransaction()
                 .remove(this)
                 .commit();*/
+    }
+
+    protected void errorWithMessage(String message) {
+        Toast.makeText(this.getContext(), message, Toast.LENGTH_SHORT).show();
     }
 }

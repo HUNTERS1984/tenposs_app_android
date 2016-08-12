@@ -8,21 +8,22 @@ import java.io.OutputStream;
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
-import jp.tenposs.datamodel.MenuInfo;
+import jp.tenposs.datamodel.ReserveInfo;
 
 /**
- * Created by ambient on 8/8/16.
+ * Created by ambient on 8/12/16.
  */
-public class MenuInfoCommunicator extends TenpossCommunicator {
-    public MenuInfoCommunicator(TenpossCommunicatorListener listener) {
+public class ReserveInfoCommunicator extends TenpossCommunicator {
+
+    public ReserveInfoCommunicator(TenpossCommunicatorListener listener) {
         super(listener);
     }
 
     @Override
     protected boolean request(Bundle bundle) {
         String strUrl;
-        MenuInfo.Request requestData = (MenuInfo.Request) bundle.getSerializable(Key.RequestObject);
-        strUrl = API_ADDRESS + API_MENU + requestData.makeParams("GET");
+        ReserveInfo.Request requestData = (ReserveInfo.Request) bundle.getSerializable(Key.RequestObject);
+        strUrl = API_ADDRESS + API_RESERVE + requestData.makeParams("GET");
         int result = TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal();
         byte[] dataRequest = null;
         OutputStream output = null;
@@ -37,7 +38,7 @@ public class MenuInfoCommunicator extends TenpossCommunicator {
         result = request(strUrl, output, dataRequest, bundle);
         if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
             String strResponse = output.toString();
-            MenuInfo.Response response = (MenuInfo.Response) CommonObject.fromJSONString(strResponse, MenuInfo.Response.class, null);
+            ReserveInfo.Response response = (ReserveInfo.Response) CommonObject.fromJSONString(strResponse, ReserveInfo.Response.class, null);
             if (response != null) {
                 bundle.putInt(Key.ResponseResult, TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal());
                 bundle.putInt(Key.ResponseResultApi, response.code);

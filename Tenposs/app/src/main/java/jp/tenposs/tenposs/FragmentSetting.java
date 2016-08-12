@@ -33,6 +33,11 @@ public class FragmentSetting extends AbstractFragment{
     }
 
     @Override
+    protected void startup() {
+
+    }
+
+    @Override
     protected void reloadScreenData() {
 
     }

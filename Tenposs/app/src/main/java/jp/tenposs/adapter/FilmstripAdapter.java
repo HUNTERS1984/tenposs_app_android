@@ -53,7 +53,8 @@ public class FilmstripAdapter extends PagerAdapter {
         TopInfo.Response.ResponseData.Image image = getItem(position);
         String strThumbUrl = image.image_url;
         Picasso ps = Picasso.with(mContext);
-        ps.load(strThumbUrl)
+        ps.load("http://media.foody.vn/video/s800x450/foody-1-636027930843054179.jpg")
+        //ps.load(strThumbUrl)
                 .resize(640, 360)
                 .centerInside()
                 .into(itemThumbnail);

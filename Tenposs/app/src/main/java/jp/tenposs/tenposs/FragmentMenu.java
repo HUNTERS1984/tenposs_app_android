@@ -3,6 +3,7 @@ package jp.tenposs.tenposs;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,14 +15,18 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import jp.tenposs.adapter.CommonAdapter;
+import jp.tenposs.adapter.RecyclerItemType;
+import jp.tenposs.adapter.RecyclerItemWrapper;
+import jp.tenposs.communicator.ItemInfoCommunicator;
 import jp.tenposs.communicator.MenuInfoCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
-import jp.tenposs.datamodel.AppInfo;
 import jp.tenposs.datamodel.AppSettings;
+import jp.tenposs.datamodel.ItemInfo;
+import jp.tenposs.datamodel.Key;
+import jp.tenposs.datamodel.MenuInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.listener.OnCommonItemClickListener;
 import jp.tenposs.utils.ThemifyIcon;
-
 
 
 /**
@@ -34,9 +39,11 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
     ImageButton nextButton;
     RecyclerView recyclerView;
     CommonAdapter recyclerAdapter;
-
-    ArrayList<AppInfo.Response.ResponseData.Menu> screenData;
-    int menuIndex;
+    SwipeRefreshLayout swipeRefreshLayout;
+    MenuInfo.Response screenData;
+    ItemInfo.Response screenItem;
+MenuInfo.Response.ResponseData.Menu currentMenu;
+    int currentMenuIndex;
 
     /**
      * Fragment Override
@@ -45,40 +52,24 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putSerializable(SCREEN_DATA, this.screenData);
+//        outState.putSerializable(SCREEN_DATA, this.screenData);
         outState.putInt(SCREEN_DATA_STATUS, this.screenDataStatus.ordinal());
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        spanCount = 6;
 
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(SCREEN_DATA)) {
-                this.screenData = (ArrayList<AppInfo.Response.ResponseData.Menu>) savedInstanceState.getSerializable(SCREEN_DATA);
+//                this.screenData = (ArrayList<AppInfo.Response.ResponseData.Menu>) savedInstanceState.getSerializable(SCREEN_DATA);
             }
-        }else{
-            Bundle argument = getArguments();
-            if( argument != null && argument.containsKey(SCREEN_DATA)){
-                this.screenData = (ArrayList<AppInfo.Response.ResponseData.Menu>) argument.getSerializable(SCREEN_DATA);
-            }
-        }
-    }
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-
-
-        if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
-            startup();
-
-        } else if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusLoading) {
-            //Do nothing
-
         } else {
-            previewScreenData();
+            Bundle argument = getArguments();
+            if (argument != null && argument.containsKey(SCREEN_DATA)) {
+//                this.screenData = (ArrayList<AppInfo.Response.ResponseData.Menu>) argument.getSerializable(SCREEN_DATA);
+            }
         }
     }
 
@@ -86,7 +77,7 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
     void loadSavedInstanceState(@Nullable Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(SCREEN_DATA)) {
-                this.screenData = (ArrayList<AppInfo.Response.ResponseData.Menu>) savedInstanceState.getSerializable(SCREEN_DATA);
+//                this.screenData = (ArrayList<AppInfo.Response.ResponseData.Menu>) savedInstanceState.getSerializable(SCREEN_DATA);
             }
         }
     }
@@ -113,53 +104,68 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
 
     @Override
     protected void reloadScreenData() {
-
+        if (this.screenDataStatus != ScreenDataStatus.ScreenDataStatusUnload) {
+            return;
+        }
+        this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
+        loadMenuData();
     }
 
     @Override
     protected void previewScreenData() {
-//        this.swipeRefreshLayout.setRefreshing(false);
         this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
-
-        AppInfo.Response.ResponseData.Menu currentMenu = this.screenData.get(menuIndex);
-        this.titleLabel.setText(currentMenu.name);
+        this.swipeRefreshLayout.setRefreshing(false);
 
         updateNavigation();
 
-        GridLayoutManager manager = new GridLayoutManager(getActivity(), 6);//);
-        this.recyclerAdapter = new CommonAdapter(getActivity(), this, this);
-        manager.setSpanSizeLookup(new CommonAdapter.GridSpanSizeLookup(recyclerAdapter));
-        this.recyclerView.setLayoutManager(manager);
-        this.recyclerView.setAdapter(recyclerAdapter);
+        screenDataItems = new ArrayList<>();
+
+        for (ItemInfo.Response.ResponseData.Item item : screenItem.data.items) {
+            RecyclerItemWrapper.RecyclerItemObject obj = RecyclerItemWrapper.createItem(item.id, item.title, item.price, null, item.image_url);
+            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, spanCount / 2, obj));
+        }
+
+        titleLabel.setText(currentMenu.name);
+        if (this.recyclerAdapter == null) {
+            GridLayoutManager manager = new GridLayoutManager(getActivity(), spanCount);//);
+            this.recyclerAdapter = new CommonAdapter(getActivity(), this, this);
+            manager.setSpanSizeLookup(new CommonAdapter.GridSpanSizeLookup(recyclerAdapter));
+            this.recyclerView.setLayoutManager(manager);
+            this.recyclerView.addItemDecoration(new CommonAdapter.MarginDecoration(getActivity()));
+            this.recyclerView.setAdapter(recyclerAdapter);
+        } else {
+            this.recyclerAdapter.notifyDataSetChanged();
+        }
+
     }
 
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View mRoot = inflater.inflate(R.layout.fragment_menu, null);
 
-        previousButton = (ImageButton) mRoot.findViewById(R.id.previous_button);
-        titleLabel = (TextView) mRoot.findViewById(R.id.title_label);
-        nextButton = (ImageButton) mRoot.findViewById(R.id.next_button);
-        recyclerView = (RecyclerView) mRoot.findViewById(R.id.recycler_view);
+        this.previousButton = (ImageButton) mRoot.findViewById(R.id.previous_button);
+        this.titleLabel = (TextView) mRoot.findViewById(R.id.title_label);
+        this.nextButton = (ImageButton) mRoot.findViewById(R.id.next_button);
+        this.recyclerView = (RecyclerView) mRoot.findViewById(R.id.recycler_view);
+        this.swipeRefreshLayout = (SwipeRefreshLayout) mRoot.findViewById(R.id.swipe_refresh_layout);
+        this.previousButton.setOnClickListener(this);
+        this.nextButton.setOnClickListener(this);
 
-        previousButton.setOnClickListener(this);
-        nextButton.setOnClickListener(this);
         return mRoot;
     }
 
-    void startup() {
+    protected void startup() {
         if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
             //load needed data
             this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
-//            this.swipeRefreshLayout.post(new Runnable() {
-//                @Override
-//                public void run() {
-//                    FragmentHome.this.swipeRefreshLayout.setRefreshing(true);
-//                    loadAppInfo();
-            menuIndex = 0;
-            loadMenuData();
-//                }
-//            });
+            this.swipeRefreshLayout.post(new Runnable() {
+                @Override
+                public void run() {
+                    FragmentMenu.this.swipeRefreshLayout.setRefreshing(true);
+                    currentMenuIndex = 0;
+                    loadMenuData();
+                }
+            });
 
         } else if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusLoading) {
             //just waiting
@@ -171,11 +177,35 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
     }
 
     void loadMenuData() {
-        AppInfo.Response.ResponseData.Menu menu = screenData.get(menuIndex);
+        MenuInfo.Request requestParams = new MenuInfo.Request();
+        requestParams.store_id = 1;
+
         Bundle params = new Bundle();
+        params.putSerializable(Key.RequestObject, requestParams);
         MenuInfoCommunicator communicator = new MenuInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
             @Override
             public void completed(TenpossCommunicator request, Bundle responseParams) {
+                screenData = (MenuInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+
+                loadMenuItem(currentMenuIndex);
+            }
+        });
+        communicator.execute(params);
+    }
+
+    void loadMenuItem(int menuIndex) {
+        currentMenu = screenData.data.menus.get(menuIndex);
+        ItemInfo.Request requestParams = new ItemInfo.Request();
+        requestParams.menu_id = currentMenu.id;
+        requestParams.pageindex = 1;
+        requestParams.pagesize = 20;
+
+        Bundle params = new Bundle();
+        params.putSerializable(Key.RequestObject, requestParams);
+        ItemInfoCommunicator communicator = new ItemInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
+            @Override
+            public void completed(TenpossCommunicator request, Bundle responseParams) {
+                screenItem = (ItemInfo.Response) responseParams.getSerializable(Key.ResponseObject);
                 previewScreenData();
             }
         });
@@ -183,33 +213,33 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
     }
 
     boolean hasPrevious() {
-        return (menuIndex > 0);
+        return (currentMenuIndex > 0);
     }
 
     boolean hasNext() {
-        return (menuIndex < (this.screenData.size() - 1));
+        return (currentMenuIndex < (this.screenData.data.menus.size() - 1));
     }
 
     void previousMenu() {
         try {
-            if (menuIndex > 0) {
-                menuIndex--;
+            if (currentMenuIndex > 0) {
+                currentMenuIndex--;
             }
         } catch (Exception ex) {
 
         }
-        loadMenuData();
+        loadMenuItem(currentMenuIndex);
     }
 
     void nextMenu() {
         try {
-            if (menuIndex < this.screenData.size() - 1) {
-                menuIndex++;
+            if (currentMenuIndex < this.screenData.data.menus.size() - 1) {
+                currentMenuIndex++;
             }
         } catch (Exception ex) {
 
         }
-        loadMenuData();
+        loadMenuItem(currentMenuIndex);
     }
 
     void updateNavigation() {
@@ -225,14 +255,14 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
 
         previousButton.setImageBitmap(ThemifyIcon.fromThemifyIcon(getContext().getAssets(),
                 "ti-angle-left",
-                40,
+                20,
                 Color.argb(0, 0, 0, 0),
                 previousButtonColor
         ));
 
         nextButton.setImageBitmap(ThemifyIcon.fromThemifyIcon(getContext().getAssets(),
                 "ti-angle-right",
-                40,
+                20,
                 Color.argb(0, 0, 0, 0),
                 nextButtonColor
         ));
@@ -250,12 +280,12 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
 
     @Override
     public int getItemCount() {
-        return 0;
+        return screenDataItems.size();
     }
 
     @Override
-    public Object getItemData(int position) {
-        return null;
+    public RecyclerItemWrapper getItemData(int position) {
+        return screenDataItems.get(position);
     }
 
     @Override

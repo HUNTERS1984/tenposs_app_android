@@ -2,16 +2,12 @@
 <android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingBottom="5dip"
-    android:paddingLeft="5dip"
-    android:paddingRight="5dip"
-    android:paddingTop="5dip">
+    android:orientation="vertical">
 
     <ImageView
         android:id="@+id/map_image"
+        android:contentDescription="@string/image_description"
         app:layout_aspectRatio="250%"
         app:layout_widthPercent="100%" />
 

@@ -15,10 +15,9 @@ public class LoginInfo {
         public String social_id;    //string				facebookid,twitterid, instagramid
         public String social_type;  //string				facebook,twitter, instagram
         public String social_token; //string				facebook_token,twitter_token, instagram_token
-        public String time;         //string				timestamp miliseconds
-        public String sig;
 
-        public void generateSig() {
+        @Override
+        String sigInput() {
             String input = "";
             String privateKey = "TODO: ";
             if (type.compareTo("email") == 0) {
@@ -29,7 +28,7 @@ public class LoginInfo {
                 //if login with social: sig = sha256(social_id + social_type + private key + type)
                 input = this.social_id + this.social_type + privateKey + type;
             }
-            this.sig = CryptoUtils.sha256(input);
+            return input;
         }
 
         //if login with email: sig = sha256(email + private key + type)
@@ -39,7 +38,7 @@ public class LoginInfo {
 
     public class Response extends CommonResponse {
         public class LoginResponseData implements Serializable {
-            public class Profile {
+            public class Profile implements Serializable{
                 public int user_profile_id;     //integer
                 public String name;             //string
                 public int gender;              //integer

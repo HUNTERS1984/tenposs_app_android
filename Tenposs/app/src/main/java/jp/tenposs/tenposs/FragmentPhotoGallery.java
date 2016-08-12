@@ -33,6 +33,11 @@ public class FragmentPhotoGallery  extends  AbstractFragment{
     }
 
     @Override
+    protected void startup() {
+
+    }
+
+    @Override
     protected void reloadScreenData() {
 
     }
