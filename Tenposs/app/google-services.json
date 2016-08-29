@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "531040434217",
+    "firebase_url": "https://tenposs-4e003.firebaseio.com",
+    "project_id": "tenposs-4e003",
+    "storage_bucket": "tenposs-4e003.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:531040434217:android:65350a3e5107282e",
+        "android_client_info": {
+          "package_name": "jp.tenposs.tenposs"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "531040434217-lea6gjaf102g01hmk8k2cufv2vqui7io.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "jp.tenposs.tenposs",
+            "certificate_hash": "D9A8663E809A979516B8191D231F62A1422E4257"
+          }
+        },
+        {
+          "client_id": "531040434217-pho35fm5emia6dffiajm52bu2v5sul9a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBI0KiEe2m9zmpC-9K_fM0pWZCFnr4BflI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "531040434217-pho35fm5emia6dffiajm52bu2v5sul9a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

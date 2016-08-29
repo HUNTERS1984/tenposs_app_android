@@ -376,7 +376,7 @@ public class ThemifyIcon {
 
         String text = themifyCharacterCodes.get(identifier);
         if (text == null) {
-            text = "\ue65b";
+            text = "\uE739";
         }
         Typeface font = Typeface.createFromAsset(assetManager, "fonts/themify.ttf");
 

@@ -1,7 +1,7 @@
 package jp.tenposs.tenposs;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +9,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import junit.framework.Assert;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import jp.tenposs.adapter.CommonAdapter;
@@ -19,11 +22,13 @@ import jp.tenposs.communicator.TenpossCommunicator;
 import jp.tenposs.communicator.TopInfoCommunicator;
 import jp.tenposs.communicator.UserInfoCommunicator;
 import jp.tenposs.datamodel.AppInfo;
-import jp.tenposs.datamodel.AppSettings;
 import jp.tenposs.datamodel.CommonResponse;
+import jp.tenposs.datamodel.ItemInfo;
 import jp.tenposs.datamodel.Key;
-import jp.tenposs.datamodel.LoginInfo;
+import jp.tenposs.datamodel.NewsInfo;
+import jp.tenposs.datamodel.PhotoInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
+import jp.tenposs.datamodel.SignInInfo;
 import jp.tenposs.datamodel.TopInfo;
 import jp.tenposs.listener.OnCommonItemClickListener;
 
@@ -38,19 +43,17 @@ public class FragmentHome
         CommonAdapter.CommonDataSource,
         OnCommonItemClickListener {
 
-    ArrayList<AppInfo.Response.ResponseData.SideMenu> sideMenuInfo = null;
+    ArrayList<AppInfo.SideMenu> sideMenuInfo = null;
     AppInfo.Response appInfo = null;
-    AppInfo.Response.ResponseData.Store storeInfo = null;
+    AppInfo.Store storeInfo = null;
 
     TopInfo.Response topData = null;
     TopInfo.Response.ResponseData screenData = null;
 
-    LoginInfo.Response userInfo = null;
-
+    SignInInfo.Response userInfo = null;
 
     RecyclerView recyclerView;
     CommonAdapter recyclerAdapter;
-
     SwipeRefreshLayout swipeRefreshLayout;
 
     /**
@@ -61,23 +64,6 @@ public class FragmentHome
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putSerializable(SCREEN_DATA, this.screenData);
-        outState.putInt(SCREEN_DATA_STATUS, this.screenDataStatus.ordinal());
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        spanCount = 6;
-    }
-
-    @Override
-    void loadSavedInstanceState(@Nullable Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-
-            if (savedInstanceState.containsKey(SCREEN_DATA)) {
-                this.screenData = (TopInfo.Response.ResponseData) savedInstanceState.getSerializable(SCREEN_DATA);
-            }
-        }
     }
 
     /**
@@ -85,21 +71,17 @@ public class FragmentHome
      */
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(SCREEN_DATA)) {
-                this.screenData = (TopInfo.Response.ResponseData) savedInstanceState.getSerializable(SCREEN_DATA);
-                startup();
-            }
-        } else {
-            startup();
+    void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
+        if (savedInstanceState.containsKey(SCREEN_DATA)) {
+            this.screenData = (TopInfo.Response.ResponseData) savedInstanceState.getSerializable(SCREEN_DATA);
         }
     }
 
-    /**
-     * AbstractFragment
-     */
+    @Override
+    void setRefreshing(boolean refreshing) {
+        this.swipeRefreshLayout.setRefreshing(refreshing);
+    }
+
     @Override
     protected void customClose() {
 
@@ -107,17 +89,9 @@ public class FragmentHome
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings = new ToolbarSettings();
         toolbarSettings.toolbarTitle = "GLOBAL WORK";
         toolbarSettings.toolbarIcon = "ti-menu";
         toolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
-
-        toolbarSettings.settings = new AppSettings.Settings();
-        toolbarSettings.settings.fontColor = "#00CECB";
-
-        toolbarSettings.titleSettings = new AppSettings.Settings();
-        toolbarSettings.titleSettings.fontColor = "#000000";
-        toolbarSettings.titleSettings.fontSize = 20;
     }
 
     @Override
@@ -129,70 +103,142 @@ public class FragmentHome
         loadAppInfo();
     }
 
-
     @Override
     protected void previewScreenData() {
         screenDataItems = new ArrayList<>();
+        Bundle extras = null;
+
+        //Mockup Data
+        screenData.images.data.add(new TopInfo.Image("http://wallpapers-and-backgrounds.net/wp-content/uploads/2016/01/bikini-hd-background_1.jpg"));
+        screenData.images.data.add(new TopInfo.Image("http://wallpapers-and-backgrounds.net/wp-content/uploads/2016/01/bikini-1080p-background_1.jpg"));
+        screenData.images.data.add(new TopInfo.Image("http://wallpapers-and-backgrounds.net/wp-content/uploads/2016/01/bikini-full-hd-background_1.jpg"));
+        screenData.images.data.add(new TopInfo.Image("http://wallpapers-and-backgrounds.net/wp-content/uploads/2016/01/bikini-1080p-wallpaper_1.jpg"));
+        screenData.images.data.add(new TopInfo.Image("http://wallpapers-and-backgrounds.net/wp-content/uploads/2016/01/bikini-sexy-background_1.jpg"));
 
         if (screenData.images != null && screenData.images.size() > 0) {
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeTopItem, spanCount, screenData.images));
+            extras = new Bundle();
+            extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, screenData.images.data);
+            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeTopItem, spanCount, extras));
         }
 
         if (screenData.items != null && screenData.items.size() > 0) {
-            RecyclerItemWrapper.RecyclerItemObject obj = new RecyclerItemWrapper.RecyclerItemObject();
-            obj.title = "Recently";
-            obj.id = AbstractFragment.MENU_SCREEN;
+            /**
+             * Header
+             */
+            extras = new Bundle();
+            AppInfo.TopComponent component = this.appInfo.data.getTopComponent(screenData.items.top_id);
+            extras.putString(RecyclerItemWrapper.ITEM_TITLE, component.name);
+            extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.MENU_SCREEN);
+            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, spanCount, extras));
 
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, spanCount, obj));
-            for (TopInfo.Response.ResponseData.Item item : screenData.items) {
-                obj = RecyclerItemWrapper.createItem(item.id, item.title, item.price, item.description, item.image_url);
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, spanCount / 2, obj));
+            /**
+             * Content
+             */
+            for (ItemInfo.Item item : screenData.items.data) {
+                extras = new Bundle();
+                extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
+                extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.ITEM_SCREEN);
+                extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.title);
+                extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.price);
+                extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
+                extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
+                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, spanCount / 2, extras));
             }
-            obj = new RecyclerItemWrapper.RecyclerItemObject();
-            obj.title = "More";
-            obj.id = AbstractFragment.MENU_SCREEN;
 
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, obj));
+            /**
+             * Footer
+             */
+            extras = new Bundle();
+            extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.MENU_SCREEN);
+            extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
+            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
         }
         if (screenData.photos != null && screenData.photos.size() > 0) {
-            RecyclerItemWrapper.RecyclerItemObject obj = new RecyclerItemWrapper.RecyclerItemObject();
-            obj.title = "Photo Gallery";
-            obj.id = AbstractFragment.PHOTO_SCREEN;
+            /**
+             * Header
+             */
+            AppInfo.TopComponent component = this.appInfo.data.getTopComponent(screenData.photos.top_id);
+            extras = new Bundle();
+            extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_SCREEN);
+            extras.putString(RecyclerItemWrapper.ITEM_TITLE, component.name);
+            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, spanCount, extras));
 
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, spanCount, obj));
-            for (TopInfo.Response.ResponseData.Photo item : screenData.photos) {
-                obj = RecyclerItemWrapper.createItem(item.id, null, null, null, item.image_url);
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, spanCount / 3, obj));
+            /**
+             * Content
+             */
+            for (PhotoInfo.Photo item : screenData.photos.data) {
+                extras = new Bundle();
+
+                extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
+                extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_ITEM_SCREEN);
+                extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
+                extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, screenData.photos.data);
+
+                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, spanCount / 3, extras));
             }
-            obj = new RecyclerItemWrapper.RecyclerItemObject();
-            obj.title = "More";
-            obj.id = AbstractFragment.PHOTO_SCREEN;
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, obj));
+
+            /**
+             * Footer
+             */
+            extras = new Bundle();
+            extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_SCREEN);
+            extras.putString(RecyclerItemWrapper.ITEM_IMAGE, getString(R.string.more));
+
+            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
         }
 
         if (screenData.news != null && screenData.news.size() > 0) {
-            RecyclerItemWrapper.RecyclerItemObject obj = new RecyclerItemWrapper.RecyclerItemObject();
-            obj.title = "News";
-            obj.id = AbstractFragment.NEWS_SCREEN;
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, spanCount, obj));
-            for (TopInfo.Response.ResponseData.News item : screenData.news) {
-                //TODO: cho nay chua hoan thien
-                obj = RecyclerItemWrapper.createItem(item.id, item.category_name, item.title, item.description, item.image_url);
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemList, spanCount, obj));
-            }
-            obj = new RecyclerItemWrapper.RecyclerItemObject();
-            obj.title = "More";
-            obj.id = AbstractFragment.NEWS_SCREEN;
+            /**
+             * Header
+             */
+            AppInfo.TopComponent component = this.appInfo.data.getTopComponent(screenData.news.top_id);
+            extras = new Bundle();
+            extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_SCREEN);
+            extras.putString(RecyclerItemWrapper.ITEM_TITLE, component.name);
+            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, spanCount, extras));
 
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, obj));
+            /**
+             * Content
+             */
+            for (NewsInfo.News item : screenData.news.data) {
+                extras = new Bundle();
+                extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
+                extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_DETAILS_SCREEN);
+                extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.title);
+                extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.description);
+                extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
+                extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
+                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemList, spanCount, extras));
+            }
+
+            /**
+             * Footer
+             */
+            extras = new Bundle();
+            extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_SCREEN);
+            extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
+            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
         }
 
-        /*TODO:if (screenData.addresses != null && screenData.addresses.size() > 0) {
-            for (TopInfo.Response.ResponseData.Address item : screenData.addresses) {
-                //TODO: cho nay chua hoan thien
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemStore, spanCount, item));
+        if (screenData.contact != null && screenData.contact.size() > 0) {
+            for (TopInfo.Contact contact : screenData.contact.data) {
+                /**
+                 * Content
+                 */
+                extras = new Bundle();
+                extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, contact);
+                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemStore, spanCount, extras));
+
+                /**
+                 * Footer
+                 */
+                extras = new Bundle();
+                extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.RESERVE_SCREEN);
+                extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.reserve));
+                extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, contact);
+                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
             }
-        }*/
+        }
 
         this.swipeRefreshLayout.setRefreshing(false);
         this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
@@ -207,9 +253,9 @@ public class FragmentHome
         } else {
             this.recyclerAdapter.notifyDataSetChanged();
         }
-
-        this.activityListener.updateSideMenuItems(this.sideMenuInfo);
+        toolbarSettings.appSetting = this.appInfo.data.app_setting;
         this.activityListener.updateAppInfo(this.appInfo, storeInfo.id);
+        this.activityListener.updateSideMenuItems(this.sideMenuInfo);
         this.activityListener.updateUserInfo(this.userInfo);
     }
 
@@ -229,61 +275,7 @@ public class FragmentHome
     }
 
     @Override
-    public int getItemCount() {
-        return screenDataItems.size();
-    }
-
-    @Override
-    public RecyclerItemWrapper getItemData(int position) {
-        return screenDataItems.get(position);
-    }
-
-    @Override
-    public void onCommonItemClick(int position, Bundle extraData) {
-        RecyclerItemWrapper item = (RecyclerItemWrapper) getItemData(position);
-
-        switch (item.itemType) {
-            case RecyclerItemTypeTopItem: {
-
-            }
-            break;
-
-            case RecyclerItemTypeHeader: {
-                RecyclerItemWrapper.RecyclerItemObject obj = (RecyclerItemWrapper.RecyclerItemObject) item.itemData;
-                this.activityListener.showScreen(obj.id);
-            }
-            break;
-            case RecyclerItemTypeItemList: {
-
-            }
-            break;
-            case RecyclerItemTypeItemStore: {
-
-            }
-            break;
-            case RecyclerItemTypeItemGrid: {
-
-            }
-            break;
-            case RecyclerItemTypeItemGridImageOnly: {
-
-            }
-            break;
-            case RecyclerItemTypeFooter: {
-
-            }
-            break;
-
-            default: {
-
-            }
-            break;
-        }
-        System.out.println(item.itemType);
-
-    }
-
-    protected void startup() {
+    protected void customResume() {
         if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
             //load needed data
             this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
@@ -304,10 +296,78 @@ public class FragmentHome
         }
     }
 
+    @Override
+    public int getItemCount() {
+        return screenDataItems.size();
+    }
+
+    @Override
+    public RecyclerItemWrapper getItemData(int position) {
+        return screenDataItems.get(position);
+    }
+
+    @Override
+    public void onCommonItemClick(int position, Bundle extraData) {
+        RecyclerItemWrapper item = getItemData(position);
+
+        switch (item.itemType) {
+            case RecyclerItemTypeTopItem: {
+                //Do nothing
+            }
+            break;
+
+            case RecyclerItemTypeHeader: {
+                int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
+                this.activityListener.showScreen(screenId, null);
+            }
+            break;
+
+            case RecyclerItemTypeItemList: {
+                //TODO:
+                int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
+                Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
+                this.activityListener.showScreen(screenId, extras);
+
+            }
+            break;
+
+            case RecyclerItemTypeItemStore: {
+                //Do nothing
+            }
+            break;
+
+            case RecyclerItemTypeItemGrid: {
+                int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
+                Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
+                this.activityListener.showScreen(screenId, extras);
+            }
+            break;
+
+            case RecyclerItemTypeItemGridImageOnly: {
+                int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
+                Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
+                this.activityListener.showScreen(screenId, extras);
+            }
+            break;
+
+            case RecyclerItemTypeFooter: {
+                int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
+                this.activityListener.showScreen(screenId, null);
+            }
+            break;
+
+            default: {
+                Assert.assertFalse("" + item.itemType, false);
+            }
+            break;
+        }
+        System.out.println(item.itemType);
+
+    }
+
     void loadAppInfo() {
         Bundle params = new Bundle();
         AppInfo.Request requestParams = new AppInfo.Request();
-        requestParams.app_id = 1;
 
         params.putSerializable(Key.RequestObject, requestParams);
         AppInfoCommunicator communicator = new AppInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
@@ -321,18 +381,19 @@ public class FragmentHome
                         if (FragmentHome.this.appInfo.data != null && FragmentHome.this.appInfo.data.stores.size() > 0) {
                             FragmentHome.this.storeInfo = FragmentHome.this.appInfo.data.stores.get(0);
                             FragmentHome.this.sideMenuInfo = FragmentHome.this.appInfo.data.side_menu;
+                            toolbarSettings.toolbarTitle = FragmentHome.this.appInfo.data.name;
                             loadTopInfo(FragmentHome.this.storeInfo.id);
                         } else {
                             String strMessage = "Invalid response data!";
-                            errorWithMessage(strMessage);
+                            errorWithMessage(responseParams, strMessage);
                         }
                     } else {
                         String strMessage = responseParams.getString(Key.ResponseMessage);
-                        errorWithMessage(strMessage);
+                        errorWithMessage(responseParams, strMessage);
                     }
                 } else {
                     String strMessage = responseParams.getString(Key.ResponseMessage);
-                    errorWithMessage(strMessage);
+                    errorWithMessage(responseParams, strMessage);
                 }
             }
         });
@@ -342,7 +403,6 @@ public class FragmentHome
     void loadTopInfo(final int storeId) {
         Bundle params = new Bundle();
         TopInfo.Request requestParams = new TopInfo.Request();
-        requestParams.app_id = 1;
         params.putSerializable(Key.RequestObject, requestParams);
         TopInfoCommunicator communicator = new TopInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
             @Override
@@ -357,11 +417,11 @@ public class FragmentHome
                         loadUserInfo();
                     } else {
                         String strMessage = responseParams.getString(Key.ResponseMessage);
-                        errorWithMessage(strMessage);
+                        errorWithMessage(responseParams, strMessage);
                     }
                 } else {
                     String strMessage = responseParams.getString(Key.ResponseMessage);
-                    errorWithMessage(strMessage);
+                    errorWithMessage(responseParams, strMessage);
                 }
             }
         });
@@ -369,13 +429,29 @@ public class FragmentHome
     }
 
     void loadUserInfo() {
-        Bundle params = new Bundle();
-        UserInfoCommunicator communicator = new UserInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-            @Override
-            public void completed(TenpossCommunicator request, Bundle responseParams) {
-                previewScreenData();
-            }
-        });
-        communicator.execute(params);
+        if (this.userInfo != null) {
+            Bundle params = new Bundle();
+            UserInfoCommunicator communicator = new UserInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
+                @Override
+                public void completed(TenpossCommunicator request, Bundle responseParams) {
+                    int result = responseParams.getInt(Key.ResponseResult);
+                    if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                        int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                        if (resultApi == CommonResponse.ResultSuccess) {
+                            previewScreenData();
+                        } else {
+                            String strMessage = responseParams.getString(Key.ResponseMessage);
+                            errorWithMessage(responseParams, strMessage);
+                        }
+                    } else {
+                        String strMessage = responseParams.getString(Key.ResponseMessage);
+                        errorWithMessage(responseParams, strMessage);
+                    }
+                }
+            });
+            communicator.execute(params);
+        } else {
+            previewScreenData();
+        }
     }
 }

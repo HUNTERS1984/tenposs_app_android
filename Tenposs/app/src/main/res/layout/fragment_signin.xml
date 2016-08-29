@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="jp.tenposs.tenposs.FragmentSignin">
+    tools:context=".FragmentSignIn">
 
     <ImageView
         android:layout_width="match_parent"
@@ -17,6 +17,16 @@
         android:id="@+id/background_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:gravity="center"
+        android:text="@string/app_name"
+        android:textAllCaps="true"
+        android:textAppearance="@android:style/TextAppearance.Large"
+        android:textColor="@android:color/white" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -41,13 +51,23 @@
                 android:layout_marginLeft="10dip"
                 android:layout_marginTop="10dip" />
 
+            <com.facebook.login.widget.LoginButton
+                android:id="@+id/facebook_login"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center_horizontal"
+                android:background="@android:color/transparent"
+                android:visibility="invisible" />
+
             <Button
                 android:id="@+id/facebook_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:text="Facebook"
-                android:textColor="@android:color/white" />
+                android:textColor="@android:color/white"
+                android:visibility="visible" />
         </RelativeLayout>
 
         <RelativeLayout

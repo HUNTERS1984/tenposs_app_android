@@ -10,10 +10,11 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import jp.tenposs.datamodel.Key;
-import jp.tenposs.datamodel.TopInfo;
 import jp.tenposs.listener.OnCommonItemClickListener;
 import jp.tenposs.tenposs.R;
 
@@ -21,16 +22,21 @@ import jp.tenposs.tenposs.R;
  * Created by ambient on 8/1/16.
  */
 public class FilmstripAdapter extends PagerAdapter {
+
+    public static abstract class ImageUrl {
+        public abstract String getImageUrl();
+    }
+
     Context mContext;
-    List<TopInfo.Response.ResponseData.Image> mainData;
+    ArrayList<?> mainData;
     OnCommonItemClickListener mClickListener;
 
-    public FilmstripAdapter(Context context, List<TopInfo.Response.ResponseData.Image> data) {
+    public FilmstripAdapter(Context context, ArrayList<?> data) {
         this.mContext = context;
         this.mainData = data;
     }
 
-    public FilmstripAdapter(Context context, List<TopInfo.Response.ResponseData.Image> data, OnCommonItemClickListener l) {
+    public FilmstripAdapter(Context context, ArrayList<?> data, OnCommonItemClickListener l) {
         this.mContext = context;
         this.mainData = data;
         this.mClickListener = l;
@@ -50,22 +56,23 @@ public class FilmstripAdapter extends PagerAdapter {
 
         itemThumbnail = (ImageView) root.findViewById(R.id.item_thumbnail);
 
-        TopInfo.Response.ResponseData.Image image = getItem(position);
-        String strThumbUrl = image.image_url;
-        Picasso ps = Picasso.with(mContext);
-        ps.load("http://media.foody.vn/video/s800x450/foody-1-636027930843054179.jpg")
-        //ps.load(strThumbUrl)
-                .resize(640, 360)
-                .centerInside()
-                .into(itemThumbnail);
-
+        ImageUrl image = getItem(position);
+        if (image.getImageUrl() != null) {
+            Picasso ps = Picasso.with(mContext);
+            ps.load(image.getImageUrl())
+                    .resize(640, 360)
+                    .centerInside()
+                    .into(itemThumbnail);
+        }
         final int itemPosition = position;
         root.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Bundle extraData = new Bundle();
-                extraData.putSerializable(Key.RequestObject, getItem(itemPosition));
-                mClickListener.onCommonItemClick(itemPosition, extraData);
+                if (mClickListener != null) {
+                    Bundle extraData = new Bundle();
+                    extraData.putSerializable(Key.RequestObject, (Serializable) getItem(itemPosition));
+                    mClickListener.onCommonItemClick(itemPosition, extraData);
+                }
             }
         });
         container.addView(root);
@@ -89,8 +96,8 @@ public class FilmstripAdapter extends PagerAdapter {
         return 0;
     }
 
-    public TopInfo.Response.ResponseData.Image getItem(int position) {
-        return this.mainData.get(position);
+    public ImageUrl getItem(int position) {
+        return (ImageUrl) this.mainData.get(position);
     }
 
     @Override

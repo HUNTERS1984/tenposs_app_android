@@ -5,7 +5,7 @@ package jp.tenposs.adapter;
  */
 public enum RecyclerItemType {
     RecyclerItemTypeNone,
-
+    RecyclerItemTypeTopImage,
     RecyclerItemTypeTopItem,
 
     RecyclerItemTypeHeader,
@@ -13,7 +13,20 @@ public enum RecyclerItemType {
     RecyclerItemTypeItemStore,
     RecyclerItemTypeItemGrid,
     RecyclerItemTypeItemGridImageOnly,
+
+    ///Product
+    RecyclerItemTypeProductImage,
+    RecyclerItemTypeProductTitle,
+    RecyclerItemTypeProductDescription,
+
+    //News
+    RecyclerItemTypeNewsImage,
+    RecyclerItemTypeNewsTitle,
+    RecyclerItemTypeNewsDescription,
+
     RecyclerItemTypeFooter;
+
+
 
     public static RecyclerItemType fromInt(int recyclerItemType) {
         for (RecyclerItemType type : RecyclerItemType.values()) {

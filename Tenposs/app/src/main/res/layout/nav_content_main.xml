@@ -4,9 +4,9 @@
     android:layout_height="match_parent">
 
     <LinearLayout
+        android:id="@+id/main_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorMenuBackground"
         android:orientation="vertical">
 
 
@@ -16,37 +16,64 @@
             android:gravity="center_vertical"
             android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-            <LinearLayout
+            <RelativeLayout
                 android:id="@+id/user_info_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:visibility="gone">
+                android:visibility="visible">
 
                 <ImageView
                     android:id="@+id/user_avatar_image"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="10dip"
-                    android:paddingTop="@dimen/nav_header_vertical_spacing"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="@dimen/item_margin"
+                    android:layout_marginRight="@dimen/item_margin"
                     android:src="@android:drawable/sym_def_app_icon" />
 
                 <TextView
                     android:id="@+id/user_name_label"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingTop="@dimen/nav_header_vertical_spacing"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="@dimen/item_margin"
+                    android:layout_toRightOf="@+id/user_avatar_image"
                     android:text="@string/username"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
-            </LinearLayout>
 
-            <Button
-                android:id="@+id/signin_button"
+                <Button
+                    android:id="@+id/user_info_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/transparent" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/signin_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#00FFFFFF"
-                android:text="Sign In" />
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <Button
+                    android:id="@+id/signin_button"
+                    android:layout_width="0dip"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/item_margin"
+                    android:layout_marginRight="@dimen/item_margin"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:text="@string/signin" />
+
+                <Button
+                    android:id="@+id/signup_button"
+                    android:layout_width="0dip"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="@dimen/item_margin"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:text="@string/signup" />
+            </LinearLayout>
 
         </RelativeLayout>
 

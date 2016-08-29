@@ -1,5 +1,7 @@
 package jp.tenposs.datamodel;
 
+import android.graphics.Color;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -8,11 +10,10 @@ import java.util.ArrayList;
  */
 public class AppInfo {
     public static class Request extends CommonRequest {
-        public int app_id;
 
         @Override
         String sigInput() {
-            return privateKey + "" + time;
+            return app_id + "" + time + "" + privateKey;
         }
     }
 
@@ -32,55 +33,138 @@ public class AppInfo {
 
             public AppSetting app_setting;
 
-            public class AppSetting implements Serializable {
-                public int id;
-                public int app_id;
-                public String title;
-                public String title_color;
-                public int font_size;
-                public String font_family;
-                public String header_color;
-                public String menu_icon_color;
-                public String menu_background_color;
-                public String menu_font_color;
-                public int menu_font_size;
-                public String menu_font_family;
-                public int template_id;
+            public TopComponent getTopComponent(int id) {
+                for (TopComponent component : top_components) {
+                    if (component.id == id) {
+                        return component;
+                    }
+                }
+                return null;
             }
 
             public ArrayList<TopComponent> top_components;
 
-            public class TopComponent implements Serializable {
-                public int id;
-                public String name;
-                public Pivot pivot;
-
-                public class Pivot implements Serializable {
-                    public int app_setting_id;
-                    public int component_id;
-                }
-            }
 
             public ArrayList<SideMenu> side_menu;
 
-            public class SideMenu implements Serializable {
-                public int id;
-                public String name;
-                public Pivot pivot;
-
-                public class Pivot implements Serializable {
-                    public int app_setting_id;
-                    public int sidemenu_id;
-                }
-            }
 
             public ArrayList<Store> stores;
 
-            public class Store implements Serializable {
-                public int id;
-                public String name;
-                public int app_id;
+
+        }
+    }
+
+    public class TopComponent implements Serializable {
+        public int id;
+        public String name;
+        public Pivot pivot;
+
+        public class Pivot implements Serializable {
+            public int app_setting_id;
+            public int component_id;
+        }
+    }
+
+    public class SideMenu implements Serializable {
+        public int id;
+        public String name;
+        public Pivot pivot;
+        public String icon = "";
+
+        public class Pivot implements Serializable {
+            public int app_setting_id;
+            public int sidemenu_id;
+        }
+    }
+
+    public class Store implements Serializable {
+        public int id;
+        public String name;
+        public int app_id;
+    }
+
+    public class AppSetting implements Serializable {
+        public int id;
+        public int app_id;
+        public String title;
+        public String title_color;
+        public int font_size;
+        public String font_family;
+        public String header_color;
+        public String menu_icon_color;
+        public String menu_background_color;
+        public String menu_font_color;
+        public int menu_font_size;
+        public String menu_font_family;
+        public int template_id;
+
+        public int getToolbarIconColor() {
+            try {
+                String color = title_color;
+                if (color.indexOf("#") != 0) {
+                    color = "#" + title_color;
+                }
+                return Color.parseColor(color);
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
+            return Color.BLACK;
+        }
+
+        public int getToolbarTitleColor() {
+            try {
+                String color = title_color;
+                if (color.indexOf("#") != 0) {
+                    color = "#" + title_color;
+                }
+                return Color.parseColor(color);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return Color.BLACK;
+        }
+
+        public int getMenuBackgroundColor() {
+            try {
+                String color = menu_background_color;
+                if (color.indexOf("#") != 0) {
+                    color = "#" + menu_background_color;
+                }
+                return Color.parseColor(color);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return Color.BLACK;
+        }
+
+        public int getMenuIconColor() {
+            try {
+                String color = menu_icon_color;
+                if (color.indexOf("#") != 0) {
+                    color = "#" + menu_icon_color;
+                }
+                return Color.parseColor(color);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return Color.BLACK;
+        }
+
+        public int getMenuTitleColor() {
+            try {
+                String color = menu_font_color;
+                if (color.indexOf("#") != 0) {
+                    color = "#" + menu_font_color;
+                }
+                return Color.parseColor(color);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return Color.BLACK;
+        }
+
+        public String getToolBarTitleFont() {
+            return "fonts/" + font_family + ".ttf";
         }
     }
 }

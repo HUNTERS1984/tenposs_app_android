@@ -4,21 +4,22 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_recycler_item"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:orientation="vertical">
 
     <ImageView
         android:id="@+id/item_image"
-        android:background="@drawable/bg_image"
+        android:background="@drawable/bg_image_list"
         android:contentDescription="@string/image_description"
         app:layout_aspectRatio="100%"
-        app:layout_widthPercent="30%" />
+        app:layout_widthPercent="100%" />
 
     <LinearLayout
         android:id="@+id/item_info_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dip"
-        android:layout_toRightOf="@+id/item_image"
+        android:layout_below="@+id/item_image"
         android:orientation="vertical">
 
         <TextView
@@ -26,25 +27,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dip"
-            android:text="Title"
-            android:textColor="#00CECB" />
+            android:textColor="#222222" />
 
         <TextView
             android:id="@+id/item_description_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dip"
-            android:text="Description"
             android:textColor="#222222" />
-
-        <TextView
-            android:id="@+id/item_more_description_label"
-            android:layout_width="match_parent"
-            android:layout_height="0dip"
-            android:layout_marginTop="10dip"
-            android:layout_weight="1"
-            android:text="More Description"
-            android:textColor="#808080" />
 
     </LinearLayout>
 </android.support.percent.PercentRelativeLayout>

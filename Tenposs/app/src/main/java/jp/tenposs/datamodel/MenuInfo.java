@@ -12,7 +12,9 @@ public class MenuInfo {
 
         @Override
         String sigInput() {
-            return store_id + "" + privateKey + "" + time;
+            //sha256(app_id + time  + store_id + secret_key)
+            return app_id + "" + time + "" + store_id + "" + privateKey;
+//            return store_id + "" + privateKey + "" + time;
         }
     }
 
@@ -22,10 +24,12 @@ public class MenuInfo {
         public class ResponseData implements Serializable {
             public ArrayList<Menu> menus;
 
-            public class Menu implements Serializable {
-                public int id;
-                public String name;
-            }
+
         }
+    }
+
+    public class Menu implements Serializable {
+        public int id;
+        public String name;
     }
 }

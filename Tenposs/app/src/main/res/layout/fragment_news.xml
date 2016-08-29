@@ -8,10 +8,23 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="jp.tenposs.tenposs.FragmentNews">
 
+    <View
+        android:id="@+id/top_separate"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dip"
+        android:background="@color/colorSeparate" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/top_separate"
+        android:background="@android:color/white" />
+
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/top_separate"
         android:background="@android:color/white">
 
         <LinearLayout
@@ -19,15 +32,11 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.5dip"
-                android:background="@color/colorSeparate" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:visibility="gone">
 
 
                 <ImageButton
@@ -62,7 +71,8 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.5dip"
-                android:background="@color/colorSeparate" />
+                android:background="@color/colorSeparate"
+                android:visibility="gone" />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recycler_view"

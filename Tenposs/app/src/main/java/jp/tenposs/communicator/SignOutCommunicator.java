@@ -5,8 +5,8 @@ import android.os.Bundle;
 /**
  * Created by ambient on 7/26/16.
  */
-public class LogoutCommunicator extends TenpossCommunicator {
-    public LogoutCommunicator(TenpossCommunicatorListener listener) {
+public class SignOutCommunicator extends TenpossCommunicator {
+    public SignOutCommunicator(TenpossCommunicatorListener listener) {
         super(listener);
     }
 

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceGroup xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceScreen
+        android:key="detail"
+        android:title="@string/edit_profile" />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="pref_sync"
+        android:title="@string/notify" />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="pref_sync"
+        android:title="@string/receive_coupon_information" />
+    <EditTextPreference
+        android:key="detail"
+        android:title="@string/edit_profile" />
+
+    <PreferenceScreen
+        android:key="detail"
+        android:title="@string/issue_the_takeover_code_during_the_model_change" />
+    <PreferenceScreen
+        android:key="detail"
+        android:title="@string/company_info" />
+    <PreferenceScreen
+        android:key="detail"
+        android:title="@string/user_privacy" />
+</PreferenceGroup>

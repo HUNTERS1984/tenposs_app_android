@@ -5,16 +5,16 @@ import android.os.Bundle;
 /**
  * Created by ambient on 7/26/16.
  */
-public class LoginCommunicator extends TenpossCommunicator {
+public class SignInCommunicator extends TenpossCommunicator {
 
-    public LoginCommunicator(TenpossCommunicatorListener listener) {
+    public SignInCommunicator (TenpossCommunicatorListener listener) {
         super(listener);
     }
 
     @Override
     protected boolean request(Bundle bundle) {
 
-        String strUrl = API_ADDRESS + API_LOGIN;
+        String strUrl = API_LOGIN;
 
         strUrl += "";
 

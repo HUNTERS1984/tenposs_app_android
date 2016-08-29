@@ -2,6 +2,7 @@ package jp.tenposs.tenposs;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
@@ -20,7 +21,7 @@ import jp.tenposs.adapter.RecyclerItemWrapper;
 import jp.tenposs.communicator.ItemInfoCommunicator;
 import jp.tenposs.communicator.MenuInfoCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
-import jp.tenposs.datamodel.AppSettings;
+import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.ItemInfo;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.MenuInfo;
@@ -42,7 +43,7 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
     SwipeRefreshLayout swipeRefreshLayout;
     MenuInfo.Response screenData;
     ItemInfo.Response screenItem;
-MenuInfo.Response.ResponseData.Menu currentMenu;
+    MenuInfo.Menu currentMenu;
     int currentMenuIndex;
 
     /**
@@ -52,7 +53,7 @@ MenuInfo.Response.ResponseData.Menu currentMenu;
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-//        outState.putSerializable(SCREEN_DATA, this.screenData);
+        outState.putSerializable(SCREEN_DATA, this.screenData);
         outState.putInt(SCREEN_DATA_STATUS, this.screenDataStatus.ordinal());
     }
 
@@ -74,12 +75,8 @@ MenuInfo.Response.ResponseData.Menu currentMenu;
     }
 
     @Override
-    void loadSavedInstanceState(@Nullable Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(SCREEN_DATA)) {
-//                this.screenData = (ArrayList<AppInfo.Response.ResponseData.Menu>) savedInstanceState.getSerializable(SCREEN_DATA);
-            }
-        }
+    void setRefreshing(boolean refreshing) {
+        this.swipeRefreshLayout.setRefreshing(refreshing);
     }
 
     @Override
@@ -89,17 +86,9 @@ MenuInfo.Response.ResponseData.Menu currentMenu;
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings = new ToolbarSettings();
         toolbarSettings.toolbarTitle = "Menu";
         toolbarSettings.toolbarIcon = "ti-menu";
         toolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
-
-        toolbarSettings.settings = new AppSettings.Settings();
-        toolbarSettings.settings.fontColor = "#00CECB";
-
-        toolbarSettings.titleSettings = new AppSettings.Settings();
-        toolbarSettings.titleSettings.fontColor = "#000000";
-        toolbarSettings.titleSettings.fontSize = 20;
     }
 
     @Override
@@ -120,9 +109,14 @@ MenuInfo.Response.ResponseData.Menu currentMenu;
 
         screenDataItems = new ArrayList<>();
 
-        for (ItemInfo.Response.ResponseData.Item item : screenItem.data.items) {
-            RecyclerItemWrapper.RecyclerItemObject obj = RecyclerItemWrapper.createItem(item.id, item.title, item.price, null, item.image_url);
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, spanCount / 2, obj));
+        for (ItemInfo.Item item : screenItem.data.items) {
+//            RecyclerItemWrapper.RecyclerItemObject obj = RecyclerItemWrapper.createItem(
+            Bundle extras = new Bundle();
+            extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
+            extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.title);
+            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.price);
+            extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
+            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, spanCount / 2, extras));
         }
 
         titleLabel.setText(currentMenu.name);
@@ -154,7 +148,15 @@ MenuInfo.Response.ResponseData.Menu currentMenu;
         return mRoot;
     }
 
-    protected void startup() {
+    @Override
+    void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
+        if (savedInstanceState.containsKey(SCREEN_DATA)) {
+            //this.screenData = (TopInfo.Response.ResponseData) savedInstanceState.getSerializable(SCREEN_DATA);
+        }
+    }
+
+    @Override
+    protected void customResume() {
         if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
             //load needed data
             this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
@@ -185,31 +187,58 @@ MenuInfo.Response.ResponseData.Menu currentMenu;
         MenuInfoCommunicator communicator = new MenuInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
             @Override
             public void completed(TenpossCommunicator request, Bundle responseParams) {
-                screenData = (MenuInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-
-                loadMenuItem(currentMenuIndex);
+                int result = responseParams.getInt(Key.ResponseResult);
+                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                    if (resultApi == CommonResponse.ResultSuccess) {
+                        screenData = (MenuInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                        loadMenuItem(currentMenuIndex);
+                    } else {
+                        String strMessage = responseParams.getString(Key.ResponseMessage);
+                        errorWithMessage(responseParams, strMessage);
+                    }
+                } else {
+                    String strMessage = responseParams.getString(Key.ResponseMessage);
+                    errorWithMessage(responseParams, strMessage);
+                }
             }
         });
         communicator.execute(params);
     }
 
     void loadMenuItem(int menuIndex) {
-        currentMenu = screenData.data.menus.get(menuIndex);
-        ItemInfo.Request requestParams = new ItemInfo.Request();
-        requestParams.menu_id = currentMenu.id;
-        requestParams.pageindex = 1;
-        requestParams.pagesize = 20;
+        try {
+            currentMenu = screenData.data.menus.get(menuIndex);
+            ItemInfo.Request requestParams = new ItemInfo.Request();
+            requestParams.menu_id = currentMenu.id;
+            requestParams.pageindex = 1;
+            requestParams.pagesize = 20;
 
-        Bundle params = new Bundle();
-        params.putSerializable(Key.RequestObject, requestParams);
-        ItemInfoCommunicator communicator = new ItemInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-            @Override
-            public void completed(TenpossCommunicator request, Bundle responseParams) {
-                screenItem = (ItemInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                previewScreenData();
-            }
-        });
-        communicator.execute(params);
+            Bundle params = new Bundle();
+            params.putSerializable(Key.RequestObject, requestParams);
+            ItemInfoCommunicator communicator = new ItemInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
+                @Override
+                public void completed(TenpossCommunicator request, Bundle responseParams) {
+                    int result = responseParams.getInt(Key.ResponseResult);
+                    if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                        int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                        if (resultApi == CommonResponse.ResultSuccess) {
+                            screenItem = (ItemInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                            previewScreenData();
+                        } else {
+                            String strMessage = responseParams.getString(Key.ResponseMessage);
+                            errorWithMessage(responseParams, strMessage);
+                        }
+                    } else {
+                        String strMessage = responseParams.getString(Key.ResponseMessage);
+                        errorWithMessage(responseParams, strMessage);
+                    }
+                }
+            });
+            communicator.execute(params);
+        } catch (Exception ignored) {
+            ignored.printStackTrace();
+        }
     }
 
     boolean hasPrevious() {
@@ -221,22 +250,28 @@ MenuInfo.Response.ResponseData.Menu currentMenu;
     }
 
     void previousMenu() {
+        if (hasPrevious() == false) {
+            return;
+        }
         try {
             if (currentMenuIndex > 0) {
                 currentMenuIndex--;
             }
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
 
         }
         loadMenuItem(currentMenuIndex);
     }
 
     void nextMenu() {
+        if (hasNext() == false) {
+            return;
+        }
         try {
             if (currentMenuIndex < this.screenData.data.menus.size() - 1) {
                 currentMenuIndex++;
             }
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
 
         }
         loadMenuItem(currentMenuIndex);

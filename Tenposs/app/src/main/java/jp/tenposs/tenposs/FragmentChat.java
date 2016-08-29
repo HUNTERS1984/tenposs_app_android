@@ -1,12 +1,10 @@
 package jp.tenposs.tenposs;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import jp.tenposs.datamodel.AppSettings;
 
 /**
  * Created by ambient on 8/4/16.
@@ -19,22 +17,9 @@ public class FragmentChat extends AbstractFragment {
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings = new ToolbarSettings();
         toolbarSettings.toolbarTitle = "Chat";
         toolbarSettings.toolbarIcon = "ti-menu";
         toolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
-
-        toolbarSettings.settings = new AppSettings.Settings();
-        toolbarSettings.settings.fontColor = "#00CECB";
-
-        toolbarSettings.titleSettings = new AppSettings.Settings();
-        toolbarSettings.titleSettings.fontColor = "#000000";
-        toolbarSettings.titleSettings.fontSize = 20;
-    }
-
-    @Override
-    protected void startup() {
-
     }
 
     @Override
@@ -54,7 +39,19 @@ public class FragmentChat extends AbstractFragment {
     }
 
     @Override
-    void loadSavedInstanceState(@Nullable Bundle savedInstanceState) {
+    protected void customResume() {
+        previewScreenData();
+    }
+
+    @Override
+    void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
+        if (savedInstanceState.containsKey(SCREEN_DATA)) {
+            //this.screenData = (TopInfo.Response.ResponseData) savedInstanceState.getSerializable(SCREEN_DATA);
+        }
+    }
+
+    @Override
+    void setRefreshing(boolean refreshing) {
 
     }
 }

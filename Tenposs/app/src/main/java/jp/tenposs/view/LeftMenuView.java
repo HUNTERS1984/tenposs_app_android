@@ -14,13 +14,15 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
 import jp.tenposs.datamodel.AppInfo;
 import jp.tenposs.datamodel.Key;
-import jp.tenposs.datamodel.LoginInfo;
+import jp.tenposs.datamodel.SignInInfo;
+import jp.tenposs.tenposs.AbstractFragment;
 import jp.tenposs.tenposs.R;
 import jp.tenposs.utils.ThemifyIcon;
 
@@ -34,10 +36,10 @@ public class LeftMenuView extends FrameLayout {
         void onClick(int position, Bundle params);
     }
 
-    class LeftMenuAdapter extends ArrayAdapter<AppInfo.Response.ResponseData.SideMenu> {
+    class LeftMenuAdapter extends ArrayAdapter<AppInfo.SideMenu> {
         LayoutInflater mInflater;
 
-        public LeftMenuAdapter(Context context, int resource, ArrayList<AppInfo.Response.ResponseData.SideMenu> objects) {
+        public LeftMenuAdapter(Context context, int resource, ArrayList<AppInfo.SideMenu> objects) {
             super(context, resource, objects);
             mInflater = LayoutInflater.from(context);
         }
@@ -50,17 +52,19 @@ public class LeftMenuView extends FrameLayout {
             } else {
                 row = convertView;
             }
-            AppInfo.Response.ResponseData.SideMenu item = getItem(position);
+            AppInfo.SideMenu item = getItem(position);
             ImageView menuIcon = (ImageView) row.findViewById(R.id.item_image);
             TextView menuTitle = (TextView) row.findViewById(R.id.item_label);
+            menuTitle.setTextColor(settings.getMenuTitleColor());
             menuTitle.setText(item.name);
             menuIcon.setImageBitmap(ThemifyIcon.fromThemifyIcon(getContext().getAssets(),
                     //item.itemIcon,
                     //item.icon,
-                    "ti-menu-alt",
+                    item.icon,
+//                    "ti-menu-alt",
                     60,
                     Color.argb(0, 0, 0, 0),
-                    Color.argb(255, 255, 255, 255)
+                    settings.getMenuIconColor()
             ));
             return row;
         }
@@ -68,17 +72,22 @@ public class LeftMenuView extends FrameLayout {
 
     Context mContext;
 
+    LinearLayout mainLayout;
     ImageView userAvatarImage;
     TextView userNameLabel;
 
-    LinearLayout userInfoLayout;
+    RelativeLayout userInfoLayout;
+    Button userInfoButton;
     Button signinButton;
+    Button signupButton;
+    LinearLayout signInLayout;
 
     ListView listView;
     LeftMenuAdapter leftMenuAdapter;
 
-    ArrayList<AppInfo.Response.ResponseData.SideMenu> screenData;
-    LoginInfo.Response userInfo;
+    ArrayList<AppInfo.SideMenu> screenData;
+    AppInfo.AppSetting settings;
+    SignInInfo.Response userInfo;
 
     OnLeftMenuItemClickListener onItemClickListener;
 
@@ -106,20 +115,45 @@ public class LeftMenuView extends FrameLayout {
 
     void initView(Context context) {
         View rootView = View.inflate(context, R.layout.nav_content_main, this);
-        this.userInfoLayout = (LinearLayout) rootView.findViewById(R.id.user_info_layout);
+        this.mainLayout = (LinearLayout) rootView.findViewById(R.id.main_layout);
+        this.userInfoLayout = (RelativeLayout) rootView.findViewById(R.id.user_info_layout);
+        this.userInfoButton = (Button) rootView.findViewById(R.id.user_info_button);
+        this.signInLayout = (LinearLayout) rootView.findViewById(R.id.signin_layout);
         this.signinButton = (Button) rootView.findViewById(R.id.signin_button);
+        this.signupButton = (Button) rootView.findViewById(R.id.signup_button);
         this.userAvatarImage = (ImageView) rootView.findViewById(R.id.user_avatar_image);
         this.userNameLabel = (TextView) rootView.findViewById(R.id.user_name_label);
         this.listView = (ListView) rootView.findViewById(R.id.list_view);
 
         this.userInfoLayout.setVisibility(View.GONE);
         this.signinButton.setVisibility(View.VISIBLE);
+
         this.signinButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (onItemClickListener != null) {
                     Bundle params = new Bundle();
-//                    params.putSerializable(Key.RequestObject, );
+                    params.putInt(AbstractFragment.SCREEN_DATA, AbstractFragment.SIGNIN_SCREEN);
+                    onItemClickListener.onClick(-1, params);
+                }
+            }
+        });
+        this.signupButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onItemClickListener != null) {
+                    Bundle params = new Bundle();
+                    params.putInt(AbstractFragment.SCREEN_DATA, AbstractFragment.SIGNUP_SCREEN);
+                    onItemClickListener.onClick(-1, params);
+                }
+            }
+        });
+        this.userInfoButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onItemClickListener != null) {
+                    Bundle params = new Bundle();
+                    params.putInt(AbstractFragment.SCREEN_DATA, AbstractFragment.PROFILE_SCREEN);
                     onItemClickListener.onClick(-1, params);
                 }
             }
@@ -131,13 +165,25 @@ public class LeftMenuView extends FrameLayout {
         super.onLayout(changed, left, top, right, bottom);
     }
 
-    public void updateUserInfo(LoginInfo.Response userInfo) {
+    public void updateUserInfo(SignInInfo.Response userInfo) {
         this.userInfo = userInfo;
+        if (this.userInfo != null) {
+            this.userInfoLayout.setVisibility(View.VISIBLE);
+            this.signInLayout.setVisibility(View.GONE);
+        } else {
+            userInfoLayout.setVisibility(View.GONE);
+            this.signInLayout.setVisibility(View.VISIBLE);
+        }
     }
 
-    public void updateMenuItems(ArrayList<AppInfo.Response.ResponseData.SideMenu> sideMenus) {
-        screenData = sideMenus;
-        leftMenuAdapter = new LeftMenuAdapter(mContext, R.layout.nav_content_item, screenData);
+    public void updateMenuItems(AppInfo.AppSetting settings, ArrayList<AppInfo.SideMenu> sideMenus) {
+        this.settings = settings;
+        this.screenData = sideMenus;
+
+        this.signinButton.setTextColor(settings.getMenuTitleColor());
+        this.signupButton.setTextColor(settings.getMenuTitleColor());
+        this.mainLayout.setBackgroundColor(this.settings.getMenuBackgroundColor());
+        this.leftMenuAdapter = new LeftMenuAdapter(mContext, R.layout.nav_content_item, screenData);
         this.listView.setAdapter(leftMenuAdapter);
         this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

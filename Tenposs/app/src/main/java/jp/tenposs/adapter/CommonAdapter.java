@@ -3,6 +3,8 @@ package jp.tenposs.adapter;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.GridLayoutManager;
@@ -19,12 +21,15 @@ import com.squareup.picasso.Picasso;
 
 import junit.framework.Assert;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import jp.tenposs.datamodel.TopInfo;
 import jp.tenposs.listener.OnCommonItemClickListener;
 import jp.tenposs.tenposs.R;
 import jp.tenposs.utils.ThemifyIcon;
+import jp.tenposs.view.NewsTitle;
+import jp.tenposs.view.ProductDescription;
+import jp.tenposs.view.ProductTitle;
 
 /**
  * Created by ambient on 7/29/16.
@@ -49,7 +54,8 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
             if (holder instanceof CommonViewHolder) {
                 CommonViewHolder parentHolder = (CommonViewHolder) holder;
                 if (parentHolder.itemType == RecyclerItemType.RecyclerItemTypeTopItem ||
-                        parentHolder.itemType == RecyclerItemType.RecyclerItemTypeItemStore) {
+                        parentHolder.itemType == RecyclerItemType.RecyclerItemTypeItemStore ||
+                        parentHolder.itemType == RecyclerItemType.RecyclerItemTypeProductImage) {
                     return false;
                 }
             }
@@ -68,22 +74,27 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                 int itemSpanIndex = layoutParams.getSpanIndex();
                 int itemSpanSize = layoutParams.getSpanSize();
 
-                int itemPosition = parent.getChildLayoutPosition(view);
-                if (itemSpanIndex == 0) {
+                /*if (itemSpanIndex == 0) {
+                    //Start
                     left = margin;
                     right = margin / 2;
-
-                } else if (itemSpanIndex + itemSpanSize == parentLayoutManager.getSpanCount()) {
+                }else if (itemSpanIndex == 4){
+                //} else if (itemSpanIndex + itemSpanSize == parentLayoutManager.getSpanCount()) {
+                    //End
                     left = margin / 2;
                     right = margin;
 
                 } else {
+                    //Middle
                     left = margin / 2;
                     right = margin / 2;
-                }
-
+                }*/
+                left = margin / 2;
+                right = margin / 2;
                 top = margin / 2;
                 bottom = margin / 2;
+
+                System.out.println(itemSpanIndex + " " + left + "," + right + "," + top + "," + bottom);
 
                 outRect.set(left, top, right, bottom);
 
@@ -110,11 +121,12 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
 
     public class CommonViewHolder
             extends
-            RecyclerView.ViewHolder {
+            RecyclerView.ViewHolder implements ViewPager.OnPageChangeListener {
         Context mContext;
         OnCommonItemClickListener mClickListener;
         View mRow;
         RecyclerItemType itemType;
+        boolean needDecoration;
 
         //Grid
         LinearLayout itemInfoLayout;
@@ -144,6 +156,17 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
         //Footer
         Button footerButton;
 
+        //Product Title
+        ProductTitle productTitle;
+
+        //Product Description
+        ProductDescription productDescription;
+
+        //News
+        NewsTitle newsTitle;
+        TextView newsDescription;
+
+
         public CommonViewHolder(View v, RecyclerItemType itemType, Context context, OnCommonItemClickListener l) {
             super(v);
             this.mRow = v;
@@ -157,6 +180,7 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
             switch (this.itemType) {
                 case RecyclerItemTypeTopItem: {
                     this.topItemViewPager = (ViewPager) this.mRow.findViewById(R.id.view_pager);
+                    this.pager_indicator = (LinearLayout) mRow.findViewById(R.id.viewPagerCountDots);
                 }
                 break;
 
@@ -190,6 +214,39 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                 }
                 break;
 
+                case RecyclerItemTypeProductImage: {
+                    itemImage = (ImageView) this.mRow.findViewById(R.id.item_image);
+                }
+                break;
+
+                case RecyclerItemTypeProductTitle: {
+                    productTitle = (ProductTitle) this.mRow.findViewById(R.id.product_title);
+
+                }
+                break;
+
+                case RecyclerItemTypeProductDescription: {
+                    productDescription = (ProductDescription) this.mRow.findViewById(R.id.product_description);
+                }
+                break;
+
+
+                case RecyclerItemTypeNewsImage: {
+                    itemImage = (ImageView) this.mRow.findViewById(R.id.item_image);
+                }
+                break;
+
+                case RecyclerItemTypeNewsTitle: {
+                    newsTitle = (NewsTitle) this.mRow.findViewById(R.id.product_title);
+
+                }
+                break;
+
+                case RecyclerItemTypeNewsDescription: {
+                    newsDescription = (TextView) this.mRow.findViewById(R.id.product_description);
+                }
+                break;
+
                 case RecyclerItemTypeFooter: {
                     footerButton = (Button) this.mRow.findViewById(R.id.footer_button);
                 }
@@ -200,37 +257,104 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
             }
         }
 
-        public void configureCell(final int itemPosition, RecyclerItemWrapper itemDataWrapper) {
+        int dotsCount;
+        ImageView[] dots;
+        LinearLayout pager_indicator;
+
+        private void setUiPageViewController() {
+            pager_indicator.removeAllViews();
+            dotsCount = this.topItemViewPager.getAdapter().getCount();
+            dots = new ImageView[dotsCount];
+            Drawable selected = null;
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                selected = mContext.getResources().getDrawable(R.drawable.selecteditem_dot);
+            } else {
+                selected = mContext.getResources().getDrawable(R.drawable.selecteditem_dot, null);
+            }
+            for (int i = 0; i < dotsCount; i++) {
+                dots[i] = new ImageView(this.mContext);
+                dots[i].setImageDrawable(mContext.getResources().getDrawable(R.drawable.nonselecteditem_dot));
+
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+
+                params.setMargins(4, 0, 4, 0);
+
+                pager_indicator.addView(dots[i], params);
+            }
+
+            dots[0].setImageDrawable(selected);
+        }
+
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+        }
+
+        @Override
+        public void onPageSelected(int position) {
+
+            Drawable nonSelected = null;
+            Drawable selected = null;
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                nonSelected = mContext.getResources().getDrawable(R.drawable.nonselecteditem_dot);
+                selected = mContext.getResources().getDrawable(R.drawable.selecteditem_dot);
+            } else {
+                nonSelected = mContext.getResources().getDrawable(R.drawable.nonselecteditem_dot, null);
+                selected = mContext.getResources().getDrawable(R.drawable.selecteditem_dot, null);
+            }
+            for (int i = 0; i < dotsCount; i++) {
+                dots[i].setImageDrawable(nonSelected);
+            }
+
+            dots[position].setImageDrawable(selected);
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+
+        }
+
+        public void configureCell(final int itemPosition, final RecyclerItemWrapper itemDataWrapper) {
             switch (this.itemType) {
                 case RecyclerItemTypeTopItem: {
-                    List<TopInfo.Response.ResponseData.Image> topItems = (List<TopInfo.Response.ResponseData.Image>) itemDataWrapper.itemData;
-                    FilmstripAdapter adapter = new FilmstripAdapter(mContext, topItems, new OnCommonItemClickListener() {
+                    ArrayList<TopInfo.Image> topItems = (ArrayList<TopInfo.Image>)
+                            itemDataWrapper.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
+
+
+                    FilmstripAdapter adapter = new FilmstripAdapter(mContext, (ArrayList<?>) topItems, new OnCommonItemClickListener() {
                         @Override
                         public void onCommonItemClick(int position, Bundle extraData) {
                             extraData.putInt(RecyclerItemType.class.getName(), itemType.ordinal());
-                            mClickListener.onCommonItemClick(itemPosition, extraData);
+                            //mClickListener.onCommonItemClick(itemPosition, extraData);
                         }
                     });
                     this.topItemViewPager.setAdapter(adapter);
+                    this.topItemViewPager.setOnPageChangeListener(this);
+                    setUiPageViewController();
                 }
                 break;
 
                 case RecyclerItemTypeHeader: {
-                    RecyclerItemWrapper.RecyclerItemObject object = (RecyclerItemWrapper.RecyclerItemObject) itemDataWrapper.itemData;
-                    headerTitle.setText(object.title);
+                    headerTitle.setText(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_TITLE));
                 }
                 break;
 
                 case RecyclerItemTypeItemStore: {
-                    //AppInfo.Response.ResponseData.Info storeInfo = (AppInfo.Response.ResponseData.Info) itemDataWrapper.itemData;
+                    TopInfo.Contact contact = (TopInfo.Contact)
+                            itemDataWrapper.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
                     Picasso ps = Picasso.with(mContext);
-                    String lat = "35.6585848";//storeInfo.latitude
-                    String lng = "139.7432496";//storeInfo.longitude
-                    String url = "http://maps.google.com/maps/api/staticmap?center=" + lat + "," + lng + "&zoom=15&size=500x200&sensor=false";
+                    String url = "http://maps.google.com/maps/api/staticmap?center=" +
+                            contact.latitude + "," +
+                            contact.longitude + "&zoom=15&size=500x200&sensor=false";
 
                     ps.load(url)
                             .resize(640, 360)
-                            .centerInside()
+                            .centerCrop()
                             .into(mapImage);
                     locationIcon.setImageBitmap(ThemifyIcon.fromThemifyIcon(mContext.getAssets(),
                             "ti-location-pin",
@@ -246,64 +370,106 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                             Color.argb(255, 128, 128, 128)
                     ));
 
-                    //String time = storeInfo.start_time + " - " + storeInfo.end_time;
-                    //timeLabel.setText(time);
+                    String time = contact.start_time + " - " + contact.end_time;
+                    timeLabel.setText(time);
 
-                    //phoneLabel.setText(storeInfo.tel);
+                    phoneLabel.setText(contact.tel);
                 }
                 break;
 
                 case RecyclerItemTypeItemList:
                 case RecyclerItemTypeItemGrid: {
-                    RecyclerItemWrapper.RecyclerItemObject item = (RecyclerItemWrapper.RecyclerItemObject) itemDataWrapper.itemData;
+
                     Picasso ps = Picasso.with(mContext);
-                    //ps.load(item.image)
-                    ps.load("http://media.foody.vn/images/blogs/s320x320/1(74).jpg")
+                    ps.load(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_IMAGE))
                             .resize(320, 320)
-                            .centerInside()
+                            .centerCrop()
                             .into(itemImage);
 
                     itemInfoLayout.setVisibility(View.VISIBLE);
                     if (itemTitleLabel != null) {
-                        if (item.title != null) {
-                            itemTitleLabel.setText(item.title);
+                        String itemTitle = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_TITLE);
+                        if (itemTitle != null) {
+                            itemTitleLabel.setText(itemTitle);
                         } else {
                             itemTitleLabel.setVisibility(View.GONE);
                         }
                     }
                     if (itemDescriptionLabel != null) {
-                        if (item.description != null) {
-                            itemDescriptionLabel.setText(item.description);
+                        String itemDescription = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_DESCRIPTION);
+                        if (itemDescription != null) {
+                            itemDescriptionLabel.setText(itemDescription);
                         } else {
                             itemDescriptionLabel.setVisibility(View.GONE);
                         }
                     }
                     if (itemMoreDescriptionLabel != null) {
-                        if (item.moreDescription != null) {
-                            itemMoreDescriptionLabel.setText(item.moreDescription);
-                        } else {
-                            itemMoreDescriptionLabel.setVisibility(View.GONE);
-                        }
+                        //if (item.moreDescription != null) {
+                        //  itemMoreDescriptionLabel.setText(item.moreDescription);
+                        //} else {
+                        itemMoreDescriptionLabel.setVisibility(View.GONE);
+                        //}
                     }
                 }
                 break;
 
                 case RecyclerItemTypeItemGridImageOnly: {
-                    RecyclerItemWrapper.RecyclerItemObject item = (RecyclerItemWrapper.RecyclerItemObject) itemDataWrapper.itemData;
                     Picasso ps = Picasso.with(mContext);
-                    //ps.load(item.image)
-                    ps.load("http://media.foody.vn/images/blogs/s320x320/1(74).jpg")
+                    ps.load(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_IMAGE))
                             .resize(320, 320)
-                            .centerInside()
+                            .centerCrop()
                             .into(itemImage);
 
                     itemInfoLayout.setVisibility(View.GONE);
                 }
                 break;
 
+                case RecyclerItemTypeProductImage: {
+                    Picasso ps = Picasso.with(mContext);
+                    ps.load(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_IMAGE))
+                            .resize(320, 320)
+                            .centerCrop()
+                            .into(itemImage);
+                }
+                break;
+
+                case RecyclerItemTypeProductTitle: {
+                    productTitle.reloadData(itemDataWrapper.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT));
+                }
+                break;
+
+                case RecyclerItemTypeProductDescription: {
+                    productDescription.reloadData(itemDataWrapper.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT));
+                }
+                break;
+
+                case RecyclerItemTypeNewsImage: {
+                    Picasso ps = Picasso.with(mContext);
+                    ps.load(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_IMAGE))
+                            .resize(320, 320)
+                            .centerCrop()
+                            .into(itemImage);
+                }
+                break;
+                case RecyclerItemTypeNewsTitle: {
+
+                }
+                break;
+                case RecyclerItemTypeNewsDescription: {
+
+                }
+                break;
+
                 case RecyclerItemTypeFooter: {
-                    RecyclerItemWrapper.RecyclerItemObject object = (RecyclerItemWrapper.RecyclerItemObject) itemDataWrapper.itemData;
-                    footerButton.setText(object.title);
+                    footerButton.setText(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_TITLE));
+                    footerButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Bundle extraData = new Bundle();
+                            extraData.putInt(RecyclerItemType.class.getName(), itemDataWrapper.itemType.ordinal());
+                            mClickListener.onCommonItemClick(itemPosition, itemDataWrapper.itemData);
+                        }
+                    });
                 }
                 break;
                 default:
@@ -331,34 +497,67 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
 
         RecyclerItemType itemType = RecyclerItemType.fromInt(viewType);
         switch (itemType) {
+            case RecyclerItemTypeTopImage: {
+                mRow = mInflater.inflate(R.layout.film_strip_layout, parent, false);
+            }
+            break;
             case RecyclerItemTypeTopItem: {
                 mRow = mInflater.inflate(R.layout.film_strip_layout, parent, false);
-
             }
             break;
             case RecyclerItemTypeHeader: {
-                mRow = mInflater.inflate(R.layout.home_item_header, parent, false);
+                mRow = mInflater.inflate(R.layout.common_item_header, parent, false);
             }
             break;
 
             case RecyclerItemTypeItemList: {
-                mRow = mInflater.inflate(R.layout.home_item_list, parent, false);
+                mRow = mInflater.inflate(R.layout.common_item_list, parent, false);
             }
             break;
 
             case RecyclerItemTypeItemStore: {
-                mRow = mInflater.inflate(R.layout.home_item_map, parent, false);
+                mRow = mInflater.inflate(R.layout.common_item_map, parent, false);
             }
             break;
 
             case RecyclerItemTypeItemGrid:
             case RecyclerItemTypeItemGridImageOnly: {
-                mRow = mInflater.inflate(R.layout.home_item_grid, parent, false);
+                mRow = mInflater.inflate(R.layout.common_item_grid, parent, false);
+            }
+            break;
+
+            case RecyclerItemTypeProductImage: {
+                mRow = mInflater.inflate(R.layout.product_item_image, parent, false);
+
+            }
+            break;
+
+            case RecyclerItemTypeProductTitle: {
+                mRow = mInflater.inflate(R.layout.product_item_title, parent, false);
+
+            }
+            break;
+
+            case RecyclerItemTypeProductDescription: {
+                mRow = mInflater.inflate(R.layout.product_item_description, parent, false);
+            }
+            break;
+
+            case RecyclerItemTypeNewsImage: {
+                mRow = mInflater.inflate(R.layout.news_item_image, parent, false);
+            }
+            break;
+            case RecyclerItemTypeNewsTitle: {
+                mRow = mInflater.inflate(R.layout.product_item_title, parent, false);
+            }
+            break;
+            case RecyclerItemTypeNewsDescription: {
+                mRow = mInflater.inflate(R.layout.news_item_description, parent, false);
             }
             break;
 
             case RecyclerItemTypeFooter: {
-                mRow = mInflater.inflate(R.layout.home_item_footer, parent, false);
+                mRow = mInflater.inflate(R.layout.common_item_footer, parent, false);
             }
             break;
         }

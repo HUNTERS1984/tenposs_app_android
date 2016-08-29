@@ -2,6 +2,7 @@ package jp.tenposs.tenposs;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
@@ -12,6 +13,8 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import junit.framework.Assert;
+
 import java.util.ArrayList;
 
 import jp.tenposs.adapter.CommonAdapter;
@@ -19,7 +22,6 @@ import jp.tenposs.adapter.RecyclerItemType;
 import jp.tenposs.adapter.RecyclerItemWrapper;
 import jp.tenposs.communicator.NewsInfoCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
-import jp.tenposs.datamodel.AppSettings;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.NewsInfo;
@@ -75,17 +77,9 @@ public class FragmentNews
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings = new ToolbarSettings();
         toolbarSettings.toolbarTitle = "News";
         toolbarSettings.toolbarIcon = "ti-menu";
         toolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
-
-        toolbarSettings.settings = new AppSettings.Settings();
-        toolbarSettings.settings.fontColor = "#00CECB";
-
-        toolbarSettings.titleSettings = new AppSettings.Settings();
-        toolbarSettings.titleSettings.fontColor = "#000000";
-        toolbarSettings.titleSettings.fontSize = 20;
     }
 
     @Override
@@ -102,9 +96,13 @@ public class FragmentNews
     protected void previewScreenData() {
         screenDataItems = new ArrayList<>();
 
-        for (NewsInfo.Response.ResponseData.News item : screenData.data.news) {
-            RecyclerItemWrapper.RecyclerItemObject obj = RecyclerItemWrapper.createItem(item.id, null, item.title, item.description, item.image_url);
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemList, spanCount, obj));
+        for (NewsInfo.News item : screenData.data.news) {
+            Bundle extras = new Bundle();
+            extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
+            extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.title);
+            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.description);
+            extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
+            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemList, spanCount, extras));
         }
 
         this.swipeRefreshLayout.setRefreshing(false);
@@ -144,14 +142,14 @@ public class FragmentNews
                 "ti-angle-left",
                 40,
                 Color.argb(0, 0, 0, 0),
-                toolbarSettings.settings.getColor()
+                toolbarSettings.appSetting.getToolbarIconColor()
         ));
 
         nextButton.setImageBitmap(ThemifyIcon.fromThemifyIcon(getContext().getAssets(),
                 "ti-angle-right",
                 40,
                 Color.argb(0, 0, 0, 0),
-                toolbarSettings.settings.getColor()
+                toolbarSettings.appSetting.getToolbarIconColor()
         ));
         previousButton.setOnClickListener(this);
         nextButton.setOnClickListener(this);
@@ -159,8 +157,18 @@ public class FragmentNews
     }
 
     @Override
-    void loadSavedInstanceState(@Nullable Bundle savedInstanceState) {
+    protected void customResume() {
 
+    }
+
+    @Override
+    void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
+
+    }
+
+    @Override
+    void setRefreshing(boolean refreshing) {
+        this.swipeRefreshLayout.setRefreshing(refreshing);
     }
 
 
@@ -176,7 +184,22 @@ public class FragmentNews
 
     @Override
     public void onCommonItemClick(int position, Bundle extraData) {
+        RecyclerItemWrapper item = getItemData(position);
 
+        switch (item.itemType) {
+            case RecyclerItemTypeItemList: {
+                int id = item.itemData.getInt(RecyclerItemWrapper.ITEM_ID);
+                NewsInfo.News news = this.screenData.getItemById(id);
+                this.activityListener.showScreen(AbstractFragment.NEWS_DETAILS_SCREEN, news);
+            }
+            break;
+
+            default: {
+                Assert.assertFalse("" + item.itemType, false);
+            }
+            break;
+        }
+        System.out.println(item.itemType);
     }
 
     protected void startup() {
@@ -216,22 +239,14 @@ public class FragmentNews
                     int resultApi = responseParams.getInt(Key.ResponseResultApi);
                     if (resultApi == CommonResponse.ResultSuccess) {
                         FragmentNews.this.screenData = (NewsInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                        /*if (FragmentNews.this.screenData.data != null && FragmentNews.this.screenData.data.news.size() > 0) {
-                            FragmentHome.this.storeInfo = FragmentHome.this.appInfo.data.stores.get(0);
-                            FragmentHome.this.sideMenuInfo = FragmentHome.this.appInfo.data.side_menu;
-                            loadTopInfo(FragmentHome.this.storeInfo.id);
-                        } else {
-                            String strMessage = "Invalid response data!";
-                            errorWithMessage(strMessage);
-                        }*/
                         previewScreenData();
                     } else {
                         String strMessage = responseParams.getString(Key.ResponseMessage);
-                        errorWithMessage(strMessage);
+                        errorWithMessage(responseParams, strMessage);
                     }
                 } else {
                     String strMessage = responseParams.getString(Key.ResponseMessage);
-                    errorWithMessage(strMessage);
+                    errorWithMessage(responseParams, strMessage);
                 }
             }
         });

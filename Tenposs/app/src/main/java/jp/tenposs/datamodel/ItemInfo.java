@@ -2,6 +2,10 @@ package jp.tenposs.datamodel;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Locale;
+
+import jp.tenposs.adapter.FilmstripAdapter;
+import jp.tenposs.communicator.TenpossCommunicator;
 
 /**
  * Created by ambient on 8/12/16.
@@ -14,7 +18,8 @@ public class ItemInfo {
 
         @Override
         String sigInput() {
-            return menu_id + "" + pageindex + "" + pagesize + "" + privateKey + "" + time;
+            return app_id + "" + time + "" + menu_id + "" + privateKey;
+//            return menu_id + "" + pageindex + "" + pagesize + "" + privateKey + "" + time;
         }
     }
 
@@ -25,41 +30,62 @@ public class ItemInfo {
         public class ResponseData {
             public ArrayList<Item> items;
 
-            public class Item implements Serializable {
-                public int id;
-                public String title;
-                public String price;
-                public String image_url;
-                public String description;
-                public String created_at;
-                public String updated_at;
-                public String deleted_at;
-                public String coupon_id;
-                public Pivot pivot;
 
-                public class Pivot implements Serializable{
-                    public int menu_id;
-                    public int item_id;
-                }
-
-                public ArrayList<RelateItem> rel_items;
-
-                public class RelateItem implements Serializable{
-                    public int id;
-                    public String price;
-                    public String image_url;
-                    public String description;
-                    public String title;
-                    public Pivot pivot;
-
-                    public class Pivot implements Serializable{
-                        public int item_id;
-                        public int related_id;
-                    }
-                }
-            }
         }
 
         public int total_items;
+    }
+
+    public class Item extends FilmstripAdapter.ImageUrl implements Serializable  {
+        public int id;
+        public String title;
+        public String price;
+        String image_url;
+        public String description;
+        public String created_at;
+        public String updated_at;
+        public String deleted_at;
+        public String coupon_id;
+        public Pivot pivot;
+
+        @Override
+        public String getImageUrl() {
+            String temp = image_url.toLowerCase(Locale.US);
+            if (temp.indexOf("http://") != -1 || temp.indexOf("https://") != -1) {
+                return image_url;
+            } else {
+                return TenpossCommunicator.BASE_ADDRESS + image_url;
+            }
+        }
+
+        public class Pivot implements Serializable {
+            public int menu_id;
+            public int item_id;
+        }
+
+        public ArrayList<RelateItem> rel_items;
+    }
+
+    public class RelateItem implements Serializable {
+        public int id;
+        public String price;
+        String image_url;
+        public String description;
+        public String title;
+        public Pivot pivot;
+
+        public String getImageUrl() {
+            String temp = image_url.toLowerCase(Locale.US);
+            if (temp.indexOf("http://") != -1 || temp.indexOf("https://") != -1) {
+                return image_url;
+            } else {
+                return TenpossCommunicator.BASE_ADDRESS + image_url;
+            }
+        }
+
+        public class Pivot implements Serializable {
+            public int item_id;
+            public int related_id;
+        }
     }
 }

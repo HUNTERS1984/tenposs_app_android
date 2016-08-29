@@ -57,23 +57,29 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
 
     public final static String API_ADDRESS_DEV = "http://dev.tenposs.jp/api";
     //public final static String API_ADDRESS = "http://ec2-54-204-210-230.compute-1.amazonaws.com/tenposs/api/public/index.php/api/v1";
-    public final static String API_ADDRESS = "http://54.153.78.127/api/v1";
-    public final static String API_LOGIN = "/login?";
-    public final static String API_LOGOUT = "/logout?";
-    public final static String API_TOP = "/top?";
-    public final static String API_MENU = "/menu?";
-    public final static String API_APPINFO = "/appinfo?";
-    public final static String API_ITEMS = "/items?";
-    public final static String API_ITEMS_DETAIL = "/items/detail?";
-    public final static String API_ITEMS_RELATE = "/items/related?";
-    public final static String API_PHOTO = "/photo?";
-    public final static String API_NEWS = "/news?";
-    public final static String API_NEWS_DETAIL = "/news/detail?";
-    public final static String API_RESERVE = "/reserve?";
-    public final static String API_COUPON = "/coupon?";
-    public final static String API_COUPON_DETAIL = "/coupon/detail?";
-    public final static String API_APPUSER = "/appuser?";
-    public final static String API_SETPUSHKEY = "/setpushkey?";
+    //public final static String API_ADDRESS = "http://54.153.78.127/api/v1";
+    public final static String BASE_ADDRESS = "http://ec2-54-204-210-230.compute-1.amazonaws.com/";
+
+    private final static String API_ADDRESS = BASE_ADDRESS + "api/v1";
+    public final static String API_LOGIN = API_ADDRESS + "/login?";
+    public final static String API_SIGNUP = API_ADDRESS + "/signup?";
+
+    public final static String API_LOGOUT = API_ADDRESS + "/logout?";
+    public final static String API_TOP = API_ADDRESS + "/top?";
+    public final static String API_MENU = API_ADDRESS + "/menu?";
+    public final static String API_APPINFO = API_ADDRESS + "/appinfo?";
+    public final static String API_ITEMS = API_ADDRESS + "/items?";
+    public final static String API_ITEMS_DETAIL = API_ADDRESS + "/items/detail?";
+    public final static String API_ITEMS_RELATE = API_ADDRESS + "/items/related?";
+    public final static String API_PHOTO_CAT = API_ADDRESS + "/photo_cat?";
+    public final static String API_PHOTO = API_ADDRESS + "/photo?";
+    public final static String API_NEWS = API_ADDRESS + "/news?";
+    public final static String API_NEWS_DETAIL = API_ADDRESS + "/news/detail?";
+    public final static String API_RESERVE = API_ADDRESS + "/reserve?";
+    public final static String API_COUPON = API_ADDRESS + "/coupon?";
+    public final static String API_COUPON_DETAIL = API_ADDRESS + "/coupon/detail?";
+    public final static String API_APPUSER = API_ADDRESS + "/appuser?";
+    public final static String API_SETPUSHKEY = API_ADDRESS + "/setpushkey?";
 
     public interface TenpossCommunicatorListener {
         void completed(TenpossCommunicator request, Bundle responseParams);
@@ -207,7 +213,6 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
         ConnectionSuccess,
 
     }
-
 
     @Override
     protected Bundle doInBackground(Bundle... params) {
@@ -378,7 +383,7 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
         System.out.println(url);
         int nTimeout = 0;
         if (nTimeout == 0)
-            nTimeout = 10000;
+            nTimeout = 30000;
 
         String strTemp = url.toLowerCase(Locale.US);
 

@@ -9,7 +9,20 @@
     tools:context="jp.tenposs.tenposs.FragmentHome"
     tools:showIn="@layout/app_bar_main">
 
+    <View
+        android:id="@+id/top_separate"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dip"
+        android:background="@color/colorSeparate" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/top_separate"
+        android:background="@android:color/white" />
+
     <android.support.v4.widget.SwipeRefreshLayout
+        android:layout_below="@+id/top_separate"
         android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

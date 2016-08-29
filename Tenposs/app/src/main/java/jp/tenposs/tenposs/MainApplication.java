@@ -8,10 +8,12 @@ import android.content.Context;
  */
 public class MainApplication extends Application {
     static Context mContext = null;
-    public static void setContext(Context context){
+
+    public static void setContext(Context context) {
         mContext = context;
     }
-    public static Context getContext(){
+
+    public static Context getContext() {
         return mContext;
     }
 }

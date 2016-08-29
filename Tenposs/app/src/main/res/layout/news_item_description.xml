@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jp.tenposs.view.ProductDescription xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/product_description"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/news_description_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</jp.tenposs.view.ProductDescription>

@@ -1,17 +1,41 @@
 package jp.tenposs.tenposs;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.ImageView;
 
-import jp.tenposs.datamodel.AppSettings;
+//import jp.tenposs.adapter.SettingsAdapter;
 
 /**
  * Created by ambient on 8/4/16.
  */
-public class FragmentSetting extends AbstractFragment{
+public class FragmentSetting extends AbstractFragment {
+
+    ImageView editProfileImage;
+    Button editprofileButton;
+
+    CheckBox notifyCheckBox;
+    Button notifyButton;
+
+    CheckBox receiveCheckBox;
+    Button receiveButton;
+
+    ImageView issueImage;
+    Button issueButton;
+
+    ImageView companyImage;
+    Button companyButton;
+
+    ImageView careersImage;
+    Button careersButton;
+
+
     @Override
     protected void customClose() {
 
@@ -19,22 +43,9 @@ public class FragmentSetting extends AbstractFragment{
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings = new ToolbarSettings();
         toolbarSettings.toolbarTitle = "Setting";
         toolbarSettings.toolbarIcon = "ti-menu";
         toolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
-
-        toolbarSettings.settings = new AppSettings.Settings();
-        toolbarSettings.settings.fontColor = "#00CECB";
-
-        toolbarSettings.titleSettings = new AppSettings.Settings();
-        toolbarSettings.titleSettings.fontColor = "#000000";
-        toolbarSettings.titleSettings.fontSize = 20;
-    }
-
-    @Override
-    protected void startup() {
-
     }
 
     @Override
@@ -54,7 +65,19 @@ public class FragmentSetting extends AbstractFragment{
     }
 
     @Override
-    void loadSavedInstanceState(@Nullable Bundle savedInstanceState) {
+    protected void customResume() {
+        previewScreenData();
+    }
+
+    @Override
+    void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
+        if (savedInstanceState.containsKey(SCREEN_DATA)) {
+            //this.screenData = (TopInfo.Response.ResponseData) savedInstanceState.getSerializable(SCREEN_DATA);
+        }
+    }
+
+    @Override
+    void setRefreshing(boolean refreshing) {
 
     }
 }
