@@ -32,8 +32,8 @@ public class SignInInfo {
             try {
                 formData.put("app_id", app_id);
                 formData.put("time", Long.toString(time));
-                formData.put("email", URLEncoder.encode(email, "UTF-8"));
-//                formData.put("email", email);
+//                formData.put("email", URLEncoder.encode(email, "UTF-8"));
+                formData.put("email", email);
                 formData.put("password", password);
                 formData.put("sig", sig);
             } catch (Exception ignored) {
