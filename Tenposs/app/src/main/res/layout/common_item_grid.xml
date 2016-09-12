@@ -4,8 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_recycler_item"
-    android:focusable="true"
-    android:focusableInTouchMode="true"
     android:orientation="vertical">
 
     <ImageView
@@ -26,15 +24,17 @@
             android:id="@+id/item_title_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dip"
-            android:textColor="#222222" />
+            android:layout_marginTop="5dip"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+            android:textColor="@color/grid_text_color" />
 
         <TextView
             android:id="@+id/item_description_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dip"
-            android:textColor="#222222" />
+            android:layout_marginTop="5dip"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+            android:textColor="@color/grid_text_color" />
 
     </LinearLayout>
 </android.support.percent.PercentRelativeLayout>

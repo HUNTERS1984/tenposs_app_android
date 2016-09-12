@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
+import jp.tenposs.datamodel.SignOutInfo;
 import jp.tenposs.datamodel.TopInfo;
 
 /**
@@ -37,10 +38,13 @@ public class TopInfoCommunicator extends TenpossCommunicator {
             bundle.putInt(Key.ResponseResult, CommunicationCode.GeneralError.ordinal());
             return false;
         }
-        result = request(strUrl, output, dataRequest, bundle);
+        result = request(strUrl, output, bundle);
         if (result == CommunicationCode.ConnectionSuccess.ordinal()) {
             String strResponse = output.toString();
-            TopInfo.Response response = (TopInfo.Response) CommonObject.fromJSONString(strResponse, TopInfo.Response.class, null);
+            CommonResponse response = (TopInfo.Response) CommonObject.fromJSONString(strResponse, TopInfo.Response.class, null);
+            if (response == null) {
+                response = (CommonResponse) CommonObject.fromJSONString(strResponse, CommonResponse.class, null);
+            }
             if (response != null) {
                 bundle.putInt(Key.ResponseResult, CommunicationCode.ConnectionSuccess.ordinal());
                 bundle.putInt(Key.ResponseResultApi, response.code);

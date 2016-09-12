@@ -27,7 +27,7 @@ import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.NewsInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.listener.OnCommonItemClickListener;
-import jp.tenposs.utils.ThemifyIcon;
+import jp.tenposs.utils.FlatIcon;
 
 
 /**
@@ -49,12 +49,17 @@ public class FragmentNews
     SwipeRefreshLayout swipeRefreshLayout;
 
     NewsInfo.Response screenData = null;
+    int storeId;
+    int pageIndex;
+    int pageSize;
 
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         spanCount = 6;
+        pageIndex = 1;
+        pageSize = 20;
     }
 
     @Override
@@ -77,8 +82,8 @@ public class FragmentNews
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings.toolbarTitle = "News";
-        toolbarSettings.toolbarIcon = "ti-menu";
+        toolbarSettings.toolbarTitle = getString(R.string.news);
+        toolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
         toolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
     }
 
@@ -99,6 +104,7 @@ public class FragmentNews
         for (NewsInfo.News item : screenData.data.news) {
             Bundle extras = new Bundle();
             extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
+            extras.putString(RecyclerItemWrapper.ITEM_CATEGORY, "Category");
             extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.title);
             extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.description);
             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
@@ -119,6 +125,7 @@ public class FragmentNews
             this.recyclerAdapter.notifyDataSetChanged();
         }
         updateNavigation();
+        updateToolbar();
     }
 
     @Override
@@ -138,15 +145,15 @@ public class FragmentNews
                 reloadScreenData();
             }
         });
-        previousButton.setImageBitmap(ThemifyIcon.fromThemifyIcon(getContext().getAssets(),
-                "ti-angle-left",
+        previousButton.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
+                "flaticon-back",
                 40,
                 Color.argb(0, 0, 0, 0),
                 toolbarSettings.appSetting.getToolbarIconColor()
         ));
 
-        nextButton.setImageBitmap(ThemifyIcon.fromThemifyIcon(getContext().getAssets(),
-                "ti-angle-right",
+        nextButton.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
+                "flaticon-next",
                 40,
                 Color.argb(0, 0, 0, 0),
                 toolbarSettings.appSetting.getToolbarIconColor()
@@ -163,6 +170,22 @@ public class FragmentNews
 
     @Override
     void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
+        if (savedInstanceState.containsKey(SCREEN_DATA)) {
+            this.screenData = (NewsInfo.Response) savedInstanceState.getSerializable(SCREEN_DATA);
+        }
+        if (savedInstanceState.containsKey(APP_DATA_STORE_ID)) {
+            this.storeId = savedInstanceState.getInt(APP_DATA_STORE_ID);
+        }
+        if (savedInstanceState.containsKey(SCREEN_DATA_PAGE_INDEX)) {
+            this.pageIndex = savedInstanceState.getInt(SCREEN_DATA_PAGE_INDEX);
+        }
+        if (savedInstanceState.containsKey(SCREEN_DATA_PAGE_SIZE)) {
+            this.pageSize = savedInstanceState.getInt(SCREEN_DATA_PAGE_SIZE);
+        }
+    }
+
+    @Override
+    void customSaveInstanceState(Bundle outState) {
 
     }
 
@@ -226,9 +249,9 @@ public class FragmentNews
     void loadNewsInfo() {
         Bundle params = new Bundle();
         NewsInfo.Request requestParams = new NewsInfo.Request();
-        requestParams.store_id = 1;
-        requestParams.pageindex = 1;
-        requestParams.pagesize = 20;
+        requestParams.store_id = this.storeId;
+        requestParams.pageindex = this.pageIndex;
+        requestParams.pagesize = this.pageSize;
 
         params.putSerializable(Key.RequestObject, requestParams);
         NewsInfoCommunicator communicator = new NewsInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
@@ -274,14 +297,14 @@ public class FragmentNews
             nextButtonColor = Color.parseColor("#00CECB");
         }
 
-        previousButton.setImageBitmap(ThemifyIcon.fromThemifyIcon(getContext().getAssets(),
+        previousButton.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
                 "ti-angle-left",
                 20,
                 Color.argb(0, 0, 0, 0),
                 previousButtonColor
         ));
 
-        nextButton.setImageBitmap(ThemifyIcon.fromThemifyIcon(getContext().getAssets(),
+        nextButton.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
                 "ti-angle-right",
                 20,
                 Color.argb(0, 0, 0, 0),

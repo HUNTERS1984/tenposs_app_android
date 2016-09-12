@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextPaint;
+import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,11 +25,12 @@ import junit.framework.Assert;
 
 import java.util.ArrayList;
 
+import jp.tenposs.datamodel.NewsInfo;
 import jp.tenposs.datamodel.TopInfo;
 import jp.tenposs.listener.OnCommonItemClickListener;
 import jp.tenposs.tenposs.R;
-import jp.tenposs.utils.ThemifyIcon;
-import jp.tenposs.view.NewsTitle;
+import jp.tenposs.utils.FlatIcon;
+import jp.tenposs.utils.Utils;
 import jp.tenposs.view.ProductDescription;
 import jp.tenposs.view.ProductTitle;
 
@@ -131,9 +134,10 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
         //Grid
         LinearLayout itemInfoLayout;
         ImageView itemImage;
+
+        TextView itemCategoryLabel;
         TextView itemTitleLabel;
         TextView itemDescriptionLabel;
-        TextView itemMoreDescriptionLabel;
 
         //Store
         ImageView mapImage;
@@ -163,7 +167,6 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
         ProductDescription productDescription;
 
         //News
-        NewsTitle newsTitle;
         TextView newsDescription;
 
 
@@ -180,7 +183,7 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
             switch (this.itemType) {
                 case RecyclerItemTypeTopItem: {
                     this.topItemViewPager = (ViewPager) this.mRow.findViewById(R.id.view_pager);
-                    this.pager_indicator = (LinearLayout) mRow.findViewById(R.id.viewPagerCountDots);
+                    this.pager_indicator = (LinearLayout) mRow.findViewById(R.id.view_pager_dots_layout);
                 }
                 break;
 
@@ -208,9 +211,9 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                 case RecyclerItemTypeItemGridImageOnly: {
                     itemImage = (ImageView) this.mRow.findViewById(R.id.item_image);
                     itemInfoLayout = (LinearLayout) this.mRow.findViewById(R.id.item_info_layout);
+                    itemCategoryLabel = (TextView) this.mRow.findViewById(R.id.item_category_label);
                     itemTitleLabel = (TextView) this.mRow.findViewById(R.id.item_title_label);
                     itemDescriptionLabel = (TextView) this.mRow.findViewById(R.id.item_description_label);
-                    itemMoreDescriptionLabel = (TextView) this.mRow.findViewById(R.id.item_more_description_label);
                 }
                 break;
 
@@ -227,23 +230,6 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
 
                 case RecyclerItemTypeProductDescription: {
                     productDescription = (ProductDescription) this.mRow.findViewById(R.id.product_description);
-                }
-                break;
-
-
-                case RecyclerItemTypeNewsImage: {
-                    itemImage = (ImageView) this.mRow.findViewById(R.id.item_image);
-                }
-                break;
-
-                case RecyclerItemTypeNewsTitle: {
-                    newsTitle = (NewsTitle) this.mRow.findViewById(R.id.product_title);
-
-                }
-                break;
-
-                case RecyclerItemTypeNewsDescription: {
-                    newsDescription = (TextView) this.mRow.findViewById(R.id.product_description);
                 }
                 break;
 
@@ -325,16 +311,15 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                     ArrayList<TopInfo.Image> topItems = (ArrayList<TopInfo.Image>)
                             itemDataWrapper.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
 
-
                     FilmstripAdapter adapter = new FilmstripAdapter(mContext, (ArrayList<?>) topItems, new OnCommonItemClickListener() {
                         @Override
                         public void onCommonItemClick(int position, Bundle extraData) {
                             extraData.putInt(RecyclerItemType.class.getName(), itemType.ordinal());
-                            //mClickListener.onCommonItemClick(itemPosition, extraData);
                         }
                     });
                     this.topItemViewPager.setAdapter(adapter);
-                    this.topItemViewPager.setOnPageChangeListener(this);
+                    this.topItemViewPager.removeOnPageChangeListener(this);
+                    this.topItemViewPager.addOnPageChangeListener(this);
                     setUiPageViewController();
                 }
                 break;
@@ -348,24 +333,29 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                     TopInfo.Contact contact = (TopInfo.Contact)
                             itemDataWrapper.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
                     Picasso ps = Picasso.with(mContext);
-                    String url = "http://maps.google.com/maps/api/staticmap?center=" +
-                            contact.latitude + "," +
-                            contact.longitude + "&zoom=15&size=500x200&sensor=false";
+                    String url = "http://maps.googleapis.com/maps/api/staticmap?center=" + contact.getLocation() +
+                            "&zoom=10" +
+                            "&scale=1" +
+                            "&size=500x200" +
+                            "&maptype=roadmap" +
+                            "&format=png" +
+                            "&visual_refresh=true" +
+                            "&markers=size:mid%7Ccolor:0xff0000%7Clabel:%7C" + contact.getLocation();
 
                     ps.load(url)
-                            .resize(640, 360)
-                            .centerCrop()
+                            .resize(500, 200)
+                            .centerInside()
                             .into(mapImage);
-                    locationIcon.setImageBitmap(ThemifyIcon.fromThemifyIcon(mContext.getAssets(),
-                            "ti-location-pin",
-                            60,
+                    locationIcon.setImageBitmap(FlatIcon.fromFlatIcon(mContext.getAssets(),
+                            "flaticon-placeholder",
+                            40,
                             Color.argb(0, 0, 0, 0),
                             Color.argb(255, 128, 128, 128)
                     ));
 
-                    timeIcon.setImageBitmap(ThemifyIcon.fromThemifyIcon(mContext.getAssets(),
-                            "ti-time",
-                            60,
+                    timeIcon.setImageBitmap(FlatIcon.fromFlatIcon(mContext.getAssets(),
+                            "flaticon-clock",
+                            40,
                             Color.argb(0, 0, 0, 0),
                             Color.argb(255, 128, 128, 128)
                     ));
@@ -373,7 +363,26 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                     String time = contact.start_time + " - " + contact.end_time;
                     timeLabel.setText(time);
 
-                    phoneLabel.setText(contact.tel);
+                    phoneIcon.setImageBitmap(FlatIcon.fromFlatIcon(mContext.getAssets(),
+                            "flaticon-phone",
+                            40,
+                            Color.argb(0, 0, 0, 0),
+                            Color.argb(255, 128, 128, 128)
+                    ));
+                    Utils.setTextViewHTML(phoneLabel, "<a href='about:blank'>" + contact.tel + "</a>",
+                            new ClickableSpan() {
+                                @Override
+                                public void onClick(View widget) {
+                                    //activityListener.showScreen(AbstractFragment.SIGNUP_SCREEN, null);
+                                    mClickListener.onCommonItemClick(itemPosition, itemDataWrapper.itemData);
+                                }
+
+                                @Override
+                                public void updateDrawState(TextPaint ds) {
+                                    ds.setColor(Utils.getColorInt(mContext, R.color.category_text_color));
+                                    ds.setUnderlineText(false);
+                                }
+                            });
                 }
                 break;
 
@@ -387,6 +396,14 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                             .into(itemImage);
 
                     itemInfoLayout.setVisibility(View.VISIBLE);
+                    if (itemCategoryLabel != null) {
+                        String itemTitle = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_CATEGORY);
+                        if (itemTitle != null) {
+                            itemCategoryLabel.setText(itemTitle);
+                        } else {
+                            itemCategoryLabel.setVisibility(View.GONE);
+                        }
+                    }
                     if (itemTitleLabel != null) {
                         String itemTitle = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_TITLE);
                         if (itemTitle != null) {
@@ -402,13 +419,6 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                         } else {
                             itemDescriptionLabel.setVisibility(View.GONE);
                         }
-                    }
-                    if (itemMoreDescriptionLabel != null) {
-                        //if (item.moreDescription != null) {
-                        //  itemMoreDescriptionLabel.setText(item.moreDescription);
-                        //} else {
-                        itemMoreDescriptionLabel.setVisibility(View.GONE);
-                        //}
                     }
                 }
                 break;
@@ -440,23 +450,6 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
 
                 case RecyclerItemTypeProductDescription: {
                     productDescription.reloadData(itemDataWrapper.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT));
-                }
-                break;
-
-                case RecyclerItemTypeNewsImage: {
-                    Picasso ps = Picasso.with(mContext);
-                    ps.load(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_IMAGE))
-                            .resize(320, 320)
-                            .centerCrop()
-                            .into(itemImage);
-                }
-                break;
-                case RecyclerItemTypeNewsTitle: {
-
-                }
-                break;
-                case RecyclerItemTypeNewsDescription: {
-
                 }
                 break;
 
@@ -540,19 +533,6 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
 
             case RecyclerItemTypeProductDescription: {
                 mRow = mInflater.inflate(R.layout.product_item_description, parent, false);
-            }
-            break;
-
-            case RecyclerItemTypeNewsImage: {
-                mRow = mInflater.inflate(R.layout.news_item_image, parent, false);
-            }
-            break;
-            case RecyclerItemTypeNewsTitle: {
-                mRow = mInflater.inflate(R.layout.product_item_title, parent, false);
-            }
-            break;
-            case RecyclerItemTypeNewsDescription: {
-                mRow = mInflater.inflate(R.layout.news_item_description, parent, false);
             }
             break;
 

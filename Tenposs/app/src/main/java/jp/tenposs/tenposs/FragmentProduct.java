@@ -35,8 +35,8 @@ public class FragmentProduct extends AbstractFragment implements CommonAdapter.C
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings.toolbarTitle = "Product";
-        toolbarSettings.toolbarIcon = "ti-arrow-left";
+        toolbarSettings.toolbarTitle = "";
+        toolbarSettings.toolbarLeftIcon = "flaticon-back";
         toolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
     }
 
@@ -98,10 +98,11 @@ public class FragmentProduct extends AbstractFragment implements CommonAdapter.C
 
             /**
              * Footer
+
+             extras = new Bundle();
+             extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
+             screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
              */
-            extras = new Bundle();
-            extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
         }
         this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
         if (this.recyclerAdapter == null) {
@@ -114,7 +115,9 @@ public class FragmentProduct extends AbstractFragment implements CommonAdapter.C
         } else {
             this.recyclerAdapter.notifyDataSetChanged();
         }
+
         toolbarSettings.toolbarTitle = screenData.title;
+        updateToolbar();
     }
 
     @Override
@@ -134,6 +137,11 @@ public class FragmentProduct extends AbstractFragment implements CommonAdapter.C
         if (savedInstanceState.containsKey(SCREEN_DATA)) {
             this.screenData = (ItemInfo.Item) savedInstanceState.getSerializable(SCREEN_DATA);
         }
+    }
+
+    @Override
+    void customSaveInstanceState(Bundle outState) {
+
     }
 
     @Override
@@ -178,7 +186,7 @@ public class FragmentProduct extends AbstractFragment implements CommonAdapter.C
             break;
 
             case RecyclerItemTypeItemGrid: {
-                //Related items
+                //TODO: Related items, need to load item detail then show info
                 screenData = (ItemInfo.Item) item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
                 previewScreenData();
             }

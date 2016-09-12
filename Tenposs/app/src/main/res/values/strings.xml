@@ -2,38 +2,154 @@
     <string name="app_name" translatable="false">Tenposs</string>
     <string name="facebook_app_id" translatable="false">1640367162958245</string>
     <string name="fb_login_protocol_scheme">fb1640367162958245</string>
+    <string name="facebook" translatable="false">Facebook</string>
+    <string name="twitter" translatable="false">Twitter</string>
+    <string name="instagram" translatable="false">Instagram</string>
 
-    <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
-    <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
-
-    <string name="home">Home</string>
-    <string name="menu">Menu</string>
-    <string name="reserve">Reserve</string>
-    <string name="news">News</string>
-    <string name="photo_gallery">Photo Gallery</string>
-    <string name="staff">Staff</string>
-    <string name="coupon">Coupon</string>
-    <string name="chat">Chat</string>
-    <string name="setting">Setting</string>
-    <string name="username">Username</string>
-    <string name="image_description">Image Description</string>
-    <string name="more">More</string>
+    <string name="home">ホーム</string>
+    <string name="menu">メニュー</string>
+    <string name="reserve">予約</string>
+    <string name="news">ニュース</string>
+    <string name="photo_gallery">フォトギャラリー</string>
+    <string name="staff">スタッフ</string>
+    <string name="coupon">クーポン</string>
+    <string name="chat">チャット</string>
+    <string name="setting">設定</string>
+    <string name="username">ユーザー名</string>
+    <string name="image_description">画像記述</string>
+    <string name="more">もっと見る</string>
 
     <!--Settings Screen-->
-    <string name="edit_profile">Edit Profile</string>
-    <string name="notify">Receive Push</string>
-    <string name="receive_coupon_information">Receive coupon information</string>
-    <string name="issue_the_takeover_code_during_the_model_change">Issue the takeover code during the model change</string>
-    <string name="company_info">Company Info</string>
-    <string name="user_privacy">User Privacy</string>
-    <string name="signin">Sign In</string>
-    <string name="signup">Sign Up</string>
-    <string name="password">Password</string>
-    <string name="password_confirm">Password (Confirm)</string>
-    <string name="already_signup">If you already members, sign in here.</string>
-    <string name="name">Name</string>
-    <string name="email">Email</string>
-    <string name="gender">Gender</string>
-    <string name="province">Province</string>
-    <string name="purchase">Purchase</string>
+    <string name="profile">プロフィール</string>
+    <string name="edit_profile">プロフィール編集</string>
+    <string name="receive_push">お知らせを受け取る</string>
+    <string name="receive_coupon_information">クーポン情報を受け取る</string>
+    <string name="issue_the_takeover_code_during_the_model_change">機種変更時引継ぎコード発行</string>
+    <string name="company_info">逼营会社</string>
+    <string name="user_privacy">採用情報</string>
+
+    <string name="sign_in">ログイン</string>
+    <string name="sign_up">サインアップ</string>
+    <string name="sign_out">サインアウト</string>
+    <string name="email_address">メールアドレス</string>
+    <string name="password">パスワード</string>
+    <string name="password_confirm">パスワード (確認)</string>
+
+    <string name="change_avatar">プロフィール写真を変更</string>
+    <string name="user_id">ユーザーID</string>
+    <string name="user_name">ユーザー名</string>
+    <string name="gender">性别</string>
+    <string name="gender_male">男性</string>
+    <string name="gender_female">女性</string>
+    <string name="province">都道府桌</string>
+
+    <string name="sign_in_with_facebook">Facebook ではじめる</string>
+    <string name="sign_in_with_twitter">Twitter ではじめる</string>
+    <string name="sign_in_with_email">メールアドレスではじめる</string>
+    <string name="skip">スキップ</string>
+    <string name="back">バック</string>
+    <string name="ok">OK</string>
+
+    <string name="not_sign_up"><![CDATA[アカウントを持っていない、<a href=\'about:blank\'>こちらへ。</a>]]></string>
+    <string name="already_sign_up"><![CDATA[すでに会員の方は、<a href=\'about:blank\'>こちらへ。</a>]]></string>
+
+    <string name="reserve_by_phone">電話で予約する</string>
+    <string name="staff_description">自己韶介</string>
+    <string name="staff_profile">プロフィール</string>
+    <string name="product_details">商品詳細</string>
+    <string name="size">サイズ</string>
+    <string name="purchase">商品購入ペ一ジへ</string>
+
+    <string name="copy_one">コピ一</string>
+    <string name="coupon_type">クーポンタイプ</string>
+    <string name="validity">有効期間</string>
+    <string name="take_advantage_of_this_coupon">このクーボンを利用す</string>
+    <string name="this_coupon_cannot_use">このクーポンは使用できません</string>
+    <string name="staff_unknown_button">テキストが入ります</string>
+
+    <!-- Button -->
+    <string name="close">閉じる</string>
+    <string name="cancel">キャンセル</string>
+    <string name="yes">はい</string>
+    <string name="no">否</string>
+    <string name="on">オン</string>
+    <string name="off">オフ</string>
+    <string name="link">連撈</string>
+
+    <!-- Alert title -->
+    <string name="warning">警告</string>
+    <string name="error">エラー</string>
+    <string name="info">インフォ</string>
+
+    <!-- Message -->
+    <string name="msg_input_a_valid_email_address">入力に有効なメールアドレスを喜ば</string>
+    <string name="msg_input_name">入力してください名</string>
+    <string name="msg_input_password_confirm">してください再入力パスワード</string>
+    <string name="msg_input_correct_confirm_password">確認パスワードが正しくありません</string>
+    <string name="msg_input_password">パスワード入力してください</string>
+    <string name="msg_exit_confirm">本当に終了してもよろしいですか？</string>
+    <string name="msg_sign_out_confirm">あなたがサインアウトしてもよろしいですか？</string>
+    <string name="msg_unable_to_sign_out">ログアウトすることはできません</string>
+    <string name="msg_unable_to_sign_in">ログインできません</string>
+    <string name="msg_unable_to_sign_up">新規会員登録できません</string>
+    <string name="msg_not_sign_in">まだログインしていません！</string>
+
+    <string name="msg_enter_email_and_name">メールと名前を入力してください</string>
+    <string name="msg_invalid_response_data">無効な応答データ！</string>
+
+    <!-- Hokkaidō -->
+    <string name="hokkaido">北海道</string>
+    <!-- Tōhoku -->
+    <string name="aomori">青森県</string>
+    <string name="iwate">岩手県</string>
+    <string name="miyagi">宮城県</string>
+    <string name="akita">秋田県</string>
+    <string name="yamagata">山形県</string>
+    <string name="fukushima">福島県</string>
+    <!-- Kantō -->
+    <string name="ibaraki">茨城県</string>
+    <string name="tochigi">栃木県</string>
+    <string name="gunma">群馬県</string>
+    <string name="saitama">埼玉県</string>
+    <string name="chiba">千葉県</string>
+    <string name="tokyo">東京都</string>
+    <string name="kanagawa">神奈川県</string>
+    <!-- Chūbu -->
+    <string name="niigata">新潟県</string>
+    <string name="toyama">富山県</string>
+    <string name="ishikawa">石川県</string>
+    <string name="fukui">福井県</string>
+    <string name="yamanashi">山梨県</string>
+    <string name="nagano">長野県</string>
+    <string name="gifi">岐阜県</string>
+    <string name="shizouka">静岡県</string>
+    <string name="aichi">愛知県</string>
+    <!-- Kansai -->
+    <string name="mie">三重県</string>
+    <string name="shiga">滋賀県</string>
+    <string name="kyoto">京都府</string>
+    <string name="osaka">大阪府</string>
+    <string name="hyogo">兵庫県</string>
+    <string name="nara">奈良県</string>
+    <string name="wakayama">和歌山県</string>
+    <!-- Chūgoku -->
+    <string name="tottori">鳥取県</string>
+    <string name="shimane">島根県</string>
+    <string name="okayama">岡山県</string>
+    <string name="hiroshima">広島県</string>
+    <string name="yamaguchi">山口県</string>
+    <!-- Shikoku -->
+    <string name="tokushima">徳島県</string>
+    <string name="kagawa">香川県</string>
+    <string name="ehime">愛媛県</string>
+    <string name="kochi">高知県</string>
+    <!-- Kyūshū -->
+    <string name="fukuoka">福岡県</string>
+    <string name="saga">佐賀県</string>
+    <string name="nagasaki">長崎県</string>
+    <string name="kumamoto">熊本県</string>
+    <string name="oita">大分県</string>
+    <string name="miyazaki">宮崎県</string>
+    <string name="kogoshima">鹿児島県</string>
+    <string name="okinawa">沖縄県</string>
 </resources>

@@ -1,5 +1,6 @@
 package jp.tenposs.tenposs;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -50,9 +51,41 @@ public class FragmentReserve extends AbstractFragment {
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings.toolbarTitle = "Reserve";
-        toolbarSettings.toolbarIcon = "ti-menu";
+        toolbarSettings.toolbarTitle = getString(R.string.reserve);
+        toolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
         toolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+    }
+
+
+    @Override
+    protected void reloadScreenData() {
+
+    }
+
+    @Override
+    protected void previewScreenData() {
+        String strUrl = screenData.reserve_url.toLowerCase(Locale.US);
+        String strTemp = screenData.reserve_url.toLowerCase(Locale.US);
+
+        if (strTemp.contains("http://") == false && strTemp.contains("https://") == false)
+            strUrl = "http://" + strUrl;
+
+        this.webView.loadUrl(strUrl);
+        updateToolbar();
+    }
+
+    @Override
+    protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View mRoot = inflater.inflate(R.layout.fragment_reserve, null);
+        this.webView = (WebView) mRoot.findViewById(R.id.web_view);
+        this.webView.getSettings().setJavaScriptEnabled(true);
+        this.webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(final WebView view, final String url) {
+                return false;
+            }
+        });
+        return mRoot;
     }
 
     @Override
@@ -72,41 +105,15 @@ public class FragmentReserve extends AbstractFragment {
     }
 
     @Override
-    protected void reloadScreenData() {
-
-    }
-
-    @Override
-    protected void previewScreenData() {
-        String strUrl = screenData.reserve_url.toLowerCase(Locale.US);
-        String strTemp = screenData.reserve_url.toLowerCase(Locale.US);
-
-        if (strTemp.contains("http://") == false && strTemp.contains("https://") == false)
-            strUrl = "http://" + strUrl;
-
-        this.webView.loadUrl(strUrl);
-        //this.webView.loadUrl("http://tabelog.com");
-    }
-
-    @Override
-    protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View mRoot = inflater.inflate(R.layout.fragment_reserve, null);
-        this.webView = (WebView) mRoot.findViewById(R.id.web_view);
-        this.webView.getSettings().setJavaScriptEnabled(true);
-        this.webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(final WebView view, final String url) {
-                return false;
-            }
-        });
-        return mRoot;
-    }
-
-    @Override
     void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
         if (savedInstanceState.containsKey(SCREEN_DATA)) {
             //this.screenData = (TopInfo.Response.ResponseData) savedInstanceState.getSerializable(SCREEN_DATA);
         }
+    }
+
+    @Override
+    void customSaveInstanceState(Bundle outState) {
+
     }
 
     @Override
@@ -132,8 +139,22 @@ public class FragmentReserve extends AbstractFragment {
                     int resultApi = responseParams.getInt(Key.ResponseResultApi);
                     if (resultApi == CommonResponse.ResultSuccess) {
                         //TODO:
-                        screenData = (ReserveInfo.Reserve) responseParams.getSerializable(Key.ResponseObject);
-                        previewScreenData();
+                        ReserveInfo.Response response = (ReserveInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                        if (response.data.reserve.size() > 0) {
+                            screenData = response.data.reserve.get(0);
+                            previewScreenData();
+                        } else {
+                            showAlert(getString(R.string.error),
+                                    getString(R.string.msg_invalid_response_data),
+                                    getString(R.string.close),
+                                    null,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                        }
+                                    });
+                        }
                     } else {
                         String strMessage = responseParams.getString(Key.ResponseMessage);
                         errorWithMessage(responseParams, strMessage);

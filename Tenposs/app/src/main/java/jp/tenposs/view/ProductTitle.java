@@ -15,7 +15,7 @@ import jp.tenposs.tenposs.R;
  */
 
 public class ProductTitle extends LinearLayout {
-    TextView unknown_label;
+    TextView product_category_label;
     TextView product_name_label;
     TextView product_price_label;
 
@@ -35,12 +35,11 @@ public class ProductTitle extends LinearLayout {
 
     public void reloadData(Serializable serializable) {
         itemData = (ItemInfo.Item) serializable;
-        unknown_label = (TextView) findViewById(R.id.unknown_label);
+        product_category_label = (TextView) findViewById(R.id.product_category_label);
         product_name_label = (TextView) findViewById(R.id.product_name_label);
         product_price_label = (TextView) findViewById(R.id.product_price_label);
 
         product_name_label.setText(itemData.title);
         product_price_label.setText(itemData.price);
-
     }
 }

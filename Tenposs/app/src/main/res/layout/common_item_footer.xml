@@ -7,5 +7,7 @@
     <Button
         android:id="@+id/footer_button"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_button"
+        android:textColor="@color/button_text_color" />
 </LinearLayout>

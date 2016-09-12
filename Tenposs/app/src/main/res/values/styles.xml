@@ -27,11 +27,24 @@
     <declare-styleable name="CircleImageView">
         <attr name="border_width" format="dimension" />
         <attr name="border_color" format="color" />
+        <attr name="fill_color" format="color" />
         <attr name="border_overlay" format="boolean" />
     </declare-styleable>
+
     <style name="CustomDialog" parent="android:Theme.Dialog">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
+
+    <declare-styleable name="AspectRatioImageView">
+        <attr name="image_aspect_ratio" format="float" />
+        <attr name="image_dimension_to_adjust" format="integer" />
+
+    </declare-styleable>
+    <declare-styleable name="AspectRatioLayout">
+        <attr name="aspect_ratio" format="float" />
+
+    </declare-styleable>
+
 
 </resources>

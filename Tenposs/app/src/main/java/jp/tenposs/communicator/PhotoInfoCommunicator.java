@@ -10,6 +10,7 @@ import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.PhotoCategoryInfo;
 import jp.tenposs.datamodel.PhotoInfo;
+import jp.tenposs.datamodel.SignOutInfo;
 
 /**
  * Created by ambient on 8/20/16.
@@ -35,10 +36,13 @@ public class PhotoInfoCommunicator extends TenpossCommunicator{
             bundle.putInt(Key.ResponseResult, TenpossCommunicator.CommunicationCode.GeneralError.ordinal());
             return false;
         }
-        result = request(strUrl, output, dataRequest, bundle);
+        result = request(strUrl, output, bundle);
         if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
             String strResponse = output.toString();
-            PhotoInfo.Response response = (PhotoInfo.Response) CommonObject.fromJSONString(strResponse, PhotoInfo.Response.class, null);
+            CommonResponse response = (PhotoInfo.Response) CommonObject.fromJSONString(strResponse, PhotoInfo.Response.class, null);
+            if (response == null) {
+                response = (CommonResponse) CommonObject.fromJSONString(strResponse, CommonResponse.class, null);
+            }
             if (response != null) {
                 bundle.putInt(Key.ResponseResult, TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal());
                 bundle.putInt(Key.ResponseResultApi, response.code);

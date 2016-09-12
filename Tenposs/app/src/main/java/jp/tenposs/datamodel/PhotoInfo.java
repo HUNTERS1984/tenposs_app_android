@@ -25,7 +25,7 @@ public class PhotoInfo {
     public class Response extends CommonResponse {
         public ResponeData data;
 
-        public class ResponeData {
+        public class ResponeData implements Serializable {
             public ArrayList<Photo> photos;
             public int total_photos;
         }

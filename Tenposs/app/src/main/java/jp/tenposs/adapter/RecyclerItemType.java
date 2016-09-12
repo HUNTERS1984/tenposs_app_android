@@ -19,11 +19,6 @@ public enum RecyclerItemType {
     RecyclerItemTypeProductTitle,
     RecyclerItemTypeProductDescription,
 
-    //News
-    RecyclerItemTypeNewsImage,
-    RecyclerItemTypeNewsTitle,
-    RecyclerItemTypeNewsDescription,
-
     RecyclerItemTypeFooter;
 
 

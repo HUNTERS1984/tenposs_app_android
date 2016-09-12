@@ -16,7 +16,7 @@
             app:layout_widthPercent="100%" />
 
         <LinearLayout
-            android:id="@+id/viewPagerCountDots"
+            android:id="@+id/view_pager_dots_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"

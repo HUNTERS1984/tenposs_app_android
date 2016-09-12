@@ -1,23 +1,34 @@
 package jp.tenposs.datamodel;
 
-import jp.tenposs.utils.CryptoUtils;
+import java.net.URLEncoder;
+import java.util.HashMap;
 
 /**
  * Created by ambient on 8/17/16.
  */
-public class SignupInfo {
+public class SignUpInfo {
     public static class Request extends SignInInfo.Request {
-        public String email;
-        String password;
         public String name;
-
-        public void setPassword(String password) {
-            this.password = CryptoUtils.sha256(password);
-        }
 
         @Override
         String sigInput() {
             return app_id + "" + time + "" + email + "" + password + "" + privateKey;
+        }
+
+        public HashMap<String, String> getFormData() {
+            generateSig();
+            HashMap<String, String> formData = new HashMap<>();
+            try {
+                formData.put("app_id", app_id);
+                formData.put("time", Long.toString(time));
+                formData.put("email", URLEncoder.encode(email, "UTF-8"));
+                formData.put("password", password);
+                formData.put("name", name);
+                formData.put("sig", sig);
+            } catch (Exception ignored) {
+
+            }
+            return formData;
         }
     }
 

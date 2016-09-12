@@ -8,6 +8,8 @@ import android.os.Bundle;
 public class RecyclerItemWrapper {
     public final static String ITEM_ID = "ITEM_ID";
     public final static String ITEM_INDEX = "ITEM_INDEX";
+
+    public final static String ITEM_CATEGORY = "ITEM_CATEGORY";
     public final static String ITEM_TITLE = "ITEM_TITLE";
     public final static String ITEM_DESCRIPTION = "ITEM_DESCRIPTION";
     public final static String ITEM_IMAGE = "ITEM_IMAGE";

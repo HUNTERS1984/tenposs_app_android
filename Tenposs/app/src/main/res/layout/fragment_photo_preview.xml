@@ -16,10 +16,19 @@
         app:layout_aspectRatio="100%"
         app:layout_widthPercent="100%">
 
+        <!--
         <android.support.v4.view.ViewPager
             android:id="@+id/view_pager"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+            -->
+
+        <jp.tenposs.view.ZoomableImageView
+            android:id="@+id/item_thumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/rectangle"
+            android:scaleType="centerCrop" />
 
     </LinearLayout>
 

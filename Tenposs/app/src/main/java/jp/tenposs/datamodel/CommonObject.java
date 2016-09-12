@@ -28,6 +28,12 @@ public class CommonObject implements Serializable {
         return data;
     }
 
+    public static String toJSONString(Object obj, Class cls) {
+        Gson gs = new Gson();
+        String data = gs.toJson(obj, cls);
+        return data;
+    }
+
     public static Object fromJSONString(String json, Class<?> cls, CustomListDeserializer customDeserializer) {
         try {
             GsonBuilder builder = new GsonBuilder();

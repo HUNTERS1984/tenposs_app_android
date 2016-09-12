@@ -2,20 +2,21 @@ package jp.tenposs.tenposs;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
 import jp.tenposs.adapter.CommonAdapter;
-import jp.tenposs.adapter.RecyclerItemType;
 import jp.tenposs.adapter.RecyclerItemWrapper;
 import jp.tenposs.datamodel.NewsInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.listener.OnCommonItemClickListener;
+import jp.tenposs.view.AspectRatioImageView;
 
 /**
  * Created by ambient on 8/24/16.
@@ -28,8 +29,11 @@ public class FragmentNewsDetail
         OnCommonItemClickListener {
 
 
-    RecyclerView recyclerView;
-    CommonAdapter recyclerAdapter;
+    AspectRatioImageView newsImage;
+    TextView newsCategoryLabel;
+    TextView newsTitleLabel;
+    TextView newsDateLabel;
+    TextView newsDescriptionLabel;
 
     NewsInfo.News screenData;
 
@@ -46,8 +50,8 @@ public class FragmentNewsDetail
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings.toolbarTitle = "News";
-        toolbarSettings.toolbarIcon = "ti-arrow-left";
+        toolbarSettings.toolbarTitle = "";
+        toolbarSettings.toolbarLeftIcon = "flaticon-back";
         toolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
     }
 
@@ -61,45 +65,33 @@ public class FragmentNewsDetail
 
     @Override
     protected void previewScreenData() {
-        Bundle extras;
-        screenDataItems = new ArrayList<>();
 
-        //Image
-        extras = new Bundle();
-        extras.putString(RecyclerItemWrapper.ITEM_IMAGE, screenData.getImageUrl());
-        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeNewsImage, spanCount, extras));
+        Picasso ps = Picasso.with(getContext());
+        ps.load(screenData.getImageUrl())
+                .resize(320, 320)
+                .centerCrop()
+                .into(this.newsImage);
 
-        //title
-        extras = new Bundle();
-        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, screenData);
-        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeNewsTitle, spanCount, extras));
+        this.newsTitleLabel.setText(screenData.title);
+        this.newsCategoryLabel.setText(screenData.category);
+        this.newsDateLabel.setText(this.screenData.getCreatedDate());
+        this.newsDescriptionLabel.setText(this.screenData.description);
 
-        //Description
-        extras = new Bundle();
-        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, screenData);
-        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeNewsDescription, spanCount, extras));
-
-        this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
-        if (this.recyclerAdapter == null) {
-            GridLayoutManager manager = new GridLayoutManager(getActivity(), spanCount);//);
-            this.recyclerAdapter = new CommonAdapter(getActivity(), this, this);
-            manager.setSpanSizeLookup(new CommonAdapter.GridSpanSizeLookup(recyclerAdapter));
-            this.recyclerView.setLayoutManager(manager);
-            this.recyclerView.addItemDecoration(new CommonAdapter.MarginDecoration(getActivity()));
-            this.recyclerView.setAdapter(recyclerAdapter);
-        } else {
-            this.recyclerAdapter.notifyDataSetChanged();
-        }
         toolbarSettings.toolbarTitle = screenData.title;
 
         setRefreshing(false);
+        updateToolbar();
     }
 
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View mRoot = inflater.inflate(R.layout.fragment_news, null);
+        View mRoot = inflater.inflate(R.layout.fragment_news_detail, null);
+        this.newsImage = (AspectRatioImageView) mRoot.findViewById(R.id.news_image);
+        this.newsCategoryLabel = (TextView) mRoot.findViewById(R.id.news_category_label);
+        this.newsTitleLabel = (TextView) mRoot.findViewById(R.id.news_title_label);
+        this.newsDateLabel = (TextView) mRoot.findViewById(R.id.news_date_label);
+        this.newsDescriptionLabel = (TextView) mRoot.findViewById(R.id.news_description_label);
 
-        this.recyclerView = (RecyclerView) mRoot.findViewById(R.id.recycler_view);
 
         return mRoot;
     }
@@ -126,6 +118,11 @@ public class FragmentNewsDetail
     }
 
     @Override
+    void customSaveInstanceState(Bundle outState) {
+
+    }
+
+    @Override
     void setRefreshing(boolean refreshing) {
 
     }
@@ -145,3 +142,4 @@ public class FragmentNewsDetail
 
     }
 }
+

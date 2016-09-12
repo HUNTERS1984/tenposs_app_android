@@ -102,11 +102,14 @@ public class TopInfo {
 
     public class Contact implements Serializable {
         public int id;
-        public String latitude;
-        public String longitude;
+        String latitude;
+        String longitude;
         public String tel;
         public String title;
         public String start_time;
         public String end_time;
+        public  String getLocation(){
+            return latitude + "," + longitude;
+        }
     }
 }

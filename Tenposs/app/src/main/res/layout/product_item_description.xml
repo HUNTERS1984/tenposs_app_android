@@ -5,8 +5,37 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/unknown_label"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:background="@color/tab_color"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/product_detail_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_tab_button"
+            android:text="@string/product_details"
+            android:textColor="@color/category_text_color" />
+
+        <Button
+            android:id="@+id/product_size_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:text="@string/size"
+            android:textColor="@color/description_text_color" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/product_description_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/title_text_color" />
 </jp.tenposs.view.ProductDescription>

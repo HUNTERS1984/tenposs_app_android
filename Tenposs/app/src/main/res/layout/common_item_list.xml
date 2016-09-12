@@ -2,7 +2,7 @@
 <android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="120dip"
     android:background="@drawable/bg_recycler_item"
     android:orientation="vertical">
 
@@ -11,7 +11,7 @@
         android:background="@drawable/bg_image"
         android:contentDescription="@string/image_description"
         app:layout_aspectRatio="100%"
-        app:layout_widthPercent="30%" />
+        app:layout_heightPercent="100%" />
 
     <LinearLayout
         android:id="@+id/item_info_layout"
@@ -22,35 +22,38 @@
         android:orientation="vertical">
 
         <TextView
+            android:id="@+id/item_category_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dip"
+            android:ellipsize="end"
+            android:lines="1"
+            android:text="Category"
+            android:textAppearance="@android:style/TextAppearance.Small"
+            android:textColor="@color/category_text_color" />
+
+        <TextView
             android:id="@+id/item_title_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dip"
+            android:layout_marginTop="5dip"
             android:ellipsize="end"
             android:lines="1"
             android:text="Title"
-            android:textColor="#00CECB" />
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+            android:textColor="@color/title_text_color" />
 
         <TextView
             android:id="@+id/item_description_label"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dip"
-            android:ellipsize="end"
-            android:lines="3"
-            android:text="Description"
-            android:textColor="#222222" />
-
-        <TextView
-            android:id="@+id/item_more_description_label"
-            android:layout_width="match_parent"
             android:layout_height="0dip"
-            android:layout_marginTop="10dip"
+            android:layout_marginTop="5dip"
             android:layout_weight="1"
             android:ellipsize="end"
-            android:lines="3"
-            android:text="More Description"
-            android:textColor="#808080" />
+            android:maxLines="3"
+            android:text="Description"
+            android:textAppearance="@android:style/TextAppearance.Small"
+            android:textColor="@color/description_text_color" />
 
     </LinearLayout>
 </android.support.percent.PercentRelativeLayout>

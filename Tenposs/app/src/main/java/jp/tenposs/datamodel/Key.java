@@ -5,7 +5,9 @@ package jp.tenposs.datamodel;
  */
 public class Key {
     public static String RequestObject = "RequestObject";
+    public static String RequestData = "RequestData";
     public static String RequestHeader = "RequestHeader";
+    public static String RequestFormData = "RequestFormData";
 
     public static String ResponseMessage = "ResponseMessage";
     public static String ResponseResult = "ResponseResult";
@@ -13,7 +15,8 @@ public class Key {
     public static String ResponseObject = "ResponseObject";
     public static String ResponseHeader = "ResponseHeader";
 
-
-    public static String UserObject = "UserObject";
-    public static String API_SessionKey = "API_SessionKey";
+    public static String Settings = "Settings";
+    public static String Profile = "Profile";
+    public static String UserProfile = "UserProfile";
+    public static String TokenKey = "TokenKey";
 }

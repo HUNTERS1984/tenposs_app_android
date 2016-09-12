@@ -1,33 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="home">ホーム</string>
-    <string name="menu">メニュー</string>
-    <string name="reserve">予約</string>
-    <string name="news">ニュース</string>
-    <string name="photo_gallery">フォトギャラリー</string>
-    <string name="staff">スタッフ</string>
-    <string name="coupon">クーポン</string>
-    <string name="chat">チャット</string>
-    <string name="setting">設定</string>
-    <string name="username">ユーザー名</string>
-    <string name="image_description">画像記述</string>
-    <string name="more">もっと</string>
 
-    <!--Settings Screen-->
-    <string name="edit_profile">プロフィール編集</string>
-    <string name="notify">お知らせを受け取る</string>
-    <string name="receive_coupon_information">クーポン情報を受け取る</string>
-    <string name="issue_the_takeover_code_during_the_model_change">機種変更時引継ぎコード発行</string>
-    <string name="company_info">逼营会社</string>
-    <string name="user_privacy">採用情報</string>
-    <string name="signin">Sign In</string>
-    <string name="signup">Sign Up</string>
-    <string name="password">Password</string>
-    <string name="password_confirm">Password (Confirm)</string>
-    <string name="already_signup">If you already members, sign in here.</string>
-    <string name="name">Name</string>
-    <string name="email">Email</string>
-    <string name="gender">Gender</string>
-    <string name="province">Province</string>
-    <string name="purchase">Purchase</string>
 </resources>

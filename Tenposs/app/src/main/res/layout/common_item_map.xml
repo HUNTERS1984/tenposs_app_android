@@ -25,17 +25,25 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/location_icon"
+            <RelativeLayout
                 android:layout_width="25dip"
-                android:layout_height="25dip" />
+                android:layout_height="25dip"
+                android:padding="2dip">
+
+                <ImageView
+                    android:id="@+id/location_icon"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </RelativeLayout>
 
             <TextView
                 android:id="@+id/location_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dip"
-                android:text="Location" />
+                android:text="Location"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+                android:textColor="@color/title_text_color" />
         </LinearLayout>
 
         <View
@@ -52,17 +60,25 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/time_icon"
+            <RelativeLayout
                 android:layout_width="25dip"
-                android:layout_height="25dip" />
+                android:layout_height="25dip"
+                android:padding="2dip">
+
+                <ImageView
+                    android:id="@+id/time_icon"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </RelativeLayout>
 
             <TextView
                 android:id="@+id/time_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dip"
-                android:text="AM 10:00 - PM 10:00" />
+                android:text="AM 10:00 - PM 10:00"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+                android:textColor="@color/title_text_color" />
         </LinearLayout>
 
         <View
@@ -79,17 +95,26 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/phone_icon"
+
+            <RelativeLayout
                 android:layout_width="25dip"
-                android:layout_height="25dip" />
+                android:layout_height="25dip"
+                android:padding="2dip">
+
+                <ImageView
+                    android:id="@+id/phone_icon"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </RelativeLayout>
 
             <TextView
                 android:id="@+id/phone_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dip"
-                android:text="(123) 456 7890" />
+                android:text="(123) 456 7890"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+                android:textColor="@color/category_text_color" />
         </LinearLayout>
 
     </LinearLayout>

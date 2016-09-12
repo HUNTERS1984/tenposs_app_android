@@ -30,7 +30,7 @@ import jp.tenposs.datamodel.PhotoCategoryInfo;
 import jp.tenposs.datamodel.PhotoInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.listener.OnCommonItemClickListener;
-import jp.tenposs.utils.ThemifyIcon;
+import jp.tenposs.utils.FlatIcon;
 
 
 /**
@@ -50,46 +50,16 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
     PhotoCategoryInfo.PhotoCat currentPhotoCat;
     int currentPhotoCatIndex;
 
+    ArrayList<Bundle> photoCategories;
+
     /**
      * Fragment Override
      */
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-//        outState.putSerializable(SCREEN_DATA, this.screenData);
-        outState.putInt(SCREEN_DATA_STATUS, this.screenDataStatus.ordinal());
-    }
-
-    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         spanCount = 6;
-
-        if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(SCREEN_DATA)) {
-//                this.screenData = (ArrayList<AppInfo.Response.ResponseData.Menu>) savedInstanceState.getSerializable(SCREEN_DATA);
-            }
-        } else {
-            Bundle argument = getArguments();
-            if (argument != null && argument.containsKey(SCREEN_DATA)) {
-//                this.screenData = (ArrayList<AppInfo.Response.ResponseData.Menu>) argument.getSerializable(SCREEN_DATA);
-            }
-        }
-    }
-
-    @Override
-    void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(SCREEN_DATA)) {
-//                this.screenData = (ArrayList<AppInfo.Response.ResponseData.Menu>) savedInstanceState.getSerializable(SCREEN_DATA);
-            }
-        }
-    }
-
-    @Override
-    void setRefreshing(boolean refreshing) {
-        this.swipeRefreshLayout.setRefreshing(refreshing);
     }
 
     @Override
@@ -99,8 +69,8 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings.toolbarTitle = "Photo Gallery";
-        toolbarSettings.toolbarIcon = "ti-menu";
+        toolbarSettings.toolbarTitle = getString(R.string.photo_gallery);
+        toolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
         toolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
     }
 
@@ -127,6 +97,7 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
             extras.putInt(RecyclerItemWrapper.ITEM_ID, photo.id);
             extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_ITEM_SCREEN);
             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, photo.getImageUrl());
+            extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, photo.getImageUrl());
             screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, spanCount / 3, extras));
         }
 
@@ -141,7 +112,7 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
         } else {
             this.recyclerAdapter.notifyDataSetChanged();
         }
-
+        updateToolbar();
     }
 
     @Override
@@ -182,6 +153,27 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
         }
     }
 
+    @Override
+    void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
+        if (savedInstanceState.containsKey(SCREEN_DATA)) {
+            this.screenData = (PhotoCategoryInfo.Response) savedInstanceState.getSerializable(SCREEN_DATA);
+        }
+        if (savedInstanceState.containsKey(SCREEN_PAGE_ITEMS)) {
+            photoCategories = (ArrayList<Bundle>) savedInstanceState.getSerializable(SCREEN_PAGE_ITEMS);
+        }
+    }
+
+    @Override
+    void customSaveInstanceState(Bundle outState) {
+        outState.putSerializable(SCREEN_DATA, screenData);
+        outState.putSerializable(SCREEN_PAGE_ITEMS, photoCategories);
+    }
+
+    @Override
+    void setRefreshing(boolean refreshing) {
+        this.swipeRefreshLayout.setRefreshing(refreshing);
+    }
+
     void loadPhotoCatData() {
         PhotoCategoryInfo.Request requestParams = new PhotoCategoryInfo.Request();
         requestParams.store_id = 1;
@@ -196,6 +188,13 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
                     int resultApi = responseParams.getInt(Key.ResponseResultApi);
                     if (resultApi == CommonResponse.ResultSuccess) {
                         screenData = (PhotoCategoryInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                        photoCategories = new ArrayList<>();
+                        for (int i = 0; i < screenData.data.photo_categories.size(); i++) {
+                            Bundle photoCategory = new Bundle();
+                            photoCategory.putInt(SCREEN_DATA_PAGE_INDEX, 1);
+                            photoCategory.putInt(SCREEN_DATA_PAGE_SIZE, 20);
+                            photoCategories.add(photoCategory);
+                        }
                         loadPhotoCatItem(currentPhotoCatIndex);
                     } else {
                         String strMessage = responseParams.getString(Key.ResponseMessage);
@@ -213,33 +212,42 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
     void loadPhotoCatItem(int menuIndex) {
         try {
             currentPhotoCat = screenData.data.photo_categories.get(menuIndex);
-            PhotoInfo.Request requestParams = new PhotoInfo.Request();
-            requestParams.category_id = currentPhotoCat.id;
-            requestParams.pageindex = 1;
-            requestParams.pagesize = 20;
+            Bundle photoCategory = photoCategories.get(menuIndex);
+            if (photoCategory.containsKey(SCREEN_DATA_PAGE_DATA)) {
+                this.screenItem = (PhotoInfo.Response) photoCategory.getSerializable(SCREEN_DATA_PAGE_DATA);
+                previewScreenData();
+            } else {
+                PhotoInfo.Request requestParams = new PhotoInfo.Request();
+                requestParams.category_id = currentPhotoCat.id;
+                requestParams.pageindex = photoCategory.getInt(SCREEN_DATA_PAGE_INDEX);
+                requestParams.pagesize = photoCategory.getInt(SCREEN_DATA_PAGE_SIZE);
 
-            Bundle params = new Bundle();
-            params.putSerializable(Key.RequestObject, requestParams);
-            PhotoInfoCommunicator communicator = new PhotoInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-                @Override
-                public void completed(TenpossCommunicator request, Bundle responseParams) {
-                    int result = responseParams.getInt(Key.ResponseResult);
-                    if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                        int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                        if (resultApi == CommonResponse.ResultSuccess) {
-                            screenItem = (PhotoInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                            previewScreenData();
+                Bundle params = new Bundle();
+                params.putSerializable(Key.RequestObject, requestParams);
+                params.putParcelable(Key.RequestData, photoCategory);
+                PhotoInfoCommunicator communicator = new PhotoInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
+                    @Override
+                    public void completed(TenpossCommunicator request, Bundle responseParams) {
+                        int result = responseParams.getInt(Key.ResponseResult);
+                        if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                            int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                            if (resultApi == CommonResponse.ResultSuccess) {
+                                screenItem = (PhotoInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                Bundle photoCategory = responseParams.getParcelable(Key.RequestData);
+                                photoCategory.putSerializable(SCREEN_DATA_PAGE_DATA, screenItem);
+                                previewScreenData();
+                            } else {
+                                String strMessage = responseParams.getString(Key.ResponseMessage);
+                                errorWithMessage(responseParams, strMessage);
+                            }
                         } else {
                             String strMessage = responseParams.getString(Key.ResponseMessage);
                             errorWithMessage(responseParams, strMessage);
                         }
-                    } else {
-                        String strMessage = responseParams.getString(Key.ResponseMessage);
-                        errorWithMessage(responseParams, strMessage);
                     }
-                }
-            });
-            communicator.execute(params);
+                });
+                communicator.execute(params);
+            }
         } catch (Exception ignored) {
             ignored.printStackTrace();
         }
@@ -298,15 +306,15 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
             nextButtonColor = Color.parseColor("#00CECB");
         }
 
-        previousButton.setImageBitmap(ThemifyIcon.fromThemifyIcon(getContext().getAssets(),
-                "ti-angle-left",
+        previousButton.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
+                "flaticon-back",
                 20,
                 Color.argb(0, 0, 0, 0),
                 previousButtonColor
         ));
 
-        nextButton.setImageBitmap(ThemifyIcon.fromThemifyIcon(getContext().getAssets(),
-                "ti-angle-right",
+        nextButton.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
+                "flaticon-next",
                 20,
                 Color.argb(0, 0, 0, 0),
                 nextButtonColor
@@ -339,10 +347,11 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
         switch (item.itemType) {
             case RecyclerItemTypeItemGridImageOnly: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
-                Serializable extras = screenItem.data.photos;
+                Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
                 this.activityListener.showScreen(screenId, extras);
             }
             break;
+
             default: {
                 Assert.assertFalse("" + item.itemType, false);
             }

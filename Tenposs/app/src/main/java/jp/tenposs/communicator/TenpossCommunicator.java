@@ -23,6 +23,7 @@ import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -61,10 +62,12 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
     public final static String BASE_ADDRESS = "http://ec2-54-204-210-230.compute-1.amazonaws.com/";
 
     private final static String API_ADDRESS = BASE_ADDRESS + "api/v1";
-    public final static String API_LOGIN = API_ADDRESS + "/login?";
-    public final static String API_SIGNUP = API_ADDRESS + "/signup?";
 
-    public final static String API_LOGOUT = API_ADDRESS + "/logout?";
+    public final static String API_SIGN_IN = API_ADDRESS + "/signin?";
+    public final static String API_SIGN_UP = API_ADDRESS + "/signup?";
+    public final static String API_SIGN_OUT = API_ADDRESS + "/signout?";
+    public final static String API_PROFILE = API_ADDRESS + "/profile?";
+
     public final static String API_TOP = API_ADDRESS + "/top?";
     public final static String API_MENU = API_ADDRESS + "/menu?";
     public final static String API_APPINFO = API_ADDRESS + "/appinfo?";
@@ -80,6 +83,9 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
     public final static String API_COUPON_DETAIL = API_ADDRESS + "/coupon/detail?";
     public final static String API_APPUSER = API_ADDRESS + "/appuser?";
     public final static String API_SETPUSHKEY = API_ADDRESS + "/setpushkey?";
+    public final static String API_STAFF_CATEGORY = API_ADDRESS + "/staff_categories?";
+    public final static String API_STAFFS = API_ADDRESS + "/staffs?";
+
 
     public interface TenpossCommunicatorListener {
         void completed(TenpossCommunicator request, Bundle responseParams);
@@ -97,6 +103,8 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
     static HostnameVerifier hostnameVerifier;
 
     protected HttpURLConnection m_pUrlConnection;
+    protected Bundle m_pBundle;
+    protected String m_strMethod = "GET";
 
     static void loadCookies(Context context, URI uri) {
         try {
@@ -122,6 +130,29 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
             ex.printStackTrace();
         }
 
+    }
+
+    static String getQuery(HashMap<String, String> params) {
+
+        StringBuilder result = new StringBuilder();
+        try {
+            boolean first = true;
+
+            Set<String> keys = params.keySet();
+            for (String key : keys) {
+                if (first)
+                    first = false;
+                else
+                    result.append("&");
+
+                result.append(URLEncoder.encode(key, "UTF-8"));
+                result.append("=");
+                result.append(URLEncoder.encode(params.get(key), "UTF-8"));
+            }
+        } catch (Exception ignored) {
+            ignored.printStackTrace();
+        }
+        return result.toString();
     }
 
     static boolean generateOnce() {
@@ -280,7 +311,7 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
         return responseHeader;
     }
 
-    HttpURLConnection getConnection(String strUrl, int timeout, boolean forceSSL, byte[] dataUpload, HashMap<String, String> headers) throws Exception {
+    HttpURLConnection getConnection(String strUrl, int timeout, boolean forceSSL, HashMap<String, String> headers) throws Exception {
         HttpURLConnection urlConnection = null;
         try {
             if (generateOnce() == false) {
@@ -303,21 +334,23 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
                     }
                 }
             }
-            if (dataUpload != null) {
-                urlConnection.setDoOutput(true);
+            if (m_strMethod.compareToIgnoreCase("POST") == 0) {
                 urlConnection.setChunkedStreamingMode(0);
-                urlConnection.setRequestProperty("Content-Type", "application/octet-stream");
-                urlConnection.setRequestProperty("Content-Length", "" + dataUpload.length);
+                urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setDoInput(true);
+                urlConnection.setDoOutput(true);
             }
             if (urlConnection instanceof HttpsURLConnection) {
                 if (forceSSL == true) {
                     ((HttpsURLConnection) urlConnection).setSSLSocketFactory(sf.getSocketFactoryEx());
                     ((HttpsURLConnection) urlConnection).setHostnameVerifier(hostnameVerifier);
                     try {
-                        if (dataUpload != null) {
+                        HashMap<String, String> params = (HashMap<String, String>) m_pBundle.get(Key.RequestFormData);
+                        if (params != null) {
                             urlConnection.connect();
                             OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
-                            out.write(dataUpload);
+                            out.write(getQuery(params).getBytes());
                             out.close();
                         }
                     } catch (Exception e) {
@@ -329,17 +362,15 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
                     }
                 } else {
                     try {
-                        if (dataUpload != null) {
+                        HashMap<String, String> params = (HashMap<String, String>) m_pBundle.get(Key.RequestFormData);
+                        if (params != null) {
                             urlConnection.connect();
                             OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
-                            out.write(dataUpload);
+                            out.write(getQuery(params).getBytes());
                             out.close();
-                        } else {
-                            int code = urlConnection.getResponseCode();
-                            System.out.println("Response Code : " + code);
                         }
                     } catch (SSLHandshakeException handShake) {
-                        urlConnection = getConnection(strUrl, timeout, true, dataUpload, headers);
+                        urlConnection = getConnection(strUrl, timeout, true, headers);
 
                     } catch (Exception e) {
                         try {
@@ -351,10 +382,11 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
                 }
             } else {
                 try {
-                    if (dataUpload != null) {
+                    HashMap<String, String> params = (HashMap<String, String>) m_pBundle.get(Key.RequestFormData);
+                    if (params != null) {
                         urlConnection.connect();
                         OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
-                        out.write(dataUpload);
+                        out.write(getQuery(params).getBytes());
                         out.close();
                     }
                 } catch (Exception e) {
@@ -366,7 +398,7 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
                 }
             }
         } catch (SSLHandshakeException handShake) {
-            urlConnection = getConnection(strUrl, timeout, true, dataUpload, headers);
+            urlConnection = getConnection(strUrl, timeout, true, headers);
         } catch (Exception e) {
             try {
                 urlConnection.disconnect();
@@ -377,9 +409,9 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
         return urlConnection;
     }
 
-    protected int request(String url, OutputStream output, byte[] dataUpload, Bundle bundle) {
+    protected int request(String url, OutputStream output, Bundle bundle) {
         //int nTimeout = bundle.getInt(GammaKey.RequestTimeout) * 1000;
-
+        m_pBundle = bundle;
         System.out.println(url);
         int nTimeout = 0;
         if (nTimeout == 0)
@@ -392,7 +424,7 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
 
         InputStream input = null;
         try {
-            m_pUrlConnection = getConnection(url, nTimeout, false, dataUpload, (HashMap<String, String>) bundle.get(Key.RequestHeader));
+            m_pUrlConnection = getConnection(url, nTimeout, false, (HashMap<String, String>) bundle.get(Key.RequestHeader));
         } catch (Exception e) {
             bundle.putString(Key.ResponseMessage, e.getMessage());
             bundle.putInt(Key.ResponseResult, CommunicationCode.GeneralError.ordinal());
@@ -417,7 +449,7 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
 
             if (code < 200 || code > 300) {
                 //if (code != 200) {
-                bundle.putString(Key.ResponseMessage, m_pUrlConnection.getResponseMessage());
+                bundle.putString(Key.ResponseMessage, "HTTP:" + code + m_pUrlConnection.getResponseMessage());
                 bundle.putInt(Key.ResponseResult, CommunicationCode.GeneralError.ordinal());
                 System.out.println("HTTP Code: " + code);
                 return CommunicationCode.ConnectionFailed.ordinal();

@@ -1,16 +1,24 @@
 package jp.tenposs.tenposs;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.CallbackManager;
@@ -24,6 +32,8 @@ import jp.tenposs.datamodel.AppInfo;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.datamodel.SignInInfo;
+import jp.tenposs.utils.FlatIcon;
+import jp.tenposs.utils.Utils;
 
 /**
  * Created by ambient on 7/26/16.
@@ -31,13 +41,11 @@ import jp.tenposs.datamodel.SignInInfo;
 public abstract class AbstractFragment extends Fragment {
 
     public interface MainActivityListener {
-        void updateNavigationBar(ToolbarSettings toolbarSettings);
-
         void updateAppInfo(AppInfo.Response appInfo, int storeId);
 
         void updateSideMenuItems(ArrayList<AppInfo.SideMenu> menus);
 
-        void updateUserInfo(SignInInfo.Response userInfo);
+        void updateUserInfo(SignInInfo.Profile profile);
 
         void showScreen(int menuId, Serializable extras);
 
@@ -45,33 +53,48 @@ public abstract class AbstractFragment extends Fragment {
 
         CallbackManager getCallbackManager();
 
+        void toggleMenu();
+
+        FragmentManager getFM();
     }
 
-    public final static int HOME_SCREEN = 1;
+    public final static int PROFILE_SECTION = -2;
+
+
+    public final static int HOME_SCREEN = 6;
+
     public final static int MENU_SCREEN = 2;
     public final static int ITEM_SCREEN = 201;
 
-    public final static int RESERVE_SCREEN = 3;
+    public final static int NEWS_SCREEN = 3;
+    public final static int NEWS_DETAILS_SCREEN = 301;
 
-    public final static int NEWS_SCREEN = 4;
-    public final static int NEWS_DETAILS_SCREEN = 401;
+    public final static int RESERVE_SCREEN = 4;
 
     public final static int PHOTO_SCREEN = 5;
     public final static int PHOTO_ITEM_SCREEN = 501;
 
-    public final static int STAFF_SCREEN = 6;
-    public final static int COUPON_SCREEN = 7;
-    public final static int CHAT_SCREEN = 8;
+    public final static int CHAT_SCREEN = 7;
 
-    public final static int SETTING_SCREEN = 9;
-    public final static int PROFILE_SCREEN = 901;
+    public final static int STAFF_SCREEN = 8;
+    public final static int STAFF_DETAIL_SCREEN = 801;
+
+    public final static int COUPON_SCREEN = 9;
+    public final static int COUPON_DETAIL_SCREEN = 901;
+
+    public final static int SETTING_SCREEN = 10;
+    public final static int PROFILE_SCREEN = 1001;
 
 
-    public final static int SIGNIN_SCREEN = 10;
-    public final static int SIGNUP_SCREEN = 101;
-    public final static int SIGNIN_EMAIL_SCREEN = 102;
+    public final static int SIGN_IN_SCREEN = 11;
+    public final static int SIGN_IN_EMAIL_SCREEN = 1101;
+    public final static int SIGN_UP_SCREEN = 1102;
 
-    public final static int PURCHASE_SCREEN = 11;
+    public final static int PURCHASE_SCREEN = 12;
+    public final static int COMPANY_INFO_SCREEN = 14;
+    public final static int USER_PRIVACY_SCREEN = 15;
+
+    public final static int SIGN_OUT_SCREEN = 16;
 
     public class ToolbarSettings {
 
@@ -79,23 +102,94 @@ public abstract class AbstractFragment extends Fragment {
         static final int LEFT_BACK_BUTTON = 2;
 
         public String toolbarTitle;
-        public String toolbarIcon;
+        public String toolbarLeftIcon;
+        public String toolbarRightIcon;
         public int toolbarType;
         AppInfo.AppSetting appSetting;
+
+        public int getToolbarIconColor() {
+            if (appSetting != null) {
+                return appSetting.getToolbarIconColor();
+            } else {
+                return Color.parseColor("#14c8c8");
+            }
+        }
+
+        public int getToolbarTitleColor() {
+            if (appSetting != null) {
+                return appSetting.getToolbarTitleColor();
+            } else {
+                return Color.parseColor("#505a5e");
+            }
+        }
+
+        public int getToolbarBackgroundColor() {
+            if (appSetting != null) {
+                return appSetting.getToolbarTitleColor();
+            } else {
+                return Color.WHITE;
+            }
+        }
+
+        public int getMenuBackgroundColor() {
+            if (appSetting != null) {
+                return appSetting.getMenuBackgroundColor();
+            } else {
+                return Color.parseColor("#2F455B");
+            }
+        }
+
+        public int getMenuIconColor() {
+            if (appSetting != null) {
+                return appSetting.getMenuIconColor();
+            } else {
+                return Color.WHITE;
+            }
+        }
+
+        public int getMenuTitleColor() {
+            if (appSetting != null) {
+                return appSetting.getMenuTitleColor();
+            } else {
+                return Color.WHITE;
+            }
+        }
+
+        public String getToolBarTitleFont() {
+            if (appSetting != null) {
+                return appSetting.getToolBarTitleFont();
+            } else {
+                return "fonts/Arial.ttf";
+            }
+        }
     }
 
     public static String SCREEN_DATA = "SCREEN_DATA";
+    public static String SCREEN_TITLE = "SCREEN_TITLE";
+    public static String SCREEN_PAGE_ITEMS = "SCREEN_PAGE_ITEMS";
+
+    public static String SCREEN_DATA_PAGE_INDEX = "SCREEN_DATA_PAGE_INDEX";
+    public static String SCREEN_DATA_PAGE_SIZE = "SCREEN_DATA_PAGE_SIZE";
+    public static String SCREEN_DATA_PAGE_DATA = "SCREEN_DATA_PAGE_DATA";
+
+    public static String APP_DATA_STORE_ID = "APP_DATA_STORE_ID";
     public static String SCREEN_DATA_STATUS = "SCREEN_DATA_STATUS";
 
     protected int spanCount = 1;
+    protected String screenTitle = "";
     public ToolbarSettings toolbarSettings;
     protected ScreenDataStatus screenDataStatus = ScreenDataStatus.ScreenDataStatusUnload;
     protected SharedPreferences appPreferences;
     protected MainActivityListener activityListener;
+    List<RecyclerItemWrapper> screenDataItems = new ArrayList<>();
+    boolean screenToolBarHidden = true;
 
     protected ViewGroup fragmentContent;
+    Toolbar toolbar;
+    ImageButton leftToolbarButton;
+    TextView titleToolbarLabel;
+    ImageButton rightToolbarButton;
 
-    List<RecyclerItemWrapper> screenDataItems = new ArrayList<>();
 
     protected abstract void customClose();
 
@@ -110,6 +204,8 @@ public abstract class AbstractFragment extends Fragment {
     protected abstract void customResume();
 
     abstract void loadSavedInstanceState(@NonNull Bundle savedInstanceState);
+
+    abstract void customSaveInstanceState(Bundle outState);
 
     abstract void setRefreshing(boolean refreshing);
 
@@ -129,20 +225,18 @@ public abstract class AbstractFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setupVariables();
         System.out.println("Fragment Life Cycle onCreate");
+
+        if (savedInstanceState == null) {
+            savedInstanceState = getArguments();
+        }
+        restoreSavedInstanceState(savedInstanceState);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         System.out.println("Fragment Life Cycle onCreateView");
-        if (savedInstanceState == null) {
-            savedInstanceState = getArguments();
-        }
-        if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(SCREEN_DATA_STATUS)) {
-                this.screenDataStatus = ScreenDataStatus.fromInt(savedInstanceState.getInt(SCREEN_DATA_STATUS));
-            }
-            loadSavedInstanceState(savedInstanceState);
-        }
+
+        restoreSavedInstanceState(savedInstanceState);
         toolbarSettings = new ToolbarSettings();
         try {
             toolbarSettings.appSetting = activityListener.getAppInfo().app_setting;
@@ -151,21 +245,87 @@ public abstract class AbstractFragment extends Fragment {
         }
 
         customToolbarInit();
+
+        if (screenTitle.length() > 0) {
+            toolbarSettings.toolbarTitle = screenTitle;
+        }
+
         View view = onCustomCreateView(inflater, container, savedInstanceState);
+        this.toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+
+        this.leftToolbarButton = (ImageButton) view.findViewById(R.id.left_toolbar_button);
+        this.titleToolbarLabel = (TextView) view.findViewById(R.id.title_toolbar_label);
+        this.rightToolbarButton = (ImageButton) view.findViewById(R.id.right_toolbar_button);
+
+        this.leftToolbarButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (toolbarSettings.toolbarType == ToolbarSettings.LEFT_MENU_BUTTON) {
+                    activityListener.toggleMenu();
+                } else {
+                    close();
+                }
+            }
+        });
+
         fragmentContent = (ViewGroup) view.findViewById(R.id.fragment_content);
+
+        updateToolbar();
+
         return view;
+    }
+
+    protected void updateToolbar() {
+        if (this.leftToolbarButton != null) {
+            this.leftToolbarButton.setImageBitmap(FlatIcon.fromFlatIcon(getActivity().getAssets(),
+                    this.toolbarSettings.toolbarLeftIcon,
+                    40,
+                    Color.argb(0, 0, 0, 0),
+                    this.toolbarSettings.getToolbarIconColor()
+            ));
+        }
+        if (this.rightToolbarButton != null) {
+            this.rightToolbarButton.setImageBitmap(FlatIcon.fromFlatIcon(getActivity().getAssets(),
+                    this.toolbarSettings.toolbarRightIcon,
+                    40,
+                    Color.argb(0, 0, 0, 0),
+                    this.toolbarSettings.getToolbarIconColor()
+            ));
+        }
+
+        if (this.titleToolbarLabel != null) {
+            this.titleToolbarLabel.setText(toolbarSettings.toolbarTitle);
+            this.titleToolbarLabel.setTextColor(toolbarSettings.getToolbarTitleColor());
+            try {
+                Typeface type = Typeface.createFromAsset(getActivity().getAssets(),
+                        toolbarSettings.getToolBarTitleFont());
+                this.titleToolbarLabel.setTypeface(type);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        if (this.screenToolBarHidden == true) {
+            this.toolbar.setVisibility(View.VISIBLE);
+        } else {
+            this.toolbar.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         System.out.println("Fragment Life Cycle onViewCreated");
+
+        restoreSavedInstanceState(savedInstanceState);
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         System.out.println("Fragment Life Cycle onActivityCreated");
+
+        restoreSavedInstanceState(savedInstanceState);
         setupVariables();
     }
 
@@ -216,9 +376,11 @@ public abstract class AbstractFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(SCREEN_DATA_STATUS, this.screenDataStatus.ordinal());
+        customSaveInstanceState(outState);
     }
 
-    @Override
+
+    /*@Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
 
@@ -231,7 +393,7 @@ public abstract class AbstractFragment extends Fragment {
             }
             loadSavedInstanceState(savedInstanceState);
         }
-    }
+    }*/
 
     void setupVariables() {
         spanCount = 6;
@@ -257,6 +419,7 @@ public abstract class AbstractFragment extends Fragment {
         return ret;
     }
 
+
     @Override
     public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
         if (nextAnim == 0)
@@ -270,7 +433,7 @@ public abstract class AbstractFragment extends Fragment {
             public void onAnimationStart(Animation animation) {
                 System.out.println("Animation started.");
                 if (toolbarSettings != null) {
-                    activityListener.updateNavigationBar(toolbarSettings);
+                    //activityListener.updateNavigationBar(toolbarSettings);
                 }
             }
 
@@ -289,8 +452,13 @@ public abstract class AbstractFragment extends Fragment {
     }
 
     protected void close() {
-        customClose();
-        getActivity().getSupportFragmentManager().popBackStack();
+        try {
+            Utils.hideKeyboard(this.getActivity(), null);
+            customClose();
+            getActivity().getSupportFragmentManager().popBackStack();
+        } catch (Exception ignored) {
+
+        }
     }
 
     protected void errorWithMessage(Bundle response, String message) {
@@ -301,5 +469,89 @@ public abstract class AbstractFragment extends Fragment {
         } else {
             Toast.makeText(this.getContext(), message, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    protected void showAlert(String title, String message, String positiveButton, String negativeButton, DialogInterface.OnClickListener listener) {
+        /*DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case DialogInterface.BUTTON_POSITIVE: {
+                        exitActivity();
+                    }
+                    break;
+
+                    case DialogInterface.BUTTON_NEGATIVE: {
+                    }
+                    break;
+                }
+            }
+        };*/
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
+        if (title != null) {
+            builder.setTitle(title);
+        }
+        builder.setMessage(message);
+        if (positiveButton != null) {
+            builder.setPositiveButton(positiveButton, listener);
+        }
+        if (negativeButton != null) {
+            builder.setNegativeButton(negativeButton, listener);
+        }
+        builder.show();
+    }
+
+    private void restoreSavedInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(SCREEN_DATA_STATUS)) {
+                this.screenDataStatus = ScreenDataStatus.fromInt(savedInstanceState.getInt(SCREEN_DATA_STATUS));
+            }
+            if (savedInstanceState.containsKey(SCREEN_TITLE)) {
+                this.screenTitle = savedInstanceState.getString(SCREEN_TITLE);
+            }
+            loadSavedInstanceState(savedInstanceState);
+        }
+    }
+
+    public static String getMenuIconName(int menuId) {
+        switch (menuId) {
+            case HOME_SCREEN: {
+                return "flaticon-home";
+            }
+            case MENU_SCREEN: {
+                return "flaticon-menu";
+            }
+            case NEWS_SCREEN: {
+                return "flaticon-news";
+            }
+            case RESERVE_SCREEN: {
+                return "flaticon-reserve";
+            }
+            case PHOTO_SCREEN: {
+                return "flaticon-photo-gallery";
+            }
+            case CHAT_SCREEN: {
+                return "flaticon-chat";
+            }
+            case STAFF_SCREEN: {
+                return "flaticon-staff";
+            }
+            case COUPON_SCREEN: {
+                return "flaticon-coupon";
+            }
+            case SETTING_SCREEN: {
+                return "flaticon-settings";
+            }
+            case SIGN_OUT_SCREEN: {
+                return "flaticon-sign-out";
+            }
+            default:
+                return "";
+        }
+    }
+
+    public void onBackStackChanged() {
+
     }
 }

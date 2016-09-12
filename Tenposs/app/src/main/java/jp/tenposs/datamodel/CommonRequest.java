@@ -2,6 +2,7 @@ package jp.tenposs.datamodel;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -17,6 +18,7 @@ public abstract class CommonRequest implements Serializable {
     final static String privateKey = "002861062a0a2a5bb5c8a069d8ad1a66";
 
     //name: "Coffee App",
+
     //public String app_id = "bdb372395c03020340a3c863b27ffeef";
     //final static String privateKey = "a2ed29ec2df944c704e2dddcaace5332";
 
@@ -59,44 +61,53 @@ public abstract class CommonRequest implements Serializable {
 
     abstract String sigInput();
 
-    void generateSig() {
+    protected void generateSig() {
         time = Utils.gmtMillis();
         String input = sigInput();
         sig = CryptoUtils.sha256(input);
     }
 
     public String makeParams(String method) {
-        generateSig();
-        String params = "";
-        if (method.compareToIgnoreCase("GET") == 0) {
-            Field[] fields = this.getClass().getFields();
-            String separate = "";
-            for (Field field : fields) {
-                try {
-                    if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
-                        continue;
-                    }
-                    String name = field.getName();
-                    Object value = field.get(this);
-                    if (value != null) {
-                        if (value instanceof Double || value instanceof Integer || value instanceof String || value instanceof Boolean || value instanceof Long || value instanceof Float || value instanceof Short) {
-                            params += separate + name + "=" + value.toString();
-                        } else if (value instanceof Date) {
-                            params += separate + name + "=" + new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format((Date) value);
+        try {
+            generateSig();
+            String params = "";
+            if (method.compareToIgnoreCase("GET") == 0) {
+                Field[] fields = this.getClass().getFields();
+                String separate = "";
+                for (Field field : fields) {
+                    try {
+                        if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+                            continue;
                         }
-                        if (separate == "") {
-                            separate = "&";
+                        String name = URLEncoder.encode(field.getName(), "UTF-8");
+                        Object value = field.get(this);
+                        if (value != null) {
+                            if (value instanceof Double || value instanceof Integer || value instanceof String || value instanceof Boolean || value instanceof Long || value instanceof Float || value instanceof Short) {
+                                params += separate + name + "=" + URLEncoder.encode(value.toString(), "UTF-8");
+                            } else if (value instanceof Date) {
+                                params += separate + name + "=" + URLEncoder.encode(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format((Date) value), "UTF-8");
+                            }
+                            if (separate == "") {
+                                separate = "&";
+                            }
                         }
+                    } catch (IllegalArgumentException e) {
+                        e.printStackTrace();
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
                     }
-                } catch (IllegalArgumentException e) {
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                }
+            } else {
+                params += "app_id=" + app_id;
+                params += "&time=" + time;
+                params += "&sig=" + sig;
+                if (token != null) {
+                    params += "&token=" + token;
                 }
             }
-        } else {
-            //POST
+            return params;
+        } catch (Exception ex) {
+            return "";
         }
-        return params;
     }
 }

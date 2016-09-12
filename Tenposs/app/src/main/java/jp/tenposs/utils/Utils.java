@@ -1,5 +1,17 @@
 package jp.tenposs.utils;
 
+import android.app.Activity;
+import android.content.Context;
+import android.os.Build;
+import android.text.Html;
+import android.text.SpannableStringBuilder;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.URLSpan;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.TextView;
+
 import junit.framework.Assert;
 
 import java.util.Calendar;
@@ -20,5 +32,61 @@ public class Utils {
             Assert.assertFalse(false);
         }
         return time;
+    }
+
+    static void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span, ClickableSpan clickable) {
+        int start = strBuilder.getSpanStart(span);
+        int end = strBuilder.getSpanEnd(span);
+        int flags = strBuilder.getSpanFlags(span);
+        strBuilder.setSpan(clickable, start, end, flags);
+        strBuilder.removeSpan(span);
+    }
+
+    public static void setTextViewHTML(TextView text, String html, ClickableSpan clickableSpan) {
+        try {
+            CharSequence sequence = Html.fromHtml(html);
+            SpannableStringBuilder strBuilder = new SpannableStringBuilder(sequence);
+            URLSpan[] urls = strBuilder.getSpans(0, sequence.length(), URLSpan.class);
+            for (URLSpan span : urls) {
+                makeLinkClickable(strBuilder, span, clickableSpan);
+            }
+            text.setText(strBuilder);
+            text.setMovementMethod(LinkMovementMethod.getInstance());
+        } catch (Exception ignored) {
+
+        }
+    }
+
+    public static int getColorInt(Context context, int resId) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return context.getResources().getColor(resId, null);
+        } else {
+            return context.getResources().getColor(resId);
+        }
+    }
+
+    public static void hideKeyboard(Activity activity, View view) {
+        try {
+            InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+            try {
+                if (view != null) {
+                    inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
+            } catch (Exception ignored) {
+            }
+            try {
+                inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+            } catch (Exception ignored) {
+            }
+        } catch (Exception ignored) {
+        }
+    }
+    public static boolean validateEmailAddress(String email) {
+        final String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
+        if (email.matches(emailPattern)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

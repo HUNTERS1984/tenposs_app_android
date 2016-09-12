@@ -6,6 +6,7 @@
     android:orientation="vertical">
 
     <ImageView
+        android:background="@drawable/bg_image_grid"
         android:id="@+id/item_image"
         app:layout_aspectRatio="100%"
         app:layout_widthPercent="100%" />

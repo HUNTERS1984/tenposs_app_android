@@ -9,6 +9,7 @@ import jp.tenposs.datamodel.AppInfo;
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
+import jp.tenposs.datamodel.SignOutInfo;
 
 /**
  * Created by ambient on 8/5/16.
@@ -36,10 +37,13 @@ public class AppInfoCommunicator extends TenpossCommunicator {
             bundle.putInt(Key.ResponseResult, CommunicationCode.GeneralError.ordinal());
             return false;
         }
-        result = request(strUrl, output, dataRequest, bundle);
+        result = request(strUrl, output, bundle);
         if (result == CommunicationCode.ConnectionSuccess.ordinal()) {
             String strResponse = output.toString();
-            AppInfo.Response response = (AppInfo.Response) CommonObject.fromJSONString(strResponse, AppInfo.Response.class, null);
+            CommonResponse response = (AppInfo.Response) CommonObject.fromJSONString(strResponse, AppInfo.Response.class, null);
+            if (response == null) {
+                response = (CommonResponse) CommonObject.fromJSONString(strResponse, CommonResponse.class, null);
+            }
             if (response != null) {
                 bundle.putInt(Key.ResponseResult, CommunicationCode.ConnectionSuccess.ordinal());
                 bundle.putInt(Key.ResponseResultApi, response.code);

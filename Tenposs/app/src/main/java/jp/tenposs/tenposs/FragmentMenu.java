@@ -13,6 +13,8 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import junit.framework.Assert;
+
 import java.util.ArrayList;
 
 import jp.tenposs.adapter.CommonAdapter;
@@ -27,7 +29,7 @@ import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.MenuInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.listener.OnCommonItemClickListener;
-import jp.tenposs.utils.ThemifyIcon;
+import jp.tenposs.utils.FlatIcon;
 
 
 /**
@@ -46,37 +48,18 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
     MenuInfo.Menu currentMenu;
     int currentMenuIndex;
 
+    ArrayList<Bundle> menuDatas;
+
+    int storeId;
+
     /**
      * Fragment Override
      */
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putSerializable(SCREEN_DATA, this.screenData);
-        outState.putInt(SCREEN_DATA_STATUS, this.screenDataStatus.ordinal());
-    }
-
-    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         spanCount = 6;
-
-        if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(SCREEN_DATA)) {
-//                this.screenData = (ArrayList<AppInfo.Response.ResponseData.Menu>) savedInstanceState.getSerializable(SCREEN_DATA);
-            }
-        } else {
-            Bundle argument = getArguments();
-            if (argument != null && argument.containsKey(SCREEN_DATA)) {
-//                this.screenData = (ArrayList<AppInfo.Response.ResponseData.Menu>) argument.getSerializable(SCREEN_DATA);
-            }
-        }
-    }
-
-    @Override
-    void setRefreshing(boolean refreshing) {
-        this.swipeRefreshLayout.setRefreshing(refreshing);
     }
 
     @Override
@@ -86,8 +69,8 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings.toolbarTitle = "Menu";
-        toolbarSettings.toolbarIcon = "ti-menu";
+        toolbarSettings.toolbarTitle = getString(R.string.menu);
+        toolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
         toolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
     }
 
@@ -103,19 +86,19 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
     @Override
     protected void previewScreenData() {
         this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
-        this.swipeRefreshLayout.setRefreshing(false);
+        setRefreshing(false);
 
         updateNavigation();
 
         screenDataItems = new ArrayList<>();
 
         for (ItemInfo.Item item : screenItem.data.items) {
-//            RecyclerItemWrapper.RecyclerItemObject obj = RecyclerItemWrapper.createItem(
             Bundle extras = new Bundle();
             extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
             extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.title);
             extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.price);
             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
+            extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
             screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, spanCount / 2, extras));
         }
 
@@ -130,7 +113,7 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
         } else {
             this.recyclerAdapter.notifyDataSetChanged();
         }
-
+        updateToolbar();
     }
 
     @Override
@@ -148,14 +131,7 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
         return mRoot;
     }
 
-    @Override
-    void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
-        if (savedInstanceState.containsKey(SCREEN_DATA)) {
-            //this.screenData = (TopInfo.Response.ResponseData) savedInstanceState.getSerializable(SCREEN_DATA);
-        }
-    }
-
-    @Override
+    @Override    
     protected void customResume() {
         if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
             //load needed data
@@ -163,7 +139,7 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
             this.swipeRefreshLayout.post(new Runnable() {
                 @Override
                 public void run() {
-                    FragmentMenu.this.swipeRefreshLayout.setRefreshing(true);
+                    setRefreshing(true);
                     currentMenuIndex = 0;
                     loadMenuData();
                 }
@@ -178,9 +154,31 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
         }
     }
 
+    @Override
+    void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
+        if (savedInstanceState.containsKey(SCREEN_DATA)) {
+            this.screenData = (MenuInfo.Response) savedInstanceState.getSerializable(SCREEN_DATA);
+        }
+        if (savedInstanceState.containsKey(APP_DATA_STORE_ID)) {
+            this.storeId = savedInstanceState.getInt(APP_DATA_STORE_ID);
+        }
+    }
+
+    @Override
+    void customSaveInstanceState(Bundle outState) {
+        outState.putSerializable(SCREEN_DATA, this.screenData);
+        outState.putInt(APP_DATA_STORE_ID, this.storeId);
+    }
+
+
+    @Override
+    void setRefreshing(boolean refreshing) {
+        this.swipeRefreshLayout.setRefreshing(refreshing);
+    }
+
     void loadMenuData() {
         MenuInfo.Request requestParams = new MenuInfo.Request();
-        requestParams.store_id = 1;
+        requestParams.store_id = this.storeId;
 
         Bundle params = new Bundle();
         params.putSerializable(Key.RequestObject, requestParams);
@@ -192,6 +190,14 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
                     int resultApi = responseParams.getInt(Key.ResponseResultApi);
                     if (resultApi == CommonResponse.ResultSuccess) {
                         screenData = (MenuInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                        currentMenuIndex = 0;
+                        menuDatas = new ArrayList<>();
+                        for (int i = 0; i < screenData.data.menus.size(); i++) {
+                            Bundle menuData = new Bundle();
+                            menuData.putInt("PAGE_INDEX", 1);
+                            menuData.putInt("PAGE_SIZE", 20);
+                            menuDatas.add(menuData);
+                        }
                         loadMenuItem(currentMenuIndex);
                     } else {
                         String strMessage = responseParams.getString(Key.ResponseMessage);
@@ -208,34 +214,39 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
 
     void loadMenuItem(int menuIndex) {
         try {
-            currentMenu = screenData.data.menus.get(menuIndex);
-            ItemInfo.Request requestParams = new ItemInfo.Request();
-            requestParams.menu_id = currentMenu.id;
-            requestParams.pageindex = 1;
-            requestParams.pagesize = 20;
+            Bundle menuData = menuDatas.get(menuIndex);
+            this.currentMenu = screenData.data.menus.get(menuIndex);
+            if (menuData.containsKey("PAGE_DATA")) {
+                this.screenItem = (ItemInfo.Response) menuData.getSerializable("PAGE_DATA");
+            } else {
+                ItemInfo.Request requestParams = new ItemInfo.Request();
+                requestParams.menu_id = currentMenu.id;
+                requestParams.pageindex = menuData.getInt("PAGE_INDEX");
+                requestParams.pagesize = menuData.getInt("PAGE_SIZE");
 
-            Bundle params = new Bundle();
-            params.putSerializable(Key.RequestObject, requestParams);
-            ItemInfoCommunicator communicator = new ItemInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-                @Override
-                public void completed(TenpossCommunicator request, Bundle responseParams) {
-                    int result = responseParams.getInt(Key.ResponseResult);
-                    if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                        int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                        if (resultApi == CommonResponse.ResultSuccess) {
-                            screenItem = (ItemInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                            previewScreenData();
+                Bundle params = new Bundle();
+                params.putSerializable(Key.RequestObject, requestParams);
+                ItemInfoCommunicator communicator = new ItemInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
+                    @Override
+                    public void completed(TenpossCommunicator request, Bundle responseParams) {
+                        int result = responseParams.getInt(Key.ResponseResult);
+                        if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                            int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                            if (resultApi == CommonResponse.ResultSuccess) {
+                                screenItem = (ItemInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                previewScreenData();
+                            } else {
+                                String strMessage = responseParams.getString(Key.ResponseMessage);
+                                errorWithMessage(responseParams, strMessage);
+                            }
                         } else {
                             String strMessage = responseParams.getString(Key.ResponseMessage);
                             errorWithMessage(responseParams, strMessage);
                         }
-                    } else {
-                        String strMessage = responseParams.getString(Key.ResponseMessage);
-                        errorWithMessage(responseParams, strMessage);
                     }
-                }
-            });
-            communicator.execute(params);
+                });
+                communicator.execute(params);
+            }
         } catch (Exception ignored) {
             ignored.printStackTrace();
         }
@@ -274,7 +285,13 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
         } catch (Exception ignored) {
 
         }
-        loadMenuItem(currentMenuIndex);
+        this.swipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                setRefreshing(true);
+                loadMenuItem(currentMenuIndex);
+            }
+        });
     }
 
     void updateNavigation() {
@@ -288,15 +305,15 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
             nextButtonColor = Color.parseColor("#00CECB");
         }
 
-        previousButton.setImageBitmap(ThemifyIcon.fromThemifyIcon(getContext().getAssets(),
-                "ti-angle-left",
+        previousButton.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
+                "flaticon-back",
                 20,
                 Color.argb(0, 0, 0, 0),
                 previousButtonColor
         ));
 
-        nextButton.setImageBitmap(ThemifyIcon.fromThemifyIcon(getContext().getAssets(),
-                "ti-angle-right",
+        nextButton.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
+                "flaticon-next",
                 20,
                 Color.argb(0, 0, 0, 0),
                 nextButtonColor
@@ -325,6 +342,21 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
 
     @Override
     public void onCommonItemClick(int position, Bundle extraData) {
+        RecyclerItemWrapper item = getItemData(position);
 
+        switch (item.itemType) {
+            case RecyclerItemTypeItemGrid: {
+                int id = item.itemData.getInt(RecyclerItemWrapper.ITEM_ID);
+                ItemInfo.Item itemData = (ItemInfo.Item) item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
+                this.activityListener.showScreen(AbstractFragment.ITEM_SCREEN, itemData);
+            }
+            break;
+
+            default: {
+                Assert.assertFalse("" + item.itemType, false);
+            }
+            break;
+        }
+        System.out.println(item.itemType);
     }
 }

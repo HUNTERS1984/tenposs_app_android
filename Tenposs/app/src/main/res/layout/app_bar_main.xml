@@ -7,6 +7,7 @@
     android:fitsSystemWindows="true"
     tools:context="jp.tenposs.tenposs.MainActivity">
 
+    <!--
     <android.support.design.widget.AppBarLayout
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
@@ -53,6 +54,12 @@
                         android:layout_height="?attr/actionBarSize"
                         android:background="@android:color/transparent"
                         android:visibility="gone" />
+                    <ImageButton
+                        android:id="@+id/close_button"
+                        android:layout_width="?attr/actionBarSize"
+                        android:layout_height="?attr/actionBarSize"
+                        android:background="@android:color/transparent"
+                        android:visibility="gone" />
 
                     <FrameLayout
                         android:id="@+id/nav_center"
@@ -84,7 +91,7 @@
                     </FrameLayout>
 
                     <ImageButton
-                        android:id="@+id/search_button"
+                        android:id="@+id/sign_out_button"
                         android:layout_width="?attr/actionBarSize"
                         android:layout_height="?attr/actionBarSize"
                         android:background="@android:color/transparent" />
@@ -100,6 +107,7 @@
         </android.support.v7.widget.Toolbar>
 
     </android.support.design.widget.AppBarLayout>
+    -->
 
     <FrameLayout
         android:id="@+id/content_container"

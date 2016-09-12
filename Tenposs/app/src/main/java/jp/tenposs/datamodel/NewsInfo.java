@@ -52,6 +52,7 @@ public class NewsInfo {
         public String date;
         public int store_id;
         String image_url;
+        public String category = "";
 
         @Override
         public String getImageUrl() {

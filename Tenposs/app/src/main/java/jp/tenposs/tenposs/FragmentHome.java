@@ -20,7 +20,6 @@ import jp.tenposs.adapter.RecyclerItemWrapper;
 import jp.tenposs.communicator.AppInfoCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
 import jp.tenposs.communicator.TopInfoCommunicator;
-import jp.tenposs.communicator.UserInfoCommunicator;
 import jp.tenposs.datamodel.AppInfo;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.ItemInfo;
@@ -28,7 +27,6 @@ import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.NewsInfo;
 import jp.tenposs.datamodel.PhotoInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
-import jp.tenposs.datamodel.SignInInfo;
 import jp.tenposs.datamodel.TopInfo;
 import jp.tenposs.listener.OnCommonItemClickListener;
 
@@ -50,38 +48,10 @@ public class FragmentHome
     TopInfo.Response topData = null;
     TopInfo.Response.ResponseData screenData = null;
 
-    SignInInfo.Response userInfo = null;
 
     RecyclerView recyclerView;
     CommonAdapter recyclerAdapter;
     SwipeRefreshLayout swipeRefreshLayout;
-
-    /**
-     * Fragment Override
-     */
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putSerializable(SCREEN_DATA, this.screenData);
-    }
-
-    /**
-     * AbstractFragment
-     */
-
-    @Override
-    void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
-        if (savedInstanceState.containsKey(SCREEN_DATA)) {
-            this.screenData = (TopInfo.Response.ResponseData) savedInstanceState.getSerializable(SCREEN_DATA);
-        }
-    }
-
-    @Override
-    void setRefreshing(boolean refreshing) {
-        this.swipeRefreshLayout.setRefreshing(refreshing);
-    }
-
     @Override
     protected void customClose() {
 
@@ -89,8 +59,8 @@ public class FragmentHome
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings.toolbarTitle = "GLOBAL WORK";
-        toolbarSettings.toolbarIcon = "ti-menu";
+        toolbarSettings.toolbarTitle = "";
+        toolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
         toolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
     }
 
@@ -106,137 +76,159 @@ public class FragmentHome
     @Override
     protected void previewScreenData() {
         screenDataItems = new ArrayList<>();
-        Bundle extras = null;
+        Bundle extras;
 
-        //Mockup Data
-        screenData.images.data.add(new TopInfo.Image("http://wallpapers-and-backgrounds.net/wp-content/uploads/2016/01/bikini-hd-background_1.jpg"));
-        screenData.images.data.add(new TopInfo.Image("http://wallpapers-and-backgrounds.net/wp-content/uploads/2016/01/bikini-1080p-background_1.jpg"));
-        screenData.images.data.add(new TopInfo.Image("http://wallpapers-and-backgrounds.net/wp-content/uploads/2016/01/bikini-full-hd-background_1.jpg"));
-        screenData.images.data.add(new TopInfo.Image("http://wallpapers-and-backgrounds.net/wp-content/uploads/2016/01/bikini-1080p-wallpaper_1.jpg"));
-        screenData.images.data.add(new TopInfo.Image("http://wallpapers-and-backgrounds.net/wp-content/uploads/2016/01/bikini-sexy-background_1.jpg"));
+//        //Mockup Data
+//        screenData.images.data.add(new TopInfo.Image("http://wallpapers-and-backgrounds.net/wp-content/uploads/2016/01/bikini-hd-background_1.jpg"));
+//        screenData.images.data.add(new TopInfo.Image("http://wallpapers-and-backgrounds.net/wp-content/uploads/2016/01/bikini-1080p-background_1.jpg"));
+//        screenData.images.data.add(new TopInfo.Image("http://wallpapers-and-backgrounds.net/wp-content/uploads/2016/01/bikini-full-hd-background_1.jpg"));
+//        screenData.images.data.add(new TopInfo.Image("http://wallpapers-and-backgrounds.net/wp-content/uploads/2016/01/bikini-1080p-wallpaper_1.jpg"));
+//        screenData.images.data.add(new TopInfo.Image("http://wallpapers-and-backgrounds.net/wp-content/uploads/2016/01/bikini-sexy-background_1.jpg"));
 
         if (screenData.images != null && screenData.images.size() > 0) {
-            extras = new Bundle();
-            extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, screenData.images.data);
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeTopItem, spanCount, extras));
+            AppInfo.TopComponent component = this.appInfo.data.getTopComponent(screenData.images.top_id);
+            if (component != null) {
+                extras = new Bundle();
+                extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, screenData.images.data);
+
+                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeTopItem, spanCount, extras));
+            }
         }
 
         if (screenData.items != null && screenData.items.size() > 0) {
-            /**
-             * Header
-             */
-            extras = new Bundle();
             AppInfo.TopComponent component = this.appInfo.data.getTopComponent(screenData.items.top_id);
-            extras.putString(RecyclerItemWrapper.ITEM_TITLE, component.name);
-            extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.MENU_SCREEN);
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, spanCount, extras));
-
-            /**
-             * Content
-             */
-            for (ItemInfo.Item item : screenData.items.data) {
+            if (component != null) {
+                /**
+                 * Header
+                 */
                 extras = new Bundle();
-                extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
-                extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.ITEM_SCREEN);
-                extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.title);
-                extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.price);
-                extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
-                extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, spanCount / 2, extras));
-            }
+                extras.putString(RecyclerItemWrapper.ITEM_TITLE, component.name);
+                extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.MENU_SCREEN);
 
-            /**
-             * Footer
-             */
-            extras = new Bundle();
-            extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.MENU_SCREEN);
-            extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
-        }
-        if (screenData.photos != null && screenData.photos.size() > 0) {
-            /**
-             * Header
-             */
-            AppInfo.TopComponent component = this.appInfo.data.getTopComponent(screenData.photos.top_id);
-            extras = new Bundle();
-            extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_SCREEN);
-            extras.putString(RecyclerItemWrapper.ITEM_TITLE, component.name);
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, spanCount, extras));
+                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, spanCount, extras));
 
-            /**
-             * Content
-             */
-            for (PhotoInfo.Photo item : screenData.photos.data) {
-                extras = new Bundle();
-
-                extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
-                extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_ITEM_SCREEN);
-                extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
-                extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, screenData.photos.data);
-
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, spanCount / 3, extras));
-            }
-
-            /**
-             * Footer
-             */
-            extras = new Bundle();
-            extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_SCREEN);
-            extras.putString(RecyclerItemWrapper.ITEM_IMAGE, getString(R.string.more));
-
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
-        }
-
-        if (screenData.news != null && screenData.news.size() > 0) {
-            /**
-             * Header
-             */
-            AppInfo.TopComponent component = this.appInfo.data.getTopComponent(screenData.news.top_id);
-            extras = new Bundle();
-            extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_SCREEN);
-            extras.putString(RecyclerItemWrapper.ITEM_TITLE, component.name);
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, spanCount, extras));
-
-            /**
-             * Content
-             */
-            for (NewsInfo.News item : screenData.news.data) {
-                extras = new Bundle();
-                extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
-                extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_DETAILS_SCREEN);
-                extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.title);
-                extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.description);
-                extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
-                extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemList, spanCount, extras));
-            }
-
-            /**
-             * Footer
-             */
-            extras = new Bundle();
-            extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_SCREEN);
-            extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
-        }
-
-        if (screenData.contact != null && screenData.contact.size() > 0) {
-            for (TopInfo.Contact contact : screenData.contact.data) {
                 /**
                  * Content
                  */
-                extras = new Bundle();
-                extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, contact);
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemStore, spanCount, extras));
+                for (ItemInfo.Item item : screenData.items.data) {
+                    extras = new Bundle();
+                    extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
+                    extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.ITEM_SCREEN);
+                    extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.title);
+                    extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.price);
+                    extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
+                    extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
+
+                    screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, spanCount / 2, extras));
+                }
 
                 /**
                  * Footer
                  */
                 extras = new Bundle();
-                extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.RESERVE_SCREEN);
-                extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.reserve));
-                extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, contact);
+                extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.MENU_SCREEN);
+                extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
+
                 screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
+            }
+        }
+        if (screenData.photos != null && screenData.photos.size() > 0) {
+            AppInfo.TopComponent component = this.appInfo.data.getTopComponent(screenData.photos.top_id);
+            if (component != null) {
+                /**
+                 * Header
+                 */
+                extras = new Bundle();
+                extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_SCREEN);
+                extras.putString(RecyclerItemWrapper.ITEM_TITLE, component.name);
+
+                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, spanCount, extras));
+
+                /**
+                 * Content
+                 */
+                for (PhotoInfo.Photo item : screenData.photos.data) {
+                    extras = new Bundle();
+                    extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
+                    extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_ITEM_SCREEN);
+                    extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
+                    extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item.getImageUrl());
+
+                    screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, spanCount / 3, extras));
+                }
+
+                /**
+                 * Footer
+                 */
+                extras = new Bundle();
+                extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_SCREEN);
+                extras.putString(RecyclerItemWrapper.ITEM_IMAGE, getString(R.string.more));
+
+                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
+            }
+        }
+
+        if (screenData.news != null && screenData.news.size() > 0) {
+            AppInfo.TopComponent component = this.appInfo.data.getTopComponent(screenData.news.top_id);
+            /**
+             * Header
+             */
+            if (component != null) {
+                extras = new Bundle();
+                extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_SCREEN);
+                extras.putString(RecyclerItemWrapper.ITEM_TITLE, component.name);
+
+                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, spanCount, extras));
+
+                /**
+                 * Content
+                 */
+                for (NewsInfo.News item : screenData.news.data) {
+                    extras = new Bundle();
+                    extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
+                    extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_DETAILS_SCREEN);
+                    extras.putString(RecyclerItemWrapper.ITEM_CATEGORY, "Category");
+                    extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.title);
+                    extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.description);
+                    extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
+                    extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
+
+                    screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemList, spanCount, extras));
+                }
+
+                /**
+                 * Footer
+                 */
+                extras = new Bundle();
+                extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_SCREEN);
+                extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
+
+                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
+            }
+        }
+
+        if (screenData.contact != null && screenData.contact.size() > 0) {
+            AppInfo.TopComponent component = this.appInfo.data.getTopComponent(screenData.contact.top_id);
+            if (component != null) {
+                for (TopInfo.Contact contact : screenData.contact.data) {
+                    /**
+                     * Content
+                     */
+                    extras = new Bundle();
+                    extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, contact);
+
+                    screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemStore, spanCount, extras));
+
+                    /**
+                     * Footer
+                     */
+                    extras = new Bundle();
+                    extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.RESERVE_SCREEN);
+                    extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.reserve));
+                    extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, contact);
+
+                    screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
+                }
             }
         }
 
@@ -253,14 +245,15 @@ public class FragmentHome
         } else {
             this.recyclerAdapter.notifyDataSetChanged();
         }
-        toolbarSettings.appSetting = this.appInfo.data.app_setting;
+        this.toolbarSettings.appSetting = this.appInfo.data.app_setting;
         this.activityListener.updateAppInfo(this.appInfo, storeInfo.id);
         this.activityListener.updateSideMenuItems(this.sideMenuInfo);
-        this.activityListener.updateUserInfo(this.userInfo);
+
+        updateToolbar();
     }
 
     @Override
-    public View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View mRoot = inflater.inflate(R.layout.fragment_home, null);
         this.recyclerView = (RecyclerView) mRoot.findViewById(R.id.recycler_view);
         this.swipeRefreshLayout = (SwipeRefreshLayout) mRoot.findViewById(R.id.swipe_refresh_layout);
@@ -294,6 +287,23 @@ public class FragmentHome
             //reload screen, this case application return from background or from other activity
             previewScreenData();
         }
+    }
+
+    @Override
+    void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
+        if (savedInstanceState.containsKey(SCREEN_DATA)) {
+            this.screenData = (TopInfo.Response.ResponseData) savedInstanceState.getSerializable(SCREEN_DATA);
+        }
+    }
+
+    @Override
+    void customSaveInstanceState(Bundle outState) {
+        outState.putSerializable(SCREEN_DATA, this.screenData);
+    }
+
+    @Override
+    void setRefreshing(boolean refreshing) {
+        this.swipeRefreshLayout.setRefreshing(refreshing);
     }
 
     @Override
@@ -413,8 +423,7 @@ public class FragmentHome
                     if (resultApi == CommonResponse.ResultSuccess) {
                         FragmentHome.this.topData = (TopInfo.Response) responseParams.getSerializable(Key.ResponseObject);
                         FragmentHome.this.screenData = FragmentHome.this.topData.data;
-
-                        loadUserInfo();
+                        previewScreenData();
                     } else {
                         String strMessage = responseParams.getString(Key.ResponseMessage);
                         errorWithMessage(responseParams, strMessage);
@@ -426,32 +435,5 @@ public class FragmentHome
             }
         });
         communicator.execute(params);
-    }
-
-    void loadUserInfo() {
-        if (this.userInfo != null) {
-            Bundle params = new Bundle();
-            UserInfoCommunicator communicator = new UserInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-                @Override
-                public void completed(TenpossCommunicator request, Bundle responseParams) {
-                    int result = responseParams.getInt(Key.ResponseResult);
-                    if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                        int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                        if (resultApi == CommonResponse.ResultSuccess) {
-                            previewScreenData();
-                        } else {
-                            String strMessage = responseParams.getString(Key.ResponseMessage);
-                            errorWithMessage(responseParams, strMessage);
-                        }
-                    } else {
-                        String strMessage = responseParams.getString(Key.ResponseMessage);
-                        errorWithMessage(responseParams, strMessage);
-                    }
-                }
-            });
-            communicator.execute(params);
-        } else {
-            previewScreenData();
-        }
     }
 }

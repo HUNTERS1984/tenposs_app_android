@@ -9,7 +9,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +16,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -39,10 +37,11 @@ public class PopupPhotoPreview {
     protected Application application;
     protected View contentView;
 
-    ViewPager viewPager;
-    GalleryAdapter adapter;
-
-    ArrayList<?> popupData;
+    //    ViewPager viewPager;
+//    GalleryAdapter adapter;
+    ZoomableImageView imageView;
+    //ArrayList<?> popupData;
+    String popupData;
     ImageButton closeButton;
 
 
@@ -55,7 +54,7 @@ public class PopupPhotoPreview {
     }
 
     public void setData(Serializable extras) {
-        popupData = (ArrayList<?>) extras;
+        popupData = (String) extras;
 
     }
 
@@ -63,7 +62,8 @@ public class PopupPhotoPreview {
         alertBuilder = new AlertDialog.Builder(this.activity, R.style.CustomDialog);
 
         contentView = LayoutInflater.from(activity).inflate(R.layout.fragment_photo_preview, null);
-        viewPager = (ViewPager) contentView.findViewById(R.id.view_pager);
+//        viewPager = (ViewPager) contentView.findViewById(R.id.view_pager);
+        imageView = (ZoomableImageView) contentView.findViewById(R.id.item_thumbnail);
         closeButton = (ImageButton) contentView.findViewById(R.id.close_button);
 
         alertBuilder.setView(contentView);
@@ -73,14 +73,39 @@ public class PopupPhotoPreview {
         alert = alertBuilder.show();
         alert.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
 
-        adapter = new GalleryAdapter(activity, popupData);
-        viewPager.setAdapter(adapter);
-        closeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                alert.dismiss();
-            }
-        });
+        Picasso ps = Picasso.with(activity);
+        ps.load(popupData)
+                .resize(640, 640)
+                .centerInside()
+                .into(new Target() {
+                    @Override
+                    public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+
+                        //Set it in the ImageView
+                        imageView.setImageBitmap(bitmap);
+                    }
+
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                    }
+
+                    @Override
+                    public void onBitmapFailed(Drawable errorDrawable) {
+
+                    }
+                });
+//        adapter = new GalleryAdapter(activity, popupData);
+//        viewPager.setAdapter(adapter);
+        closeButton.setOnClickListener(new View.OnClickListener()
+                                       {
+                                           @Override
+                                           public void onClick(View v) {
+                                               alert.dismiss();
+                                           }
+                                       }
+
+        );
     }
 
     public class GalleryAdapter extends PagerAdapter {
@@ -110,9 +135,9 @@ public class PopupPhotoPreview {
             LayoutInflater inflater = LayoutInflater.from(mContext);
             View root = inflater.inflate(R.layout.photo_preview_item, null);
 
-            final ZoomableImageView itemThumbnail;
+            final ImageView itemThumbnail;
 
-            itemThumbnail = (ZoomableImageView) root.findViewById(R.id.item_thumbnail);
+            itemThumbnail = (ImageView) root.findViewById(R.id.item_thumbnail);
 
             jp.tenposs.adapter.FilmstripAdapter.ImageUrl image = getItem(position);
             if (image.getImageUrl() != null) {
@@ -120,10 +145,10 @@ public class PopupPhotoPreview {
                 ps.load(image.getImageUrl())
                         .resize(640, 360)
                         .centerInside()
-                        .into(new Target() {
+                        .into(itemThumbnail);
+                                /*new Target() {
                             @Override
                             public void onBitmapLoaded (final Bitmap bitmap, Picasso.LoadedFrom from){
-                            /* Save the bitmap or do something with it here */
 
                                 //Set it in the ImageView
                                 itemThumbnail.setImageBitmap(bitmap);
@@ -139,6 +164,7 @@ public class PopupPhotoPreview {
 
                             }
                         });
+                        */
             }
             final int itemPosition = position;
             root.setOnClickListener(new View.OnClickListener() {

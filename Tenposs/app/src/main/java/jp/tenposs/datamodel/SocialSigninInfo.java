@@ -1,10 +1,17 @@
 package jp.tenposs.datamodel;
 
+import java.net.URLEncoder;
+import java.util.HashMap;
+
 /**
  * Created by ambient on 8/17/16.
  */
 public class SocialSigninInfo {
+    public final static String FACEBOOK = "1";
+    public final static String TWITTER = "2";
+
     public static class Request extends CommonRequest {
+
         public String social_type;
         public String social_id;//1: facebook 2:twitter
         public String social_token;
@@ -15,23 +22,26 @@ public class SocialSigninInfo {
         String sigInput() {
             return app_id + "" + time + "" + social_type + "" + social_id + "" + privateKey;
         }
+
+        public HashMap<String, String> getFormData() {
+            generateSig();
+            HashMap<String, String> formData = new HashMap<>();
+            try {
+                formData.put("app_id", app_id);
+                formData.put("time", Long.toString(time));
+                formData.put("social_type", social_type);
+                formData.put("social_id", social_id);
+                formData.put("social_token", social_token);
+                formData.put("social_secret", social_secret);
+                formData.put("name", URLEncoder.encode(name, "UTF-8"));
+                formData.put("sig", sig);
+            } catch (Exception ignored) {
+
+            }
+            return formData;
+        }
     }
 
-    public class Response extends CommonResponse {
-        public Profile profile;
-        public String token;
-        public String app_id;
-        public String app_user_id;
+    public class Response extends SignInInfo.Response {
     }
-
-    public class Profile {
-        public String user_profile_id;
-        public String name;
-        public String gender;
-        public String avatar_url;
-        public String facebook_status;
-        public String twitter_status;
-        public String instagram_status;
-    }
-
 }

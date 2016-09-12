@@ -42,6 +42,15 @@ public class AppInfo {
                 return null;
             }
 
+            public SideMenu getSideMenu(int id) {
+                for (SideMenu menu: side_menu) {
+                    if (menu.id == id) {
+                        return menu;
+                    }
+                }
+                return null;
+            }
+
             public ArrayList<TopComponent> top_components;
 
 
@@ -65,11 +74,16 @@ public class AppInfo {
         }
     }
 
-    public class SideMenu implements Serializable {
+    public static class SideMenu implements Serializable {
         public int id;
         public String name;
         public Pivot pivot;
         public String icon = "";
+
+        public SideMenu(int settingScreen, String settings) {
+            id = settingScreen;
+            name = settings;
+        }
 
         public class Pivot implements Serializable {
             public int app_setting_id;

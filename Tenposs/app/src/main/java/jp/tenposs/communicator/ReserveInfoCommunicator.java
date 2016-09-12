@@ -35,16 +35,19 @@ public class ReserveInfoCommunicator extends TenpossCommunicator {
             bundle.putInt(Key.ResponseResult, TenpossCommunicator.CommunicationCode.GeneralError.ordinal());
             return false;
         }
-        result = request(strUrl, output, dataRequest, bundle);
+        result = request(strUrl, output, bundle);
         if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
             String strResponse = output.toString();
-            ReserveInfo.Response response = (ReserveInfo.Response) CommonObject.fromJSONString(strResponse, ReserveInfo.Response.class, null);
+            CommonResponse response = (ReserveInfo.Response) CommonObject.fromJSONString(strResponse, ReserveInfo.Response.class, null);
+            if (response == null) {
+                response = (CommonResponse) CommonObject.fromJSONString(strResponse, CommonResponse.class, null);
+            }
             if (response != null) {
                 bundle.putInt(Key.ResponseResult, TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal());
                 bundle.putInt(Key.ResponseResultApi, response.code);
 
-                if (response.code == CommonResponse.ResultSuccess && response.data.reserve.size() > 0) {
-                    bundle.putSerializable(Key.ResponseObject, response.data.reserve.get(0));
+                if (response.code == CommonResponse.ResultSuccess) {
+                    bundle.putSerializable(Key.ResponseObject, response);
                 } else {
                     bundle.putString(Key.ResponseMessage, response.message);
                 }
