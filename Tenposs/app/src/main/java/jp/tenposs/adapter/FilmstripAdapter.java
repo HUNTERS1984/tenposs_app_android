@@ -12,9 +12,9 @@ import com.squareup.picasso.Picasso;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 import jp.tenposs.datamodel.Key;
+import jp.tenposs.datamodel.UrlImageObject;
 import jp.tenposs.listener.OnCommonItemClickListener;
 import jp.tenposs.tenposs.R;
 
@@ -23,13 +23,10 @@ import jp.tenposs.tenposs.R;
  */
 public class FilmstripAdapter extends PagerAdapter {
 
-    public static abstract class ImageUrl {
-        public abstract String getImageUrl();
-    }
-
     Context mContext;
     ArrayList<?> mainData;
     OnCommonItemClickListener mClickListener;
+    int fullImageSize;
 
     public FilmstripAdapter(Context context, ArrayList<?> data) {
         this.mContext = context;
@@ -40,6 +37,7 @@ public class FilmstripAdapter extends PagerAdapter {
         this.mContext = context;
         this.mainData = data;
         this.mClickListener = l;
+        this.fullImageSize = mContext.getResources().getInteger(R.integer.full_image_size);
     }
 
     @Override
@@ -56,11 +54,11 @@ public class FilmstripAdapter extends PagerAdapter {
 
         itemThumbnail = (ImageView) root.findViewById(R.id.item_thumbnail);
 
-        ImageUrl image = getItem(position);
+        UrlImageObject image = getItem(position);
         if (image.getImageUrl() != null) {
             Picasso ps = Picasso.with(mContext);
             ps.load(image.getImageUrl())
-                    .resize(640, 360)
+                    .resize(fullImageSize, fullImageSize)
                     .centerInside()
                     .into(itemThumbnail);
         }
@@ -96,8 +94,8 @@ public class FilmstripAdapter extends PagerAdapter {
         return 0;
     }
 
-    public ImageUrl getItem(int position) {
-        return (ImageUrl) this.mainData.get(position);
+    public UrlImageObject getItem(int position) {
+        return (UrlImageObject) this.mainData.get(position);
     }
 
     @Override

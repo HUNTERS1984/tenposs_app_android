@@ -40,12 +40,6 @@ public class FragmentCoupon extends AbstractFragment implements CommonAdapter.Co
     int pageSize = 20;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        spanCount = 6;
-    }
-
-    @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
@@ -66,7 +60,7 @@ public class FragmentCoupon extends AbstractFragment implements CommonAdapter.Co
     @Override
     protected void customToolbarInit() {
         toolbarSettings.toolbarTitle = getString(R.string.coupon);
-        toolbarSettings.toolbarLeftIcon= "flaticon-main-menu";
+        toolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
         toolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
     }
 
@@ -137,11 +131,25 @@ public class FragmentCoupon extends AbstractFragment implements CommonAdapter.Co
         if (savedInstanceState.containsKey(APP_DATA_STORE_ID)) {
             this.storeId = savedInstanceState.getInt(APP_DATA_STORE_ID);
         }
+
+        if (savedInstanceState.containsKey(SCREEN_DATA)) {
+            this.screenData = (CouponInfo.Response) savedInstanceState.getSerializable(SCREEN_DATA);
+        }
+        if (savedInstanceState.containsKey(SCREEN_DATA_PAGE_INDEX)) {
+            this.pageIndex = savedInstanceState.getInt(SCREEN_DATA_PAGE_INDEX);
+        }
+        if (savedInstanceState.containsKey(SCREEN_DATA_PAGE_SIZE)) {
+            this.pageSize = savedInstanceState.getInt(SCREEN_DATA_PAGE_SIZE);
+        }
     }
 
     @Override
     void customSaveInstanceState(Bundle outState) {
+        outState.putInt(APP_DATA_STORE_ID, this.storeId);
 
+        outState.putSerializable(SCREEN_DATA, this.screenData);
+        outState.putInt(SCREEN_DATA_PAGE_INDEX, this.pageIndex);
+        outState.putInt(SCREEN_DATA_PAGE_SIZE, this.pageSize);
     }
 
     @Override
@@ -177,7 +185,6 @@ public class FragmentCoupon extends AbstractFragment implements CommonAdapter.Co
             }
             break;
         }
-        System.out.println(item.itemType);
     }
 
     protected void startup() {
@@ -187,7 +194,7 @@ public class FragmentCoupon extends AbstractFragment implements CommonAdapter.Co
             this.swipeRefreshLayout.post(new Runnable() {
                 @Override
                 public void run() {
-                    FragmentCoupon.this.swipeRefreshLayout.setRefreshing(true);
+                    setRefreshing(true);
                     loadCouponsInfo();
                 }
             });
@@ -209,25 +216,26 @@ public class FragmentCoupon extends AbstractFragment implements CommonAdapter.Co
         requestParams.pagesize = this.pageSize;
 
         params.putSerializable(Key.RequestObject, requestParams);
-        CouponInfoCommunicator communicator = new CouponInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-            @Override
-            public void completed(TenpossCommunicator request, Bundle responseParams) {
-                int result = responseParams.getInt(Key.ResponseResult);
-                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                    if (resultApi == CommonResponse.ResultSuccess) {
-                        FragmentCoupon.this.screenData = (CouponInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                        previewScreenData();
-                    } else {
-                        String strMessage = responseParams.getString(Key.ResponseMessage);
-                        errorWithMessage(responseParams, strMessage);
+        CouponInfoCommunicator communicator = new CouponInfoCommunicator(
+                new TenpossCommunicator.TenpossCommunicatorListener() {
+                    @Override
+                    public void completed(TenpossCommunicator request, Bundle responseParams) {
+                        int result = responseParams.getInt(Key.ResponseResult);
+                        if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                            int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                            if (resultApi == CommonResponse.ResultSuccess) {
+                                FragmentCoupon.this.screenData = (CouponInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                previewScreenData();
+                            } else {
+                                String strMessage = responseParams.getString(Key.ResponseMessage);
+                                errorWithMessage(responseParams, strMessage);
+                            }
+                        } else {
+                            String strMessage = responseParams.getString(Key.ResponseMessage);
+                            errorWithMessage(responseParams, strMessage);
+                        }
                     }
-                } else {
-                    String strMessage = responseParams.getString(Key.ResponseMessage);
-                    errorWithMessage(responseParams, strMessage);
-                }
-            }
-        });
+                });
         communicator.execute(params);
     }
 }

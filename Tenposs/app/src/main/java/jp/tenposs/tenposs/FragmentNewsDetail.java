@@ -9,8 +9,6 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
-
 import jp.tenposs.adapter.CommonAdapter;
 import jp.tenposs.adapter.RecyclerItemWrapper;
 import jp.tenposs.datamodel.NewsInfo;
@@ -38,12 +36,6 @@ public class FragmentNewsDetail
     NewsInfo.News screenData;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        spanCount = 6;
-    }
-
-    @Override
     protected void customClose() {
 
     }
@@ -68,7 +60,7 @@ public class FragmentNewsDetail
 
         Picasso ps = Picasso.with(getContext());
         ps.load(screenData.getImageUrl())
-                .resize(320, 320)
+                .resize(fullImageSize, fullImageSize)
                 .centerCrop()
                 .into(this.newsImage);
 

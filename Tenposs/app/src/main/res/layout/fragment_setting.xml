@@ -87,7 +87,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/top_separate"
-        android:background="@android:color/white" />
+        android:background="#F8F8FA" />
 
     <ScrollView
         android:id="@+id/scrollView"

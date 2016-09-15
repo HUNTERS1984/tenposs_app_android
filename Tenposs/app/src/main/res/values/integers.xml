@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="span_count">24</integer>
+    <integer name="span_large_items">2</integer>
+    <integer name="span_small_items">3</integer>
+
+    <integer name="thumb_image_size">320</integer>
+    <integer name="full_image_size">1024</integer>
+</resources>

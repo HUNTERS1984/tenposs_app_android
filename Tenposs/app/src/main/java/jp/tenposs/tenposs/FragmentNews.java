@@ -57,7 +57,6 @@ public class FragmentNews
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        spanCount = 6;
         pageIndex = 1;
         pageSize = 20;
     }
@@ -222,7 +221,6 @@ public class FragmentNews
             }
             break;
         }
-        System.out.println(item.itemType);
     }
 
     protected void startup() {
@@ -254,25 +252,26 @@ public class FragmentNews
         requestParams.pagesize = this.pageSize;
 
         params.putSerializable(Key.RequestObject, requestParams);
-        NewsInfoCommunicator communicator = new NewsInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-            @Override
-            public void completed(TenpossCommunicator request, Bundle responseParams) {
-                int result = responseParams.getInt(Key.ResponseResult);
-                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                    if (resultApi == CommonResponse.ResultSuccess) {
-                        FragmentNews.this.screenData = (NewsInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                        previewScreenData();
-                    } else {
-                        String strMessage = responseParams.getString(Key.ResponseMessage);
-                        errorWithMessage(responseParams, strMessage);
+        NewsInfoCommunicator communicator = new NewsInfoCommunicator(
+                new TenpossCommunicator.TenpossCommunicatorListener() {
+                    @Override
+                    public void completed(TenpossCommunicator request, Bundle responseParams) {
+                        int result = responseParams.getInt(Key.ResponseResult);
+                        if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                            int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                            if (resultApi == CommonResponse.ResultSuccess) {
+                                FragmentNews.this.screenData = (NewsInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                previewScreenData();
+                            } else {
+                                String strMessage = responseParams.getString(Key.ResponseMessage);
+                                errorWithMessage(responseParams, strMessage);
+                            }
+                        } else {
+                            String strMessage = responseParams.getString(Key.ResponseMessage);
+                            errorWithMessage(responseParams, strMessage);
+                        }
                     }
-                } else {
-                    String strMessage = responseParams.getString(Key.ResponseMessage);
-                    errorWithMessage(responseParams, strMessage);
-                }
-            }
-        });
+                });
         communicator.execute(params);
     }
 

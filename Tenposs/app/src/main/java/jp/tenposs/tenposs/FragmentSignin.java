@@ -1,12 +1,12 @@
 package jp.tenposs.tenposs;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.text.style.ClickableSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.Profile;
@@ -23,6 +24,7 @@ import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
+import com.twitter.sdk.android.core.TwitterAuthToken;
 import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
@@ -36,6 +38,7 @@ import jp.tenposs.communicator.UserInfoCommunicator;
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
+import jp.tenposs.datamodel.SignInInfo;
 import jp.tenposs.datamodel.SocialSigninInfo;
 import jp.tenposs.datamodel.UserInfo;
 import jp.tenposs.utils.FlatIcon;
@@ -71,6 +74,7 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
     //Button signInButton;
 
     ProfileTracker mProfileTracker;
+    CallbackManager callbackManager;
 
     public static FragmentSignIn newInstance(boolean showToolbar) {
         FragmentSignIn instance = new FragmentSignIn();
@@ -83,7 +87,11 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        //if (requestCode == 0xFACE) {
+        this.callbackManager.onActivityResult(requestCode, resultCode, data);
+        //} else {
         twitterLogin.onActivityResult(requestCode, resultCode, data);
+        //}
     }
 
     @Override
@@ -152,35 +160,46 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
         permission.add("public_profile");
         permission.add("email");
 
+        this.callbackManager = activityListener.getCallbackManager();
+
         this.facebookLogin.setReadPermissions(permission);
         this.facebookLogin.setFragment(this);
-        this.facebookLogin.registerCallback(activityListener.getCallbackManager(), new FacebookCallback<LoginResult>() {
+        this.facebookLogin.registerCallback(this.callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 // App code
-                System.out.println("onSuccess");
-                if (Profile.getCurrentProfile() == null) {
+
+                //Save AccessToken
+                final String token = loginResult.getAccessToken().getToken();
+                setKeyString(Key.FacebookTokenKey, token);
+
+                Profile profile = Profile.getCurrentProfile();
+                if (profile == null) {
                     mProfileTracker = new ProfileTracker() {
                         @Override
                         protected void onCurrentProfileChanged(Profile profile, Profile profile2) {
                             // profile2 is the new profile
-                            Log.v("facebook - profile", profile2.getFirstName());
+                            performSocialSignIn(SocialSigninInfo.FACEBOOK,
+                                    profile2.getId(),
+                                    profile2.getName(),
+                                    token, null);
                             mProfileTracker.stopTracking();
                         }
                     };
                     // no need to call startTracking() on mProfileTracker
                     // because it is called by its constructor, internally.
                 } else {
-                    Profile profile = Profile.getCurrentProfile();
-                    Log.v("facebook - profile", profile.getFirstName());
+                    //profile = Profile.getCurrentProfile();
+                    performSocialSignIn(SocialSigninInfo.FACEBOOK,
+                            profile.getId(),
+                            profile.getName(),
+                            token, null);
                 }
-                //Save AccessToken
             }
 
             @Override
             public void onCancel() {
                 // App code
-                System.out.println("onCancel");
             }
 
             @Override
@@ -194,6 +213,18 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
             @Override
             public void success(Result<TwitterSession> result) {
 
+                TwitterAuthToken token = result.data.getAuthToken();
+                String twitterToken = token.token;
+
+                //Save Token
+                setKeyString(Key.TwitterTokenKey, twitterToken);
+
+                performSocialSignIn(SocialSigninInfo.TWITTER,
+                        Long.toString(result.data.getId()),
+                        result.data.getUserName(),//name
+                        twitterToken,//token
+                        SocialSigninInfo.TWITTER_CONSUMER_SECRET
+                );
             }
 
             @Override
@@ -260,9 +291,10 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
         if (v == this.facebookButton) {
             //TODO: Login with Facebook
             Profile profile = Profile.getCurrentProfile();
-            if (profile != null) {
+            String token = getKeyString(Key.FacebookTokenKey);
+            if (profile != null && token.length() > 0) {
                 // user has logged in
-                String token = "";
+
                 performSocialSignIn(SocialSigninInfo.FACEBOOK,
                         profile.getId(),
                         profile.getName(),
@@ -292,123 +324,68 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
             //}
         } else if (v == this.skipButton) {
             close();
+            //TODO: ??
             activityListener.showScreen(HOME_SCREEN, null);
         }
     }
 
-    /*private boolean checkInput() {
-        Utils.hideKeyboard(this.getActivity(), null);
-        String email = emailEdit.getEditableText().toString();
-        if (email.length() <= 0) {
-            showAlert(getString(R.string.input_a_valid_email_address), getString(R.string.ok), null, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    switch (which) {
-                        case DialogInterface.BUTTON_POSITIVE: {
-                            emailEdit.requestFocus();
-                        }
-                        break;
-                    }
-                }
-            });
-            return false;
-        }
-        String password = passwordEdit.getEditableText().toString();
-        if (password.length() <= 0) {
-            showAlert(getString(R.string.input_password), getString(R.string.ok), null, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    switch (which) {
-                        case DialogInterface.BUTTON_POSITIVE: {
-                            passwordEdit.requestFocus();
-                        }
-                        break;
-                    }
-                }
-            });
-            return false;
-        }
-        return true;
-    }*/
-
-    /*void performEmailSignIn() {
-        Bundle params = new Bundle();
-        SignInInfo.Request request = new SignInInfo.Request();
-        request.email = emailEdit.getEditableText().toString();
-        request.setPassword(passwordEdit.getEditableText().toString());
-        params.putSerializable(Key.RequestObject, request);
-        SignInCommunicator communicator = new SignInCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-            @Override
-            public void completed(TenpossCommunicator request, Bundle responseParams) {
-                int result = responseParams.getInt(Key.ResponseResult);
-                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                    if (resultApi == CommonResponse.ResultSuccess) {
-                        //TODO:
-                        SignInInfo.Response response = (SignInInfo.Response) responseParams.get(Key.ResponseObject);
-                        String token = response.data.token;
-                        SignInInfo.Profile profile = response.data.profile;
-                        setKeyString(Key.TokenKey, token);
-                        setKeyString(Key.Profile, CommonObject.toJSONString(profile, profile.getClass()));
-                        activityListener.updateUserInfo(profile);
-                        close();
-
-                    } else {
-                        String strMessage = responseParams.getString(Key.ResponseMessage);
-                        errorWithMessage(responseParams, strMessage);
-                    }
-                } else {
-                    String strMessage = responseParams.getString(Key.ResponseMessage);
-                    errorWithMessage(responseParams, strMessage);
-                }
-            }
-        });
-        communicator.execute(params);
-    }*/
-
-    void performSocialSignIn(String type, String id, String name, String token, String secret) {
+    void performSocialSignIn(String social_type, String social_id, String name, String social_token, String social_secret) {
         Bundle params = new Bundle();
 
         SocialSigninInfo.Request request = new SocialSigninInfo.Request();
-        request.social_type = type;
+        request.social_type = social_type;
         request.name = name;
-        request.social_id = id;
-        request.social_token = token;
+        request.social_id = social_id;
+        request.social_token = social_token;
+        request.social_secret = social_secret;
 
-        SocialSignInCommunicator communicator = new SocialSignInCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-            @Override
-            public void completed(TenpossCommunicator request, Bundle responseParams) {
-                int result = responseParams.getInt(Key.ResponseResult);
-                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                    if (resultApi == CommonResponse.ResultSuccess) {
-                        //TODO:
-                        //Save token to Preferences
-                        String token = getKeyString(Key.TokenKey);
-                    } else {
-                        String strMessage = responseParams.getString(Key.ResponseMessage);
-                        errorWithMessage(responseParams, strMessage);
+        params.putSerializable(Key.RequestObject, request);
+
+        SocialSignInCommunicator communicator = new SocialSignInCommunicator(
+                new TenpossCommunicator.TenpossCommunicatorListener() {
+                    @Override
+                    public void completed(TenpossCommunicator request, Bundle responseParams) {
+                        int result = responseParams.getInt(Key.ResponseResult);
+                        if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                            hideProgress();
+                            int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                            if (resultApi == CommonResponse.ResultSuccess) {
+                                //TODO:
+                                SignInInfo.Response response = (SignInInfo.Response) responseParams.get(Key.ResponseObject);
+                                String token = response.data.token;
+                                SignInInfo.Profile profile = response.data.profile;
+                                setKeyString(Key.TokenKey, token);
+                                setKeyString(Key.Profile, CommonObject.toJSONString(profile, profile.getClass()));
+                                activityListener.updateUserInfo(profile);
+                                //close();
+
+                                getUserDetail(token);
+
+
+                            } else {
+                                Utils.showAlert(getContext(),
+                                        getString(R.string.error),
+                                        getString(R.string.msg_unable_to_sign_in),
+                                        getString(R.string.close),
+                                        null,
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+
+                                            }
+                                        }
+                                );
+                                //String strMessage = responseParams.getString(Key.ResponseMessage);
+                                //errorWithMessage(responseParams, strMessage);
+                            }
+                        } else {
+                            String strMessage = responseParams.getString(Key.ResponseMessage);
+                            errorWithMessage(responseParams, strMessage);
+                        }
                     }
-                } else {
-                    String strMessage = responseParams.getString(Key.ResponseMessage);
-                    errorWithMessage(responseParams, strMessage);
-                }
-            }
-        });
+                });
+        showProgress(getString(R.string.msg_signing_in));
         communicator.execute(params);
-    }
-
-    AbstractFragment getTopFragment() {
-        AbstractFragment topFragment = null;
-        try {
-            FragmentManager fm = activityListener.getFM();
-            int size = fm.getBackStackEntryCount();
-            FragmentManager.BackStackEntry backStackEntry = fm.getBackStackEntryAt(size - 1);
-            topFragment = (AbstractFragment) fm.findFragmentByTag(backStackEntry.getName());
-        } catch (Exception ex) {
-
-        }
-        return topFragment;
     }
 
     @Override
@@ -417,54 +394,57 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
         if (topFragment == this) {
             String token = getKeyString(Key.TokenKey);
             if (token.length() > 0) {
-                getUserDetail();
+                getUserDetail(token);
             } else {
                 //do nothing
             }
         } else {
-//do nothing
+            //do nothing
         }
     }
 
-    void getUserDetail() {
-        String token = getKeyString(Key.TokenKey);
+    void getUserDetail(String token) {
         if (token.length() > 0) {
             Bundle params = new Bundle();
             UserInfo.Request request = new UserInfo.Request();
             request.token = token;
             params.putSerializable(Key.RequestObject, request);
 
-            UserInfoCommunicator communicator = new UserInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-                @Override
-                public void completed(TenpossCommunicator request, Bundle responseParams) {
-                    int result = responseParams.getInt(Key.ResponseResult);
-                    if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                        int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                        if (resultApi == CommonResponse.ResultSuccess) {
-                            //Update User profile
+            UserInfoCommunicator communicator = new UserInfoCommunicator(
+                    new TenpossCommunicator.TenpossCommunicatorListener() {
+                        @Override
+                        public void completed(TenpossCommunicator request, Bundle responseParams) {
+                            hideProgress();
+                            int result = responseParams.getInt(Key.ResponseResult);
+                            if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                                int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                                if (resultApi == CommonResponse.ResultSuccess) {
+                                    //Update User profile
 
-                            UserInfo.Response response = (UserInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                            setKeyString(Key.UserProfile, CommonObject.toJSONString(response.data.user, UserInfo.User.class));
+                                    UserInfo.Response response = (UserInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                    setKeyString(Key.UserProfile, CommonObject.toJSONString(response.data.user, UserInfo.User.class));
 
-                            close();
-                            activityListener.updateUserInfo(response.data.user.profile);
-                            activityListener.showScreen(HOME_SCREEN, null);
-                        } else {
-                            //clear token
-                            setKeyString(Key.TokenKey, "");
-                            setKeyString(Key.UserProfile, "");
-                            String strMessage = responseParams.getString(Key.ResponseMessage);
-                            errorWithMessage(responseParams, strMessage);
+                                    activityListener.updateUserInfo(response.data.user.profile);
+                                    close();
+                                    //TODO: ??
+                                    activityListener.showScreen(HOME_SCREEN, null);
+                                } else {
+                                    //clear token
+                                    setKeyString(Key.TokenKey, "");
+                                    setKeyString(Key.UserProfile, "");
+                                    String strMessage = responseParams.getString(Key.ResponseMessage);
+                                    errorWithMessage(responseParams, strMessage);
+                                }
+                            } else {
+                                //clear token
+                                setKeyString(Key.TokenKey, "");
+                                setKeyString(Key.UserProfile, "");
+                                String strMessage = responseParams.getString(Key.ResponseMessage);
+                                errorWithMessage(responseParams, strMessage);
+                            }
                         }
-                    } else {
-                        //clear token
-                        setKeyString(Key.TokenKey, "");
-                        setKeyString(Key.UserProfile, "");
-                        String strMessage = responseParams.getString(Key.ResponseMessage);
-                        errorWithMessage(responseParams, strMessage);
-                    }
-                }
-            });
+                    });
+            showProgress(getString(R.string.msg_loading_profile));
             communicator.execute(params);
         }
     }

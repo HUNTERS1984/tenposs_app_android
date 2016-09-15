@@ -50,9 +50,6 @@ public class FragmentChat extends AbstractFragment {
 
     @Override
     void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
-        if (savedInstanceState.containsKey(SCREEN_DATA)) {
-            //this.screenData = (TopInfo.Response.ResponseData) savedInstanceState.getSerializable(SCREEN_DATA);
-        }
         if (savedInstanceState.containsKey(APP_DATA_STORE_ID)) {
             this.storeId = savedInstanceState.getInt(APP_DATA_STORE_ID);
         }
@@ -60,7 +57,7 @@ public class FragmentChat extends AbstractFragment {
 
     @Override
     void customSaveInstanceState(Bundle outState) {
-
+        outState.putInt(APP_DATA_STORE_ID, this.storeId);
     }
 
     @Override

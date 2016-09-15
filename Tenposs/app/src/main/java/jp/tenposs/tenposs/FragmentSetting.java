@@ -14,6 +14,7 @@ import java.io.Serializable;
 
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.Key;
+import jp.tenposs.utils.Utils;
 
 //import jp.tenposs.adapter.SettingsAdapter;
 
@@ -108,12 +109,11 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
     public void onClick(View v) {
         if (v == this.editProfileButton) {
             // get to
-            String token = getKeyString(Key.TokenKey);
-            String userProfile = getKeyString(Key.UserProfile);
-            if (token.length() > 0 && userProfile.length() > 0) {
+            if (isSignedIn() == true) {
                 this.activityListener.showScreen(AbstractFragment.PROFILE_SCREEN, null);
             } else {
-                showAlert(getString(R.string.info),
+                Utils.showAlert(this.getContext(),
+                        getString(R.string.info),
                         getString(R.string.msg_not_sign_in),
                         getString(R.string.close),
                         null,

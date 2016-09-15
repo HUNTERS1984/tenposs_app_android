@@ -20,7 +20,7 @@ public class ReserveInfo {
     public class Response extends CommonResponse {
         public Response.ResponseData data;
 
-        public class ResponseData {
+        public class ResponseData implements Serializable {
             public ArrayList<Reserve> reserve;
         }
     }

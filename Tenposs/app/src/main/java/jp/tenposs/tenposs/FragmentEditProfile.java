@@ -12,7 +12,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -21,21 +20,23 @@ import com.squareup.picasso.Target;
 
 import jp.tenposs.communicator.SignOutCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
+import jp.tenposs.communicator.UpdateProfileCommunicator;
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.SignOutInfo;
+import jp.tenposs.datamodel.UpdateProfileInfo;
 import jp.tenposs.datamodel.UserInfo;
+import jp.tenposs.utils.Utils;
 import jp.tenposs.view.CircleImageView;
 
 /**
  * Created by ambient on 8/17/16.
  */
 public class FragmentEditProfile extends AbstractFragment {
-    ScrollView scrollView;
 
     CircleImageView userAvatarImage;
-    //TextView userNameLabel;
+    Button changeAvatarButton;
 
     TextView idLabel;
     EditText idEdit;
@@ -86,39 +87,83 @@ public class FragmentEditProfile extends AbstractFragment {
 
     @Override
     protected void previewScreenData() {
+        this.changeAvatarButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //show image capture
+                        Bundle params = new Bundle();
+                        UpdateProfileInfo.Request request = new UpdateProfileInfo.Request();
+                        request.token = getKeyString(Key.TokenKey);
+                        request.username = userNameEdit.getEditableText().toString();
+                        request.gender = 0;
+                        request.address = getString(R.string.tokyo);
+                        request.avatar = "/sdcard/avatar.png";
+                        params.putSerializable(Key.RequestObject, request);
+                        UpdateProfileCommunicator communicator = new UpdateProfileCommunicator(
+                                new TenpossCommunicator.TenpossCommunicatorListener() {
+                                    @Override
+                                    public void completed(TenpossCommunicator request, Bundle responseParams) {
+                                        hideProgress();
+                                        int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                                        if (resultApi == CommonResponse.ResultSuccess) {
+                                            //TODO:
 
-        this.rightToolbarButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //showalert
-                performSignOut();
-            }
-        });
+                                        } else {
+                                            String strMessage = responseParams.getString(Key.ResponseMessage);
+                                            errorWithMessage(responseParams, strMessage);
+                                        }
+                                    }
+                                }
+                        );
+
+                        showProgress(getString(R.string.msg_updating_profile));
+                        communicator.execute(params);
+                    }
+                }
+
+        );
+        this.rightToolbarButton.setVisibility(View.INVISIBLE);
+        this.rightToolbarButton.setOnClickListener(
+                new View.OnClickListener()
+
+                {
+                    @Override
+                    public void onClick(View v) {
+                        //showalert
+                        performSignOut();
+                    }
+                }
+
+        );
         this.rightToolbarButton.setVisibility(View.VISIBLE);
-//        this.userAvatarImage;
+        //        this.userAvatarImage;
         //TextView userNameLabel;
         Picasso ps = Picasso.with(getContext());
         ps.load(this.screenData.profile.getImageUrl())
-                .resize(640, 640)
+                .resize(thumbImageSize, thumbImageSize)
                 .centerInside()
-                .into(new Target() {
-                    @Override
-                    public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+                .into(
+                        new Target() {
+                            @Override
+                            public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
 
-                        //Set it in the ImageView
-                        userAvatarImage.setImageBitmap(bitmap);
-                    }
+                                //Set it in the ImageView
+                                userAvatarImage.setImageBitmap(bitmap);
+                            }
 
-                    @Override
-                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+                            @Override
+                            public void onPrepareLoad(Drawable placeHolderDrawable) {
 
-                    }
+                            }
 
-                    @Override
-                    public void onBitmapFailed(Drawable errorDrawable) {
+                            @Override
+                            public void onBitmapFailed(Drawable errorDrawable) {
 
-                    }
-                });
+                            }
+                        }
+
+                );
 
         this.idEdit.setText(Integer.toString(this.screenData.id));
 
@@ -132,25 +177,36 @@ public class FragmentEditProfile extends AbstractFragment {
         this.genderSpinner.setAdapter(adapterGender);
         try {
             this.genderSpinner.setSelection(screenData.profile.gender);
-        } catch (Exception ignored) {
+        } catch (Exception ignored
+                )
+
+        {
 
         }
+
         ArrayAdapter<CharSequence> adapterProvince = ArrayAdapter.createFromResource(this.getContext(),
                 R.array.japan_prefectures, android.R.layout.simple_spinner_item);
         adapterProvince.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         this.provinceSpinner.setAdapter(adapterProvince);
-        try {
+        try
+
+        {
             this.provinceSpinner.setSelection(screenData.profile.province);
-        } catch (Exception ignored) {
+        } catch (Exception ignored)
+
+        {
 
         }
+
         updateToolbar();
+
     }
 
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_edit_profile, null);
         this.userAvatarImage = (CircleImageView) root.findViewById(R.id.user_avatar_image);
+        this.changeAvatarButton = (Button) root.findViewById(R.id.change_avatar_button);
         //TextView userNameLabel;
         //        this.idLabel = root.findViewById(R.id.id_la);
         this.idEdit = (EditText) root.findViewById(R.id.id_edit);
@@ -208,40 +264,47 @@ public class FragmentEditProfile extends AbstractFragment {
     }
 
     void performSignOut() {
-        showAlert(null, getString(R.string.msg_sign_out_confirm),
-                getString(R.string.yes), getString(R.string.no), new DialogInterface.OnClickListener() {
+        Utils.showAlert(this.getContext(),
+                getString(R.string.info),
+                getString(R.string.msg_sign_out_confirm),
+                getString(R.string.yes),
+                getString(R.string.no),
+                new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
                             case DialogInterface.BUTTON_POSITIVE: {
-                                SignOutCommunicator communicator = new SignOutCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-                                    @Override
-                                    public void completed(TenpossCommunicator request, Bundle responseParams) {
-                                        int result = responseParams.getInt(Key.ResponseResult);
-                                        if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                                            int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                                            if (resultApi == CommonResponse.ResultSuccess) {
-                                                //clear token and user profile
-                                                setKeyString(Key.TokenKey, "");
-                                                setKeyString(Key.UserProfile, "");
-                                                setKeyString(Key.Profile, "");
-                                                close();
-                                                activityListener.updateUserInfo(null);
-                                            } else {
-                                                String strMessage = responseParams.getString(Key.ResponseMessage);
-                                                errorWithMessage(responseParams, strMessage);
+                                SignOutCommunicator communicator = new SignOutCommunicator(
+                                        new TenpossCommunicator.TenpossCommunicatorListener() {
+                                            @Override
+                                            public void completed(TenpossCommunicator request, Bundle responseParams) {
+                                                hideProgress();
+                                                int result = responseParams.getInt(Key.ResponseResult);
+                                                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                                                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                                                    if (resultApi == CommonResponse.ResultSuccess ||
+                                                            resultApi == CommonResponse.ResultErrorInvalidToken) {
+                                                        //clear token and user profile
+                                                        setKeyString(Key.TokenKey, "");
+                                                        setKeyString(Key.UserProfile, "");
+                                                        setKeyString(Key.Profile, "");
+                                                        activityListener.updateUserInfo(null);
+                                                        close();
+                                                    } else {
+                                                        String strMessage = responseParams.getString(Key.ResponseMessage);
+                                                        errorWithMessage(responseParams, strMessage);
+                                                    }
+                                                } else {
+                                                    String strMessage = responseParams.getString(Key.ResponseMessage);
+                                                    errorWithMessage(responseParams, strMessage);
+                                                }
                                             }
-                                        } else {
-                                            String strMessage = responseParams.getString(Key.ResponseMessage);
-                                            errorWithMessage(responseParams, strMessage);
-                                        }
-
-                                    }
-                                });
+                                        });
                                 Bundle params = new Bundle();
                                 SignOutInfo.Request request = new SignOutInfo.Request();
                                 request.token = getKeyString(Key.TokenKey);
                                 params.putSerializable(Key.RequestObject, request);
+                                showProgress(getString(R.string.msg_signing_out));
                                 communicator.execute(params);
                             }
                             break;

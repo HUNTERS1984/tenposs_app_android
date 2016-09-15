@@ -63,7 +63,7 @@
     <string name="copy_one">コピ一</string>
     <string name="coupon_type">クーポンタイプ</string>
     <string name="validity">有効期間</string>
-    <string name="take_advantage_of_this_coupon">このクーボンを利用す</string>
+    <string name="take_advantage_of_this_coupon">このクーボンを利用す\nInstagram</string>
     <string name="this_coupon_cannot_use">このクーポンは使用できません</string>
     <string name="staff_unknown_button">テキストが入ります</string>
 
@@ -96,6 +96,7 @@
 
     <string name="msg_enter_email_and_name">メールと名前を入力してください</string>
     <string name="msg_invalid_response_data">無効な応答データ！</string>
+    <string name="msg_signing_in">Signing in...</string>
 
     <!-- Hokkaidō -->
     <string name="hokkaido">北海道</string>
@@ -152,4 +153,9 @@
     <string name="miyazaki">宮崎県</string>
     <string name="kogoshima">鹿児島県</string>
     <string name="okinawa">沖縄県</string>
+    <string name="msg_signing_up">Signing up...</string>
+    <string name="msg_signing_out">Signing out...</string>
+    <string name="msg_updating_profile">Updating profile...</string>
+    <string name="msg_loading_profile">Loading user profile...</string>
+
 </resources>

@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import jp.tenposs.adapter.FilmstripAdapter;
 import jp.tenposs.communicator.TenpossCommunicator;
 
 /**
@@ -77,7 +76,7 @@ public class TopInfo {
         }
     }
 
-    public static class Image extends FilmstripAdapter.ImageUrl implements Serializable {
+    public static class Image extends UrlImageObject implements Serializable {
 
         public Image(String image) {
             image_url = image;
@@ -108,7 +107,8 @@ public class TopInfo {
         public String title;
         public String start_time;
         public String end_time;
-        public  String getLocation(){
+
+        public String getLocation() {
             return latitude + "," + longitude;
         }
     }

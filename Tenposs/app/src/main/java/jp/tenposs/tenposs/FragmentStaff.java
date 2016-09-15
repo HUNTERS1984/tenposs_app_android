@@ -3,7 +3,6 @@ package jp.tenposs.tenposs;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -59,12 +58,6 @@ public class FragmentStaff extends AbstractFragment implements View.OnClickListe
      */
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        spanCount = 6;
-    }
-
-    @Override
     protected void customClose() {
 
     }
@@ -100,7 +93,7 @@ public class FragmentStaff extends AbstractFragment implements View.OnClickListe
             extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.STAFF_DETAIL_SCREEN);
             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, staff.getImageUrl());
             extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, staff);
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, spanCount / 3, extras));
+            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, spanCount / spanSmallItems, extras));
         }
 
         titleLabel.setText(currentStaffCat.name);
@@ -183,32 +176,33 @@ public class FragmentStaff extends AbstractFragment implements View.OnClickListe
 
         Bundle params = new Bundle();
         params.putSerializable(Key.RequestObject, requestParams);
-        StaffCategoryCommunicator communicator = new StaffCategoryCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-            @Override
-            public void completed(TenpossCommunicator request, Bundle responseParams) {
-                int result = responseParams.getInt(Key.ResponseResult);
-                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                    if (resultApi == CommonResponse.ResultSuccess) {
-                        screenData = (StaffCategoryInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                        staffCategories = new ArrayList<>();
-                        for (int i = 0; i < screenData.data.staff_categories.size(); i++) {
-                            Bundle staffCategory = new Bundle();
-                            staffCategory.putInt(SCREEN_DATA_PAGE_INDEX, 1);
-                            staffCategory.putInt(SCREEN_DATA_PAGE_SIZE, 20);
-                            staffCategories.add(staffCategory);
+        StaffCategoryCommunicator communicator = new StaffCategoryCommunicator(
+                new TenpossCommunicator.TenpossCommunicatorListener() {
+                    @Override
+                    public void completed(TenpossCommunicator request, Bundle responseParams) {
+                        int result = responseParams.getInt(Key.ResponseResult);
+                        if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                            int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                            if (resultApi == CommonResponse.ResultSuccess) {
+                                screenData = (StaffCategoryInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                staffCategories = new ArrayList<>();
+                                for (int i = 0; i < screenData.data.staff_categories.size(); i++) {
+                                    Bundle staffCategory = new Bundle();
+                                    staffCategory.putInt(SCREEN_DATA_PAGE_INDEX, 1);
+                                    staffCategory.putInt(SCREEN_DATA_PAGE_SIZE, 20);
+                                    staffCategories.add(staffCategory);
+                                }
+                                loadStaffCatItem(currentStaffCatIndex);
+                            } else {
+                                String strMessage = responseParams.getString(Key.ResponseMessage);
+                                errorWithMessage(responseParams, strMessage);
+                            }
+                        } else {
+                            String strMessage = responseParams.getString(Key.ResponseMessage);
+                            errorWithMessage(responseParams, strMessage);
                         }
-                        loadStaffCatItem(currentStaffCatIndex);
-                    } else {
-                        String strMessage = responseParams.getString(Key.ResponseMessage);
-                        errorWithMessage(responseParams, strMessage);
                     }
-                } else {
-                    String strMessage = responseParams.getString(Key.ResponseMessage);
-                    errorWithMessage(responseParams, strMessage);
-                }
-            }
-        });
+                });
         communicator.execute(params);
     }
 
@@ -228,27 +222,28 @@ public class FragmentStaff extends AbstractFragment implements View.OnClickListe
                 Bundle params = new Bundle();
                 params.putSerializable(Key.RequestObject, requestParams);
                 params.putParcelable(Key.RequestData, photoCategory);
-                StaffInfoCommunicator communicator = new StaffInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-                    @Override
-                    public void completed(TenpossCommunicator request, Bundle responseParams) {
-                        int result = responseParams.getInt(Key.ResponseResult);
-                        if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                            int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                            if (resultApi == CommonResponse.ResultSuccess) {
-                                screenItem = (StaffInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                                Bundle photoCategory = responseParams.getParcelable(Key.RequestData);
-                                photoCategory.putSerializable(SCREEN_DATA_PAGE_DATA, screenItem);
-                                previewScreenData();
-                            } else {
-                                String strMessage = responseParams.getString(Key.ResponseMessage);
-                                errorWithMessage(responseParams, strMessage);
+                StaffInfoCommunicator communicator = new StaffInfoCommunicator(
+                        new TenpossCommunicator.TenpossCommunicatorListener() {
+                            @Override
+                            public void completed(TenpossCommunicator request, Bundle responseParams) {
+                                int result = responseParams.getInt(Key.ResponseResult);
+                                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                                    if (resultApi == CommonResponse.ResultSuccess) {
+                                        screenItem = (StaffInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                        Bundle photoCategory = responseParams.getParcelable(Key.RequestData);
+                                        photoCategory.putSerializable(SCREEN_DATA_PAGE_DATA, screenItem);
+                                        previewScreenData();
+                                    } else {
+                                        String strMessage = responseParams.getString(Key.ResponseMessage);
+                                        errorWithMessage(responseParams, strMessage);
+                                    }
+                                } else {
+                                    String strMessage = responseParams.getString(Key.ResponseMessage);
+                                    errorWithMessage(responseParams, strMessage);
+                                }
                             }
-                        } else {
-                            String strMessage = responseParams.getString(Key.ResponseMessage);
-                            errorWithMessage(responseParams, strMessage);
-                        }
-                    }
-                });
+                        });
                 communicator.execute(params);
             }
         } catch (Exception ignored) {
@@ -360,6 +355,5 @@ public class FragmentStaff extends AbstractFragment implements View.OnClickListe
             }
             break;
         }
-        System.out.println(item.itemType);
     }
 }

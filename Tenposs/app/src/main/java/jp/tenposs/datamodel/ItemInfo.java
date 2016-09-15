@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import jp.tenposs.adapter.FilmstripAdapter;
 import jp.tenposs.communicator.TenpossCommunicator;
 
 /**
@@ -27,7 +26,7 @@ public class ItemInfo {
 
         public ResponseData data;
 
-        public class ResponseData {
+        public class ResponseData implements Serializable {
             public ArrayList<Item> items;
 
 
@@ -36,7 +35,7 @@ public class ItemInfo {
         public int total_items;
     }
 
-    public class Item extends FilmstripAdapter.ImageUrl implements Serializable  {
+    public class Item extends UrlImageObject implements Serializable {
         public int id;
         public String title;
         public String price;
@@ -46,7 +45,6 @@ public class ItemInfo {
         public String updated_at;
         public String deleted_at;
         public String coupon_id;
-        public Pivot pivot;
 
         @Override
         public String getImageUrl() {
@@ -58,11 +56,6 @@ public class ItemInfo {
             }
         }
 
-        public class Pivot implements Serializable {
-            public int menu_id;
-            public int item_id;
-        }
-
         public ArrayList<RelateItem> rel_items;
     }
 
@@ -72,7 +65,6 @@ public class ItemInfo {
         String image_url;
         public String description;
         public String title;
-        public Pivot pivot;
 
         public String getImageUrl() {
             String temp = image_url.toLowerCase(Locale.US);
@@ -81,11 +73,6 @@ public class ItemInfo {
             } else {
                 return TenpossCommunicator.BASE_ADDRESS + image_url;
             }
-        }
-
-        public class Pivot implements Serializable {
-            public int item_id;
-            public int related_id;
         }
     }
 }

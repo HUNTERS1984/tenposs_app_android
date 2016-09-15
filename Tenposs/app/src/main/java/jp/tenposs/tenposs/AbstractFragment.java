@@ -1,7 +1,7 @@
 package jp.tenposs.tenposs;
 
+import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -10,7 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AlertDialog;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,7 +43,7 @@ public abstract class AbstractFragment extends Fragment {
     public interface MainActivityListener {
         void updateAppInfo(AppInfo.Response appInfo, int storeId);
 
-        void updateSideMenuItems(ArrayList<AppInfo.SideMenu> menus);
+        void updateSideMenuItems(ArrayList<AppInfo.SideMenu> menuInfo, boolean isSignedIn);
 
         void updateUserInfo(SignInInfo.Profile profile);
 
@@ -56,6 +56,8 @@ public abstract class AbstractFragment extends Fragment {
         void toggleMenu();
 
         FragmentManager getFM();
+
+        void setDrawerLockMode(int mode);
     }
 
     public final static int PROFILE_SECTION = -2;
@@ -175,7 +177,12 @@ public abstract class AbstractFragment extends Fragment {
     public static String APP_DATA_STORE_ID = "APP_DATA_STORE_ID";
     public static String SCREEN_DATA_STATUS = "SCREEN_DATA_STATUS";
 
+    protected int thumbImageSize = 320;
+    protected int fullImageSize = 1024;
+
     protected int spanCount = 1;
+    protected int spanLargeItems = 1;
+    protected int spanSmallItems = 1;
     protected String screenTitle = "";
     public ToolbarSettings toolbarSettings;
     protected ScreenDataStatus screenDataStatus = ScreenDataStatus.ScreenDataStatusUnload;
@@ -190,6 +197,7 @@ public abstract class AbstractFragment extends Fragment {
     TextView titleToolbarLabel;
     ImageButton rightToolbarButton;
 
+    protected ProgressDialog progressDialog;
 
     protected abstract void customClose();
 
@@ -217,14 +225,21 @@ public abstract class AbstractFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        System.out.println("Fragment Life Cycle onAttach " + this.getClass().getCanonicalName());
+        System.out.println("Fragment Life Cycle onAttach " + this.getClass().getSimpleName());
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.spanCount = getResources().getInteger(R.integer.span_count);
+        this.spanLargeItems = getResources().getInteger(R.integer.span_large_items);
+        this.spanSmallItems = getResources().getInteger(R.integer.span_small_items);
+
+
+        setRetainInstance(true);
+
         setupVariables();
-        System.out.println("Fragment Life Cycle onCreate");
+        System.out.println("Fragment Life Cycle onCreate " + this.getClass().getSimpleName());
 
         if (savedInstanceState == null) {
             savedInstanceState = getArguments();
@@ -234,7 +249,7 @@ public abstract class AbstractFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        System.out.println("Fragment Life Cycle onCreateView");
+        System.out.println("Fragment Life Cycle onCreateView " + this.getClass().getSimpleName());
 
         restoreSavedInstanceState(savedInstanceState);
         toolbarSettings = new ToolbarSettings();
@@ -275,47 +290,10 @@ public abstract class AbstractFragment extends Fragment {
         return view;
     }
 
-    protected void updateToolbar() {
-        if (this.leftToolbarButton != null) {
-            this.leftToolbarButton.setImageBitmap(FlatIcon.fromFlatIcon(getActivity().getAssets(),
-                    this.toolbarSettings.toolbarLeftIcon,
-                    40,
-                    Color.argb(0, 0, 0, 0),
-                    this.toolbarSettings.getToolbarIconColor()
-            ));
-        }
-        if (this.rightToolbarButton != null) {
-            this.rightToolbarButton.setImageBitmap(FlatIcon.fromFlatIcon(getActivity().getAssets(),
-                    this.toolbarSettings.toolbarRightIcon,
-                    40,
-                    Color.argb(0, 0, 0, 0),
-                    this.toolbarSettings.getToolbarIconColor()
-            ));
-        }
-
-        if (this.titleToolbarLabel != null) {
-            this.titleToolbarLabel.setText(toolbarSettings.toolbarTitle);
-            this.titleToolbarLabel.setTextColor(toolbarSettings.getToolbarTitleColor());
-            try {
-                Typeface type = Typeface.createFromAsset(getActivity().getAssets(),
-                        toolbarSettings.getToolBarTitleFont());
-                this.titleToolbarLabel.setTypeface(type);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-
-        if (this.screenToolBarHidden == true) {
-            this.toolbar.setVisibility(View.VISIBLE);
-        } else {
-            this.toolbar.setVisibility(View.GONE);
-        }
-    }
-
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        System.out.println("Fragment Life Cycle onViewCreated");
+        System.out.println("Fragment Life Cycle onViewCreated " + this.getClass().getSimpleName());
 
         restoreSavedInstanceState(savedInstanceState);
     }
@@ -323,7 +301,7 @@ public abstract class AbstractFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        System.out.println("Fragment Life Cycle onActivityCreated");
+        System.out.println("Fragment Life Cycle onActivityCreated " + this.getClass().getSimpleName());
 
         restoreSavedInstanceState(savedInstanceState);
         setupVariables();
@@ -332,44 +310,49 @@ public abstract class AbstractFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        System.out.println("Fragment Life Cycle onStart");
+        System.out.println("Fragment Life Cycle onStart " + this.getClass().getSimpleName());
     }
 
     @Override
     public void onResume() {
         super.onResume();
         customResume();
-        System.out.println("Fragment Life Cycle onResume");
+        System.out.println("Fragment Life Cycle onResume " + this.getClass().getSimpleName());
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        System.out.println("Fragment Life Cycle onPause");
+        System.out.println("Fragment Life Cycle onPause " + this.getClass().getSimpleName());
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        System.out.println("Fragment Life Cycle onStop");
+        System.out.println("Fragment Life Cycle onStop " + this.getClass().getSimpleName());
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        System.out.println("Fragment Life Cycle onDestroyView");
+        System.out.println("Fragment Life Cycle onDestroyView " + this.getClass().getSimpleName());
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        System.out.println("Fragment Life Cycle onDestroy");
+        System.out.println("Fragment Life Cycle onDestroy " + this.getClass().getSimpleName());
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        System.out.println("Fragment Life Cycle onDetach " + this.getClass().getCanonicalName());
+        System.out.println("Fragment Life Cycle onDetach " + this.getClass().getSimpleName());
+
+        //updateToolbar
+        AbstractFragment topFragment = getTopFragment();
+        topFragment.updateToolbar();
+
     }
 
     @Override
@@ -396,7 +379,6 @@ public abstract class AbstractFragment extends Fragment {
     }*/
 
     void setupVariables() {
-        spanCount = 6;
         if (this.activityListener == null) {
             this.activityListener = (MainActivityListener) getActivity();
         }
@@ -456,6 +438,7 @@ public abstract class AbstractFragment extends Fragment {
             Utils.hideKeyboard(this.getActivity(), null);
             customClose();
             getActivity().getSupportFragmentManager().popBackStack();
+
         } catch (Exception ignored) {
 
         }
@@ -471,35 +454,33 @@ public abstract class AbstractFragment extends Fragment {
         }
     }
 
-    protected void showAlert(String title, String message, String positiveButton, String negativeButton, DialogInterface.OnClickListener listener) {
-        /*DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case DialogInterface.BUTTON_POSITIVE: {
-                        exitActivity();
-                    }
-                    break;
+    protected void showProgress(String message) {
+        if (this.progressDialog != null)
+            this.progressDialog.dismiss();
+        this.progressDialog = new ProgressDialog(this.getContext());
+        this.progressDialog.setMessage(message);
+        this.progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        this.progressDialog.setProgress(0);
+        this.progressDialog.setMax(20);
+        this.progressDialog.setCancelable(false);
+        this.progressDialog.show();
+    }
 
-                    case DialogInterface.BUTTON_NEGATIVE: {
-                    }
-                    break;
-                }
-            }
-        };*/
+    protected void changeProgress(String message) {
+        if (this.progressDialog == null)
+            showProgress(message);
+        else
+            this.progressDialog.setMessage(message);
+    }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
-        if (title != null) {
-            builder.setTitle(title);
+    protected void hideProgress() {
+        try {
+            if (this.progressDialog != null)
+                this.progressDialog.dismiss();
+            this.progressDialog = null;
+        } catch (Exception e) {
+            // TODO: handle exception
         }
-        builder.setMessage(message);
-        if (positiveButton != null) {
-            builder.setPositiveButton(positiveButton, listener);
-        }
-        if (negativeButton != null) {
-            builder.setNegativeButton(negativeButton, listener);
-        }
-        builder.show();
     }
 
     private void restoreSavedInstanceState(Bundle savedInstanceState) {
@@ -551,7 +532,73 @@ public abstract class AbstractFragment extends Fragment {
         }
     }
 
-    public void onBackStackChanged() {
+    AbstractFragment getTopFragment() {
+        AbstractFragment topFragment = null;
+        try {
+            FragmentManager fm = activityListener.getFM();
+            int size = fm.getBackStackEntryCount();
+            FragmentManager.BackStackEntry backStackEntry = fm.getBackStackEntryAt(size - 1);
+            topFragment = (AbstractFragment) fm.findFragmentByTag(backStackEntry.getName());
+        } catch (Exception ex) {
 
+        }
+        return topFragment;
+    }
+
+    protected void updateToolbar() {
+        try {
+            if (this.leftToolbarButton != null) {
+                this.leftToolbarButton.setImageBitmap(FlatIcon.fromFlatIcon(getActivity().getAssets(),
+                        this.toolbarSettings.toolbarLeftIcon,
+                        40,
+                        Color.argb(0, 0, 0, 0),
+                        this.toolbarSettings.getToolbarIconColor()
+                ));
+            }
+            if (this.rightToolbarButton != null) {
+                this.rightToolbarButton.setImageBitmap(FlatIcon.fromFlatIcon(getActivity().getAssets(),
+                        this.toolbarSettings.toolbarRightIcon,
+                        40,
+                        Color.argb(0, 0, 0, 0),
+                        this.toolbarSettings.getToolbarIconColor()
+                ));
+            }
+
+            if (this.titleToolbarLabel != null) {
+                this.titleToolbarLabel.setText(toolbarSettings.toolbarTitle);
+                this.titleToolbarLabel.setTextColor(toolbarSettings.getToolbarTitleColor());
+                try {
+                    Typeface type = Typeface.createFromAsset(getActivity().getAssets(),
+                            toolbarSettings.getToolBarTitleFont());
+                    this.titleToolbarLabel.setTypeface(type);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+            if (this.screenToolBarHidden == true) {
+                this.toolbar.setVisibility(View.VISIBLE);
+            } else {
+                this.toolbar.setVisibility(View.GONE);
+            }
+
+            if (this.toolbarSettings.toolbarType == ToolbarSettings.LEFT_MENU_BUTTON) {
+                this.activityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            } else {
+                this.activityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            }
+        } catch (Exception ignored) {
+
+        }
+    }
+
+    boolean isSignedIn() {
+        String token = getKeyString(Key.TokenKey);
+        String userProfile = getKeyString(Key.UserProfile);
+        if (token.length() > 0 && userProfile.length() > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

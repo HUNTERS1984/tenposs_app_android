@@ -34,15 +34,16 @@ public class AspectRatioLayout extends RelativeLayout {
     public AspectRatioLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.AspectRatioLayout);
-        videoAspectRatio = a.getFloat(R.styleable.AspectRatioLayout_aspect_ratio,MAX_ASPECT_RATIO_DEFORMATION_FRACTION);
+        videoAspectRatio = a.getFloat(R.styleable.AspectRatioLayout_aspect_ratio, MAX_ASPECT_RATIO_DEFORMATION_FRACTION);
 
         a.recycle();
         setAspectRatio(videoAspectRatio);
     }
+
     public AspectRatioLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.AspectRatioLayout, defStyle, 0);
-        videoAspectRatio = a.getFloat(R.styleable.AspectRatioLayout_aspect_ratio,MAX_ASPECT_RATIO_DEFORMATION_FRACTION);
+        videoAspectRatio = a.getFloat(R.styleable.AspectRatioLayout_aspect_ratio, MAX_ASPECT_RATIO_DEFORMATION_FRACTION);
         a.recycle();
         setAspectRatio(videoAspectRatio);
     }

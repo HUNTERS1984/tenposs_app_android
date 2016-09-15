@@ -91,6 +91,9 @@ public class FragmentSignInEmail extends AbstractFragment implements View.OnClic
     @Override
     void setRefreshing(boolean refreshing) {
 
+        if (refreshing == true) {
+
+        }
     }
 
     @Override
@@ -98,47 +101,52 @@ public class FragmentSignInEmail extends AbstractFragment implements View.OnClic
         if (v == signInButton) {
             if (checkInput() == true) {
                 Bundle params = new Bundle();
+
                 SignInInfo.Request request = new SignInInfo.Request();
                 request.email = emailEdit.getEditableText().toString();
                 request.setPassword(passwordEdit.getEditableText().toString());
                 params.putSerializable(Key.RequestObject, request);
-                SignInCommunicator communicator = new SignInCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-                    @Override
-                    public void completed(TenpossCommunicator request, Bundle responseParams) {
-                        int result = responseParams.getInt(Key.ResponseResult);
-                        if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                            int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                            if (resultApi == CommonResponse.ResultSuccess) {
-                                //TODO:
-                                SignInInfo.Response response = (SignInInfo.Response) responseParams.get(Key.ResponseObject);
-                                String token = response.data.token;
-                                SignInInfo.Profile profile = response.data.profile;
-                                setKeyString(Key.TokenKey, token);
-                                setKeyString(Key.Profile, CommonObject.toJSONString(profile, profile.getClass()));
-                                activityListener.updateUserInfo(profile);
-                                close();
+                SignInCommunicator communicator = new SignInCommunicator(
+                        new TenpossCommunicator.TenpossCommunicatorListener() {
+                            @Override
+                            public void completed(TenpossCommunicator request, Bundle responseParams) {
+                                hideProgress();
+                                int result = responseParams.getInt(Key.ResponseResult);
+                                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                                    if (resultApi == CommonResponse.ResultSuccess) {
+                                        //TODO:
+                                        SignInInfo.Response response = (SignInInfo.Response) responseParams.get(Key.ResponseObject);
+                                        String token = response.data.token;
+                                        SignInInfo.Profile profile = response.data.profile;
+                                        setKeyString(Key.TokenKey, token);
+                                        setKeyString(Key.Profile, CommonObject.toJSONString(profile, profile.getClass()));
+                                        activityListener.updateUserInfo(profile);
+                                        close();
 
-                            } else {
-                                showAlert(getString(R.string.error),
-                                        getString(R.string.msg_unable_to_sign_in),
-                                        getString(R.string.close),
-                                        null,
-                                        new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
+                                    } else {
+                                        Utils.showAlert(getContext(),
+                                                getString(R.string.error),
+                                                getString(R.string.msg_unable_to_sign_in),
+                                                getString(R.string.close),
+                                                null,
+                                                new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
 
-                                            }
-                                        }
-                                );
-                                //String strMessage = responseParams.getString(Key.ResponseMessage);
-                                //errorWithMessage(responseParams, strMessage);
+                                                    }
+                                                }
+                                        );
+                                        //String strMessage = responseParams.getString(Key.ResponseMessage);
+                                        //errorWithMessage(responseParams, strMessage);
+                                    }
+                                } else {
+                                    String strMessage = responseParams.getString(Key.ResponseMessage);
+                                    errorWithMessage(responseParams, strMessage);
+                                }
                             }
-                        } else {
-                            String strMessage = responseParams.getString(Key.ResponseMessage);
-                            errorWithMessage(responseParams, strMessage);
-                        }
-                    }
-                });
+                        });
+                showProgress(getString(R.string.msg_signing_in));
                 communicator.execute(params);
             }
         }
@@ -148,32 +156,42 @@ public class FragmentSignInEmail extends AbstractFragment implements View.OnClic
         Utils.hideKeyboard(this.getActivity(), null);
         String email = emailEdit.getEditableText().toString();
         if (email.length() <= 0 || Utils.validateEmailAddress(email) == false) {
-            showAlert(getString(R.string.warning), getString(R.string.msg_input_a_valid_email_address), getString(R.string.close), null, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    switch (which) {
-                        case DialogInterface.BUTTON_POSITIVE: {
-                            emailEdit.requestFocus();
+            Utils.showAlert(getContext(),
+                    getString(R.string.warning),
+                    getString(R.string.msg_input_a_valid_email_address),
+                    getString(R.string.close),
+                    null,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which) {
+                                case DialogInterface.BUTTON_POSITIVE: {
+                                    emailEdit.requestFocus();
+                                }
+                                break;
+                            }
                         }
-                        break;
-                    }
-                }
-            });
+                    });
             return false;
         }
         String password = passwordEdit.getEditableText().toString();
         if (password.length() <= 0) {
-            showAlert(getString(R.string.warning), getString(R.string.msg_input_password), getString(R.string.close), null, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    switch (which) {
-                        case DialogInterface.BUTTON_POSITIVE: {
-                            passwordEdit.requestFocus();
+            Utils.showAlert(getContext(),
+                    getString(R.string.warning),
+                    getString(R.string.msg_input_password),
+                    getString(R.string.close),
+                    null,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which) {
+                                case DialogInterface.BUTTON_POSITIVE: {
+                                    passwordEdit.requestFocus();
+                                }
+                                break;
+                            }
                         }
-                        break;
-                    }
-                }
-            });
+                    });
             return false;
         }
         return true;

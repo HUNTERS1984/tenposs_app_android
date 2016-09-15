@@ -19,6 +19,7 @@ import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.ReserveInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.datamodel.TopInfo;
+import jp.tenposs.utils.Utils;
 
 /**
  * Created by ambient on 7/29/16.
@@ -131,40 +132,42 @@ public class FragmentReserve extends AbstractFragment {
 
         Bundle params = new Bundle();
         params.putSerializable(Key.RequestObject, requestParams);
-        ReserveInfoCommunicator communicator = new ReserveInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-            @Override
-            public void completed(TenpossCommunicator request, Bundle responseParams) {
-                int result = responseParams.getInt(Key.ResponseResult);
-                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                    if (resultApi == CommonResponse.ResultSuccess) {
-                        //TODO:
-                        ReserveInfo.Response response = (ReserveInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                        if (response.data.reserve.size() > 0) {
-                            screenData = response.data.reserve.get(0);
-                            previewScreenData();
-                        } else {
-                            showAlert(getString(R.string.error),
-                                    getString(R.string.msg_invalid_response_data),
-                                    getString(R.string.close),
-                                    null,
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
+        ReserveInfoCommunicator communicator = new ReserveInfoCommunicator(
+                new TenpossCommunicator.TenpossCommunicatorListener() {
+                    @Override
+                    public void completed(TenpossCommunicator request, Bundle responseParams) {
+                        int result = responseParams.getInt(Key.ResponseResult);
+                        if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                            int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                            if (resultApi == CommonResponse.ResultSuccess) {
+                                //TODO:
+                                ReserveInfo.Response response = (ReserveInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                if (response.data.reserve.size() > 0) {
+                                    screenData = response.data.reserve.get(0);
+                                    previewScreenData();
+                                } else {
+                                    Utils.showAlert(getContext(),
+                                            getString(R.string.error),
+                                            getString(R.string.msg_invalid_response_data),
+                                            getString(R.string.close),
+                                            null,
+                                            new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
 
-                                        }
-                                    });
+                                                }
+                                            });
+                                }
+                            } else {
+                                String strMessage = responseParams.getString(Key.ResponseMessage);
+                                errorWithMessage(responseParams, strMessage);
+                            }
+                        } else {
+                            String strMessage = responseParams.getString(Key.ResponseMessage);
+                            errorWithMessage(responseParams, strMessage);
                         }
-                    } else {
-                        String strMessage = responseParams.getString(Key.ResponseMessage);
-                        errorWithMessage(responseParams, strMessage);
                     }
-                } else {
-                    String strMessage = responseParams.getString(Key.ResponseMessage);
-                    errorWithMessage(responseParams, strMessage);
-                }
-            }
-        });
+                });
         communicator.execute(params);
     }
 }

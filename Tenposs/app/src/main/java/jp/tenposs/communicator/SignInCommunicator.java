@@ -9,7 +9,6 @@ import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.SignInInfo;
-import jp.tenposs.datamodel.SignOutInfo;
 
 /**
  * Created by ambient on 7/26/16.
@@ -18,7 +17,7 @@ public class SignInCommunicator extends TenpossCommunicator {
 
     public SignInCommunicator(TenpossCommunicatorListener listener) {
         super(listener);
-        m_strMethod = "POST";
+        this.mMethod = "POST";
     }
 
     @Override

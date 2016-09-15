@@ -5,6 +5,8 @@ import android.graphics.Color;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import jp.tenposs.utils.Utils;
+
 /**
  * Created by ambient on 8/5/16.
  */
@@ -43,7 +45,7 @@ public class AppInfo {
             }
 
             public SideMenu getSideMenu(int id) {
-                for (SideMenu menu: side_menu) {
+                for (SideMenu menu : side_menu) {
                     if (menu.id == id) {
                         return menu;
                     }
@@ -66,28 +68,23 @@ public class AppInfo {
     public class TopComponent implements Serializable {
         public int id;
         public String name;
-        public Pivot pivot;
+        String viewmore;
 
-        public class Pivot implements Serializable {
-            public int app_setting_id;
-            public int component_id;
+        public boolean showViewMore() {
+            int more = Utils.atoi(viewmore);
+            return more != 0;
         }
     }
 
     public static class SideMenu implements Serializable {
         public int id;
         public String name;
-        public Pivot pivot;
         public String icon = "";
 
-        public SideMenu(int settingScreen, String settings) {
+        public SideMenu(int settingScreen, String settings, String icon) {
             id = settingScreen;
             name = settings;
-        }
-
-        public class Pivot implements Serializable {
-            public int app_setting_id;
-            public int sidemenu_id;
+            this.icon = icon;
         }
     }
 

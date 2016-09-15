@@ -3,7 +3,6 @@ package jp.tenposs.tenposs;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -46,21 +45,15 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
     SwipeRefreshLayout swipeRefreshLayout;
 
     PhotoCategoryInfo.Response screenData;
-    PhotoInfo.Response screenItem;
+    PhotoInfo.Response currentItem;
     PhotoCategoryInfo.PhotoCat currentPhotoCat;
     int currentPhotoCatIndex;
 
-    ArrayList<Bundle> photoCategories;
+    ArrayList<Bundle> allItems;
 
     /**
      * Fragment Override
      */
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        spanCount = 6;
-    }
 
     @Override
     protected void customClose() {
@@ -92,13 +85,13 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
 
         screenDataItems = new ArrayList<>();
 
-        for (PhotoInfo.Photo photo : screenItem.data.photos) {
+        for (PhotoInfo.Photo photo : currentItem.data.photos) {
             Bundle extras = new Bundle();
             extras.putInt(RecyclerItemWrapper.ITEM_ID, photo.id);
             extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_ITEM_SCREEN);
             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, photo.getImageUrl());
             extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, photo.getImageUrl());
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, spanCount / 3, extras));
+            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, spanCount / spanSmallItems, extras));
         }
 
         titleLabel.setText(currentPhotoCat.name);
@@ -159,14 +152,22 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
             this.screenData = (PhotoCategoryInfo.Response) savedInstanceState.getSerializable(SCREEN_DATA);
         }
         if (savedInstanceState.containsKey(SCREEN_PAGE_ITEMS)) {
-            photoCategories = (ArrayList<Bundle>) savedInstanceState.getSerializable(SCREEN_PAGE_ITEMS);
+            this.allItems = (ArrayList<Bundle>) savedInstanceState.getSerializable(SCREEN_PAGE_ITEMS);
+        }
+        if (savedInstanceState.containsKey(SCREEN_DATA_PAGE_DATA)) {
+            this.currentItem = (PhotoInfo.Response) savedInstanceState.getSerializable(SCREEN_DATA_PAGE_DATA);
+        }
+        if (savedInstanceState.containsKey(SCREEN_DATA_PAGE_INDEX)) {
+            this.currentPhotoCatIndex = savedInstanceState.getInt(SCREEN_DATA_PAGE_INDEX);
         }
     }
 
     @Override
     void customSaveInstanceState(Bundle outState) {
         outState.putSerializable(SCREEN_DATA, screenData);
-        outState.putSerializable(SCREEN_PAGE_ITEMS, photoCategories);
+        outState.putSerializable(SCREEN_PAGE_ITEMS, allItems);
+        outState.putSerializable(SCREEN_DATA_PAGE_DATA, currentItem);
+        outState.putInt(SCREEN_DATA_PAGE_INDEX, currentPhotoCatIndex);
     }
 
     @Override
@@ -180,62 +181,23 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
 
         Bundle params = new Bundle();
         params.putSerializable(Key.RequestObject, requestParams);
-        PhotoCategoryInfoCommunicator communicator = new PhotoCategoryInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-            @Override
-            public void completed(TenpossCommunicator request, Bundle responseParams) {
-                int result = responseParams.getInt(Key.ResponseResult);
-                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                    if (resultApi == CommonResponse.ResultSuccess) {
-                        screenData = (PhotoCategoryInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                        photoCategories = new ArrayList<>();
-                        for (int i = 0; i < screenData.data.photo_categories.size(); i++) {
-                            Bundle photoCategory = new Bundle();
-                            photoCategory.putInt(SCREEN_DATA_PAGE_INDEX, 1);
-                            photoCategory.putInt(SCREEN_DATA_PAGE_SIZE, 20);
-                            photoCategories.add(photoCategory);
-                        }
-                        loadPhotoCatItem(currentPhotoCatIndex);
-                    } else {
-                        String strMessage = responseParams.getString(Key.ResponseMessage);
-                        errorWithMessage(responseParams, strMessage);
-                    }
-                } else {
-                    String strMessage = responseParams.getString(Key.ResponseMessage);
-                    errorWithMessage(responseParams, strMessage);
-                }
-            }
-        });
-        communicator.execute(params);
-    }
-
-    void loadPhotoCatItem(int menuIndex) {
-        try {
-            currentPhotoCat = screenData.data.photo_categories.get(menuIndex);
-            Bundle photoCategory = photoCategories.get(menuIndex);
-            if (photoCategory.containsKey(SCREEN_DATA_PAGE_DATA)) {
-                this.screenItem = (PhotoInfo.Response) photoCategory.getSerializable(SCREEN_DATA_PAGE_DATA);
-                previewScreenData();
-            } else {
-                PhotoInfo.Request requestParams = new PhotoInfo.Request();
-                requestParams.category_id = currentPhotoCat.id;
-                requestParams.pageindex = photoCategory.getInt(SCREEN_DATA_PAGE_INDEX);
-                requestParams.pagesize = photoCategory.getInt(SCREEN_DATA_PAGE_SIZE);
-
-                Bundle params = new Bundle();
-                params.putSerializable(Key.RequestObject, requestParams);
-                params.putParcelable(Key.RequestData, photoCategory);
-                PhotoInfoCommunicator communicator = new PhotoInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
+        PhotoCategoryInfoCommunicator communicator = new PhotoCategoryInfoCommunicator(
+                new TenpossCommunicator.TenpossCommunicatorListener() {
                     @Override
                     public void completed(TenpossCommunicator request, Bundle responseParams) {
                         int result = responseParams.getInt(Key.ResponseResult);
                         if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
                             int resultApi = responseParams.getInt(Key.ResponseResultApi);
                             if (resultApi == CommonResponse.ResultSuccess) {
-                                screenItem = (PhotoInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                                Bundle photoCategory = responseParams.getParcelable(Key.RequestData);
-                                photoCategory.putSerializable(SCREEN_DATA_PAGE_DATA, screenItem);
-                                previewScreenData();
+                                screenData = (PhotoCategoryInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                allItems = new ArrayList<>();
+                                for (int i = 0; i < screenData.data.photo_categories.size(); i++) {
+                                    Bundle photoCategory = new Bundle();
+                                    photoCategory.putInt(SCREEN_DATA_PAGE_INDEX, 1);
+                                    photoCategory.putInt(SCREEN_DATA_PAGE_SIZE, 20);
+                                    allItems.add(photoCategory);
+                                }
+                                loadPhotoCatItem(currentPhotoCatIndex);
                             } else {
                                 String strMessage = responseParams.getString(Key.ResponseMessage);
                                 errorWithMessage(responseParams, strMessage);
@@ -246,6 +208,47 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
                         }
                     }
                 });
+        communicator.execute(params);
+    }
+
+    void loadPhotoCatItem(int menuIndex) {
+        try {
+            currentPhotoCat = screenData.data.photo_categories.get(menuIndex);
+            Bundle photoCategory = allItems.get(menuIndex);
+            if (photoCategory.containsKey(SCREEN_DATA_PAGE_DATA)) {
+                this.currentItem = (PhotoInfo.Response) photoCategory.getSerializable(SCREEN_DATA_PAGE_DATA);
+                previewScreenData();
+            } else {
+                PhotoInfo.Request requestParams = new PhotoInfo.Request();
+                requestParams.category_id = currentPhotoCat.id;
+                requestParams.pageindex = photoCategory.getInt(SCREEN_DATA_PAGE_INDEX);
+                requestParams.pagesize = photoCategory.getInt(SCREEN_DATA_PAGE_SIZE);
+
+                Bundle params = new Bundle();
+                params.putSerializable(Key.RequestObject, requestParams);
+                params.putParcelable(Key.RequestData, photoCategory);
+                PhotoInfoCommunicator communicator = new PhotoInfoCommunicator(
+                        new TenpossCommunicator.TenpossCommunicatorListener() {
+                            @Override
+                            public void completed(TenpossCommunicator request, Bundle responseParams) {
+                                int result = responseParams.getInt(Key.ResponseResult);
+                                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                                    if (resultApi == CommonResponse.ResultSuccess) {
+                                        currentItem = (PhotoInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                        Bundle photoCategory = responseParams.getParcelable(Key.RequestData);
+                                        photoCategory.putSerializable(SCREEN_DATA_PAGE_DATA, currentItem);
+                                        previewScreenData();
+                                    } else {
+                                        String strMessage = responseParams.getString(Key.ResponseMessage);
+                                        errorWithMessage(responseParams, strMessage);
+                                    }
+                                } else {
+                                    String strMessage = responseParams.getString(Key.ResponseMessage);
+                                    errorWithMessage(responseParams, strMessage);
+                                }
+                            }
+                        });
                 communicator.execute(params);
             }
         } catch (Exception ignored) {
@@ -261,7 +264,7 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
         return (currentPhotoCatIndex < (this.screenData.data.photo_categories.size() - 1));
     }
 
-    void previousMenu() {
+    void previous() {
         if (hasPrevious() == false) {
             return;
         }
@@ -275,7 +278,7 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
         loadPhotoCatItem(currentPhotoCatIndex);
     }
 
-    void nextMenu() {
+    void next() {
         if (hasNext() == false) {
             return;
         }
@@ -324,10 +327,10 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
     @Override
     public void onClick(View v) {
         if (v == previousButton) {
-            previousMenu();
+            previous();
 
         } else if (v == nextButton) {
-            nextMenu();
+            next();
         }
     }
 
@@ -357,6 +360,5 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
             }
             break;
         }
-        System.out.println(item.itemType);
     }
 }

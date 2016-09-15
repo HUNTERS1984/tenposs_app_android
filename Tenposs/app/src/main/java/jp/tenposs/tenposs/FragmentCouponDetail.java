@@ -58,7 +58,7 @@ public class FragmentCouponDetail extends AbstractFragment {
 
         Picasso ps = Picasso.with(getContext());
         ps.load(screenData.getImageUrl())
-                .resize(320, 320)
+                .resize(fullImageSize, fullImageSize)
                 .centerCrop()
                 .into(couponImage);
 
@@ -68,10 +68,10 @@ public class FragmentCouponDetail extends AbstractFragment {
         this.validityLabel.setText(screenData.end_date);
         this.couponDescriptionLabel.setText(screenData.description);
 
-        if( this.screenData.status == 1){
+        if (this.screenData.status == 1) {
             this.takeAdvantageOfCouponLayout.setVisibility(View.VISIBLE);
             this.couponCannotUseLayout.setVisibility(View.GONE);
-        }else{
+        } else {
             this.takeAdvantageOfCouponLayout.setVisibility(View.GONE);
             this.couponCannotUseLayout.setVisibility(View.VISIBLE);
         }

@@ -1,55 +1,25 @@
 package jp.tenposs.communicator;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 
-import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.CookieStore;
-import java.net.HttpCookie;
-import java.net.HttpURLConnection;
-import java.net.Socket;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.net.UnknownHostException;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import java.util.concurrent.TimeUnit;
 
 import jp.tenposs.datamodel.Key;
-import jp.tenposs.tenposs.MainApplication;
-import jp.tenposs.utils.SharedPreferencesHelper;
+import okhttp3.Call;
+import okhttp3.FormBody;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /**
  * Created by ambient on 7/25/16.
@@ -59,14 +29,18 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
     public final static String API_ADDRESS_DEV = "http://dev.tenposs.jp/api";
     //public final static String API_ADDRESS = "http://ec2-54-204-210-230.compute-1.amazonaws.com/tenposs/api/public/index.php/api/v1";
     //public final static String API_ADDRESS = "http://54.153.78.127/api/v1";
-    public final static String BASE_ADDRESS = "http://ec2-54-204-210-230.compute-1.amazonaws.com/";
+
+    //public final static String BASE_ADDRESS = "http://ec2-54-204-210-230.compute-1.amazonaws.com/";
+    public final static String BASE_ADDRESS = "https://api.ten-po.com/";
 
     private final static String API_ADDRESS = BASE_ADDRESS + "api/v1";
 
     public final static String API_SIGN_IN = API_ADDRESS + "/signin?";
+    public final static String API_SOCIAL_SIGN_IN = API_ADDRESS + "/social_login?";
     public final static String API_SIGN_UP = API_ADDRESS + "/signup?";
     public final static String API_SIGN_OUT = API_ADDRESS + "/signout?";
     public final static String API_PROFILE = API_ADDRESS + "/profile?";
+    public final static String API_UPDATE_PROFILE = API_ADDRESS + "/update_profile?";
 
     public final static String API_TOP = API_ADDRESS + "/top?";
     public final static String API_MENU = API_ADDRESS + "/menu?";
@@ -86,150 +60,9 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
     public final static String API_STAFF_CATEGORY = API_ADDRESS + "/staff_categories?";
     public final static String API_STAFFS = API_ADDRESS + "/staffs?";
 
-
-    public interface TenpossCommunicatorListener {
-        void completed(TenpossCommunicator request, Bundle responseParams);
-    }
-
-    TenpossCommunicatorListener listener;
-
-    public TenpossCommunicator(TenpossCommunicatorListener listener) {
-        this.listener = listener;
-    }
-
-    static CookieManager cookieManager;
-    static KeyStore trustStore;
-    static MySSLSocketFactory sf;
-    static HostnameVerifier hostnameVerifier;
-
-    protected HttpURLConnection m_pUrlConnection;
-    protected Bundle m_pBundle;
-    protected String m_strMethod = "GET";
-
-    static void loadCookies(Context context, URI uri) {
-        try {
-            SharedPreferences sharedPreferences = SharedPreferencesHelper.getSharedPreferences(context);
-            Set<String> cookieArray = sharedPreferences.getStringSet(uri.getHost(), null);
-            String str = uri.getHost();
-            if (cookieArray != null) {
-                CookieStore cookieStore = cookieManager.getCookieStore();
-                for (String cookie : cookieArray) {
-                    HttpCookie ck = HttpCookie.parse(cookie).get(0);
-                    cookieArray.add(cookie);
-                    List<HttpCookie> cookies = cookieStore.getCookies();
-                    if (cookies.contains(ck) == false) {
-                        try {
-                            cookieStore.add(new URI(str), ck);
-                        } catch (URISyntaxException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-    }
-
-    static String getQuery(HashMap<String, String> params) {
-
-        StringBuilder result = new StringBuilder();
-        try {
-            boolean first = true;
-
-            Set<String> keys = params.keySet();
-            for (String key : keys) {
-                if (first)
-                    first = false;
-                else
-                    result.append("&");
-
-                result.append(URLEncoder.encode(key, "UTF-8"));
-                result.append("=");
-                result.append(URLEncoder.encode(params.get(key), "UTF-8"));
-            }
-        } catch (Exception ignored) {
-            ignored.printStackTrace();
-        }
-        return result.toString();
-    }
-
-    static boolean generateOnce() {
-        if (cookieManager != null) {
-            return true;
-        }
-        try {
-            cookieManager = new CookieManager();
-            CookieHandler.setDefault(cookieManager);
-            trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            trustStore.load(null, null);
-            sf = new MySSLSocketFactory(trustStore);
-            //sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-            sf.setHostnameVerifier(new AllowAllHostnameVerifier());
-            hostnameVerifier = new HostnameVerifier() {
-                @Override
-                public boolean verify(String arg0, SSLSession arg1) {
-                    System.out.println("Accept : " + arg0);
-                    return true;
-                }
-            };
-            return true;
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            cookieManager = null;
-            return false;
-        }
-    }
-
-    protected abstract boolean request(Bundle bundle);
-
-    public static class MySSLSocketFactory extends SSLSocketFactory {
-        SSLContext sslContext = SSLContext.getInstance("TLS");
-
-        public MySSLSocketFactory(KeyStore truststore) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException {
-            super(truststore);
-
-            TrustManager tm = new X509TrustManager() {
-
-                @Override
-                public X509Certificate[] getAcceptedIssuers() {
-                    return null;
-                }
-
-                @Override
-                public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-
-                }
-
-                @Override
-                public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-
-                }
-            };
-            sslContext.init(null, new TrustManager[]{tm}, null);
-        }
-
-        @Override
-        public Socket createSocket(Socket socket, String host, int port, boolean autoClose) throws IOException, UnknownHostException {
-            return sslContext.getSocketFactory().createSocket(socket, host, port, autoClose);
-        }
-
-        @Override
-        public Socket createSocket() throws IOException {
-            return sslContext.getSocketFactory().createSocket();
-        }
-
-        public javax.net.ssl.SSLSocketFactory getSocketFactoryEx() {
-            // TODO Auto-generated method stub
-            return sslContext.getSocketFactory();
-        }
-    }
-
     public enum CommunicationCode {
 
-        GeneralError,//ko quan tam return code, chi can show message
+        GeneralError,
         ConnectionFailed,
         ConnectionAborted,
         ConnectionInvalidInput, //
@@ -241,9 +74,25 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
         ConnectionErrorReadInput, // cannot read response from the server.
         ConnectionErrorWriteOutput, // cannot save to output
 
-        ConnectionSuccess,
-
+        ConnectionSuccess;
     }
+
+    public interface TenpossCommunicatorListener {
+        void completed(TenpossCommunicator request, Bundle responseParams);
+    }
+
+    private TenpossCommunicatorListener mListener;
+    private Bundle mBundle;
+    protected String mMethod = "GET";
+    private OkHttpClient mClient;
+    private Call mCall;
+
+    protected abstract boolean request(Bundle bundle);
+
+    public TenpossCommunicator(TenpossCommunicatorListener listener) {
+        this.mListener = listener;
+    }
+
 
     @Override
     protected Bundle doInBackground(Bundle... params) {
@@ -258,250 +107,104 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
 
     @Override
     protected void onPostExecute(Bundle result) {
-        if (this.listener != null) {
-            this.listener.completed(this, result);
+        if (this.mListener != null) {
+            this.mListener.completed(this, result);
         }
     }
 
-
-    void printRequestHeader(HttpURLConnection urlConnection) {
-        Map<String, List<String>> headerMap = urlConnection.getRequestProperties();
-        Set<String> headers = headerMap.keySet();
-        for (String header : headers) {
-            if (header != null)
-                System.out.println("Request - " + header + " : " + urlConnection.getRequestProperty(header));
-        }
-    }
-
-    HashMap<String, String> printResponseHeader(HttpURLConnection urlConnection) {
-        HashMap<String, String> responseHeader = new HashMap<>();
-        try {
-            Map<String, List<String>> headerMap = urlConnection.getHeaderFields();
-            Set<String> headers = headerMap.keySet();
-            for (String header : headers) {
-                if (header != null) {
-                    responseHeader.put(header, urlConnection.getHeaderField(header));
-                }
-            }
-
-            List<String> cookiesHeader = headerMap.get("Set-Cookie");
-            if (cookiesHeader != null) {
-                CookieStore cookieStore = cookieManager.getCookieStore();
-                Set<String> cookieArray = new HashSet<>();
-                for (String cookie : cookiesHeader) {
-                    HttpCookie ck = HttpCookie.parse(cookie).get(0);
-                    cookieArray.add(cookie);
-                    List<HttpCookie> cookies = cookieStore.getCookies();
-                    if (cookies.contains(ck) == false) {
-                        cookieStore.add(urlConnection.getURL().toURI(), ck);
-                    }
-                }
-
-                SharedPreferences sharedPreferences = SharedPreferencesHelper.getSharedPreferences(MainApplication.getContext());
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                String uri = urlConnection.getURL().toURI().toString();
-                editor.putStringSet(urlConnection.getURL().toURI().getHost(), cookieArray);
-                editor.apply();
-            }
-
-        } catch (Exception e) {
-            // TODO: handle exception
-            Log.e("Tenposs", e.getMessage());
-        }
-        return responseHeader;
-    }
-
-    HttpURLConnection getConnection(String strUrl, int timeout, boolean forceSSL, HashMap<String, String> headers) throws Exception {
-        HttpURLConnection urlConnection = null;
-        try {
-            if (generateOnce() == false) {
-                throw new NullPointerException("generateOnce");
-            }
-
-            URL url = new URL(strUrl);
-
-            loadCookies(MainApplication.getContext(), url.toURI());
-
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setConnectTimeout(timeout);
-
-            if (headers != null) {
-                Set<String> headerSet = headers.keySet();
-                for (String header : headerSet) {
-
-                    if (header != null) {
-                        urlConnection.setRequestProperty(header, headers.get(header));
-                    }
-                }
-            }
-            if (m_strMethod.compareToIgnoreCase("POST") == 0) {
-                urlConnection.setChunkedStreamingMode(0);
-                urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                urlConnection.setRequestMethod("POST");
-                urlConnection.setDoInput(true);
-                urlConnection.setDoOutput(true);
-            }
-            if (urlConnection instanceof HttpsURLConnection) {
-                if (forceSSL == true) {
-                    ((HttpsURLConnection) urlConnection).setSSLSocketFactory(sf.getSocketFactoryEx());
-                    ((HttpsURLConnection) urlConnection).setHostnameVerifier(hostnameVerifier);
-                    try {
-                        HashMap<String, String> params = (HashMap<String, String>) m_pBundle.get(Key.RequestFormData);
-                        if (params != null) {
-                            urlConnection.connect();
-                            OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
-                            out.write(getQuery(params).getBytes());
-                            out.close();
-                        }
-                    } catch (Exception e) {
-                        try {
-                            urlConnection.disconnect();
-                        } catch (Exception e2) {
-                        }
-                        throw e;
-                    }
-                } else {
-                    try {
-                        HashMap<String, String> params = (HashMap<String, String>) m_pBundle.get(Key.RequestFormData);
-                        if (params != null) {
-                            urlConnection.connect();
-                            OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
-                            out.write(getQuery(params).getBytes());
-                            out.close();
-                        }
-                    } catch (SSLHandshakeException handShake) {
-                        urlConnection = getConnection(strUrl, timeout, true, headers);
-
-                    } catch (Exception e) {
-                        try {
-                            urlConnection.disconnect();
-                        } catch (Exception e2) {
-                        }
-                        throw e;
-                    }
-                }
-            } else {
-                try {
-                    HashMap<String, String> params = (HashMap<String, String>) m_pBundle.get(Key.RequestFormData);
-                    if (params != null) {
-                        urlConnection.connect();
-                        OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
-                        out.write(getQuery(params).getBytes());
-                        out.close();
-                    }
-                } catch (Exception e) {
-                    try {
-                        urlConnection.disconnect();
-                    } catch (Exception e2) {
-                    }
-                    throw e;
-                }
-            }
-        } catch (SSLHandshakeException handShake) {
-            urlConnection = getConnection(strUrl, timeout, true, headers);
-        } catch (Exception e) {
-            try {
-                urlConnection.disconnect();
-            } catch (Exception e2) {
-            }
-            throw e;
-        }
-        return urlConnection;
-    }
 
     protected int request(String url, OutputStream output, Bundle bundle) {
-        //int nTimeout = bundle.getInt(GammaKey.RequestTimeout) * 1000;
-        m_pBundle = bundle;
-        System.out.println(url);
-        int nTimeout = 0;
-        if (nTimeout == 0)
-            nTimeout = 30000;
+        this.mBundle = bundle;
+
+        int connectionTimeout = mBundle.getInt(Key.RequestConnectionTimeout);
+        int readTimeout = mBundle.getInt(Key.RequestConnectionTimeout);
+        int writeTimeout = mBundle.getInt(Key.RequestConnectionTimeout);
+
+        if (connectionTimeout == 0)
+            connectionTimeout = 10;
+
+        if (readTimeout == 0)
+            readTimeout = 30;
+
+        if (writeTimeout == 0)
+            writeTimeout = 10;
 
         String strTemp = url.toLowerCase(Locale.US);
 
         if (strTemp.contains("http://") == false && strTemp.contains("https://") == false)
             url = "http://" + url;
 
-        InputStream input = null;
         try {
-            m_pUrlConnection = getConnection(url, nTimeout, false, (HashMap<String, String>) bundle.get(Key.RequestHeader));
-        } catch (Exception e) {
-            bundle.putString(Key.ResponseMessage, e.getMessage());
-            bundle.putInt(Key.ResponseResult, CommunicationCode.GeneralError.ordinal());
-            System.out.println(e.toString());
-            return CommunicationCode.ConnectionFailed.ordinal();
-        }
-//        try {
-//            printRequestHeader(m_pUrlConnection);
-//        } catch (Exception e) {
-//
-//        }
-        try {
-            int code = m_pUrlConnection.getResponseCode();
 
-            try {
-                HashMap<String, String> responseHeaders = printResponseHeader(m_pUrlConnection);
-                bundle.putSerializable(Key.ResponseHeader, responseHeaders);
+            Request request = null;
+            Request.Builder requestBuilder = null;
+            RequestBody requestBody = null;
+            Response response = null;
 
-            } catch (Exception ex1) {
-
-            }
-
-            if (code < 200 || code > 300) {
-                //if (code != 200) {
-                bundle.putString(Key.ResponseMessage, "HTTP:" + code + m_pUrlConnection.getResponseMessage());
-                bundle.putInt(Key.ResponseResult, CommunicationCode.GeneralError.ordinal());
-                System.out.println("HTTP Code: " + code);
-                return CommunicationCode.ConnectionFailed.ordinal();
-            }
-        } catch (Exception e) {
-            bundle.putString(Key.ResponseMessage, e.getMessage());
-            bundle.putInt(Key.ResponseResult, CommunicationCode.GeneralError.ordinal());
-            System.out.println(e.toString());
-            return CommunicationCode.ConnectionFailed.ordinal();
-        }
-        try {
-            input = new BufferedInputStream(m_pUrlConnection.getInputStream());
-            byte data[] = new byte[1024];
-            int count = 0;
-            try {
-                while ((count = input.read(data)) != -1) {
-                    output.write(data, 0, count);
-                    try {
-                    } catch (Exception e) {
-                        e.printStackTrace();
+            requestBuilder = new Request.Builder().url(url);
+            if (this.mMethod == "POST") {
+                FormBody.Builder builder = new FormBody.Builder();
+                HashMap<String, String> params = (HashMap<String, String>) this.mBundle.get(Key.RequestFormData);
+                Set<String> keys = params.keySet();
+                for (String key : keys) {
+                    builder.add(key, params.get(key));
+                }
+                requestBody = builder.build();
+                requestBuilder.post(requestBody);
+            } else if (this.mMethod == "POST_MULTIPART") {
+                MultipartBody.Builder builder = new MultipartBody.Builder()
+                        .setType(MultipartBody.FORM);
+                HashMap<String, String> params = (HashMap<String, String>) this.mBundle.get(Key.RequestFormData);
+                Set<String> keys = params.keySet();
+                for (String key : keys) {
+                    String value = params.get(key);
+                    if (key.compareTo("avatar") == 0) {
+                        //File
+                        File file = new File(value);
+                        String fileName = file.getName();
+                        builder.addFormDataPart("image", fileName,
+                                RequestBody.create(MediaType.parse("image/png"),
+                                        file));
+                    } else {
+                        builder.addFormDataPart(key, value);
                     }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                bundle.putString(Key.ResponseMessage, e.getMessage());
-                bundle.putInt(Key.ResponseResult, CommunicationCode.GeneralError.ordinal());
-                System.out.println(e.toString());
-                return CommunicationCode.ConnectionErrorReadInput.ordinal();
+                requestBody = builder.build();
+                requestBuilder.post(requestBody);
             }
-            return CommunicationCode.ConnectionSuccess.ordinal();
-        } catch (Exception e) {
-            e.printStackTrace();
-            bundle.putString(Key.ResponseMessage, e.getMessage());
-            bundle.putInt(Key.ResponseResult, CommunicationCode.GeneralError.ordinal());
-            System.out.println(e.toString());
-            return CommunicationCode.ConnectionFailed.ordinal();
-        } finally {
+
+            this.mClient = new OkHttpClient().newBuilder()
+                    .connectTimeout(connectionTimeout, TimeUnit.SECONDS)
+                    .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+                    .readTimeout(readTimeout, TimeUnit.SECONDS).build();
+
+            request = requestBuilder.build();
             try {
-                if (input != null) {
-                    input.close();
-                }
-            } catch (Exception e2) {
-                e2.printStackTrace();
+                mCall = this.mClient.newCall(request);
+                response = this.mCall.execute();
+                String str = response.body().string();
+                byte[] data = str.getBytes();
+                output.write(data, 0, data.length);
+                return CommunicationCode.ConnectionSuccess.ordinal();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                mBundle.putInt(Key.ResponseResult, CommunicationCode.GeneralError.ordinal());
+                mBundle.putString(Key.ResponseMessage, e.getLocalizedMessage());
+                return CommunicationCode.GeneralError.ordinal();
+
             }
-            if (isCancelled() == true)
-                return CommunicationCode.ConnectionAborted.ordinal();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            mBundle.putInt(Key.ResponseResult, CommunicationCode.GeneralError.ordinal());
+            mBundle.putString(Key.ResponseMessage, ex.getLocalizedMessage());
+            return CommunicationCode.GeneralError.ordinal();
         }
     }
 
     public boolean cancelRequest(boolean mayInterruptIfRunning) {
         try {
-            m_pUrlConnection.disconnect();
+            mCall.cancel();
         } catch (Exception e) {
             // TODO: handle exception
         }

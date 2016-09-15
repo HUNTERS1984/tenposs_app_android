@@ -372,7 +372,7 @@ public class ThemifyIcon {
         themifyCharacterCodes.put("ti-rss-alt", "\ue75f");
     }
 
-    static Bitmap fromThemifyIcon(AssetManager assetManager, String identifier, int textSize, int backgroundColor, int textColor) {
+    public static Bitmap fromThemifyIcon(AssetManager assetManager, String identifier, int textSize, int backgroundColor, int textColor) {
 
         String text = themifyCharacterCodes.get(identifier);
         if (text == null) {

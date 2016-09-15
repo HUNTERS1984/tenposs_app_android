@@ -26,7 +26,7 @@ public class StaffInfo {
     }
 
     public class Response extends CommonResponse {
-        public class ResponseData {
+        public class ResponseData implements Serializable {
             public ArrayList<Staff> staffs;
             public int total_staffs;
         }
@@ -34,7 +34,7 @@ public class StaffInfo {
         public ResponseData data;
     }
 
-    public class Staff implements Serializable {
+    public class Staff extends UrlImageObject implements Serializable {
         public int id;
         public String name;
         public String price;
@@ -48,6 +48,7 @@ public class StaffInfo {
         public String deleted_at;
         public String staff_category_id;
 
+        @Override
         public String getImageUrl() {
             String temp = image_url.toLowerCase(Locale.US);
             if (temp.indexOf("http://") != -1 || temp.indexOf("https://") != -1) {

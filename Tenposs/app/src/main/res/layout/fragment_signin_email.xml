@@ -83,7 +83,7 @@
         android:layout_below="@+id/app_bar"
         android:background="@color/colorSeparate" />
 
-    <Button
+    <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/top_separate"

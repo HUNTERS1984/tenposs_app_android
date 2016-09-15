@@ -8,42 +8,44 @@ import java.io.OutputStream;
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
-import jp.tenposs.datamodel.SignInInfo;
-import jp.tenposs.datamodel.SignOutInfo;
+import jp.tenposs.datamodel.UpdateProfileInfo;
 
 /**
- * Created by ambient on 7/26/16.
+ * Created by ambient on 9/16/16.
  */
-public class SignOutCommunicator extends TenpossCommunicator {
-    public SignOutCommunicator(TenpossCommunicatorListener listener) {
+
+public class UpdateProfileCommunicator extends TenpossCommunicator {
+    public UpdateProfileCommunicator(TenpossCommunicatorListener listener) {
         super(listener);
-        mMethod = "POST";
+        this.mMethod = "POST_MULTIPART";
     }
 
     @Override
     protected boolean request(Bundle bundle) {
-        String strUrl = API_SIGN_OUT;
-        SignOutInfo.Request requestData = (SignOutInfo.Request) bundle.getSerializable(Key.RequestObject);
+        String strUrl;
+        UpdateProfileInfo.Request requestData = (UpdateProfileInfo.Request) bundle.getSerializable(Key.RequestObject);
         bundle.putSerializable(Key.RequestFormData, requestData.getFormData());
-        int result = CommunicationCode.ConnectionSuccess.ordinal();
+        bundle.putInt(Key.RequestWriteTimeout, 30);
+        strUrl = API_UPDATE_PROFILE;
+        int result;
         OutputStream output;
 
         try {
             output = new ByteArrayOutputStream();
         } catch (Exception e) {
             bundle.putString(Key.ResponseMessage, e.getMessage());
-            bundle.putInt(Key.ResponseResult, CommunicationCode.GeneralError.ordinal());
+            bundle.putInt(Key.ResponseResult, TenpossCommunicator.CommunicationCode.GeneralError.ordinal());
             return false;
         }
         result = request(strUrl, output, bundle);
-        if (result == CommunicationCode.ConnectionSuccess.ordinal()) {
+        if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
             String strResponse = output.toString();
-            CommonResponse response = (SignOutInfo.Response) CommonObject.fromJSONString(strResponse, SignInInfo.Response.class, null);
+            CommonResponse response = (CommonResponse) CommonObject.fromJSONString(strResponse, CommonResponse.class, null);
             if (response == null) {
                 response = (CommonResponse) CommonObject.fromJSONString(strResponse, CommonResponse.class, null);
             }
             if (response != null) {
-                bundle.putInt(Key.ResponseResult, CommunicationCode.ConnectionSuccess.ordinal());
+                bundle.putInt(Key.ResponseResult, TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal());
                 bundle.putInt(Key.ResponseResultApi, response.code);
 
                 if (response.code == CommonResponse.ResultSuccess) {
@@ -52,7 +54,7 @@ public class SignOutCommunicator extends TenpossCommunicator {
                     bundle.putString(Key.ResponseMessage, response.message);
                 }
             } else {
-                bundle.putInt(Key.ResponseResult, CommunicationCode.ConnectionFailed.ordinal());
+                bundle.putInt(Key.ResponseResult, TenpossCommunicator.CommunicationCode.ConnectionFailed.ordinal());
                 bundle.putString(Key.ResponseMessage, "Invalid response data!");
             }
         }
@@ -64,7 +66,7 @@ public class SignOutCommunicator extends TenpossCommunicator {
             }
         } catch (Exception e) {
             bundle.putString(Key.ResponseMessage, e.getMessage());
-            bundle.putInt(Key.ResponseResult, CommunicationCode.GeneralError.ordinal());
+            bundle.putInt(Key.ResponseResult, TenpossCommunicator.CommunicationCode.GeneralError.ordinal());
             return false;
         }
         return true;

@@ -2,7 +2,9 @@ package jp.tenposs.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Build;
+import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.method.LinkMovementMethod;
@@ -81,6 +83,7 @@ public class Utils {
         } catch (Exception ignored) {
         }
     }
+
     public static boolean validateEmailAddress(String email) {
         final String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
         if (email.matches(emailPattern)) {
@@ -88,5 +91,51 @@ public class Utils {
         } else {
             return false;
         }
+    }
+
+    public static void showAlert(Context context,
+                                 String title,
+                                 String message,
+                                 String positiveButton,
+                                 String negativeButton,
+                                 DialogInterface.OnClickListener listener) {
+        /*DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case DialogInterface.BUTTON_POSITIVE: {
+                        exitActivity();
+                    }
+                    break;
+
+                    case DialogInterface.BUTTON_NEGATIVE: {
+                    }
+                    break;
+                }
+            }
+        };*/
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        if (title != null) {
+            builder.setTitle(title);
+        }
+        builder.setMessage(message);
+        if (positiveButton != null) {
+            builder.setPositiveButton(positiveButton, listener);
+        }
+        if (negativeButton != null) {
+            builder.setNegativeButton(negativeButton, listener);
+        }
+        builder.show();
+    }
+
+    public static int atoi(String input) {
+        int result = 0;
+        try {
+            result = Integer.parseInt(input);
+        } catch (Exception ignored) {
+
+        }
+        return result;
     }
 }

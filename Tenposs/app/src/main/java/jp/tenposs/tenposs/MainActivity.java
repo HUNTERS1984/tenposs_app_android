@@ -1,5 +1,6 @@
 package jp.tenposs.tenposs;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,17 +11,24 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.WindowManager;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
+import com.facebook.login.LoginManager;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterCore;
 
@@ -39,6 +47,7 @@ import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.SignInInfo;
 import jp.tenposs.datamodel.SignOutInfo;
+import jp.tenposs.datamodel.SocialSigninInfo;
 import jp.tenposs.datamodel.TopInfo;
 import jp.tenposs.datamodel.UserInfo;
 import jp.tenposs.utils.Utils;
@@ -75,6 +84,7 @@ public class MainActivity extends AppCompatActivity
 
     protected SharedPreferences appPreferences;
 
+    protected ProgressDialog progressDialog;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -92,73 +102,42 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         MainApplication.setContext(this.getApplicationContext());
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        //Facebook initialize
         FacebookSdk.sdkInitialize(getApplicationContext());
         AppEventsLogger.activateApp(this.getApplication());
         callbackManager = CallbackManager.Factory.create();
 
-        if (this.appPreferences == null) {
-            this.appPreferences = this.getSharedPreferences("settings", Context.MODE_PRIVATE);
-        }
-
-        TwitterAuthConfig authConfig = new TwitterAuthConfig("qY0dnYDqh99zztg8gBWkLIFrm",
-                "Byy6PCW51zvhVrDZayLm8PhenqkHXiRIqLMpK7A5H5XNEzlKYi");
+        //Twitter initialize
+        TwitterAuthConfig authConfig = new TwitterAuthConfig(SocialSigninInfo.TWITTER_CONSUMER_KEY,
+                SocialSigninInfo.TWITTER_CONSUMER_SECRET);
         Fabric.with(this, new TwitterCore(authConfig));
 
-        //this.toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //this.toggleMenuButton = (ImageButton) findViewById(R.id.toggle_menu_button);
-        //this.backButton = (ImageButton) findViewById(R.id.back_button);
-        //this.closeButton = (ImageButton) findViewById(R.id.close_button);
+        //Firebase initialize
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        FirebaseMessaging.getInstance().subscribeToTopic("test");
+        String token = FirebaseInstanceId.getInstance().getToken();
+        if (token != null) {
+            Log.i("demo", token);
+        } else {
+            Log.i("demo", "fail " + token);
+        }
 
-        //this.navTitleLabel = (TextView) findViewById(R.id.nav_title_label);
-        //this.signOutButton = (ImageButton) findViewById(R.id.sign_out_button);
+        this.appPreferences = this.getSharedPreferences("settings", Context.MODE_PRIVATE);
 
         this.drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         this.leftMenuView = (LeftMenuView) findViewById(R.id.left_menu_view);
         this.contentContainer = (FrameLayout) findViewById(R.id.content_container);
 
-        /*this.toggleMenuButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (drawerLayout != null) {
-                    drawerLayout.openDrawer(Gravity.LEFT);
-                }
-            }
-        });*/
-
-        /*this.backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MainActivity.this.onBackPressed();
-            }
-        });*/
-
-        /*this.signOutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MainActivity.this.performSignOut();
-            }
-        });*/
-
         this.fragmentManager = getSupportFragmentManager();
-        /*this.fragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
-            @Override
-            public void onBackStackChanged() {
-                AbstractFragment topFragment = getTopFragment();
-                if (topFragment != null) {
-                    topFragment.onBackStackChanged();
-                }
-            }
-        });*/
-
         this.leftMenuView.setOnItemClickListener(this);
 
         this.fragmentHome = (FragmentHome) getFragmentForTag(FragmentHome.class.getCanonicalName());
         if (this.fragmentHome == null) {
             getUserDetail(false);
-
         } else {
             showHomeScreen();
         }
@@ -203,7 +182,9 @@ public class MainActivity extends AppCompatActivity
                 /**
                  * Do something
                  */
-                showAlert(getString(R.string.msg_exit_confirm),
+                Utils.showAlert(this,
+                        getString(R.string.info),
+                        getString(R.string.msg_exit_confirm),
                         getString(R.string.yes),
                         getString(R.string.no),
                         new DialogInterface.OnClickListener() {
@@ -247,10 +228,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void updateSideMenuItems(ArrayList<AppInfo.SideMenu> menuInfo) {
+    public void updateSideMenuItems(ArrayList<AppInfo.SideMenu> menuInfo, boolean isSignedIn) {
         this.sideMenuInfo = menuInfo;
         if (leftMenuView != null && this.sideMenuInfo != null) {
-            leftMenuView.updateMenuItems(this.appInfo.data.app_setting, menuInfo);
+            leftMenuView.updateMenuItems(this.appInfo.data.app_setting, menuInfo, isSignedIn);
         }
         String profileStr = getKeyString(Key.Profile);
         String userProfile = getKeyString(Key.UserProfile);
@@ -273,6 +254,10 @@ public class MainActivity extends AppCompatActivity
     public void updateUserInfo(SignInInfo.Profile profile) {
         if (leftMenuView != null) {
             leftMenuView.updateUserInfo(profile);
+        }
+
+        if (this.sideMenuInfo != null) {
+            updateSideMenuItems(this.sideMenuInfo, profile != null);
         }
     }
 
@@ -362,21 +347,7 @@ public class MainActivity extends AppCompatActivity
             break;
 
             case AbstractFragment.SIGN_OUT_SCREEN: {
-                showAlert("", getString(R.string.ok), getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case DialogInterface.BUTTON_POSITIVE: {
-                                performSignOut();
-                            }
-                            break;
-
-                            case DialogInterface.BUTTON_NEGATIVE: {
-                            }
-                            break;
-                        }
-                    }
-                });
+                performSignOut();
             }
             break;
 
@@ -430,6 +401,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     public FragmentManager getFM() {
         return this.fragmentManager;
+    }
+
+    @Override
+    public void setDrawerLockMode(int mode) {
+        this.drawerLayout.setDrawerLockMode(mode);
     }
 
     /*@Override
@@ -564,9 +540,14 @@ public class MainActivity extends AppCompatActivity
 
     void showSignInScreen(boolean showToolbar) {
         //clear token and user profile
+
+        //Local
         setKeyString(Key.TokenKey, "");
         setKeyString(Key.UserProfile, "");
         setKeyString(Key.Profile, "");
+
+        //Facebook
+        LoginManager.getInstance().logOut();
 
         FragmentSignIn fragmentSignIn = (FragmentSignIn) getFragmentForTag(FragmentSignIn.class.getCanonicalName());
         if (fragmentSignIn == null) {
@@ -782,7 +763,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        callbackManager.onActivityResult(requestCode, resultCode, data);
+        //callbackManager.onActivityResult(requestCode, resultCode, data);
 
         Fragment fragment = getFragmentForTag(FragmentSignIn.class.getCanonicalName());
         if (fragment != null) {
@@ -809,51 +790,74 @@ public class MainActivity extends AppCompatActivity
         return ret;
     }
 
-    protected void showAlert(String message, String positiveButton, String negativeButton, DialogInterface.OnClickListener listener) {
-        /*DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case DialogInterface.BUTTON_POSITIVE: {
-                        exitActivity();
-                    }
-                    break;
-
-                    case DialogInterface.BUTTON_NEGATIVE: {
-                    }
-                    break;
-                }
-            }
-        };*/
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(message);
-        if (positiveButton != null) {
-            builder.setPositiveButton(positiveButton, listener);
+    protected void errorWithMessage(Bundle response, String message) {
+        if (response != null) {
+            String msg = response.getString(Key.ResponseMessage);
+            Toast.makeText(this.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this.getApplicationContext(), message, Toast.LENGTH_SHORT).show();
         }
-        if (negativeButton != null) {
-            builder.setNegativeButton(negativeButton, listener);
-        }
-        builder.show();
     }
 
     void performSignOut() {
-        showAlert(getString(R.string.msg_sign_out_confirm),
+        Utils.showAlert(this,
+                getString(R.string.info),
+                getString(R.string.msg_sign_out_confirm),
                 getString(R.string.yes), getString(R.string.no), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
                             case DialogInterface.BUTTON_POSITIVE: {
-                                SignOutCommunicator communicator = new SignOutCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-                                    @Override
-                                    public void completed(TenpossCommunicator request, Bundle responseParams) {
+                                SignOutCommunicator communicator = new SignOutCommunicator(
+                                        new TenpossCommunicator.TenpossCommunicatorListener() {
+                                            @Override
+                                            public void completed(TenpossCommunicator request, Bundle responseParams) {
+                                                hideProgress();
+                                                int result = responseParams.getInt(Key.ResponseResult);
+                                                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                                                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                                                    if (resultApi == CommonResponse.ResultSuccess ||
+                                                            resultApi == CommonResponse.ResultErrorInvalidToken) {
+                                                        //clear token and user profile
+                                                        setKeyString(Key.TokenKey, "");
+                                                        setKeyString(Key.UserProfile, "");
+                                                        setKeyString(Key.Profile, "");
 
-                                    }
-                                });
+                                                        try {
+                                                            //Facebook
+                                                            LoginManager.getInstance().logOut();
+                                                        } catch (Exception ex) {
+                                                            ex.printStackTrace();
+                                                        }
+
+                                                        try {
+                                                            //Twitter
+                                                            CookieSyncManager.createInstance(MainActivity.this);
+                                                            CookieManager cookieManager = CookieManager.getInstance();
+                                                            cookieManager.removeSessionCookie();
+                                                            Twitter.getSessionManager().clearActiveSession();
+                                                            Twitter.logOut();
+                                                        } catch (Exception ex) {
+                                                            ex.printStackTrace();
+                                                        }
+
+                                                        updateUserInfo(null);
+                                                        updateSideMenuItems(MainActivity.this.sideMenuInfo, false);
+                                                    } else {
+                                                        String strMessage = responseParams.getString(Key.ResponseMessage);
+                                                        errorWithMessage(responseParams, strMessage);
+                                                    }
+                                                } else {
+                                                    String strMessage = responseParams.getString(Key.ResponseMessage);
+                                                    errorWithMessage(responseParams, strMessage);
+                                                }
+                                            }
+                                        });
                                 Bundle params = new Bundle();
                                 SignOutInfo.Request request = new SignOutInfo.Request();
                                 request.token = getKeyString(Key.TokenKey);
                                 params.putSerializable(Key.RequestObject, request);
+                                showProgress(getString(R.string.msg_signing_out));
                                 communicator.execute(params);
                             }
                             break;
@@ -867,10 +871,6 @@ public class MainActivity extends AppCompatActivity
                 });
     }
 
-    void synchronizeProfile() {
-
-    }
-
     public void getUserDetail(boolean skip) {
         if (skip == true) {
             showHomeScreen();
@@ -882,31 +882,61 @@ public class MainActivity extends AppCompatActivity
                 request.token = token;
                 params.putSerializable(Key.RequestObject, request);
 
-                UserInfoCommunicator communicator = new UserInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-                    @Override
-                    public void completed(TenpossCommunicator request, Bundle responseParams) {
-                        int result = responseParams.getInt(Key.ResponseResult);
-                        if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                            int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                            if (resultApi == CommonResponse.ResultSuccess) {
-                                //Update User profile
+                UserInfoCommunicator communicator = new UserInfoCommunicator(
+                        new TenpossCommunicator.TenpossCommunicatorListener() {
+                            @Override
+                            public void completed(TenpossCommunicator request, Bundle responseParams) {
+                                int result = responseParams.getInt(Key.ResponseResult);
+                                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                                    if (resultApi == CommonResponse.ResultSuccess) {
+                                        //Update User profile
 
-                                UserInfo.Response data = (UserInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                                setKeyString(Key.UserProfile, CommonObject.toJSONString(data.data.user, UserInfo.User.class));
+                                        UserInfo.Response data = (UserInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                        setKeyString(Key.UserProfile, CommonObject.toJSONString(data.data.user, UserInfo.User.class));
 
-                                showHomeScreen();
-                            } else {
-                                showSignInScreen(false);
+                                        showHomeScreen();
+                                    } else {
+                                        showSignInScreen(false);
+                                    }
+                                } else {
+                                    showSignInScreen(false);
+                                }
                             }
-                        } else {
-                            showSignInScreen(false);
-                        }
-                    }
-                });
+                        });
                 communicator.execute(params);
             } else {
                 showSignInScreen(false);
             }
+        }
+    }
+
+    protected void showProgress(String message) {
+        if (this.progressDialog != null)
+            this.progressDialog.dismiss();
+        this.progressDialog = new ProgressDialog(this);
+        this.progressDialog.setMessage(message);
+        this.progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        this.progressDialog.setProgress(0);
+        this.progressDialog.setMax(20);
+        this.progressDialog.setCancelable(false);
+        this.progressDialog.show();
+    }
+
+    protected void changeProgress(String message) {
+        if (this.progressDialog == null)
+            showProgress(message);
+        else
+            this.progressDialog.setMessage(message);
+    }
+
+    protected void hideProgress() {
+        try {
+            if (this.progressDialog != null)
+                this.progressDialog.dismiss();
+            this.progressDialog = null;
+        } catch (Exception e) {
+            // TODO: handle exception
         }
     }
 }

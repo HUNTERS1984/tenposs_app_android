@@ -10,6 +10,9 @@ public class SocialSigninInfo {
     public final static String FACEBOOK = "1";
     public final static String TWITTER = "2";
 
+    public final static String TWITTER_CONSUMER_KEY = "qY0dnYDqh99zztg8gBWkLIFrm";
+    public final static String TWITTER_CONSUMER_SECRET = "Byy6PCW51zvhVrDZayLm8PhenqkHXiRIqLMpK7A5H5XNEzlKYi";
+
     public static class Request extends CommonRequest {
 
         public String social_type;
@@ -32,7 +35,9 @@ public class SocialSigninInfo {
                 formData.put("social_type", social_type);
                 formData.put("social_id", social_id);
                 formData.put("social_token", social_token);
-                formData.put("social_secret", social_secret);
+                if (social_secret != null) {
+                    formData.put("social_secret", social_secret);
+                }
                 formData.put("name", URLEncoder.encode(name, "UTF-8"));
                 formData.put("sig", sig);
             } catch (Exception ignored) {
@@ -40,8 +45,5 @@ public class SocialSigninInfo {
             }
             return formData;
         }
-    }
-
-    public class Response extends SignInInfo.Response {
     }
 }

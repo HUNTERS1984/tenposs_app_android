@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import jp.tenposs.datamodel.Key;
+import jp.tenposs.datamodel.UrlImageObject;
 import jp.tenposs.listener.OnCommonItemClickListener;
 import jp.tenposs.view.ZoomableImageView;
 
@@ -43,6 +44,7 @@ public class PopupPhotoPreview {
     //ArrayList<?> popupData;
     String popupData;
     ImageButton closeButton;
+    public int fullImageSize = 1024;
 
 
     public PopupPhotoPreview(Activity activity) {
@@ -75,7 +77,7 @@ public class PopupPhotoPreview {
 
         Picasso ps = Picasso.with(activity);
         ps.load(popupData)
-                .resize(640, 640)
+                .resize(fullImageSize, fullImageSize)
                 .centerInside()
                 .into(new Target() {
                     @Override
@@ -97,8 +99,7 @@ public class PopupPhotoPreview {
                 });
 //        adapter = new GalleryAdapter(activity, popupData);
 //        viewPager.setAdapter(adapter);
-        closeButton.setOnClickListener(new View.OnClickListener()
-                                       {
+        closeButton.setOnClickListener(new View.OnClickListener() {
                                            @Override
                                            public void onClick(View v) {
                                                alert.dismiss();
@@ -139,11 +140,11 @@ public class PopupPhotoPreview {
 
             itemThumbnail = (ImageView) root.findViewById(R.id.item_thumbnail);
 
-            jp.tenposs.adapter.FilmstripAdapter.ImageUrl image = getItem(position);
+            UrlImageObject image = getItem(position);
             if (image.getImageUrl() != null) {
                 Picasso ps = Picasso.with(mContext);
                 ps.load(image.getImageUrl())
-                        .resize(640, 360)
+                        .resize(fullImageSize, fullImageSize)
                         .centerInside()
                         .into(itemThumbnail);
                                 /*new Target() {
@@ -190,8 +191,8 @@ public class PopupPhotoPreview {
             return 0;
         }
 
-        public jp.tenposs.adapter.FilmstripAdapter.ImageUrl getItem(int position) {
-            return (jp.tenposs.adapter.FilmstripAdapter.ImageUrl) this.mainData.get(position);
+        public UrlImageObject getItem(int position) {
+            return (UrlImageObject) this.mainData.get(position);
         }
 
         @Override

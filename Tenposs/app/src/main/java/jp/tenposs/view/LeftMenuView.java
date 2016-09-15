@@ -25,13 +25,15 @@ import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.SignInInfo;
 import jp.tenposs.tenposs.AbstractFragment;
 import jp.tenposs.tenposs.R;
-import jp.tenposs.utils.FlatIcon;
+import jp.tenposs.utils.ThemifyIcon;
 
 
 /**
  * Created by ambient on 7/28/16.
  */
 public class LeftMenuView extends FrameLayout {
+
+    int fullImageSize;
 
     public interface OnLeftMenuItemClickListener {
         void onClick(int position, Bundle params);
@@ -43,6 +45,7 @@ public class LeftMenuView extends FrameLayout {
         public LeftMenuAdapter(Context context, int resource, ArrayList<AppInfo.SideMenu> objects) {
             super(context, resource, objects);
             mInflater = LayoutInflater.from(context);
+
         }
 
         @Override
@@ -58,8 +61,14 @@ public class LeftMenuView extends FrameLayout {
             TextView menuTitle = (TextView) row.findViewById(R.id.item_label);
             menuTitle.setTextColor(settings.getMenuTitleColor());
             menuTitle.setText(item.name);
-            menuIcon.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
-                    AbstractFragment.getMenuIconName(item.id),
+            //menuIcon.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
+            //        AbstractFragment.getMenuIconName(item.id),
+            //        60,
+            //       Color.argb(0, 0, 0, 0),
+            //        settings.getMenuIconColor()
+            //));
+            menuIcon.setImageBitmap(ThemifyIcon.fromThemifyIcon(getContext().getAssets(),
+                    item.icon,
                     60,
                     Color.argb(0, 0, 0, 0),
                     settings.getMenuIconColor()
@@ -139,6 +148,7 @@ public class LeftMenuView extends FrameLayout {
                 }
             }
         });
+        this.fullImageSize = context.getResources().getInteger(R.integer.full_image_size);
     }
 
     @Override
@@ -152,7 +162,7 @@ public class LeftMenuView extends FrameLayout {
             userNameLabel.setText(profile.name);
             Picasso ps = Picasso.with(mContext);
             ps.load(this.profile.getImageUrl())
-                    .resize(640, 360)
+                    .resize(fullImageSize, 640)
                     .centerCrop()
                     .placeholder(R.drawable.no_avatar)
                     .into(userAvatarImage);
@@ -165,11 +175,13 @@ public class LeftMenuView extends FrameLayout {
         }
     }
 
-    public void updateMenuItems(AppInfo.AppSetting settings, ArrayList<AppInfo.SideMenu> sideMenus) {
+    public void updateMenuItems(AppInfo.AppSetting settings, ArrayList<AppInfo.SideMenu> sideMenus, boolean signedIn) {
         this.settings = settings;
-        this.screenData = sideMenus;
+        this.screenData = (ArrayList<AppInfo.SideMenu>) sideMenus.clone();
         //this.screenData.add(new AppInfo.SideMenu(AbstractFragment.SETTING_SCREEN, "Settings"));
-        this.screenData.add(new AppInfo.SideMenu(AbstractFragment.SIGN_OUT_SCREEN, mContext.getString(R.string.sign_out)));
+        if (signedIn == true) {
+            this.screenData.add(new AppInfo.SideMenu(AbstractFragment.SIGN_OUT_SCREEN, mContext.getString(R.string.sign_out), "ti-unlock"));
+        }
 
         this.signinButton.setTextColor(settings.getMenuTitleColor());
         this.mainLayout.setBackgroundColor(this.settings.getMenuBackgroundColor());

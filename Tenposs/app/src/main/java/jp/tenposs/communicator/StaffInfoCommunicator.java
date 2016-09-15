@@ -8,7 +8,6 @@ import java.io.OutputStream;
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
-import jp.tenposs.datamodel.SignOutInfo;
 import jp.tenposs.datamodel.StaffInfo;
 
 /**

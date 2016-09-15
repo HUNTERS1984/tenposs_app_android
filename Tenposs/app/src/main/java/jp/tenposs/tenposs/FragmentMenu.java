@@ -3,7 +3,6 @@ package jp.tenposs.tenposs;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -43,24 +42,19 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
     RecyclerView recyclerView;
     CommonAdapter recyclerAdapter;
     SwipeRefreshLayout swipeRefreshLayout;
+
     MenuInfo.Response screenData;
-    ItemInfo.Response screenItem;
+    ItemInfo.Response currentItem;
     MenuInfo.Menu currentMenu;
     int currentMenuIndex;
 
-    ArrayList<Bundle> menuDatas;
+    ArrayList<Bundle> allItems;
 
     int storeId;
 
     /**
      * Fragment Override
      */
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        spanCount = 6;
-    }
 
     @Override
     protected void customClose() {
@@ -92,14 +86,14 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
 
         screenDataItems = new ArrayList<>();
 
-        for (ItemInfo.Item item : screenItem.data.items) {
+        for (ItemInfo.Item item : currentItem.data.items) {
             Bundle extras = new Bundle();
             extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
             extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.title);
             extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.price);
             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
             extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, spanCount / 2, extras));
+            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, spanCount / spanLargeItems, extras));
         }
 
         titleLabel.setText(currentMenu.name);
@@ -131,7 +125,7 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
         return mRoot;
     }
 
-    @Override    
+    @Override
     protected void customResume() {
         if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
             //load needed data
@@ -156,18 +150,32 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
 
     @Override
     void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
+        if (savedInstanceState.containsKey(APP_DATA_STORE_ID)) {
+            this.storeId = savedInstanceState.getInt(APP_DATA_STORE_ID);
+        }
+
         if (savedInstanceState.containsKey(SCREEN_DATA)) {
             this.screenData = (MenuInfo.Response) savedInstanceState.getSerializable(SCREEN_DATA);
         }
-        if (savedInstanceState.containsKey(APP_DATA_STORE_ID)) {
-            this.storeId = savedInstanceState.getInt(APP_DATA_STORE_ID);
+        if (savedInstanceState.containsKey(SCREEN_PAGE_ITEMS)) {
+            this.allItems = (ArrayList<Bundle>) savedInstanceState.getSerializable(SCREEN_PAGE_ITEMS);
+        }
+        if (savedInstanceState.containsKey(SCREEN_DATA_PAGE_DATA)) {
+            this.currentItem = (ItemInfo.Response) savedInstanceState.getSerializable(SCREEN_DATA_PAGE_DATA);
+        }
+        if (savedInstanceState.containsKey(SCREEN_DATA_PAGE_INDEX)) {
+            this.currentMenuIndex = savedInstanceState.getInt(SCREEN_DATA_PAGE_INDEX);
         }
     }
 
     @Override
     void customSaveInstanceState(Bundle outState) {
-        outState.putSerializable(SCREEN_DATA, this.screenData);
         outState.putInt(APP_DATA_STORE_ID, this.storeId);
+
+        outState.putSerializable(SCREEN_DATA, this.screenData);
+        outState.putSerializable(SCREEN_PAGE_ITEMS, this.allItems);
+        outState.putSerializable(SCREEN_DATA_PAGE_DATA, this.currentItem);
+        outState.putInt(SCREEN_DATA_PAGE_INDEX, this.currentMenuIndex);
     }
 
 
@@ -182,59 +190,24 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
 
         Bundle params = new Bundle();
         params.putSerializable(Key.RequestObject, requestParams);
-        MenuInfoCommunicator communicator = new MenuInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-            @Override
-            public void completed(TenpossCommunicator request, Bundle responseParams) {
-                int result = responseParams.getInt(Key.ResponseResult);
-                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                    if (resultApi == CommonResponse.ResultSuccess) {
-                        screenData = (MenuInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                        currentMenuIndex = 0;
-                        menuDatas = new ArrayList<>();
-                        for (int i = 0; i < screenData.data.menus.size(); i++) {
-                            Bundle menuData = new Bundle();
-                            menuData.putInt("PAGE_INDEX", 1);
-                            menuData.putInt("PAGE_SIZE", 20);
-                            menuDatas.add(menuData);
-                        }
-                        loadMenuItem(currentMenuIndex);
-                    } else {
-                        String strMessage = responseParams.getString(Key.ResponseMessage);
-                        errorWithMessage(responseParams, strMessage);
-                    }
-                } else {
-                    String strMessage = responseParams.getString(Key.ResponseMessage);
-                    errorWithMessage(responseParams, strMessage);
-                }
-            }
-        });
-        communicator.execute(params);
-    }
-
-    void loadMenuItem(int menuIndex) {
-        try {
-            Bundle menuData = menuDatas.get(menuIndex);
-            this.currentMenu = screenData.data.menus.get(menuIndex);
-            if (menuData.containsKey("PAGE_DATA")) {
-                this.screenItem = (ItemInfo.Response) menuData.getSerializable("PAGE_DATA");
-            } else {
-                ItemInfo.Request requestParams = new ItemInfo.Request();
-                requestParams.menu_id = currentMenu.id;
-                requestParams.pageindex = menuData.getInt("PAGE_INDEX");
-                requestParams.pagesize = menuData.getInt("PAGE_SIZE");
-
-                Bundle params = new Bundle();
-                params.putSerializable(Key.RequestObject, requestParams);
-                ItemInfoCommunicator communicator = new ItemInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
+        MenuInfoCommunicator communicator = new MenuInfoCommunicator(
+                new TenpossCommunicator.TenpossCommunicatorListener() {
                     @Override
                     public void completed(TenpossCommunicator request, Bundle responseParams) {
                         int result = responseParams.getInt(Key.ResponseResult);
                         if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
                             int resultApi = responseParams.getInt(Key.ResponseResultApi);
                             if (resultApi == CommonResponse.ResultSuccess) {
-                                screenItem = (ItemInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                                previewScreenData();
+                                screenData = (MenuInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                currentMenuIndex = 0;
+                                allItems = new ArrayList<>();
+                                for (int i = 0; i < screenData.data.menus.size(); i++) {
+                                    Bundle menuData = new Bundle();
+                                    menuData.putInt("PAGE_INDEX", 1);
+                                    menuData.putInt("PAGE_SIZE", 20);
+                                    allItems.add(menuData);
+                                }
+                                loadMenuItem(currentMenuIndex);
                             } else {
                                 String strMessage = responseParams.getString(Key.ResponseMessage);
                                 errorWithMessage(responseParams, strMessage);
@@ -245,6 +218,43 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
                         }
                     }
                 });
+        communicator.execute(params);
+    }
+
+    void loadMenuItem(int menuIndex) {
+        try {
+            Bundle menuData = allItems.get(menuIndex);
+            this.currentMenu = screenData.data.menus.get(menuIndex);
+            if (menuData.containsKey("PAGE_DATA")) {
+                this.currentItem = (ItemInfo.Response) menuData.getSerializable("PAGE_DATA");
+            } else {
+                ItemInfo.Request requestParams = new ItemInfo.Request();
+                requestParams.menu_id = currentMenu.id;
+                requestParams.pageindex = menuData.getInt("PAGE_INDEX");
+                requestParams.pagesize = menuData.getInt("PAGE_SIZE");
+
+                Bundle params = new Bundle();
+                params.putSerializable(Key.RequestObject, requestParams);
+                ItemInfoCommunicator communicator = new ItemInfoCommunicator(
+                        new TenpossCommunicator.TenpossCommunicatorListener() {
+                            @Override
+                            public void completed(TenpossCommunicator request, Bundle responseParams) {
+                                int result = responseParams.getInt(Key.ResponseResult);
+                                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                                    if (resultApi == CommonResponse.ResultSuccess) {
+                                        currentItem = (ItemInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                        previewScreenData();
+                                    } else {
+                                        String strMessage = responseParams.getString(Key.ResponseMessage);
+                                        errorWithMessage(responseParams, strMessage);
+                                    }
+                                } else {
+                                    String strMessage = responseParams.getString(Key.ResponseMessage);
+                                    errorWithMessage(responseParams, strMessage);
+                                }
+                            }
+                        });
                 communicator.execute(params);
             }
         } catch (Exception ignored) {
@@ -357,6 +367,5 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
             }
             break;
         }
-        System.out.println(item.itemType);
     }
 }

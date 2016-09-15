@@ -52,6 +52,7 @@ public class FragmentHome
     RecyclerView recyclerView;
     CommonAdapter recyclerAdapter;
     SwipeRefreshLayout swipeRefreshLayout;
+
     @Override
     protected void customClose() {
 
@@ -119,17 +120,19 @@ public class FragmentHome
                     extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
                     extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
 
-                    screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, spanCount / 2, extras));
+                    screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, spanCount / spanLargeItems, extras));
                 }
 
-                /**
-                 * Footer
-                 */
-                extras = new Bundle();
-                extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.MENU_SCREEN);
-                extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
+                if (component.showViewMore() == true) {
+                    /**
+                     * Footer
+                     */
+                    extras = new Bundle();
+                    extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.MENU_SCREEN);
+                    extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
 
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
+                    screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
+                }
             }
         }
         if (screenData.photos != null && screenData.photos.size() > 0) {
@@ -154,17 +157,19 @@ public class FragmentHome
                     extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
                     extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item.getImageUrl());
 
-                    screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, spanCount / 3, extras));
+                    screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, spanCount / spanSmallItems, extras));
                 }
 
-                /**
-                 * Footer
-                 */
-                extras = new Bundle();
-                extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_SCREEN);
-                extras.putString(RecyclerItemWrapper.ITEM_IMAGE, getString(R.string.more));
+                if (component.showViewMore() == true) {
+                    /**
+                     * Footer
+                     */
+                    extras = new Bundle();
+                    extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_SCREEN);
+                    extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
 
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
+                    screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
+                }
             }
         }
 
@@ -196,14 +201,16 @@ public class FragmentHome
                     screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemList, spanCount, extras));
                 }
 
-                /**
-                 * Footer
-                 */
-                extras = new Bundle();
-                extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_SCREEN);
-                extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
+                if (component.showViewMore() == true) {
+                    /**
+                     * Footer
+                     */
+                    extras = new Bundle();
+                    extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_SCREEN);
+                    extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
 
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
+                    screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
+                }
             }
         }
 
@@ -247,7 +254,7 @@ public class FragmentHome
         }
         this.toolbarSettings.appSetting = this.appInfo.data.app_setting;
         this.activityListener.updateAppInfo(this.appInfo, storeInfo.id);
-        this.activityListener.updateSideMenuItems(this.sideMenuInfo);
+        this.activityListener.updateSideMenuItems(this.sideMenuInfo, isSignedIn());
 
         updateToolbar();
     }
@@ -371,7 +378,6 @@ public class FragmentHome
             }
             break;
         }
-        System.out.println(item.itemType);
 
     }
 
@@ -380,33 +386,34 @@ public class FragmentHome
         AppInfo.Request requestParams = new AppInfo.Request();
 
         params.putSerializable(Key.RequestObject, requestParams);
-        AppInfoCommunicator communicator = new AppInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-            @Override
-            public void completed(TenpossCommunicator request, Bundle responseParams) {
-                int result = responseParams.getInt(Key.ResponseResult);
-                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                    if (resultApi == CommonResponse.ResultSuccess) {
-                        FragmentHome.this.appInfo = (AppInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                        if (FragmentHome.this.appInfo.data != null && FragmentHome.this.appInfo.data.stores.size() > 0) {
-                            FragmentHome.this.storeInfo = FragmentHome.this.appInfo.data.stores.get(0);
-                            FragmentHome.this.sideMenuInfo = FragmentHome.this.appInfo.data.side_menu;
-                            toolbarSettings.toolbarTitle = FragmentHome.this.appInfo.data.name;
-                            loadTopInfo(FragmentHome.this.storeInfo.id);
+        AppInfoCommunicator communicator = new AppInfoCommunicator(
+                new TenpossCommunicator.TenpossCommunicatorListener() {
+                    @Override
+                    public void completed(TenpossCommunicator request, Bundle responseParams) {
+                        int result = responseParams.getInt(Key.ResponseResult);
+                        if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                            int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                            if (resultApi == CommonResponse.ResultSuccess) {
+                                FragmentHome.this.appInfo = (AppInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                if (FragmentHome.this.appInfo.data != null && FragmentHome.this.appInfo.data.stores.size() > 0) {
+                                    FragmentHome.this.storeInfo = FragmentHome.this.appInfo.data.stores.get(0);
+                                    FragmentHome.this.sideMenuInfo = FragmentHome.this.appInfo.data.side_menu;
+                                    toolbarSettings.toolbarTitle = FragmentHome.this.appInfo.data.name;
+                                    loadTopInfo(FragmentHome.this.storeInfo.id);
+                                } else {
+                                    String strMessage = "Invalid response data!";
+                                    errorWithMessage(responseParams, strMessage);
+                                }
+                            } else {
+                                String strMessage = responseParams.getString(Key.ResponseMessage);
+                                errorWithMessage(responseParams, strMessage);
+                            }
                         } else {
-                            String strMessage = "Invalid response data!";
+                            String strMessage = responseParams.getString(Key.ResponseMessage);
                             errorWithMessage(responseParams, strMessage);
                         }
-                    } else {
-                        String strMessage = responseParams.getString(Key.ResponseMessage);
-                        errorWithMessage(responseParams, strMessage);
                     }
-                } else {
-                    String strMessage = responseParams.getString(Key.ResponseMessage);
-                    errorWithMessage(responseParams, strMessage);
-                }
-            }
-        });
+                });
         communicator.execute(params);
     }
 
@@ -414,26 +421,27 @@ public class FragmentHome
         Bundle params = new Bundle();
         TopInfo.Request requestParams = new TopInfo.Request();
         params.putSerializable(Key.RequestObject, requestParams);
-        TopInfoCommunicator communicator = new TopInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-            @Override
-            public void completed(TenpossCommunicator request, Bundle responseParams) {
-                int result = responseParams.getInt(Key.ResponseResult);
-                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                    if (resultApi == CommonResponse.ResultSuccess) {
-                        FragmentHome.this.topData = (TopInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                        FragmentHome.this.screenData = FragmentHome.this.topData.data;
-                        previewScreenData();
-                    } else {
-                        String strMessage = responseParams.getString(Key.ResponseMessage);
-                        errorWithMessage(responseParams, strMessage);
+        TopInfoCommunicator communicator = new TopInfoCommunicator(
+                new TenpossCommunicator.TenpossCommunicatorListener() {
+                    @Override
+                    public void completed(TenpossCommunicator request, Bundle responseParams) {
+                        int result = responseParams.getInt(Key.ResponseResult);
+                        if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                            int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                            if (resultApi == CommonResponse.ResultSuccess) {
+                                FragmentHome.this.topData = (TopInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                FragmentHome.this.screenData = FragmentHome.this.topData.data;
+                                previewScreenData();
+                            } else {
+                                String strMessage = responseParams.getString(Key.ResponseMessage);
+                                errorWithMessage(responseParams, strMessage);
+                            }
+                        } else {
+                            String strMessage = responseParams.getString(Key.ResponseMessage);
+                            errorWithMessage(responseParams, strMessage);
+                        }
                     }
-                } else {
-                    String strMessage = responseParams.getString(Key.ResponseMessage);
-                    errorWithMessage(responseParams, strMessage);
-                }
-            }
-        });
+                });
         communicator.execute(params);
     }
 }

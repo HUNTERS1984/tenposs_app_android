@@ -16,14 +16,14 @@ public class UserInfo {
     }
 
     public class Response extends CommonResponse {
-        public class ResponseData {
+        public class ResponseData implements Serializable {
             public User user;
         }
 
         public ResponseData data;
     }
 
-    public class User implements Serializable{
+    public class User implements Serializable {
 
         public int id;
         public String email;

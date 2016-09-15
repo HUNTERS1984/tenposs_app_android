@@ -22,7 +22,6 @@ public enum RecyclerItemType {
     RecyclerItemTypeFooter;
 
 
-
     public static RecyclerItemType fromInt(int recyclerItemType) {
         for (RecyclerItemType type : RecyclerItemType.values()) {
             if (type.ordinal() == recyclerItemType) {

@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import jp.tenposs.adapter.FilmstripAdapter;
 import jp.tenposs.communicator.TenpossCommunicator;
 
 /**
@@ -31,7 +30,7 @@ public class PhotoInfo {
         }
     }
 
-    public class Photo extends FilmstripAdapter.ImageUrl implements Serializable {
+    public class Photo extends UrlImageObject implements Serializable {
         public int id;
         public String image_url;
         public int photo_category_id;

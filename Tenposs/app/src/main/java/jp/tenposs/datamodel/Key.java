@@ -8,6 +8,7 @@ public class Key {
     public static String RequestData = "RequestData";
     public static String RequestHeader = "RequestHeader";
     public static String RequestFormData = "RequestFormData";
+    public static String RequestFileData = "RequestFileData";
 
     public static String ResponseMessage = "ResponseMessage";
     public static String ResponseResult = "ResponseResult";
@@ -19,4 +20,11 @@ public class Key {
     public static String Profile = "Profile";
     public static String UserProfile = "UserProfile";
     public static String TokenKey = "TokenKey";
+
+    public static String FacebookTokenKey = "FacebookTokenKey";
+
+    public static String TwitterTokenKey = "TwitterTokenKey";
+    public static String RequestConnectionTimeout = "RequestConnectionTimeout";
+    public static String RequestReadTimeout = "RequestReadTimeout";
+    public static String RequestWriteTimeout = "RequestWriteTimeout";
 }

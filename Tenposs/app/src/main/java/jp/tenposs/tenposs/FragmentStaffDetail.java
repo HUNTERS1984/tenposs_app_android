@@ -61,7 +61,7 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
 
         Picasso ps = Picasso.with(getContext());
         ps.load(screenData.getImageUrl())
-                .resize(320, 320)
+                .resize(fullImageSize, fullImageSize)
                 .centerCrop()
                 .into(this.staffImage);
 

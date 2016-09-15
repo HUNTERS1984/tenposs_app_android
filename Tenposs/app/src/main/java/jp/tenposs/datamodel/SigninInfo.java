@@ -1,7 +1,6 @@
 package jp.tenposs.datamodel;
 
 import java.io.Serializable;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -56,7 +55,7 @@ public class SignInInfo {
         public ResponseData data;
     }
 
-    public class Profile implements Serializable {
+    public class Profile extends UrlImageObject implements Serializable {
         public int app_user_id;     //integer
         public String name;             //string
         public int gender;              //integer
@@ -66,7 +65,7 @@ public class SignInInfo {
         public int instagram_status;
         public int province;
 
-
+        @Override
         public String getImageUrl() {
             try {
                 String temp = avatar_url.toLowerCase(Locale.US);

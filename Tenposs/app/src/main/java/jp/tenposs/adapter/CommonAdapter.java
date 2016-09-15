@@ -25,7 +25,6 @@ import junit.framework.Assert;
 
 import java.util.ArrayList;
 
-import jp.tenposs.datamodel.NewsInfo;
 import jp.tenposs.datamodel.TopInfo;
 import jp.tenposs.listener.OnCommonItemClickListener;
 import jp.tenposs.tenposs.R;
@@ -97,8 +96,6 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                 top = margin / 2;
                 bottom = margin / 2;
 
-                System.out.println(itemSpanIndex + " " + left + "," + right + "," + top + "," + bottom);
-
                 outRect.set(left, top, right, bottom);
 
             } else {
@@ -125,6 +122,7 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
     public class CommonViewHolder
             extends
             RecyclerView.ViewHolder implements ViewPager.OnPageChangeListener {
+
         Context mContext;
         OnCommonItemClickListener mClickListener;
         View mRow;
@@ -169,6 +167,8 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
         //News
         TextView newsDescription;
 
+        int thumbImageSize;
+        int fullImageSize;
 
         public CommonViewHolder(View v, RecyclerItemType itemType, Context context, OnCommonItemClickListener l) {
             super(v);
@@ -176,6 +176,8 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
             this.mContext = context;
             this.mClickListener = l;
             this.itemType = itemType;
+            this.thumbImageSize = mContext.getResources().getInteger(R.integer.thumb_image_size);
+            this.fullImageSize = mContext.getResources().getInteger(R.integer.full_image_size);
             setUpView();
         }
 
@@ -343,7 +345,7 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                             "&markers=size:mid%7Ccolor:0xff0000%7Clabel:%7C" + contact.getLocation();
 
                     ps.load(url)
-                            .resize(500, 200)
+                            .resize(fullImageSize, fullImageSize)
                             .centerInside()
                             .into(mapImage);
                     locationIcon.setImageBitmap(FlatIcon.fromFlatIcon(mContext.getAssets(),
@@ -391,7 +393,7 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
 
                     Picasso ps = Picasso.with(mContext);
                     ps.load(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_IMAGE))
-                            .resize(320, 320)
+                            .resize(thumbImageSize, thumbImageSize)
                             .centerCrop()
                             .into(itemImage);
 
@@ -426,7 +428,7 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                 case RecyclerItemTypeItemGridImageOnly: {
                     Picasso ps = Picasso.with(mContext);
                     ps.load(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_IMAGE))
-                            .resize(320, 320)
+                            .resize(thumbImageSize, thumbImageSize)
                             .centerCrop()
                             .into(itemImage);
 
@@ -437,7 +439,7 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                 case RecyclerItemTypeProductImage: {
                     Picasso ps = Picasso.with(mContext);
                     ps.load(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_IMAGE))
-                            .resize(320, 320)
+                            .resize(thumbImageSize, thumbImageSize)
                             .centerCrop()
                             .into(itemImage);
                 }
@@ -560,7 +562,6 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                System.out.println("onLongClick at " + itemPosition);
                 return false;
             }
         });

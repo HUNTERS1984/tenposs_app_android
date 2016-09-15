@@ -1,5 +1,6 @@
 package jp.tenposs.datamodel;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -20,7 +21,7 @@ public class StaffCategoryInfo {
     }
 
     public class Response extends CommonResponse {
-        public class ResponseData {
+        public class ResponseData implements Serializable {
             public ArrayList<StaffCategory> staff_categories;
         }
 

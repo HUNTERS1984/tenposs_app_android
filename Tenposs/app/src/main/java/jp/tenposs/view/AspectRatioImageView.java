@@ -51,6 +51,7 @@ public class AspectRatioImageView extends ImageView {
 
     /**
      * Sets the aspect ratio that should be respected during measurement.
+     *
      * @param aspectRatio desired width to height ratio
      */
     public void setAspectRatio(final double aspectRatio) {

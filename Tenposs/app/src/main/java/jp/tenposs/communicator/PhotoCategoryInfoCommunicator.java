@@ -9,12 +9,11 @@ import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.PhotoCategoryInfo;
-import jp.tenposs.datamodel.SignOutInfo;
 
 /**
  * Created by ambient on 8/20/16.
  */
-public class PhotoCategoryInfoCommunicator extends TenpossCommunicator{
+public class PhotoCategoryInfoCommunicator extends TenpossCommunicator {
     public PhotoCategoryInfoCommunicator(TenpossCommunicator.TenpossCommunicatorListener listener) {
         super(listener);
     }

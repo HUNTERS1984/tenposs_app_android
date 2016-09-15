@@ -8,14 +8,12 @@ import java.io.OutputStream;
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
-import jp.tenposs.datamodel.PhotoCategoryInfo;
 import jp.tenposs.datamodel.PhotoInfo;
-import jp.tenposs.datamodel.SignOutInfo;
 
 /**
  * Created by ambient on 8/20/16.
  */
-public class PhotoInfoCommunicator extends TenpossCommunicator{
+public class PhotoInfoCommunicator extends TenpossCommunicator {
     public PhotoInfoCommunicator(TenpossCommunicator.TenpossCommunicatorListener listener) {
         super(listener);
     }

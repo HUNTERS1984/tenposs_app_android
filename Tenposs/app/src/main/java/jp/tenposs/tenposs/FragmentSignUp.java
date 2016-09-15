@@ -13,8 +13,10 @@ import android.widget.TextView;
 
 import jp.tenposs.communicator.SignUpCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
+import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
+import jp.tenposs.datamodel.SignInInfo;
 import jp.tenposs.datamodel.SignUpInfo;
 import jp.tenposs.utils.Utils;
 
@@ -64,29 +66,6 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
         signUpButton = (Button) mRoot.findViewById(R.id.sign_up_button);
         signUpButton.setOnClickListener(this);
 
-
-//        final String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
-//
-//        emailEdit.addTextChangedListener(new TextWatcher() {
-//            public void afterTextChanged(Editable s) {
-//
-//                if (email.matches(emailPattern) && s.length() > 0) {
-//                    //Toast.makeText(getApplicationContext(),"valid email address",Toast.LENGTH_SHORT).show();
-//                } else {
-//                    //Toast.makeText(getApplicationContext(),"Invalid email address",Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//                // other stuffs
-//            }
-//
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                // other stuffs
-//            }
-//        });
-
-
         Utils.setTextViewHTML(gotoSignInLabel, getString(R.string.already_sign_up),
                 new ClickableSpan() {
                     public void onClick(View view) {
@@ -129,32 +108,42 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
                 request.name = nameEdit.getEditableText().toString();
                 request.setPassword(passwordEdit.getEditableText().toString());
                 params.putSerializable(Key.RequestObject, request);
-                SignUpCommunicator communicator = new SignUpCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-                    @Override
-                    public void completed(TenpossCommunicator request, Bundle responseParams) {
-                        int result = responseParams.getInt(Key.ResponseResult);
-                        if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                            int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                            if (resultApi == CommonResponse.ResultSuccess) {
-                                //TODO:
-                            } else {
-                                showAlert(getString(R.string.error),
-                                        getString(R.string.msg_unable_to_sign_up),
-                                        getString(R.string.close),
-                                        null,
-                                        new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
+                SignUpCommunicator communicator = new SignUpCommunicator(
+                        new TenpossCommunicator.TenpossCommunicatorListener() {
+                            @Override
+                            public void completed(TenpossCommunicator request, Bundle responseParams) {
+                                hideProgress();
+                                int result = responseParams.getInt(Key.ResponseResult);
+                                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                                    if (resultApi == CommonResponse.ResultSuccess) {
+                                        SignUpInfo.Response response = (SignUpInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                        String token = response.data.token;
+                                        SignInInfo.Profile profile = response.data.profile;
+                                        setKeyString(Key.TokenKey, token);
+                                        setKeyString(Key.Profile, CommonObject.toJSONString(profile, profile.getClass()));
+                                        activityListener.updateUserInfo(profile);
+                                        close();
+                                    } else {
+                                        Utils.showAlert(getContext(),
+                                                getString(R.string.error),
+                                                getString(R.string.msg_unable_to_sign_up),
+                                                getString(R.string.close),
+                                                null,
+                                                new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
 
-                                            }
-                                        });
+                                                    }
+                                                });
+                                    }
+                                } else {
+                                    String strMessage = responseParams.getString(Key.ResponseMessage);
+                                    errorWithMessage(responseParams, strMessage);
+                                }
                             }
-                        } else {
-                            String strMessage = responseParams.getString(Key.ResponseMessage);
-                            errorWithMessage(responseParams, strMessage);
-                        }
-                    }
-                });
+                        });
+                showProgress(getString(R.string.msg_signing_up));
                 communicator.execute(params);
             }
         }
@@ -165,75 +154,100 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
         String email = emailEdit.getEditableText().toString();
         String name = nameEdit.getEditableText().toString();
         if (email.length() <= 0 || Utils.validateEmailAddress(email) == false) {
-            showAlert(getString(R.string.warning), getString(R.string.msg_input_a_valid_email_address), getString(R.string.close), null, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    switch (which) {
-                        case DialogInterface.BUTTON_POSITIVE: {
-                            emailEdit.requestFocus();
+            Utils.showAlert(getContext(),
+                    getString(R.string.warning),
+                    getString(R.string.msg_input_a_valid_email_address),
+                    getString(R.string.close),
+                    null,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which) {
+                                case DialogInterface.BUTTON_POSITIVE: {
+                                    emailEdit.requestFocus();
+                                }
+                                break;
+                            }
                         }
-                        break;
-                    }
-                }
-            });
+                    });
             return false;
         }
         if (name.length() <= 0) {
-            showAlert(getString(R.string.warning), getString(R.string.msg_input_name), getString(R.string.close), null, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    switch (which) {
-                        case DialogInterface.BUTTON_POSITIVE: {
-                            nameEdit.requestFocus();
+            Utils.showAlert(getContext(),
+                    getString(R.string.warning),
+                    getString(R.string.msg_input_name),
+                    getString(R.string.close),
+                    null,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which) {
+                                case DialogInterface.BUTTON_POSITIVE: {
+                                    nameEdit.requestFocus();
+                                }
+                                break;
+                            }
                         }
-                        break;
-                    }
-                }
-            });
+                    });
             return false;
         }
         String password = passwordEdit.getEditableText().toString();
         String passwordConfirm = passwordConfirmEdit.getEditableText().toString();
         if (password.length() <= 0) {
-            showAlert(getString(R.string.warning), getString(R.string.msg_input_password), getString(R.string.close), null, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    switch (which) {
-                        case DialogInterface.BUTTON_POSITIVE: {
-                            passwordEdit.requestFocus();
+            Utils.showAlert(getContext(),
+                    getString(R.string.warning),
+                    getString(R.string.msg_input_password),
+                    getString(R.string.close),
+                    null,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which) {
+                                case DialogInterface.BUTTON_POSITIVE: {
+                                    passwordEdit.requestFocus();
+                                }
+                                break;
+                            }
                         }
-                        break;
-                    }
-                }
-            });
+                    });
             return false;
         }
         if (passwordConfirm.length() <= 0) {
-            showAlert(getString(R.string.warning), getString(R.string.msg_input_password_confirm), getString(R.string.close), null, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    switch (which) {
-                        case DialogInterface.BUTTON_POSITIVE: {
-                            passwordConfirmEdit.requestFocus();
+            Utils.showAlert(getContext(),
+                    getString(R.string.warning),
+                    getString(R.string.msg_input_password_confirm),
+                    getString(R.string.close),
+                    null,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which) {
+                                case DialogInterface.BUTTON_POSITIVE: {
+                                    passwordConfirmEdit.requestFocus();
+                                }
+                                break;
+                            }
                         }
-                        break;
-                    }
-                }
-            });
+                    });
             return false;
         }
         if (password.compareTo(passwordConfirm) != 0) {
-            showAlert(getString(R.string.warning), getString(R.string.msg_input_correct_confirm_password), getString(R.string.close), null, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    switch (which) {
-                        case DialogInterface.BUTTON_POSITIVE: {
-                            passwordConfirmEdit.requestFocus();
+            Utils.showAlert(getContext(),
+                    getString(R.string.warning),
+                    getString(R.string.msg_input_correct_confirm_password),
+                    getString(R.string.close),
+                    null,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which) {
+                                case DialogInterface.BUTTON_POSITIVE: {
+                                    passwordConfirmEdit.requestFocus();
+                                }
+                                break;
+                            }
                         }
-                        break;
-                    }
-                }
-            });
+                    });
             return false;
         }
         return true;

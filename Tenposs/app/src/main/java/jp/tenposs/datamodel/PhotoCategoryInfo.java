@@ -1,5 +1,6 @@
 package jp.tenposs.datamodel;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -18,13 +19,13 @@ public class PhotoCategoryInfo {
     public class Response extends CommonResponse {
         public ResponseData data;
 
-        public class ResponseData {
+        public class ResponseData implements Serializable {
             public ArrayList<PhotoCat> photo_categories;
 
         }
     }
 
-    public class PhotoCat {
+    public class PhotoCat implements Serializable {
         public int id;
         public String name;
     }

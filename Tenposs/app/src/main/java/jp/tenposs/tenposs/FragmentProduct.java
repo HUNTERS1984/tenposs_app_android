@@ -93,7 +93,7 @@ public class FragmentProduct extends AbstractFragment implements CommonAdapter.C
                 extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.price);
                 extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
                 extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, spanCount / 2, extras));
+                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, spanCount / spanLargeItems, extras));
             }
 
             /**
@@ -203,7 +203,6 @@ public class FragmentProduct extends AbstractFragment implements CommonAdapter.C
             }
             break;
         }
-        System.out.println(item.itemType);
 
     }
 }
