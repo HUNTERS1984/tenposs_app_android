@@ -17,7 +17,7 @@ import jp.tenposs.datamodel.SocialSigninInfo;
 public class SocialSignInCommunicator extends TenpossCommunicator {
     public SocialSignInCommunicator(TenpossCommunicatorListener listener) {
         super(listener);
-        mMethod = "POST";
+        mMethod = METHOD_POST;
     }
 
     @Override

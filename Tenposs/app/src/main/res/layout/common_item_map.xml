@@ -7,7 +7,9 @@
 
     <ImageView
         android:id="@+id/map_image"
+        android:background="@drawable/drop"
         android:contentDescription="@string/image_description"
+        android:scaleType="centerCrop"
         app:layout_aspectRatio="250%"
         app:layout_widthPercent="100%" />
 
@@ -20,7 +22,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="40dip"
+            android:layout_height="60dip"
             android:layout_marginLeft="10dip"
             android:gravity="center_vertical"
             android:orientation="horizontal">
@@ -55,7 +57,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="40dip"
+            android:layout_height="60dip"
             android:layout_marginLeft="10dip"
             android:gravity="center_vertical"
             android:orientation="horizontal">
@@ -90,11 +92,10 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="40dip"
+            android:layout_height="60dip"
             android:layout_marginLeft="10dip"
             android:gravity="center_vertical"
             android:orientation="horizontal">
-
 
             <RelativeLayout
                 android:layout_width="25dip"
@@ -114,7 +115,7 @@
                 android:layout_marginLeft="10dip"
                 android:text="(123) 456 7890"
                 android:textAppearance="@android:style/TextAppearance.DeviceDefault"
-                android:textColor="@color/category_text_color" />
+                android:textColor="@color/phone_text_color" />
         </LinearLayout>
 
     </LinearLayout>

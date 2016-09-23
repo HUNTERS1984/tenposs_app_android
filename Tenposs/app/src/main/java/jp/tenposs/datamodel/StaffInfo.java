@@ -20,7 +20,7 @@ public class StaffInfo {
 
         @Override
         String sigInput() {
-            //TODO:
+            //TODO: chua co spec
             return "";
         }
     }

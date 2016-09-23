@@ -17,14 +17,14 @@ public class SignUpCommunicator extends TenpossCommunicator {
 
     public SignUpCommunicator(TenpossCommunicatorListener listener) {
         super(listener);
-        mMethod = "POST";
+        mMethod = METHOD_POST;
     }
 
     @Override
     protected boolean request(Bundle bundle) {
         String strUrl;
         SignUpInfo.Request requestData = (SignUpInfo.Request) bundle.getSerializable(Key.RequestObject);
-        //strUrl = API_SIGNUP + requestData.makeParams("POST");
+        //strUrl = API_SIGNUP + requestData.makeParams("METHOD_POST");
         strUrl = API_SIGN_UP;
         bundle.putSerializable(Key.RequestFormData, requestData.getFormData());
         int result = CommunicationCode.ConnectionSuccess.ordinal();

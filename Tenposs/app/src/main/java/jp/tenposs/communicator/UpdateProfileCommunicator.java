@@ -17,7 +17,7 @@ import jp.tenposs.datamodel.UpdateProfileInfo;
 public class UpdateProfileCommunicator extends TenpossCommunicator {
     public UpdateProfileCommunicator(TenpossCommunicatorListener listener) {
         super(listener);
-        this.mMethod = "POST_MULTIPART";
+        this.mMethod = METHOD_POST_MULTIPART;
     }
 
     @Override

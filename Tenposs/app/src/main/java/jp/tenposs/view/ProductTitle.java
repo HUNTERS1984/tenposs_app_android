@@ -7,7 +7,7 @@ import android.widget.TextView;
 
 import java.io.Serializable;
 
-import jp.tenposs.datamodel.ItemInfo;
+import jp.tenposs.datamodel.ItemsInfo;
 import jp.tenposs.tenposs.R;
 
 /**
@@ -19,7 +19,7 @@ public class ProductTitle extends LinearLayout {
     TextView product_name_label;
     TextView product_price_label;
 
-    ItemInfo.Item itemData;
+    ItemsInfo.Item itemData;
 
     public ProductTitle(Context context) {
         super(context);
@@ -34,12 +34,12 @@ public class ProductTitle extends LinearLayout {
     }
 
     public void reloadData(Serializable serializable) {
-        itemData = (ItemInfo.Item) serializable;
+        itemData = (ItemsInfo.Item) serializable;
         product_category_label = (TextView) findViewById(R.id.product_category_label);
         product_name_label = (TextView) findViewById(R.id.product_name_label);
         product_price_label = (TextView) findViewById(R.id.product_price_label);
 
         product_name_label.setText(itemData.title);
-        product_price_label.setText(itemData.price);
+        product_price_label.setText(itemData.getPrice());
     }
 }

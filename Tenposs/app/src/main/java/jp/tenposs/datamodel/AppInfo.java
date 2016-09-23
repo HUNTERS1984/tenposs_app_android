@@ -55,13 +55,9 @@ public class AppInfo {
 
             public ArrayList<TopComponent> top_components;
 
-
             public ArrayList<SideMenu> side_menu;
 
-
             public ArrayList<Store> stores;
-
-
         }
     }
 
@@ -95,25 +91,27 @@ public class AppInfo {
     }
 
     public class AppSetting implements Serializable {
-        public int id;
-        public int app_id;
-        public String title;
-        public String title_color;
-        public int font_size;
-        public String font_family;
-        public String header_color;
-        public String menu_icon_color;
-        public String menu_background_color;
-        public String menu_font_color;
-        public int menu_font_size;
-        public String menu_font_family;
-        public int template_id;
+
+
+        int id;
+        int app_id;
+        String title;
+        String title_color;
+        int font_size;
+        String font_family;
+        String header_color;
+        String menu_icon_color;
+        String menu_background_color;
+        String menu_font_color;
+        int menu_font_size;
+        String menu_font_family;
+        int template_id;
 
         public int getToolbarIconColor() {
             try {
-                String color = title_color;
+                String color = this.title_color;
                 if (color.indexOf("#") != 0) {
-                    color = "#" + title_color;
+                    color = "#" + this.title_color;
                 }
                 return Color.parseColor(color);
             } catch (Exception ex) {
@@ -124,9 +122,22 @@ public class AppInfo {
 
         public int getToolbarTitleColor() {
             try {
-                String color = title_color;
+                String color = this.title_color;
                 if (color.indexOf("#") != 0) {
-                    color = "#" + title_color;
+                    color = "#" + this.title_color;
+                }
+                return Color.parseColor(color);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return Color.BLACK;
+        }
+
+        public int getToolbarBackgroundColor() {
+            try {
+                String color = this.header_color;
+                if (color.indexOf("#") != 0) {
+                    color = "#" + this.header_color;
                 }
                 return Color.parseColor(color);
             } catch (Exception ex) {
@@ -137,9 +148,9 @@ public class AppInfo {
 
         public int getMenuBackgroundColor() {
             try {
-                String color = menu_background_color;
+                String color = this.menu_background_color;
                 if (color.indexOf("#") != 0) {
-                    color = "#" + menu_background_color;
+                    color = "#" + this.menu_background_color;
                 }
                 return Color.parseColor(color);
             } catch (Exception ex) {
@@ -150,9 +161,9 @@ public class AppInfo {
 
         public int getMenuIconColor() {
             try {
-                String color = menu_icon_color;
+                String color = this.menu_icon_color;
                 if (color.indexOf("#") != 0) {
-                    color = "#" + menu_icon_color;
+                    color = "#" + this.menu_icon_color;
                 }
                 return Color.parseColor(color);
             } catch (Exception ex) {
@@ -161,21 +172,47 @@ public class AppInfo {
             return Color.BLACK;
         }
 
-        public int getMenuTitleColor() {
+        public int getMenuItemTitleFontSize() {
             try {
-                String color = menu_font_color;
+                return this.menu_font_size;
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return Color.BLACK;
+        }
+
+        public int getToolbarTitleFontSize() {
+            try {
+                return this.font_size;
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return Color.BLACK;
+        }
+
+        public int getMenuItemTitleColor() {
+            try {
+                String color = this.menu_font_color;
                 if (color.indexOf("#") != 0) {
-                    color = "#" + menu_font_color;
+                    color = "#" + this.menu_font_color;
                 }
                 return Color.parseColor(color);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
             return Color.BLACK;
+        }
+
+        public String getMenuItemTitleFont() {
+            if (this.menu_font_family != null)
+                return this.menu_font_family;
+            return "Arial";
         }
 
         public String getToolBarTitleFont() {
-            return "fonts/" + font_family + ".ttf";
+            if (this.font_family != null)
+                return this.font_family;
+            return "Arial";
         }
     }
 }

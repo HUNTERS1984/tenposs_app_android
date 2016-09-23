@@ -6,19 +6,29 @@
     android:background="@drawable/bg_recycler_item"
     android:orientation="vertical">
 
-    <ImageView
+
+    <jp.tenposs.view.RoundCornerImageView
         android:id="@+id/item_image"
-        android:background="@drawable/bg_image_list"
+        android:background="@drawable/bg_drop_shadow"
         android:contentDescription="@string/image_description"
+        android:paddingBottom="3dp"
+        android:paddingLeft="0dp"
+        android:paddingRight="5dp"
+        android:paddingTop="0dp"
+        android:scaleType="centerCrop"
+
+        android:src="@drawable/drop"
         app:layout_aspectRatio="100%"
-        app:layout_widthPercent="100%" />
+        app:layout_widthPercent="100%"
+        app:riv_corner_radius="2dp" />
 
     <LinearLayout
         android:id="@+id/item_info_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/item_image"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="5dp">
 
         <TextView
             android:id="@+id/item_title_label"

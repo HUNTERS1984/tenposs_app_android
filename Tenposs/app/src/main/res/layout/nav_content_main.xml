@@ -32,9 +32,9 @@
                     android:layout_marginLeft="@dimen/item_margin"
                     android:layout_marginRight="@dimen/item_margin"
                     android:src="@drawable/no_avatar"
-                    circle:fill_color="@android:color/darker_gray"
-                    circle:border_color="@android:color/white"
-                    circle:border_width="2dip" />
+                    circle:border_color="#d6dade"
+                    circle:border_width="1.5dip"
+                    circle:fill_color="@android:color/transparent" />
 
                 <TextView
                     android:id="@+id/user_name_label"

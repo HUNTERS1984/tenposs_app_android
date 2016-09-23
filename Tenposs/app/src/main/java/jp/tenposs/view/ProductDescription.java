@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import java.io.Serializable;
 
-import jp.tenposs.datamodel.ItemInfo;
+import jp.tenposs.datamodel.ItemsInfo;
 import jp.tenposs.tenposs.R;
 import jp.tenposs.utils.Utils;
 
@@ -22,7 +22,7 @@ public class ProductDescription extends LinearLayout implements View.OnClickList
     Button productDetailButton;
     Button productSizeButton;
     TextView productDescriptionLabel;
-    ItemInfo.Item screenData;
+    ItemsInfo.Item screenData;
 
     boolean showDescription = true;
 
@@ -39,7 +39,7 @@ public class ProductDescription extends LinearLayout implements View.OnClickList
     }
 
     public void reloadData(Serializable serializable) {
-        screenData = (ItemInfo.Item) serializable;
+        screenData = (ItemsInfo.Item) serializable;
 
         productDetailButton = (Button) findViewById(R.id.product_detail_button);
         productSizeButton = (Button) findViewById(R.id.product_size_button);

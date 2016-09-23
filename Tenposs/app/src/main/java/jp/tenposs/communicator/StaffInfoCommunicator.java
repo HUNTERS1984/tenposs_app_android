@@ -23,7 +23,7 @@ public class StaffInfoCommunicator extends TenpossCommunicator {
     protected boolean request(Bundle bundle) {
         String strUrl;
         StaffInfo.Request requestData = (StaffInfo.Request) bundle.getSerializable(Key.RequestObject);
-        strUrl = API_STAFFS + requestData.makeParams("GET");
+        strUrl = API_STAFFS + requestData.makeParams();
         int result = TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal();
         OutputStream output = null;
 

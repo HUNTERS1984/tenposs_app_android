@@ -8,4 +8,5 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="item_margin">10dp</dimen>
     <dimen name="item_setting_height">40dp</dimen>
+    <dimen name="nav_button_size">50dp</dimen>
 </resources>

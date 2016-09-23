@@ -7,23 +7,29 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 
+import jp.tenposs.datamodel.ScreenDataStatus;
+
 /**
  * Created by ambient on 8/4/16.
  */
 public class FragmentUserPrivacy extends AbstractFragment {
-    int storeId;
-    WebView webView;
+    WebView mWebView;
 
     @Override
-    protected void customClose() {
-
+    protected boolean customClose() {
+        return false;
     }
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings.toolbarTitle = getString(R.string.user_privacy);
-        toolbarSettings.toolbarLeftIcon = "flaticon-back";
-        toolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+        mToolbarSettings.toolbarTitle = getString(R.string.user_privacy);
+        mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+        mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+    }
+
+    @Override
+    protected void clearScreenData() {
+
     }
 
     @Override
@@ -33,13 +39,14 @@ public class FragmentUserPrivacy extends AbstractFragment {
 
     @Override
     protected void previewScreenData() {
+        this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
         updateToolbar();
     }
 
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View mRoot = inflater.inflate(R.layout.fragment_chat, null);
-        this.webView = (WebView) mRoot.findViewById(R.id.web_view);
+        View mRoot = inflater.inflate(R.layout.fragment_web_view, null);
+        this.mWebView = (WebView) mRoot.findViewById(R.id.web_view);
         return mRoot;
     }
 
@@ -51,20 +58,25 @@ public class FragmentUserPrivacy extends AbstractFragment {
     @Override
     void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
         if (savedInstanceState.containsKey(SCREEN_DATA)) {
-            //this.screenData = (TopInfo.Response.ResponseData) savedInstanceState.getSerializable(SCREEN_DATA);
+            //this.mScreenData = (TopInfo.Response.ResponseData) savedInstanceState.getSerializable(SCREEN_DATA);
         }
         if (savedInstanceState.containsKey(APP_DATA_STORE_ID)) {
-            this.storeId = savedInstanceState.getInt(APP_DATA_STORE_ID);
+            this.mStoreId = savedInstanceState.getInt(APP_DATA_STORE_ID);
         }
     }
 
     @Override
     void customSaveInstanceState(Bundle outState) {
-
+        outState.putInt(APP_DATA_STORE_ID, this.mStoreId);
     }
 
     @Override
     void setRefreshing(boolean refreshing) {
 
+    }
+
+    @Override
+    boolean canCloseByBackpressed() {
+        return true;
     }
 }

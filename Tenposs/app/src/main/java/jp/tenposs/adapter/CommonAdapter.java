@@ -51,22 +51,30 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
             margin = context.getResources().getDimensionPixelSize(R.dimen.item_margin);
         }
 
-        public boolean needDecoration(View view, RecyclerView parent) {
+        //0: ko can
+        //1: top
+        //2: all
+        public int needDecoration(View view, RecyclerView parent) {
             RecyclerView.ViewHolder holder = parent.getChildViewHolder(view);
             if (holder instanceof CommonViewHolder) {
                 CommonViewHolder parentHolder = (CommonViewHolder) holder;
-                if (parentHolder.itemType == RecyclerItemType.RecyclerItemTypeTopItem ||
-                        parentHolder.itemType == RecyclerItemType.RecyclerItemTypeItemStore ||
+
+
+                if (parentHolder.itemType == RecyclerItemType.RecyclerItemTypeTopItem) {
+                    return 0;
+                } else if (parentHolder.itemType == RecyclerItemType.RecyclerItemTypeItemStore ||
                         parentHolder.itemType == RecyclerItemType.RecyclerItemTypeProductImage) {
-                    return false;
+                    return 1;
+                } else {
+                    return 2;
                 }
             }
-            return true;
+            return 0;
         }
 
         @Override
         public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-            if (needDecoration(view, parent)) {
+            if (needDecoration(view, parent) == 2) {
                 GridLayoutManager.LayoutParams layoutParams
                         = (GridLayoutManager.LayoutParams) view.getLayoutParams();
 
@@ -97,7 +105,8 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                 bottom = margin / 2;
 
                 outRect.set(left, top, right, bottom);
-
+            } else if (needDecoration(view, parent) == 1) {
+                outRect.set(0, margin, 0, margin);
             } else {
                 outRect.set(0, 0, 0, 0);
             }
@@ -347,6 +356,7 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                     ps.load(url)
                             .resize(fullImageSize, fullImageSize)
                             .centerInside()
+                            .placeholder(R.drawable.drop)
                             .into(mapImage);
                     locationIcon.setImageBitmap(FlatIcon.fromFlatIcon(mContext.getAssets(),
                             "flaticon-placeholder",
@@ -362,7 +372,11 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                             Color.argb(255, 128, 128, 128)
                     ));
 
-                    String time = contact.start_time + " - " + contact.end_time;
+                    locationLabel.setText(contact.title);
+
+                    String startTime = Utils.timeStringFromDate(Utils.dateFromString(contact.start_time));
+                    String endTime = Utils.timeStringFromDate(Utils.dateFromString(contact.end_time));
+                    String time = startTime + " - " + endTime;
                     timeLabel.setText(time);
 
                     phoneIcon.setImageBitmap(FlatIcon.fromFlatIcon(mContext.getAssets(),
@@ -371,18 +385,18 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                             Color.argb(0, 0, 0, 0),
                             Color.argb(255, 128, 128, 128)
                     ));
-                    Utils.setTextViewHTML(phoneLabel, "<a href='about:blank'>" + contact.tel + "</a>",
+                    Utils.setTextViewHTML(phoneLabel, "<a href='about:blank'><u>" + contact.tel + "</u></a>",
                             new ClickableSpan() {
                                 @Override
                                 public void onClick(View widget) {
-                                    //activityListener.showScreen(AbstractFragment.SIGNUP_SCREEN, null);
+                                    //mActivityListener.showScreen(AbstractFragment.SIGNUP_SCREEN, null);
                                     mClickListener.onCommonItemClick(itemPosition, itemDataWrapper.itemData);
                                 }
 
                                 @Override
                                 public void updateDrawState(TextPaint ds) {
-                                    ds.setColor(Utils.getColorInt(mContext, R.color.category_text_color));
-                                    ds.setUnderlineText(false);
+                                    ds.setColor(Utils.getColorInt(mContext, R.color.phone_text_color));
+                                    ds.setUnderlineText(true);
                                 }
                             });
                 }
@@ -394,6 +408,7 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                     Picasso ps = Picasso.with(mContext);
                     ps.load(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_IMAGE))
                             .resize(thumbImageSize, thumbImageSize)
+                            .placeholder(R.drawable.drop)
                             .centerCrop()
                             .into(itemImage);
 
@@ -429,6 +444,7 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                     Picasso ps = Picasso.with(mContext);
                     ps.load(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_IMAGE))
                             .resize(thumbImageSize, thumbImageSize)
+                            .placeholder(R.drawable.drop)
                             .centerCrop()
                             .into(itemImage);
 
@@ -440,6 +456,7 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                     Picasso ps = Picasso.with(mContext);
                     ps.load(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_IMAGE))
                             .resize(thumbImageSize, thumbImageSize)
+                            .placeholder(R.drawable.drop)
                             .centerCrop()
                             .into(itemImage);
                 }

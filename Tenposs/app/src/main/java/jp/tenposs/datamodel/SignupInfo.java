@@ -1,6 +1,5 @@
 package jp.tenposs.datamodel;
 
-import java.net.URLEncoder;
 import java.util.HashMap;
 
 /**
@@ -21,7 +20,7 @@ public class SignUpInfo {
             try {
                 formData.put("app_id", app_id);
                 formData.put("time", Long.toString(time));
-                formData.put("email", URLEncoder.encode(email, "UTF-8"));
+                formData.put("email", email);
                 formData.put("password", password);
                 formData.put("name", name);
                 formData.put("sig", sig);

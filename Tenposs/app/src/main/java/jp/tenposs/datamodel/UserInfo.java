@@ -17,20 +17,9 @@ public class UserInfo {
 
     public class Response extends CommonResponse {
         public class ResponseData implements Serializable {
-            public User user;
+            public SignInInfo.User user;
         }
 
         public ResponseData data;
-    }
-
-    public class User implements Serializable {
-
-        public int id;
-        public String email;
-        public String password;
-        public String social_type;
-        public String social_id;
-        public String app_id;
-        public SignInInfo.Profile profile;
     }
 }

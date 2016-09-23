@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="jp.tenposs.tenposs.FragmentChat">
+    tools:context="jp.tenposs.tenposs.FragmentProduct">
+
     <android.support.design.widget.AppBarLayout
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
@@ -57,7 +58,7 @@
                         android:maxLines="1"
                         android:paddingLeft="5dp"
                         android:paddingRight="5dp"
-                        android:text="@string/app_name"
+                        android:text="@string/title_select_avatar_image"
                         android:textAppearance="@android:style/TextAppearance.Medium"
                         android:visibility="visible" />
 
@@ -74,6 +75,7 @@
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 
+
     <View
         android:id="@+id/top_separate"
         android:layout_width="match_parent"
@@ -87,4 +89,11 @@
         android:layout_below="@+id/top_separate"
         android:background="@android:color/white" />
 
+    <jp.tenposs.view.CropImageView
+        android:id="@+id/crop_image_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/top_separate"
+        android:scaleType="centerCrop"
+        android:src="@drawable/login_bg" />
 </RelativeLayout>

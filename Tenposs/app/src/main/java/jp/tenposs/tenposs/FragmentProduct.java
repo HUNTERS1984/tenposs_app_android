@@ -10,12 +10,18 @@ import android.view.ViewGroup;
 
 import junit.framework.Assert;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import jp.tenposs.adapter.CommonAdapter;
 import jp.tenposs.adapter.RecyclerItemType;
 import jp.tenposs.adapter.RecyclerItemWrapper;
-import jp.tenposs.datamodel.ItemInfo;
+import jp.tenposs.communicator.ItemDetailCommunicator;
+import jp.tenposs.communicator.TenpossCommunicator;
+import jp.tenposs.datamodel.CommonResponse;
+import jp.tenposs.datamodel.ItemDetail;
+import jp.tenposs.datamodel.ItemsInfo;
+import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.listener.OnCommonItemClickListener;
 
@@ -23,21 +29,26 @@ import jp.tenposs.listener.OnCommonItemClickListener;
  * Created by ambient on 7/27/16.
  */
 public class FragmentProduct extends AbstractFragment implements CommonAdapter.CommonDataSource, OnCommonItemClickListener {
-    ItemInfo.Item screenData;
+    ItemsInfo.Item mScreenData;
 
-    CommonAdapter recyclerAdapter;
-    RecyclerView recyclerView;
+    CommonAdapter mRecyclerAdapter;
+    RecyclerView mRecyclerView;
 
     @Override
-    protected void customClose() {
-
+    protected boolean customClose() {
+        return false;
     }
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings.toolbarTitle = "";
-        toolbarSettings.toolbarLeftIcon = "flaticon-back";
-        toolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+        mToolbarSettings.toolbarTitle = "";
+        mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+        mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+    }
+
+    @Override
+    protected void clearScreenData() {
+
     }
 
     @Override
@@ -47,53 +58,54 @@ public class FragmentProduct extends AbstractFragment implements CommonAdapter.C
 
     @Override
     protected void previewScreenData() {
+        this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
         Bundle extras;
-        screenDataItems = new ArrayList<>();
+        mScreenDataItems = new ArrayList<>();
 
         //Image
         extras = new Bundle();
-        extras.putString(RecyclerItemWrapper.ITEM_IMAGE, screenData.getImageUrl());
-        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeProductImage, spanCount, extras));
+        extras.putString(RecyclerItemWrapper.ITEM_IMAGE, mScreenData.getImageUrl());
+        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeProductImage, mSpanCount, extras));
 
         //title
         extras = new Bundle();
-        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, screenData);
-        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeProductTitle, spanCount, extras));
+        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, mScreenData);
+        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeProductTitle, mSpanCount, extras));
 
         //purchase
         extras = new Bundle();
-        extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PURCHASE_SCREEN);
-        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, screenData);
+        extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.ITEM_PURCHASE_SCREEN);
+        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, mScreenData);
         extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.purchase));
-        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
+        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
 
         //Description
         extras = new Bundle();
-        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, screenData);
-        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeProductDescription, spanCount, extras));
+        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, mScreenData);
+        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeProductDescription, mSpanCount, extras));
 
 
         //Related
-        if (screenData.rel_items != null && screenData.rel_items.size() > 0) {
+        if (mScreenData.rel_items != null && mScreenData.rel_items.size() > 0) {
             /**
              * Header
              */
             extras = new Bundle();
             extras.putString(RecyclerItemWrapper.ITEM_TITLE, "Related");
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, spanCount, extras));
+            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, mSpanCount, extras));
 
             /**
              * Content
              */
-            for (ItemInfo.RelateItem item : screenData.rel_items) {
+            for (ItemsInfo.Item item : mScreenData.rel_items) {
                 extras = new Bundle();
                 extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
                 extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.ITEM_SCREEN);
                 extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.title);
-                extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.price);
+                extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.getPrice());
                 extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
                 extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, spanCount / spanLargeItems, extras));
+                mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, mSpanCount / mSpanLargeItems, extras));
             }
 
             /**
@@ -101,29 +113,28 @@ public class FragmentProduct extends AbstractFragment implements CommonAdapter.C
 
              extras = new Bundle();
              extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
-             screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
+             mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
              */
         }
-        this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
-        if (this.recyclerAdapter == null) {
-            GridLayoutManager manager = new GridLayoutManager(getActivity(), spanCount);//);
-            this.recyclerAdapter = new CommonAdapter(getActivity(), this, this);
-            manager.setSpanSizeLookup(new CommonAdapter.GridSpanSizeLookup(recyclerAdapter));
-            this.recyclerView.setLayoutManager(manager);
-            this.recyclerView.addItemDecoration(new CommonAdapter.MarginDecoration(getActivity()));
-            this.recyclerView.setAdapter(recyclerAdapter);
+        if (this.mRecyclerAdapter == null) {
+            GridLayoutManager manager = new GridLayoutManager(getActivity(), mSpanCount);//);
+            this.mRecyclerAdapter = new CommonAdapter(getActivity(), this, this);
+            manager.setSpanSizeLookup(new CommonAdapter.GridSpanSizeLookup(mRecyclerAdapter));
+            this.mRecyclerView.setLayoutManager(manager);
+            this.mRecyclerView.addItemDecoration(new CommonAdapter.MarginDecoration(getActivity()));
+            this.mRecyclerView.setAdapter(mRecyclerAdapter);
         } else {
-            this.recyclerAdapter.notifyDataSetChanged();
+            this.mRecyclerAdapter.notifyDataSetChanged();
         }
 
-        toolbarSettings.toolbarTitle = screenData.title;
+        mToolbarSettings.toolbarTitle = mScreenData.title;
         updateToolbar();
     }
 
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View mRoot = inflater.inflate(R.layout.fragment_product, null);
-        this.recyclerView = (RecyclerView) mRoot.findViewById(R.id.recycler_view);
+        this.mRecyclerView = (RecyclerView) mRoot.findViewById(R.id.recycler_view);
         return mRoot;
     }
 
@@ -135,7 +146,7 @@ public class FragmentProduct extends AbstractFragment implements CommonAdapter.C
     @Override
     void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
         if (savedInstanceState.containsKey(SCREEN_DATA)) {
-            this.screenData = (ItemInfo.Item) savedInstanceState.getSerializable(SCREEN_DATA);
+            this.mScreenData = (ItemsInfo.Item) savedInstanceState.getSerializable(SCREEN_DATA);
         }
     }
 
@@ -150,13 +161,18 @@ public class FragmentProduct extends AbstractFragment implements CommonAdapter.C
     }
 
     @Override
+    boolean canCloseByBackpressed() {
+        return true;
+    }
+
+    @Override
     public int getItemCount() {
-        return screenDataItems.size();
+        return mScreenDataItems.size();
     }
 
     @Override
     public RecyclerItemWrapper getItemData(int position) {
-        return screenDataItems.get(position);
+        return mScreenDataItems.get(position);
     }
 
     @Override
@@ -186,15 +202,56 @@ public class FragmentProduct extends AbstractFragment implements CommonAdapter.C
             break;
 
             case RecyclerItemTypeItemGrid: {
-                //TODO: Related items, need to load item detail then show info
-                screenData = (ItemInfo.Item) item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                previewScreenData();
+                //TODO: Related items, need to load item detail then show info, api dang bi loi
+                //load relate item details?
+                ItemsInfo.Item relatedItem = (ItemsInfo.Item) item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
+
+                ItemDetail.Request requestParams = new ItemDetail.Request();
+                requestParams.token = getKeyString(Key.TokenKey);
+                requestParams.item_id = relatedItem.id;
+
+                Bundle params = new Bundle();
+                params.putSerializable(Key.RequestObject, requestParams);
+                showProgress(getString(R.string.msg_loading));
+                ItemDetailCommunicator communicatior = new ItemDetailCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
+                    @Override
+                    public void completed(TenpossCommunicator request, Bundle responseParams) {
+                        hideProgress();
+                        int result = responseParams.getInt(Key.ResponseResult);
+                        if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                            int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                            if (resultApi == CommonResponse.ResultSuccess) {
+                                ItemDetail.Response response = (ItemDetail.Response) responseParams.getSerializable(Key.ResponseObject);
+//                                mAllItems = new ArrayList<>();
+//                                if (mScreenData.data.photo_categories.size() > 0) {
+//                                    for (int i = 0; i < mScreenData.data.photo_categories.size(); i++) {
+//                                        Bundle photoCategory = new Bundle();
+//                                        photoCategory.putInt(SCREEN_DATA_PAGE_INDEX, 1);
+//                                        photoCategory.putInt(SCREEN_DATA_PAGE_SIZE, DEFAULT_RECORD_PER_PAGE);
+//                                        mAllItems.add(photoCategory);
+//                                    }
+//                                    loadPhotoCatItem(mCurrentPhotoCatIndex);
+//                                } else {
+//                                    mSubToolbar.setVisibility(View.GONE);
+//                                }
+                            } else {
+                                String strMessage = responseParams.getString(Key.ResponseMessage);
+                                errorWithMessage(responseParams, strMessage);
+                            }
+                        } else {
+                            String strMessage = responseParams.getString(Key.ResponseMessage);
+                            errorWithMessage(responseParams, strMessage);
+                        }
+                    }
+                });
+                communicatior.execute(params);
             }
             break;
 
             case RecyclerItemTypeFooter: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
-                this.activityListener.showScreen(screenId, null);
+                Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
+                this.mActivityListener.showScreen(screenId, extras);
             }
             break;
 

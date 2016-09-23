@@ -20,30 +20,36 @@ import jp.tenposs.view.AspectRatioImageView;
  */
 public class FragmentCouponDetail extends AbstractFragment {
 
-    AspectRatioImageView couponImage;
-    TextView couponIdLabel;
-    TextView couponTypeLabel;
-    TextView couponNameLabel;
-    TextView validityLabel;
-    TextView hashTagLabel;
-    Button copyHashTagButton;
-    TextView couponDescriptionLabel;
+    AspectRatioImageView mCouponImage;
+    TextView mCouponIdLabel;
+    TextView mCouponTypeLabel;
+    TextView mCouponNameLabel;
+    TextView mValidityLabel;
+    TextView mHashTagLabel;
+    Button mCopyHashTagButton;
+    TextView mCouponDescriptionLabel;
 
-    LinearLayout takeAdvantageOfCouponLayout;
-    LinearLayout couponCannotUseLayout;
+    LinearLayout mTakeAdvantageOfCouponLayout;
+    Button mTakeAdvantageOfCouponButton;
+    LinearLayout mCouponCannotUseLayout;
 
-    CouponInfo.Coupon screenData;
+    CouponInfo.Coupon mScreenData;
 
     @Override
-    protected void customClose() {
-
+    protected boolean customClose() {
+        return false;
     }
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings.toolbarTitle = "";
-        toolbarSettings.toolbarLeftIcon = "flaticon-back";
-        toolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+        mToolbarSettings.toolbarTitle = "";
+        mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+        mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+    }
+
+    @Override
+    protected void clearScreenData() {
+
     }
 
     @Override
@@ -53,27 +59,27 @@ public class FragmentCouponDetail extends AbstractFragment {
 
     @Override
     protected void previewScreenData() {
-        this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
-        toolbarSettings.toolbarTitle = screenData.title;
+        this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
+        mToolbarSettings.toolbarTitle = mScreenData.title;
 
         Picasso ps = Picasso.with(getContext());
-        ps.load(screenData.getImageUrl())
-                .resize(fullImageSize, fullImageSize)
+        ps.load(mScreenData.getImageUrl())
+                .resize(mFullImageSize, mFullImageSize)
                 .centerCrop()
-                .into(couponImage);
+                .into(mCouponImage);
 
-        this.couponIdLabel.setText(Integer.toString(screenData.id));
-        this.couponTypeLabel.setText(Integer.toString(screenData.type));
-        this.couponNameLabel.setText(screenData.title);
-        this.validityLabel.setText(screenData.end_date);
-        this.couponDescriptionLabel.setText(screenData.description);
+        this.mCouponIdLabel.setText(Integer.toString(mScreenData.id));
+        this.mCouponTypeLabel.setText(Integer.toString(mScreenData.type));
+        this.mCouponNameLabel.setText(mScreenData.title);
+        this.mValidityLabel.setText(mScreenData.end_date);
+        this.mCouponDescriptionLabel.setText(mScreenData.description);
 
-        if (this.screenData.status == 1) {
-            this.takeAdvantageOfCouponLayout.setVisibility(View.VISIBLE);
-            this.couponCannotUseLayout.setVisibility(View.GONE);
+        if (this.mScreenData.status == 1) {
+            this.mTakeAdvantageOfCouponLayout.setVisibility(View.VISIBLE);
+            this.mCouponCannotUseLayout.setVisibility(View.GONE);
         } else {
-            this.takeAdvantageOfCouponLayout.setVisibility(View.GONE);
-            this.couponCannotUseLayout.setVisibility(View.VISIBLE);
+            this.mTakeAdvantageOfCouponLayout.setVisibility(View.GONE);
+            this.mCouponCannotUseLayout.setVisibility(View.VISIBLE);
         }
 
         updateToolbar();
@@ -82,16 +88,37 @@ public class FragmentCouponDetail extends AbstractFragment {
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_coupon_detail, null);
-        this.couponImage = (AspectRatioImageView) root.findViewById(R.id.coupon_image);
-        this.couponIdLabel = (TextView) root.findViewById(R.id.coupon_id_label);
-        this.couponTypeLabel = (TextView) root.findViewById(R.id.coupon_type_label);
-        this.couponNameLabel = (TextView) root.findViewById(R.id.coupon_name_label);
-        this.validityLabel = (TextView) root.findViewById(R.id.validity_label);
-        this.hashTagLabel = (TextView) root.findViewById(R.id.hash_tag_label);
-        this.copyHashTagButton = (Button) root.findViewById(R.id.copy_hash_tag_button);
-        this.couponDescriptionLabel = (TextView) root.findViewById(R.id.coupon_description_label);
-        this.takeAdvantageOfCouponLayout = (LinearLayout) root.findViewById(R.id.take_advantage_of_coupon_layout);
-        this.couponCannotUseLayout = (LinearLayout) root.findViewById(R.id.coupon_cannot_use_layout);
+        this.mCouponImage = (AspectRatioImageView) root.findViewById(R.id.coupon_image);
+        this.mCouponIdLabel = (TextView) root.findViewById(R.id.coupon_id_label);
+        this.mCouponTypeLabel = (TextView) root.findViewById(R.id.coupon_type_label);
+        this.mCouponNameLabel = (TextView) root.findViewById(R.id.coupon_name_label);
+        this.mValidityLabel = (TextView) root.findViewById(R.id.validity_label);
+        this.mHashTagLabel = (TextView) root.findViewById(R.id.hash_tag_label);
+        this.mCopyHashTagButton = (Button) root.findViewById(R.id.copy_hash_tag_button);
+        this.mCouponDescriptionLabel = (TextView) root.findViewById(R.id.coupon_description_label);
+        this.mTakeAdvantageOfCouponLayout = (LinearLayout) root.findViewById(R.id.take_advantage_of_coupon_layout);
+        this.mTakeAdvantageOfCouponButton = (Button) root.findViewById(R.id.take_advantage_of_coupon_button);
+        this.mCouponCannotUseLayout = (LinearLayout) root.findViewById(R.id.coupon_cannot_use_layout);
+
+        this.mCopyHashTagButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                PopupHashTagCopied popupHashTagCopied = new PopupHashTagCopied(getContext());
+                popupHashTagCopied.show();
+            }
+        });
+        this.mTakeAdvantageOfCouponButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Use coupon
+                //generate barcode
+                //show Popup
+                PopupCouponQR qrPreview = new PopupCouponQR(getContext());
+                //photoPreview.setData(extras);
+                qrPreview.show();
+            }
+        });
         return root;
     }
 
@@ -103,7 +130,7 @@ public class FragmentCouponDetail extends AbstractFragment {
     @Override
     void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
         if (savedInstanceState.containsKey(SCREEN_DATA)) {
-            this.screenData = (CouponInfo.Coupon) savedInstanceState.getSerializable(SCREEN_DATA);
+            this.mScreenData = (CouponInfo.Coupon) savedInstanceState.getSerializable(SCREEN_DATA);
         }
     }
 
@@ -115,5 +142,10 @@ public class FragmentCouponDetail extends AbstractFragment {
     @Override
     void setRefreshing(boolean refreshing) {
 
+    }
+
+    @Override
+    boolean canCloseByBackpressed() {
+        return true;
     }
 }

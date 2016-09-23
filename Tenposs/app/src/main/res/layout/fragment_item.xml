@@ -107,8 +107,8 @@
 
             <ImageButton
                 android:id="@+id/previous_button"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="@dimen/nav_button_size"
+                android:layout_height="@dimen/nav_button_size"
                 android:background="@android:color/transparent"
                 android:paddingBottom="5dip"
                 android:paddingLeft="5dip"
@@ -126,8 +126,8 @@
 
             <ImageButton
                 android:id="@+id/next_button"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="@dimen/nav_button_size"
+                android:layout_height="@dimen/nav_button_size"
                 android:background="@android:color/transparent"
                 android:paddingBottom="5dip"
                 android:paddingLeft="5dip"

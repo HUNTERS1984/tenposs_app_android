@@ -41,24 +41,21 @@ public class FragmentNews
         OnCommonItemClickListener,
         View.OnClickListener {
 
-    ImageButton previousButton;
-    TextView titleLabel;
-    ImageButton nextButton;
-    RecyclerView recyclerView;
-    CommonAdapter recyclerAdapter;
-    SwipeRefreshLayout swipeRefreshLayout;
+    ImageButton mPreviousButton;
+    TextView mTitleLabel;
+    ImageButton mNextButton;
+    RecyclerView mRecyclerView;
+    CommonAdapter mRecyclerAdapter;
+    SwipeRefreshLayout mSwipeRefreshLayout;
 
-    NewsInfo.Response screenData = null;
-    int storeId;
-    int pageIndex;
-    int pageSize;
+    NewsInfo.Response mScreenData = null;
 
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        pageIndex = 1;
-        pageSize = 20;
+        mPageIndex = 1;
+        mPageSize = 20;
     }
 
     @Override
@@ -66,7 +63,7 @@ public class FragmentNews
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(SCREEN_DATA)) {
-                this.screenData = (NewsInfo.Response) savedInstanceState.getSerializable(SCREEN_DATA);
+                this.mScreenData = (NewsInfo.Response) savedInstanceState.getSerializable(SCREEN_DATA);
                 startup();
             }
         } else {
@@ -75,53 +72,58 @@ public class FragmentNews
     }
 
     @Override
-    protected void customClose() {
-
+    protected boolean customClose() {
+        return false;
     }
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings.toolbarTitle = getString(R.string.news);
-        toolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
-        toolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        mToolbarSettings.toolbarTitle = getString(R.string.news);
+        mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
+        mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+    }
+
+    @Override
+    protected void clearScreenData() {
+
     }
 
     @Override
     protected void reloadScreenData() {
-        if (this.screenDataStatus != ScreenDataStatus.ScreenDataStatusUnload) {
+        if (this.mScreenDataStatus != ScreenDataStatus.ScreenDataStatusUnload) {
             return;
         }
-        this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
+        this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
         //loadAppInfo();
         loadNewsInfo();
     }
 
     @Override
     protected void previewScreenData() {
-        screenDataItems = new ArrayList<>();
+        this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
+        mScreenDataItems = new ArrayList<>();
 
-        for (NewsInfo.News item : screenData.data.news) {
+        for (NewsInfo.News item : mScreenData.data.news) {
             Bundle extras = new Bundle();
             extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
-            extras.putString(RecyclerItemWrapper.ITEM_CATEGORY, "Category");
+            extras.putString(RecyclerItemWrapper.ITEM_CATEGORY, getString(R.string.category_text));
             extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.title);
             extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.description);
             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
-            screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemList, spanCount, extras));
+            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemList, mSpanCount, extras));
         }
 
-        this.swipeRefreshLayout.setRefreshing(false);
-        this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
+        this.mSwipeRefreshLayout.setRefreshing(false);
 
-        if (this.recyclerAdapter == null) {
-            GridLayoutManager manager = new GridLayoutManager(getActivity(), spanCount);//);
-            this.recyclerAdapter = new CommonAdapter(getActivity(), this, this);
-            manager.setSpanSizeLookup(new CommonAdapter.GridSpanSizeLookup(recyclerAdapter));
-            this.recyclerView.setLayoutManager(manager);
-            this.recyclerView.addItemDecoration(new CommonAdapter.MarginDecoration(getActivity()));
-            this.recyclerView.setAdapter(recyclerAdapter);
+        if (this.mRecyclerAdapter == null) {
+            GridLayoutManager manager = new GridLayoutManager(getActivity(), mSpanCount);//);
+            this.mRecyclerAdapter = new CommonAdapter(getActivity(), this, this);
+            manager.setSpanSizeLookup(new CommonAdapter.GridSpanSizeLookup(mRecyclerAdapter));
+            this.mRecyclerView.setLayoutManager(manager);
+            this.mRecyclerView.addItemDecoration(new CommonAdapter.MarginDecoration(getActivity()));
+            this.mRecyclerView.setAdapter(mRecyclerAdapter);
         } else {
-            this.recyclerAdapter.notifyDataSetChanged();
+            this.mRecyclerAdapter.notifyDataSetChanged();
         }
         updateNavigation();
         updateToolbar();
@@ -131,34 +133,34 @@ public class FragmentNews
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View mRoot = inflater.inflate(R.layout.fragment_news, null);
 
-        previousButton = (ImageButton) mRoot.findViewById(R.id.previous_button);
-        titleLabel = (TextView) mRoot.findViewById(R.id.title_label);
-        nextButton = (ImageButton) mRoot.findViewById(R.id.next_button);
+        mPreviousButton = (ImageButton) mRoot.findViewById(R.id.previous_button);
+        mTitleLabel = (TextView) mRoot.findViewById(R.id.title_label);
+        mNextButton = (ImageButton) mRoot.findViewById(R.id.next_button);
 
-        this.recyclerView = (RecyclerView) mRoot.findViewById(R.id.recycler_view);
-        this.swipeRefreshLayout = (SwipeRefreshLayout) mRoot.findViewById(R.id.swipe_refresh_layout);
-        this.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        this.mRecyclerView = (RecyclerView) mRoot.findViewById(R.id.recycler_view);
+        this.mSwipeRefreshLayout = (SwipeRefreshLayout) mRoot.findViewById(R.id.swipe_refresh_layout);
+        this.mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                FragmentNews.this.screenDataStatus = ScreenDataStatus.ScreenDataStatusUnload;
+                FragmentNews.this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusUnload;
                 reloadScreenData();
             }
         });
-        previousButton.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
+        mPreviousButton.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
                 "flaticon-back",
                 40,
                 Color.argb(0, 0, 0, 0),
-                toolbarSettings.appSetting.getToolbarIconColor()
+                mToolbarSettings.appSetting.getToolbarIconColor()
         ));
 
-        nextButton.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
+        mNextButton.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
                 "flaticon-next",
                 40,
                 Color.argb(0, 0, 0, 0),
-                toolbarSettings.appSetting.getToolbarIconColor()
+                mToolbarSettings.appSetting.getToolbarIconColor()
         ));
-        previousButton.setOnClickListener(this);
-        nextButton.setOnClickListener(this);
+        mPreviousButton.setOnClickListener(this);
+        mNextButton.setOnClickListener(this);
         return mRoot;
     }
 
@@ -170,16 +172,16 @@ public class FragmentNews
     @Override
     void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
         if (savedInstanceState.containsKey(SCREEN_DATA)) {
-            this.screenData = (NewsInfo.Response) savedInstanceState.getSerializable(SCREEN_DATA);
+            this.mScreenData = (NewsInfo.Response) savedInstanceState.getSerializable(SCREEN_DATA);
         }
         if (savedInstanceState.containsKey(APP_DATA_STORE_ID)) {
-            this.storeId = savedInstanceState.getInt(APP_DATA_STORE_ID);
+            this.mStoreId = savedInstanceState.getInt(APP_DATA_STORE_ID);
         }
         if (savedInstanceState.containsKey(SCREEN_DATA_PAGE_INDEX)) {
-            this.pageIndex = savedInstanceState.getInt(SCREEN_DATA_PAGE_INDEX);
+            this.mPageIndex = savedInstanceState.getInt(SCREEN_DATA_PAGE_INDEX);
         }
         if (savedInstanceState.containsKey(SCREEN_DATA_PAGE_SIZE)) {
-            this.pageSize = savedInstanceState.getInt(SCREEN_DATA_PAGE_SIZE);
+            this.mPageSize = savedInstanceState.getInt(SCREEN_DATA_PAGE_SIZE);
         }
     }
 
@@ -190,18 +192,23 @@ public class FragmentNews
 
     @Override
     void setRefreshing(boolean refreshing) {
-        this.swipeRefreshLayout.setRefreshing(refreshing);
+        this.mSwipeRefreshLayout.setRefreshing(refreshing);
+    }
+
+    @Override
+    boolean canCloseByBackpressed() {
+        return false;
     }
 
 
     @Override
     public int getItemCount() {
-        return this.screenDataItems.size();
+        return this.mScreenDataItems.size();
     }
 
     @Override
     public RecyclerItemWrapper getItemData(int position) {
-        return this.screenDataItems.get(position);
+        return this.mScreenDataItems.get(position);
     }
 
     @Override
@@ -211,8 +218,8 @@ public class FragmentNews
         switch (item.itemType) {
             case RecyclerItemTypeItemList: {
                 int id = item.itemData.getInt(RecyclerItemWrapper.ITEM_ID);
-                NewsInfo.News news = this.screenData.getItemById(id);
-                this.activityListener.showScreen(AbstractFragment.NEWS_DETAILS_SCREEN, news);
+                NewsInfo.News news = this.mScreenData.getItemById(id);
+                this.mActivityListener.showScreen(AbstractFragment.NEWS_DETAILS_SCREEN, news);
             }
             break;
 
@@ -224,18 +231,18 @@ public class FragmentNews
     }
 
     protected void startup() {
-        if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
+        if (this.mScreenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
             //load needed data
-            this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
-            this.swipeRefreshLayout.post(new Runnable() {
+            this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
+            this.mSwipeRefreshLayout.post(new Runnable() {
                 @Override
                 public void run() {
-                    FragmentNews.this.swipeRefreshLayout.setRefreshing(true);
+                    FragmentNews.this.mSwipeRefreshLayout.setRefreshing(true);
                     loadNewsInfo();
                 }
             });
 
-        } else if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusLoading) {
+        } else if (this.mScreenDataStatus == ScreenDataStatus.ScreenDataStatusLoading) {
             //just waiting
 
         } else {
@@ -247,9 +254,9 @@ public class FragmentNews
     void loadNewsInfo() {
         Bundle params = new Bundle();
         NewsInfo.Request requestParams = new NewsInfo.Request();
-        requestParams.store_id = this.storeId;
-        requestParams.pageindex = this.pageIndex;
-        requestParams.pagesize = this.pageSize;
+        requestParams.store_id = this.mStoreId;
+        requestParams.pageindex = this.mPageIndex;
+        requestParams.pagesize = this.mPageSize;
 
         params.putSerializable(Key.RequestObject, requestParams);
         NewsInfoCommunicator communicator = new NewsInfoCommunicator(
@@ -260,7 +267,7 @@ public class FragmentNews
                         if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
                             int resultApi = responseParams.getInt(Key.ResponseResultApi);
                             if (resultApi == CommonResponse.ResultSuccess) {
-                                FragmentNews.this.screenData = (NewsInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                FragmentNews.this.mScreenData = (NewsInfo.Response) responseParams.getSerializable(Key.ResponseObject);
                                 previewScreenData();
                             } else {
                                 String strMessage = responseParams.getString(Key.ResponseMessage);
@@ -296,14 +303,14 @@ public class FragmentNews
             nextButtonColor = Color.parseColor("#00CECB");
         }
 
-        previousButton.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
+        mPreviousButton.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
                 "ti-angle-left",
                 20,
                 Color.argb(0, 0, 0, 0),
                 previousButtonColor
         ));
 
-        nextButton.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
+        mNextButton.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
                 "ti-angle-right",
                 20,
                 Color.argb(0, 0, 0, 0),

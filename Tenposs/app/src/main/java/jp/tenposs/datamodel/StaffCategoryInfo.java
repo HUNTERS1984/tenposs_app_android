@@ -15,7 +15,7 @@ public class StaffCategoryInfo {
 
         @Override
         String sigInput() {
-            //TODO:
+            //TODO: chua co spec
             return "";
         }
     }
@@ -28,7 +28,7 @@ public class StaffCategoryInfo {
         public ResponseData data;
     }
 
-    public class StaffCategory {
+    public class StaffCategory implements Serializable {
         public int id;
         public String name;
     }

@@ -16,8 +16,10 @@
     <string name="chat">チャット</string>
     <string name="setting">設定</string>
     <string name="username">ユーザー名</string>
+
     <string name="image_description">画像記述</string>
     <string name="more">もっと見る</string>
+    <string name="category_text">カテゴリー</string>
 
     <!--Settings Screen-->
     <string name="profile">プロフィール</string>
@@ -25,7 +27,7 @@
     <string name="receive_push">お知らせを受け取る</string>
     <string name="receive_coupon_information">クーポン情報を受け取る</string>
     <string name="issue_the_takeover_code_during_the_model_change">機種変更時引継ぎコード発行</string>
-    <string name="company_info">逼营会社</string>
+    <string name="company_info">逼営会社</string>
     <string name="user_privacy">採用情報</string>
 
     <string name="sign_in">ログイン</string>
@@ -66,6 +68,7 @@
     <string name="take_advantage_of_this_coupon">このクーボンを利用す\nInstagram</string>
     <string name="this_coupon_cannot_use">このクーポンは使用できません</string>
     <string name="staff_unknown_button">テキストが入ります</string>
+    <string name="hash_tag_copied">ハッシユタグをコピーしました</string>
 
     <!-- Button -->
     <string name="close">閉じる</string>
@@ -74,6 +77,7 @@
     <string name="no">否</string>
     <string name="on">オン</string>
     <string name="off">オフ</string>
+    <string name="exit">Exit</string>
     <string name="link">連撈</string>
 
     <!-- Alert title -->
@@ -153,9 +157,23 @@
     <string name="miyazaki">宮崎県</string>
     <string name="kogoshima">鹿児島県</string>
     <string name="okinawa">沖縄県</string>
-    <string name="msg_signing_up">Signing up...</string>
-    <string name="msg_signing_out">Signing out...</string>
-    <string name="msg_updating_profile">Updating profile...</string>
-    <string name="msg_loading_profile">Loading user profile...</string>
+
+    <!-- Un-translated -->
+    <string name="retry">Retry</string>
+
+    <string name="title_select_avatar_image">Select avatar</string>
+    <string name="title_select_or_capture_picture">Capture picture or select existing Gallery</string>
+
+    <string name="msg_signing_up">Signing up…</string>
+    <string name="msg_signing_out">Signing out…</string>
+    <string name="msg_updating_profile">Updating profile…</string>
+    <string name="msg_loading_profile">Loading user profile…</string>
+    <string name="msg_please_wait">Please wait…</string>
+    <string name="msg_saving">Saving…</string>
+    <string name="msg_connection_required">Your device is not connected to a network. Connect to a network and try again.</string>
+    <string name="msg_connection_timedout_try_again">Connection to the server is timed-out. Please try again later.</string>
+    <string name="msg_starting_up">Starting…</string>
+    <string name="msg_loading">Loading…</string>
+
 
 </resources>

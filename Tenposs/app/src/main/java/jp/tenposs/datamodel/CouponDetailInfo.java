@@ -13,9 +13,4 @@ public class CouponDetailInfo {
             return null;
         }
     }
-
-    public class Response {
-
-    }
-
 }

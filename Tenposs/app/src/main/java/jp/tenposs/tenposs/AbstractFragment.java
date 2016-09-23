@@ -5,7 +5,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -15,6 +17,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
@@ -43,9 +46,7 @@ public abstract class AbstractFragment extends Fragment {
     public interface MainActivityListener {
         void updateAppInfo(AppInfo.Response appInfo, int storeId);
 
-        void updateSideMenuItems(ArrayList<AppInfo.SideMenu> menuInfo, boolean isSignedIn);
-
-        void updateUserInfo(SignInInfo.Profile profile);
+        void updateUserInfo(SignInInfo.User userProfile);
 
         void showScreen(int menuId, Serializable extras);
 
@@ -58,7 +59,14 @@ public abstract class AbstractFragment extends Fragment {
         FragmentManager getFM();
 
         void setDrawerLockMode(int mode);
+
+        void showFragment(AbstractFragment fragment, String fragmentTag, boolean animated);
     }
+
+    public static final int WIFI_SETTINGS = 0xDAD0;
+    public static final int CAPTURE_IMAGE_REQUEST = 0xDAD1;
+    public static final int CAPTURE_IMAGE_INTENT = 0xDAD2;
+    public static final int CROP_IMAGE_INTENT = 0xDAD3;
 
     public final static int PROFILE_SECTION = -2;
 
@@ -67,6 +75,8 @@ public abstract class AbstractFragment extends Fragment {
 
     public final static int MENU_SCREEN = 2;
     public final static int ITEM_SCREEN = 201;
+    public final static int ITEM_PURCHASE_SCREEN = 202;
+
 
     public final static int NEWS_SCREEN = 3;
     public final static int NEWS_DETAILS_SCREEN = 301;
@@ -80,6 +90,7 @@ public abstract class AbstractFragment extends Fragment {
 
     public final static int STAFF_SCREEN = 8;
     public final static int STAFF_DETAIL_SCREEN = 801;
+    public final static int STAFF_UNKNOWN_SCREEN = 802;
 
     public final static int COUPON_SCREEN = 9;
     public final static int COUPON_DETAIL_SCREEN = 901;
@@ -92,11 +103,12 @@ public abstract class AbstractFragment extends Fragment {
     public final static int SIGN_IN_EMAIL_SCREEN = 1101;
     public final static int SIGN_UP_SCREEN = 1102;
 
-    public final static int PURCHASE_SCREEN = 12;
-    public final static int COMPANY_INFO_SCREEN = 14;
-    public final static int USER_PRIVACY_SCREEN = 15;
+    public final static int COMPANY_INFO_SCREEN = 12;
+    public final static int USER_PRIVACY_SCREEN = 14;
 
     public final static int SIGN_OUT_SCREEN = 16;
+
+    public final static int DEFAULT_RECORD_PER_PAGE = 6;
 
     public class ToolbarSettings {
 
@@ -127,7 +139,7 @@ public abstract class AbstractFragment extends Fragment {
 
         public int getToolbarBackgroundColor() {
             if (appSetting != null) {
-                return appSetting.getToolbarTitleColor();
+                return appSetting.getToolbarBackgroundColor();
             } else {
                 return Color.WHITE;
             }
@@ -151,7 +163,7 @@ public abstract class AbstractFragment extends Fragment {
 
         public int getMenuTitleColor() {
             if (appSetting != null) {
-                return appSetting.getMenuTitleColor();
+                return appSetting.getMenuItemTitleColor();
             } else {
                 return Color.WHITE;
             }
@@ -161,7 +173,7 @@ public abstract class AbstractFragment extends Fragment {
             if (appSetting != null) {
                 return appSetting.getToolBarTitleFont();
             } else {
-                return "fonts/Arial.ttf";
+                return "Arial";
             }
         }
     }
@@ -174,34 +186,49 @@ public abstract class AbstractFragment extends Fragment {
     public static String SCREEN_DATA_PAGE_SIZE = "SCREEN_DATA_PAGE_SIZE";
     public static String SCREEN_DATA_PAGE_DATA = "SCREEN_DATA_PAGE_DATA";
 
+    public static String APP_DATA = "APP_DATA";
     public static String APP_DATA_STORE_ID = "APP_DATA_STORE_ID";
     public static String SCREEN_DATA_STATUS = "SCREEN_DATA_STATUS";
 
-    protected int thumbImageSize = 320;
-    protected int fullImageSize = 1024;
 
-    protected int spanCount = 1;
-    protected int spanLargeItems = 1;
-    protected int spanSmallItems = 1;
-    protected String screenTitle = "";
-    public ToolbarSettings toolbarSettings;
-    protected ScreenDataStatus screenDataStatus = ScreenDataStatus.ScreenDataStatusUnload;
-    protected SharedPreferences appPreferences;
-    protected MainActivityListener activityListener;
-    List<RecyclerItemWrapper> screenDataItems = new ArrayList<>();
-    boolean screenToolBarHidden = true;
+    final static int LOADING_STATUS_UNKNOWN = -1;
+    final static int LOADING_STATUS_REFRESH = 0;
+    final static int LOADING_STATUS_MORE = 1;
 
-    protected ViewGroup fragmentContent;
-    Toolbar toolbar;
-    ImageButton leftToolbarButton;
-    TextView titleToolbarLabel;
-    ImageButton rightToolbarButton;
+    protected int mThumbImageSize = 320;
+    protected int mFullImageSize = 1024;
 
-    protected ProgressDialog progressDialog;
+    protected int mSpanCount = 1;
+    protected int mSpanLargeItems = 1;
+    protected int mSpanSmallItems = 1;
 
-    protected abstract void customClose();
+    int mStoreId;
+    int mPageIndex = 1;
+    int mPageSize = DEFAULT_RECORD_PER_PAGE;
+    int mLoadingStatus = LOADING_STATUS_UNKNOWN;
+
+    protected String mScreenTitle = "";
+    public ToolbarSettings mToolbarSettings;
+    protected ScreenDataStatus mScreenDataStatus = ScreenDataStatus.ScreenDataStatusUnload;
+    protected SharedPreferences mAppPreferences;
+    protected MainActivityListener mActivityListener;
+    protected MainApplication mApplication;
+    List<RecyclerItemWrapper> mScreenDataItems = new ArrayList<>();
+    boolean mScreenToolBarHidden = true;
+
+    protected ViewGroup mFragmentContent;
+    Toolbar mToolbar;
+    ImageButton mLeftToolbarButton;
+    TextView mTitleToolbarLabel;
+    ImageButton mRightToolbarButton;
+
+    protected ProgressDialog mProgressDialog;
+
+    protected abstract boolean customClose();
 
     protected abstract void customToolbarInit();
+
+    protected abstract void clearScreenData();
 
     protected abstract void reloadScreenData();
 
@@ -217,6 +244,8 @@ public abstract class AbstractFragment extends Fragment {
 
     abstract void setRefreshing(boolean refreshing);
 
+    abstract boolean canCloseByBackpressed();
+
 
     /**
      * Fragment Life cycles
@@ -231,9 +260,9 @@ public abstract class AbstractFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.spanCount = getResources().getInteger(R.integer.span_count);
-        this.spanLargeItems = getResources().getInteger(R.integer.span_large_items);
-        this.spanSmallItems = getResources().getInteger(R.integer.span_small_items);
+        this.mSpanCount = getResources().getInteger(R.integer.span_count);
+        this.mSpanLargeItems = getResources().getInteger(R.integer.span_large_items);
+        this.mSpanSmallItems = getResources().getInteger(R.integer.span_small_items);
 
 
         setRetainInstance(true);
@@ -252,41 +281,62 @@ public abstract class AbstractFragment extends Fragment {
         System.out.println("Fragment Life Cycle onCreateView " + this.getClass().getSimpleName());
 
         restoreSavedInstanceState(savedInstanceState);
-        toolbarSettings = new ToolbarSettings();
+        mToolbarSettings = new ToolbarSettings();
         try {
-            toolbarSettings.appSetting = activityListener.getAppInfo().app_setting;
+            mToolbarSettings.appSetting = mActivityListener.getAppInfo().app_setting;
         } catch (Exception ignored) {
 
         }
 
         customToolbarInit();
 
-        if (screenTitle.length() > 0) {
-            toolbarSettings.toolbarTitle = screenTitle;
+        if (mScreenTitle.length() > 0) {
+            mToolbarSettings.toolbarTitle = mScreenTitle;
         }
 
         View view = onCustomCreateView(inflater, container, savedInstanceState);
-        this.toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        this.mToolbar = (Toolbar) view.findViewById(R.id.toolbar);
 
-        this.leftToolbarButton = (ImageButton) view.findViewById(R.id.left_toolbar_button);
-        this.titleToolbarLabel = (TextView) view.findViewById(R.id.title_toolbar_label);
-        this.rightToolbarButton = (ImageButton) view.findViewById(R.id.right_toolbar_button);
+        this.mLeftToolbarButton = (ImageButton) view.findViewById(R.id.left_toolbar_button);
+        this.mTitleToolbarLabel = (TextView) view.findViewById(R.id.title_toolbar_label);
+        this.mRightToolbarButton = (ImageButton) view.findViewById(R.id.right_toolbar_button);
 
-        this.leftToolbarButton.setOnClickListener(new View.OnClickListener() {
+        this.mLeftToolbarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (toolbarSettings.toolbarType == ToolbarSettings.LEFT_MENU_BUTTON) {
-                    activityListener.toggleMenu();
+                if (mToolbarSettings.toolbarType == ToolbarSettings.LEFT_MENU_BUTTON) {
+                    if (mScreenDataStatus == ScreenDataStatus.ScreenDataStatusLoaded) {
+                        mActivityListener.toggleMenu();
+                    }
                 } else {
                     close();
                 }
             }
         });
 
-        fragmentContent = (ViewGroup) view.findViewById(R.id.fragment_content);
+        mFragmentContent = (ViewGroup) view.findViewById(R.id.fragment_content);
 
+
+        mFragmentContent.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        final Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                setUserVisibleHint(true);
+                            }
+                        }, 200);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                            mFragmentContent.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        } else {
+                            mFragmentContent.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+
+                        }
+                    }
+                });
         updateToolbar();
-
         return view;
     }
 
@@ -317,6 +367,7 @@ public abstract class AbstractFragment extends Fragment {
     public void onResume() {
         super.onResume();
         customResume();
+        updateToolbar();
         System.out.println("Fragment Life Cycle onResume " + this.getClass().getSimpleName());
     }
 
@@ -351,17 +402,34 @@ public abstract class AbstractFragment extends Fragment {
 
         //updateToolbar
         AbstractFragment topFragment = getTopFragment();
-        topFragment.updateToolbar();
-
+        if (topFragment != null) {
+            topFragment.updateToolbar();
+        }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(SCREEN_DATA_STATUS, this.screenDataStatus.ordinal());
+        outState.putInt(SCREEN_DATA_STATUS, this.mScreenDataStatus.ordinal());
         customSaveInstanceState(outState);
     }
 
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        System.out.println(this.getClass().getSimpleName() + " VisibleToUser " + hidden);
+    }
+
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            //
+            this.updateToolbar();
+            System.out.println(this.getClass().getSimpleName() + " VisibleToUser");
+        }
+    }
 
     /*@Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
@@ -372,30 +440,31 @@ public abstract class AbstractFragment extends Fragment {
         }
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(SCREEN_DATA_STATUS)) {
-                this.screenDataStatus = ScreenDataStatus.fromInt(savedInstanceState.getInt(SCREEN_DATA_STATUS));
+                this.mScreenDataStatus = ScreenDataStatus.fromInt(savedInstanceState.getInt(SCREEN_DATA_STATUS));
             }
             loadSavedInstanceState(savedInstanceState);
         }
     }*/
 
     void setupVariables() {
-        if (this.activityListener == null) {
-            this.activityListener = (MainActivityListener) getActivity();
+        if (this.mActivityListener == null) {
+            this.mActivityListener = (MainActivityListener) getActivity();
+            this.mApplication = (MainApplication) getActivity().getApplication();
         }
-        if (this.appPreferences == null) {
-            this.appPreferences = getActivity().getSharedPreferences("settings", Context.MODE_PRIVATE);
+        if (this.mAppPreferences == null) {
+            this.mAppPreferences = getActivity().getSharedPreferences("settings", Context.MODE_PRIVATE);
         }
     }
 
     protected String getKeyString(String key) {
         setupVariables();
-        return this.appPreferences.getString(key, "");
+        return this.mAppPreferences.getString(key, "");
     }
 
     protected boolean setKeyString(String key, String value) {
         setupVariables();
         boolean ret;
-        SharedPreferences.Editor editor = this.appPreferences.edit();
+        SharedPreferences.Editor editor = this.mAppPreferences.edit();
         editor.putString(key, value);
         ret = editor.commit();
         return ret;
@@ -414,8 +483,8 @@ public abstract class AbstractFragment extends Fragment {
             @Override
             public void onAnimationStart(Animation animation) {
                 System.out.println("Animation started.");
-                if (toolbarSettings != null) {
-                    //activityListener.updateNavigationBar(toolbarSettings);
+                if (mToolbarSettings != null) {
+                    //mActivityListener.updateNavigationBar(mToolbarSettings);
                 }
             }
 
@@ -436,8 +505,9 @@ public abstract class AbstractFragment extends Fragment {
     protected void close() {
         try {
             Utils.hideKeyboard(this.getActivity(), null);
-            customClose();
-            getActivity().getSupportFragmentManager().popBackStack();
+            if (customClose() == false) {
+                getActivity().getSupportFragmentManager().popBackStack();
+            }
 
         } catch (Exception ignored) {
 
@@ -455,41 +525,40 @@ public abstract class AbstractFragment extends Fragment {
     }
 
     protected void showProgress(String message) {
-        if (this.progressDialog != null)
-            this.progressDialog.dismiss();
-        this.progressDialog = new ProgressDialog(this.getContext());
-        this.progressDialog.setMessage(message);
-        this.progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        this.progressDialog.setProgress(0);
-        this.progressDialog.setMax(20);
-        this.progressDialog.setCancelable(false);
-        this.progressDialog.show();
+        if (this.mProgressDialog != null)
+            this.mProgressDialog.dismiss();
+        this.mProgressDialog = new ProgressDialog(this.getContext());
+        this.mProgressDialog.setMessage(message);
+        this.mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        this.mProgressDialog.setProgress(0);
+        this.mProgressDialog.setMax(20);
+        this.mProgressDialog.setCancelable(false);
+        this.mProgressDialog.show();
     }
 
     protected void changeProgress(String message) {
-        if (this.progressDialog == null)
+        if (this.mProgressDialog == null)
             showProgress(message);
         else
-            this.progressDialog.setMessage(message);
+            this.mProgressDialog.setMessage(message);
     }
 
     protected void hideProgress() {
         try {
-            if (this.progressDialog != null)
-                this.progressDialog.dismiss();
-            this.progressDialog = null;
-        } catch (Exception e) {
-            // TODO: handle exception
+            if (this.mProgressDialog != null)
+                this.mProgressDialog.dismiss();
+            this.mProgressDialog = null;
+        } catch (Exception ignored) {
         }
     }
 
     private void restoreSavedInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(SCREEN_DATA_STATUS)) {
-                this.screenDataStatus = ScreenDataStatus.fromInt(savedInstanceState.getInt(SCREEN_DATA_STATUS));
+                this.mScreenDataStatus = ScreenDataStatus.fromInt(savedInstanceState.getInt(SCREEN_DATA_STATUS));
             }
             if (savedInstanceState.containsKey(SCREEN_TITLE)) {
-                this.screenTitle = savedInstanceState.getString(SCREEN_TITLE);
+                this.mScreenTitle = savedInstanceState.getString(SCREEN_TITLE);
             }
             loadSavedInstanceState(savedInstanceState);
         }
@@ -535,7 +604,7 @@ public abstract class AbstractFragment extends Fragment {
     AbstractFragment getTopFragment() {
         AbstractFragment topFragment = null;
         try {
-            FragmentManager fm = activityListener.getFM();
+            FragmentManager fm = mActivityListener.getFM();
             int size = fm.getBackStackEntryCount();
             FragmentManager.BackStackEntry backStackEntry = fm.getBackStackEntryAt(size - 1);
             topFragment = (AbstractFragment) fm.findFragmentByTag(backStackEntry.getName());
@@ -547,46 +616,53 @@ public abstract class AbstractFragment extends Fragment {
 
     protected void updateToolbar() {
         try {
-            if (this.leftToolbarButton != null) {
-                this.leftToolbarButton.setImageBitmap(FlatIcon.fromFlatIcon(getActivity().getAssets(),
-                        this.toolbarSettings.toolbarLeftIcon,
+            this.mToolbar.setBackgroundColor(this.mToolbarSettings.getToolbarBackgroundColor());
+            if (this.mLeftToolbarButton != null) {
+                this.mLeftToolbarButton.setImageBitmap(FlatIcon.fromFlatIcon(getActivity().getAssets(),
+                        this.mToolbarSettings.toolbarLeftIcon,
                         40,
                         Color.argb(0, 0, 0, 0),
-                        this.toolbarSettings.getToolbarIconColor()
+                        this.mToolbarSettings.getToolbarIconColor()
                 ));
             }
-            if (this.rightToolbarButton != null) {
-                this.rightToolbarButton.setImageBitmap(FlatIcon.fromFlatIcon(getActivity().getAssets(),
-                        this.toolbarSettings.toolbarRightIcon,
+            if (this.mRightToolbarButton != null) {
+                this.mRightToolbarButton.setImageBitmap(FlatIcon.fromFlatIcon(getActivity().getAssets(),
+                        this.mToolbarSettings.toolbarRightIcon,
                         40,
                         Color.argb(0, 0, 0, 0),
-                        this.toolbarSettings.getToolbarIconColor()
+                        this.mToolbarSettings.getToolbarIconColor()
                 ));
             }
 
-            if (this.titleToolbarLabel != null) {
-                this.titleToolbarLabel.setText(toolbarSettings.toolbarTitle);
-                this.titleToolbarLabel.setTextColor(toolbarSettings.getToolbarTitleColor());
+            if (this.mTitleToolbarLabel != null) {
+                this.mTitleToolbarLabel.setText(mToolbarSettings.toolbarTitle);
+                this.mTitleToolbarLabel.setTextColor(mToolbarSettings.getToolbarTitleColor());
                 try {
-                    Typeface type = Typeface.createFromAsset(getActivity().getAssets(),
-                            toolbarSettings.getToolBarTitleFont());
-                    this.titleToolbarLabel.setTypeface(type);
+                    Typeface type = Utils.getTypeFaceForFont(getActivity(), mToolbarSettings.getToolBarTitleFont());
+                    this.mTitleToolbarLabel.setTypeface(type);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             }
 
-            if (this.screenToolBarHidden == true) {
-                this.toolbar.setVisibility(View.VISIBLE);
+            if (this.mToolbarSettings.toolbarType == ToolbarSettings.LEFT_MENU_BUTTON) {
+                if (this.mScreenDataStatus == ScreenDataStatus.ScreenDataStatusLoaded) {
+                    this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                } else {
+                    this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                }
+
             } else {
-                this.toolbar.setVisibility(View.GONE);
+                this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             }
 
-            if (this.toolbarSettings.toolbarType == ToolbarSettings.LEFT_MENU_BUTTON) {
-                this.activityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            if (this.mScreenToolBarHidden == true) {
+                this.mToolbar.setVisibility(View.VISIBLE);
             } else {
-                this.activityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                this.mToolbar.setVisibility(View.GONE);
             }
+
         } catch (Exception ignored) {
 
         }

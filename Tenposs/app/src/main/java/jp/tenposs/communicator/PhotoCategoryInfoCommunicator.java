@@ -22,7 +22,7 @@ public class PhotoCategoryInfoCommunicator extends TenpossCommunicator {
     protected boolean request(Bundle bundle) {
         String strUrl;
         PhotoCategoryInfo.Request requestData = (PhotoCategoryInfo.Request) bundle.getSerializable(Key.RequestObject);
-        strUrl = API_PHOTO_CAT + requestData.makeParams("GET");
+        strUrl = API_PHOTO_CAT + requestData.makeParams();
         int result = TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal();
         byte[] dataRequest = null;
         OutputStream output = null;

@@ -16,6 +16,7 @@ import jp.tenposs.communicator.TenpossCommunicator;
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
+import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.datamodel.SignInInfo;
 import jp.tenposs.datamodel.SignUpInfo;
 import jp.tenposs.utils.Utils;
@@ -25,24 +26,29 @@ import jp.tenposs.utils.Utils;
  */
 public class FragmentSignUp extends AbstractFragment implements View.OnClickListener {
 
-    EditText emailEdit;
-    EditText nameEdit;
-    EditText passwordEdit;
-    EditText passwordConfirmEdit;
+    EditText mEmailEdit;
+    EditText mNameEdit;
+    EditText mPasswordEdit;
+    EditText mPasswordConfirmEdit;
 
-    TextView gotoSignInLabel;
-    Button signUpButton;
+    TextView mGotoSignInLabel;
+    Button mSignUpButton;
 
     @Override
-    protected void customClose() {
-
+    protected boolean customClose() {
+        return false;
     }
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings.toolbarTitle = getString(R.string.sign_up);
-        toolbarSettings.toolbarLeftIcon = "flaticon-close";
-        toolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+        mToolbarSettings.toolbarTitle = getString(R.string.sign_up);
+        mToolbarSettings.toolbarLeftIcon = "flaticon-close";
+        mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+    }
+
+    @Override
+    protected void clearScreenData() {
+
     }
 
     @Override
@@ -52,25 +58,26 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
 
     @Override
     protected void previewScreenData() {
+        this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
         updateToolbar();
     }
 
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View mRoot = inflater.inflate(R.layout.fragment_signup, null);
-        emailEdit = (EditText) mRoot.findViewById(R.id.email_edit);
-        nameEdit = (EditText) mRoot.findViewById(R.id.name_edit);
-        passwordEdit = (EditText) mRoot.findViewById(R.id.password_edit);
-        passwordConfirmEdit = (EditText) mRoot.findViewById(R.id.password_confirm_edit);
-        gotoSignInLabel = (TextView) mRoot.findViewById(R.id.go_to_sign_in_label);
-        signUpButton = (Button) mRoot.findViewById(R.id.sign_up_button);
-        signUpButton.setOnClickListener(this);
+        mEmailEdit = (EditText) mRoot.findViewById(R.id.email_edit);
+        mNameEdit = (EditText) mRoot.findViewById(R.id.name_edit);
+        mPasswordEdit = (EditText) mRoot.findViewById(R.id.password_edit);
+        mPasswordConfirmEdit = (EditText) mRoot.findViewById(R.id.password_confirm_edit);
+        mGotoSignInLabel = (TextView) mRoot.findViewById(R.id.go_to_sign_in_label);
+        mSignUpButton = (Button) mRoot.findViewById(R.id.sign_up_button);
+        mSignUpButton.setOnClickListener(this);
 
-        Utils.setTextViewHTML(gotoSignInLabel, getString(R.string.already_sign_up),
+        Utils.setTextViewHTML(mGotoSignInLabel, getString(R.string.already_sign_up),
                 new ClickableSpan() {
                     public void onClick(View view) {
                         close();
-                        activityListener.showScreen(AbstractFragment.SIGN_IN_EMAIL_SCREEN, null);
+                        mActivityListener.showScreen(AbstractFragment.SIGN_IN_EMAIL_SCREEN, null);
                     }
                 });
         return mRoot;
@@ -84,7 +91,7 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
     @Override
     void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
         if (savedInstanceState.containsKey(SCREEN_DATA)) {
-            //this.screenData = (TopInfo.Response.ResponseData) savedInstanceState.getSerializable(SCREEN_DATA);
+            //this.mScreenData = (TopInfo.Response.ResponseData) savedInstanceState.getSerializable(SCREEN_DATA);
         }
     }
 
@@ -99,14 +106,19 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
     }
 
     @Override
+    boolean canCloseByBackpressed() {
+        return true;
+    }
+
+    @Override
     public void onClick(View v) {
-        if (v == signUpButton) {
+        if (v == mSignUpButton) {
             if (checkInput() == true) {
                 Bundle params = new Bundle();
                 SignUpInfo.Request request = new SignUpInfo.Request();
-                request.email = emailEdit.getEditableText().toString();
-                request.name = nameEdit.getEditableText().toString();
-                request.setPassword(passwordEdit.getEditableText().toString());
+                request.email = mEmailEdit.getEditableText().toString();
+                request.name = mNameEdit.getEditableText().toString();
+                request.setPassword(mPasswordEdit.getEditableText().toString());
                 params.putSerializable(Key.RequestObject, request);
                 SignUpCommunicator communicator = new SignUpCommunicator(
                         new TenpossCommunicator.TenpossCommunicatorListener() {
@@ -121,8 +133,8 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
                                         String token = response.data.token;
                                         SignInInfo.Profile profile = response.data.profile;
                                         setKeyString(Key.TokenKey, token);
-                                        setKeyString(Key.Profile, CommonObject.toJSONString(profile, profile.getClass()));
-                                        activityListener.updateUserInfo(profile);
+                                        setKeyString(Key.UserProfile, CommonObject.toJSONString(response.data, response.data.getClass()));
+                                        mActivityListener.updateUserInfo(response.data);
                                         close();
                                     } else {
                                         Utils.showAlert(getContext(),
@@ -151,8 +163,8 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
 
     private boolean checkInput() {
         Utils.hideKeyboard(this.getActivity(), null);
-        String email = emailEdit.getEditableText().toString();
-        String name = nameEdit.getEditableText().toString();
+        String email = mEmailEdit.getEditableText().toString();
+        String name = mNameEdit.getEditableText().toString();
         if (email.length() <= 0 || Utils.validateEmailAddress(email) == false) {
             Utils.showAlert(getContext(),
                     getString(R.string.warning),
@@ -164,7 +176,7 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
                         public void onClick(DialogInterface dialog, int which) {
                             switch (which) {
                                 case DialogInterface.BUTTON_POSITIVE: {
-                                    emailEdit.requestFocus();
+                                    mEmailEdit.requestFocus();
                                 }
                                 break;
                             }
@@ -183,7 +195,7 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
                         public void onClick(DialogInterface dialog, int which) {
                             switch (which) {
                                 case DialogInterface.BUTTON_POSITIVE: {
-                                    nameEdit.requestFocus();
+                                    mNameEdit.requestFocus();
                                 }
                                 break;
                             }
@@ -191,8 +203,8 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
                     });
             return false;
         }
-        String password = passwordEdit.getEditableText().toString();
-        String passwordConfirm = passwordConfirmEdit.getEditableText().toString();
+        String password = mPasswordEdit.getEditableText().toString();
+        String passwordConfirm = mPasswordConfirmEdit.getEditableText().toString();
         if (password.length() <= 0) {
             Utils.showAlert(getContext(),
                     getString(R.string.warning),
@@ -204,7 +216,7 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
                         public void onClick(DialogInterface dialog, int which) {
                             switch (which) {
                                 case DialogInterface.BUTTON_POSITIVE: {
-                                    passwordEdit.requestFocus();
+                                    mPasswordEdit.requestFocus();
                                 }
                                 break;
                             }
@@ -223,7 +235,7 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
                         public void onClick(DialogInterface dialog, int which) {
                             switch (which) {
                                 case DialogInterface.BUTTON_POSITIVE: {
-                                    passwordConfirmEdit.requestFocus();
+                                    mPasswordConfirmEdit.requestFocus();
                                 }
                                 break;
                             }
@@ -242,7 +254,7 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
                         public void onClick(DialogInterface dialog, int which) {
                             switch (which) {
                                 case DialogInterface.BUTTON_POSITIVE: {
-                                    passwordConfirmEdit.requestFocus();
+                                    mPasswordConfirmEdit.requestFocus();
                                 }
                                 break;
                             }

@@ -32,12 +32,15 @@ import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.tenposs.communicator.SetPushKeyCommunicator;
 import jp.tenposs.communicator.SocialSignInCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
 import jp.tenposs.communicator.UserInfoCommunicator;
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
+import jp.tenposs.datamodel.ScreenDataStatus;
+import jp.tenposs.datamodel.SetPushKeyInfo;
 import jp.tenposs.datamodel.SignInInfo;
 import jp.tenposs.datamodel.SocialSigninInfo;
 import jp.tenposs.datamodel.UserInfo;
@@ -49,37 +52,34 @@ import jp.tenposs.utils.Utils;
  */
 public class FragmentSignIn extends AbstractFragment implements View.OnClickListener, FragmentManager.OnBackStackChangedListener {
     private static final String SCREEN_TYPE = "SCREEN_TYPE";
-    LinearLayout signInGroupLayout;
 
-    ImageView facebookIcon;
-    Button facebookButton;
-    LoginButton facebookLogin;
-    TwitterLoginButton twitterLogin;
+    TextView mAppTitle;
+    LinearLayout mSignInGroupLayout;
 
-    ImageView twitterIcon;
-    Button twitterButton;
+    ImageView mFacebookIcon;
+    Button mFacebookButton;
+    LoginButton mFacebookLogin;
+    TwitterLoginButton mTwitterLogin;
 
-    ImageView emailIcon;
-    Button emailButton;
+    ImageView mTwitterIcon;
+    Button mTwitterButton;
+
+    ImageView mEmailIcon;
+    Button mEmailButton;
 
 
-    ViewGroup skipButtonLayout;
-    Button skipButton;
-    TextView gotoSignUpLabel;
-
-//    LinearLayout signInEmailLayout;
-//    EditText emailEdit;
-//    EditText passwordEdit;
-//    Button backButton;
-    //Button signInButton;
+    ViewGroup mSkipButtonLayout;
+    Button mSkipButton;
+    TextView mGotoSignUpLabel;
 
     ProfileTracker mProfileTracker;
-    CallbackManager callbackManager;
+    CallbackManager mCallbackManager;
 
-    public static FragmentSignIn newInstance(boolean showToolbar) {
+    public static FragmentSignIn newInstance(boolean showToolbar, String appTitle) {
         FragmentSignIn instance = new FragmentSignIn();
         Bundle bundle = new Bundle();
         bundle.putBoolean(SCREEN_TYPE, showToolbar);
+        bundle.putString(SCREEN_TITLE, appTitle);
         instance.setArguments(bundle);
         return instance;
     }
@@ -87,23 +87,28 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        //if (requestCode == 0xFACE) {
-        this.callbackManager.onActivityResult(requestCode, resultCode, data);
-        //} else {
-        twitterLogin.onActivityResult(requestCode, resultCode, data);
-        //}
+
+        System.out.println("onActivityResult " + requestCode + " - " + System.currentTimeMillis());
+        this.mCallbackManager.onActivityResult(requestCode, resultCode, data);
+        this.mTwitterLogin.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
-    protected void customClose() {
-        this.activityListener.getFM().removeOnBackStackChangedListener(this);
+    protected boolean customClose() {
+        this.mActivityListener.getFM().removeOnBackStackChangedListener(this);
+        return false;
     }
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings.toolbarTitle = getString(R.string.sign_in);
-        toolbarSettings.toolbarLeftIcon = "flaticon-back";
-        toolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+        mToolbarSettings.toolbarTitle = getString(R.string.sign_in);
+        mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+        mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+    }
+
+    @Override
+    protected void clearScreenData() {
+
     }
 
     @Override
@@ -113,12 +118,12 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
 
     @Override
     protected void previewScreenData() {
-
-        this.activityListener.getFM().addOnBackStackChangedListener(this);
-        if (this.screenToolBarHidden == true) {
-            this.skipButtonLayout.setVisibility(View.GONE);
+        this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
+        this.mActivityListener.getFM().addOnBackStackChangedListener(this);
+        if (this.mScreenToolBarHidden == true) {
+            this.mSkipButtonLayout.setVisibility(View.GONE);
         } else {
-            this.skipButtonLayout.setVisibility(View.VISIBLE);
+            this.mSkipButtonLayout.setVisibility(View.VISIBLE);
         }
         updateToolbar();
     }
@@ -127,48 +132,51 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_signin, null);
 
-        this.signInGroupLayout = (LinearLayout) root.findViewById(R.id.sign_in_group_layout);
-        this.facebookIcon = (ImageView) root.findViewById(R.id.facebook_image);
-        this.facebookButton = (Button) root.findViewById(R.id.facebook_button);
-        this.facebookLogin = (LoginButton) root.findViewById(R.id.facebook_login);
-        this.twitterLogin = (TwitterLoginButton) root.findViewById(R.id.twitter_login);
+        this.mAppTitle = (TextView) root.findViewById(R.id.app_title);
+        this.mSignInGroupLayout = (LinearLayout) root.findViewById(R.id.sign_in_group_layout);
+        this.mFacebookIcon = (ImageView) root.findViewById(R.id.facebook_image);
+        this.mFacebookButton = (Button) root.findViewById(R.id.facebook_button);
+        this.mFacebookLogin = (LoginButton) root.findViewById(R.id.facebook_login);
+        this.mTwitterLogin = (TwitterLoginButton) root.findViewById(R.id.twitter_login);
 
-        this.twitterIcon = (ImageView) root.findViewById(R.id.twitter_image);
-        this.twitterButton = (Button) root.findViewById(R.id.twitter_button);
+        this.mTwitterIcon = (ImageView) root.findViewById(R.id.twitter_image);
+        this.mTwitterButton = (Button) root.findViewById(R.id.twitter_button);
 
-        this.emailIcon = (ImageView) root.findViewById(R.id.email_image);
-        this.emailButton = (Button) root.findViewById(R.id.email_button);
+        this.mEmailIcon = (ImageView) root.findViewById(R.id.email_image);
+        this.mEmailButton = (Button) root.findViewById(R.id.email_button);
 
-        this.gotoSignUpLabel = (TextView) root.findViewById(R.id.go_to_sign_up_label);
-        this.skipButton = (Button) root.findViewById(R.id.skip_button);
-        this.skipButtonLayout = (ViewGroup) root.findViewById(R.id.skip_button_layout);
+        this.mGotoSignUpLabel = (TextView) root.findViewById(R.id.go_to_sign_up_label);
+        this.mSkipButton = (Button) root.findViewById(R.id.skip_button);
+        this.mSkipButtonLayout = (ViewGroup) root.findViewById(R.id.skip_button_layout);
 
 //        this.signInEmailLayout = (LinearLayout) root.findViewById(R.id.sign_in_email_layout);
-//        this.emailEdit = (EditText) root.findViewById(R.id.email_edit);
-//        this.passwordEdit = (EditText) root.findViewById(R.id.password_edit);
-        //this.signInButton = (Button) root.findViewById(R.id.sign_in_button);
+//        this.mEmailEdit = (EditText) root.findViewById(R.id.email_edit);
+//        this.mPasswordEdit = (EditText) root.findViewById(R.id.password_edit);
+        //this.mSignInButton = (Button) root.findViewById(R.id.sign_in_button);
 //        this.backButton = (Button) root.findViewById(R.id.back_to_group_button);
 
-        Utils.setTextViewHTML(this.gotoSignUpLabel, getString(R.string.not_sign_up),
+        this.mAppTitle.setText(this.mScreenTitle);
+        Utils.setTextViewHTML(this.mGotoSignUpLabel, getString(R.string.not_sign_up),
                 new ClickableSpan() {
                     @Override
                     public void onClick(View widget) {
-                        activityListener.showScreen(AbstractFragment.SIGN_UP_SCREEN, null);
+                        mActivityListener.showScreen(AbstractFragment.SIGN_UP_SCREEN, null);
                     }
                 });
         List<String> permission = new ArrayList<>();
         permission.add("public_profile");
         permission.add("email");
 
-        this.callbackManager = activityListener.getCallbackManager();
+        this.mCallbackManager = mActivityListener.getCallbackManager();
 
-        this.facebookLogin.setReadPermissions(permission);
-        this.facebookLogin.setFragment(this);
-        this.facebookLogin.registerCallback(this.callbackManager, new FacebookCallback<LoginResult>() {
+        this.mFacebookLogin.setReadPermissions(permission);
+        this.mFacebookLogin.setFragment(this);
+        this.mFacebookLogin.registerCallback(this.mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 // App code
 
+                System.out.println("onSuccess " + System.currentTimeMillis());
                 //Save AccessToken
                 final String token = loginResult.getAccessToken().getToken();
                 setKeyString(Key.FacebookTokenKey, token);
@@ -209,7 +217,7 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
             }
         });
 
-        this.twitterLogin.setCallback(new Callback<TwitterSession>() {
+        this.mTwitterLogin.setCallback(new Callback<TwitterSession>() {
             @Override
             public void success(Result<TwitterSession> result) {
 
@@ -219,11 +227,14 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
                 //Save Token
                 setKeyString(Key.TwitterTokenKey, twitterToken);
 
+                //Save secretKey
+                String secretKey = token.secret;
+
                 performSocialSignIn(SocialSigninInfo.TWITTER,
                         Long.toString(result.data.getId()),
                         result.data.getUserName(),//name
                         twitterToken,//token
-                        SocialSigninInfo.TWITTER_CONSUMER_SECRET
+                        secretKey
                 );
             }
 
@@ -233,21 +244,21 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
             }
         });
 
-        facebookIcon.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
+        mFacebookIcon.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
                 "flaticon-facebook",
                 40,
                 Color.argb(0, 0, 0, 0),
                 Color.argb(255, 255, 255, 255)
         ));
 
-        twitterIcon.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
+        mTwitterIcon.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
                 "flaticon-twitter",
                 40,
                 Color.argb(0, 0, 0, 0),
                 Color.argb(255, 255, 255, 255)
         ));
 
-        emailIcon.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
+        mEmailIcon.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
                 "flaticon-email",
                 40,
                 Color.argb(0, 0, 0, 0),
@@ -255,12 +266,12 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
         ));
 
 
-        facebookButton.setOnClickListener(this);
-        twitterButton.setOnClickListener(this);
-        emailButton.setOnClickListener(this);
-        skipButton.setOnClickListener(this);
+        mFacebookButton.setOnClickListener(this);
+        mTwitterButton.setOnClickListener(this);
+        mEmailButton.setOnClickListener(this);
+        mSkipButton.setOnClickListener(this);
 //        backButton.setOnClickListener(this);
-        //signInButton.setOnClickListener(this);
+        //mSignInButton.setOnClickListener(this);
         return root;
     }
 
@@ -272,7 +283,10 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
     @Override
     void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
         if (savedInstanceState.containsKey(SCREEN_TYPE)) {
-            this.screenToolBarHidden = savedInstanceState.getBoolean(SCREEN_TYPE);
+            this.mScreenToolBarHidden = savedInstanceState.getBoolean(SCREEN_TYPE);
+        }
+        if (savedInstanceState.containsKey(SCREEN_TITLE)) {
+            this.mScreenTitle = savedInstanceState.getString(SCREEN_TITLE);
         }
     }
 
@@ -287,9 +301,13 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
     }
 
     @Override
+    boolean canCloseByBackpressed() {
+        return true;
+    }
+
+    @Override
     public void onClick(View v) {
-        if (v == this.facebookButton) {
-            //TODO: Login with Facebook
+        if (v == this.mFacebookButton) {
             Profile profile = Profile.getCurrentProfile();
             String token = getKeyString(Key.FacebookTokenKey);
             if (profile != null && token.length() > 0) {
@@ -302,30 +320,28 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
                         null);
 
             } else {
-                this.facebookLogin.performClick();
+                this.mFacebookLogin.performClick();
             }
 
-        } else if (v == this.twitterButton) {
-            //TODO: Login with Twitter
-            this.twitterLogin.performClick();
+        } else if (v == this.mTwitterButton) {
+            this.mTwitterLogin.performClick();
 
-        } else if (v == this.emailButton) {
-            activityListener.showScreen(AbstractFragment.SIGN_IN_EMAIL_SCREEN, null);
-            //signInGroupLayout.setVisibility(View.GONE);
+        } else if (v == this.mEmailButton) {
+            mActivityListener.showScreen(AbstractFragment.SIGN_IN_EMAIL_SCREEN, null);
+            //mSignInGroupLayout.setVisibility(View.GONE);
             //signInEmailLayout.setVisibility(View.VISIBLE);
 
             //} else if (v == backButton) {
-            //signInGroupLayout.setVisibility(View.VISIBLE);
+            //mSignInGroupLayout.setVisibility(View.VISIBLE);
             //signInEmailLayout.setVisibility(View.GONE);
 
-            //} else if (v == signInButton) {
+            //} else if (v == mSignInButton) {
             //  if (checkInput() == true) {
             //    performEmailSignIn();
             //}
-        } else if (v == this.skipButton) {
+        } else if (v == this.mSkipButton) {
             close();
-            //TODO: ??
-            activityListener.showScreen(HOME_SCREEN, null);
+            mActivityListener.showScreen(HOME_SCREEN, null);
         }
     }
 
@@ -350,17 +366,12 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
                             hideProgress();
                             int resultApi = responseParams.getInt(Key.ResponseResultApi);
                             if (resultApi == CommonResponse.ResultSuccess) {
-                                //TODO:
                                 SignInInfo.Response response = (SignInInfo.Response) responseParams.get(Key.ResponseObject);
                                 String token = response.data.token;
-                                SignInInfo.Profile profile = response.data.profile;
                                 setKeyString(Key.TokenKey, token);
-                                setKeyString(Key.Profile, CommonObject.toJSONString(profile, profile.getClass()));
-                                activityListener.updateUserInfo(profile);
-                                //close();
-
+                                setKeyString(Key.UserProfile, CommonObject.toJSONString(response.data, response.data.getClass()));
+                                mActivityListener.updateUserInfo(response.data);
                                 getUserDetail(token);
-
 
                             } else {
                                 Utils.showAlert(getContext(),
@@ -403,7 +414,7 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
         }
     }
 
-    void getUserDetail(String token) {
+    void getUserDetail(final String token) {
         if (token.length() > 0) {
             Bundle params = new Bundle();
             UserInfo.Request request = new UserInfo.Request();
@@ -414,7 +425,7 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
                     new TenpossCommunicator.TenpossCommunicatorListener() {
                         @Override
                         public void completed(TenpossCommunicator request, Bundle responseParams) {
-                            hideProgress();
+
                             int result = responseParams.getInt(Key.ResponseResult);
                             if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
                                 int resultApi = responseParams.getInt(Key.ResponseResultApi);
@@ -422,12 +433,11 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
                                     //Update User profile
 
                                     UserInfo.Response response = (UserInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                                    setKeyString(Key.UserProfile, CommonObject.toJSONString(response.data.user, UserInfo.User.class));
+                                    setKeyString(Key.UserProfile, CommonObject.toJSONString(response.data.user, SignInInfo.User.class));
 
-                                    activityListener.updateUserInfo(response.data.user.profile);
-                                    close();
-                                    //TODO: ??
-                                    activityListener.showScreen(HOME_SCREEN, null);
+                                    mActivityListener.updateUserInfo(response.data.user);
+
+                                    setPushKey(token);
                                 } else {
                                     //clear token
                                     setKeyString(Key.TokenKey, "");
@@ -436,6 +446,7 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
                                     errorWithMessage(responseParams, strMessage);
                                 }
                             } else {
+                                hideProgress();
                                 //clear token
                                 setKeyString(Key.TokenKey, "");
                                 setKeyString(Key.UserProfile, "");
@@ -446,6 +457,49 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
                     });
             showProgress(getString(R.string.msg_loading_profile));
             communicator.execute(params);
+        }
+    }
+
+    private void setPushKey(String token) {
+        String firebaseToken = getKeyString(Key.FireBaseTokenKey);
+        if (firebaseToken != null && firebaseToken.length() > 0) {
+            Bundle params = new Bundle();
+            SetPushKeyInfo.Request request = new SetPushKeyInfo.Request();
+            request.token = token;
+            request.key = firebaseToken;
+            params.putSerializable(Key.RequestObject, request);
+
+            SetPushKeyCommunicator communicator = new SetPushKeyCommunicator(
+                    new TenpossCommunicator.TenpossCommunicatorListener() {
+                        @Override
+                        public void completed(TenpossCommunicator request, Bundle responseParams) {
+                            hideProgress();
+                            int result = responseParams.getInt(Key.ResponseResult);
+                            if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                                int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                                if (resultApi == CommonResponse.ResultSuccess) {
+                                    //Update User profile
+                                    SetPushKeyInfo.Response response = (SetPushKeyInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+
+                                    close();
+                                    mActivityListener.showScreen(HOME_SCREEN, null);
+                                } else {
+
+                                    String strMessage = responseParams.getString(Key.ResponseMessage);
+                                    errorWithMessage(responseParams, strMessage);
+                                }
+                            } else {
+                                String strMessage = responseParams.getString(Key.ResponseMessage);
+                                errorWithMessage(responseParams, strMessage);
+                            }
+                        }
+                    });
+            showProgress(getString(R.string.msg_loading_profile));
+            communicator.execute(params);
+        } else {
+            hideProgress();
+            close();
+            mActivityListener.showScreen(HOME_SCREEN, null);
         }
     }
 }

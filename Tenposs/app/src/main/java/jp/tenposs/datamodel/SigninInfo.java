@@ -31,7 +31,6 @@ public class SignInInfo {
             try {
                 formData.put("app_id", app_id);
                 formData.put("time", Long.toString(time));
-//                formData.put("email", URLEncoder.encode(email, "UTF-8"));
                 formData.put("email", email);
                 formData.put("password", password);
                 formData.put("sig", sig);
@@ -43,27 +42,52 @@ public class SignInInfo {
     }
 
     public static class Response extends CommonResponse {
-        public class ResponseData implements Serializable {
+        public User data;
+    }
 
-            public Profile profile;
-            public String token;            //string			token sinh ra khi mỗi lần login thành công.
-            public int app_id;              //integer
-            public String login_type;       //string
-            public int app_user_id;
+
+    /*{
+        "code": "1000"
+            , "message": "OK"
+            , "data": {
+        "token": "f5a1b79f8f3981ed8c86044e88d1849e"
+                , "app_id": "1"
+                , "id": 44
+                , "email": null
+                , "social_type": "1"
+                , "social_id": "1471523209531107"
+                , "profile": {
+                    "name": "Nguyễn Huy Phúc"
+                    , "gender": "0"
+                    , "address": "東京都"
+                    , "avatar_url": "uploads\/7c7732c35a15e45ab93f5a2ad6a424c3.png"
+                    , "facebook_status": "0"
+                    , "twitter_status": "0"
+                    , "instagram_status": "0"
         }
+    }
+    }*/
 
-        public ResponseData data;
+
+    public class User implements Serializable {
+        public int id;
+        public String email;
+        public int social_type;
+        public String social_id;
+        public int app_id;
+        public String token;
+        public Profile profile;
     }
 
     public class Profile extends UrlImageObject implements Serializable {
         public int app_user_id;     //integer
         public String name;             //string
         public int gender;              //integer
+        public String address;
         String avatar_url;       //string
         public int facebook_status;
         public int twitter_status;
         public int instagram_status;
-        public int province;
 
         @Override
         public String getImageUrl() {

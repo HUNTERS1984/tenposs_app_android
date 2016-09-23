@@ -27,49 +27,54 @@ public class FragmentNewsDetail
         OnCommonItemClickListener {
 
 
-    AspectRatioImageView newsImage;
-    TextView newsCategoryLabel;
-    TextView newsTitleLabel;
-    TextView newsDateLabel;
-    TextView newsDescriptionLabel;
+    AspectRatioImageView mNewsImage;
+    TextView mNewsCategoryLabel;
+    TextView mNewsTitleLabel;
+    TextView mNewsDateLabel;
+    TextView mNewsDescriptionLabel;
 
-    NewsInfo.News screenData;
+    NewsInfo.News mScreenData;
 
     @Override
-    protected void customClose() {
-
+    protected boolean customClose() {
+        return false;
     }
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings.toolbarTitle = "";
-        toolbarSettings.toolbarLeftIcon = "flaticon-back";
-        toolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+        mToolbarSettings.toolbarTitle = "";
+        mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+        mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+    }
+
+    @Override
+    protected void clearScreenData() {
+
     }
 
     @Override
     protected void reloadScreenData() {
-        if (this.screenDataStatus != ScreenDataStatus.ScreenDataStatusUnload) {
+        if (this.mScreenDataStatus != ScreenDataStatus.ScreenDataStatusUnload) {
             return;
         }
-        this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
+        this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
     }
 
     @Override
     protected void previewScreenData() {
-
+        this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
         Picasso ps = Picasso.with(getContext());
-        ps.load(screenData.getImageUrl())
-                .resize(fullImageSize, fullImageSize)
+        ps.load(mScreenData.getImageUrl())
+                .resize(mFullImageSize, mFullImageSize)
                 .centerCrop()
-                .into(this.newsImage);
+                .into(this.mNewsImage);
 
-        this.newsTitleLabel.setText(screenData.title);
-        this.newsCategoryLabel.setText(screenData.category);
-        this.newsDateLabel.setText(this.screenData.getCreatedDate());
-        this.newsDescriptionLabel.setText(this.screenData.description);
+        this.mNewsTitleLabel.setText(mScreenData.title);
+        this.mNewsCategoryLabel.setText(mScreenData.category);
+        this.mNewsDateLabel.setText(this.mScreenData.getCreatedDate());
+        this.mNewsDescriptionLabel.setText(this.mScreenData.description);
 
-        toolbarSettings.toolbarTitle = screenData.title;
+        mToolbarSettings.toolbarTitle = mScreenData.title;
 
         setRefreshing(false);
         updateToolbar();
@@ -78,11 +83,11 @@ public class FragmentNewsDetail
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View mRoot = inflater.inflate(R.layout.fragment_news_detail, null);
-        this.newsImage = (AspectRatioImageView) mRoot.findViewById(R.id.news_image);
-        this.newsCategoryLabel = (TextView) mRoot.findViewById(R.id.news_category_label);
-        this.newsTitleLabel = (TextView) mRoot.findViewById(R.id.news_title_label);
-        this.newsDateLabel = (TextView) mRoot.findViewById(R.id.news_date_label);
-        this.newsDescriptionLabel = (TextView) mRoot.findViewById(R.id.news_description_label);
+        this.mNewsImage = (AspectRatioImageView) mRoot.findViewById(R.id.news_image);
+        this.mNewsCategoryLabel = (TextView) mRoot.findViewById(R.id.news_category_label);
+        this.mNewsTitleLabel = (TextView) mRoot.findViewById(R.id.news_title_label);
+        this.mNewsDateLabel = (TextView) mRoot.findViewById(R.id.news_date_label);
+        this.mNewsDescriptionLabel = (TextView) mRoot.findViewById(R.id.news_description_label);
 
 
         return mRoot;
@@ -90,10 +95,10 @@ public class FragmentNewsDetail
 
     @Override
     protected void customResume() {
-        /*if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
+        /*if (this.mScreenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
             //load needed data
-            this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
-        } else if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusLoading) {
+            this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
+        } else if (this.mScreenDataStatus == ScreenDataStatus.ScreenDataStatusLoading) {
             //just waiting
         } else {
             //reload screen, this case application return from background or from other activity
@@ -105,7 +110,7 @@ public class FragmentNewsDetail
     @Override
     void loadSavedInstanceState(@Nullable Bundle savedInstanceState) {
         if (savedInstanceState.containsKey(SCREEN_DATA)) {
-            this.screenData = (NewsInfo.News) savedInstanceState.getSerializable(SCREEN_DATA);
+            this.mScreenData = (NewsInfo.News) savedInstanceState.getSerializable(SCREEN_DATA);
         }
     }
 
@@ -120,13 +125,18 @@ public class FragmentNewsDetail
     }
 
     @Override
+    boolean canCloseByBackpressed() {
+        return true;
+    }
+
+    @Override
     public int getItemCount() {
-        return this.screenDataItems.size();
+        return this.mScreenDataItems.size();
     }
 
     @Override
     public RecyclerItemWrapper getItemData(int position) {
-        return this.screenDataItems.get(position);
+        return this.mScreenDataItems.get(position);
     }
 
     @Override

@@ -7,8 +7,11 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.ConsoleMessage;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
 
 import java.util.Locale;
 
@@ -25,9 +28,10 @@ import jp.tenposs.utils.Utils;
  * Created by ambient on 7/29/16.
  */
 public class FragmentReserve extends AbstractFragment {
-    WebView webView;
-    ReserveInfo.Reserve screenData;
-    TopInfo.Contact storeInfo;
+    ProgressBar mLoadingProgress;
+    WebView mWebView;
+    ReserveInfo.Reserve mScreenData;
+    TopInfo.Contact mStoreInfo;
 
     public static String STORE_INFO = "STORE_INFO";
 
@@ -42,19 +46,24 @@ public class FragmentReserve extends AbstractFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.storeInfo = (TopInfo.Contact) getArguments().getSerializable(STORE_INFO);
+        this.mStoreInfo = (TopInfo.Contact) getArguments().getSerializable(STORE_INFO);
     }
 
     @Override
-    protected void customClose() {
-
+    protected boolean customClose() {
+        return false;
     }
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings.toolbarTitle = getString(R.string.reserve);
-        toolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
-        toolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        mToolbarSettings.toolbarTitle = getString(R.string.reserve);
+        mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
+        mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+    }
+
+    @Override
+    protected void clearScreenData() {
+
     }
 
 
@@ -65,38 +74,63 @@ public class FragmentReserve extends AbstractFragment {
 
     @Override
     protected void previewScreenData() {
-        String strUrl = screenData.reserve_url.toLowerCase(Locale.US);
-        String strTemp = screenData.reserve_url.toLowerCase(Locale.US);
+        this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
+        String strUrl = mScreenData.reserve_url.toLowerCase(Locale.US);
+        String strTemp = mScreenData.reserve_url.toLowerCase(Locale.US);
 
         if (strTemp.contains("http://") == false && strTemp.contains("https://") == false)
             strUrl = "http://" + strUrl;
 
-        this.webView.loadUrl(strUrl);
+        //strUrl = "http://vnexpress.net/";
+        this.mWebView.loadUrl(strUrl);
         updateToolbar();
     }
 
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View mRoot = inflater.inflate(R.layout.fragment_reserve, null);
-        this.webView = (WebView) mRoot.findViewById(R.id.web_view);
-        this.webView.getSettings().setJavaScriptEnabled(true);
-        this.webView.setWebViewClient(new WebViewClient() {
+        View root = inflater.inflate(R.layout.fragment_web_view, null);
+        this.mLoadingProgress = (ProgressBar) root.findViewById(R.id.loading_progress);
+        this.mWebView = (WebView) root.findViewById(R.id.web_view);
+        this.mWebView.measure(100, 100);
+        this.mWebView.getSettings().setUseWideViewPort(true);
+        this.mWebView.getSettings().setLoadWithOverviewMode(true);
+        this.mWebView.getSettings().setJavaScriptEnabled(true);
+        this.mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(final WebView view, final String url) {
                 return false;
             }
         });
-        return mRoot;
+        this.mWebView.setWebChromeClient(
+                new WebChromeClient() {
+                    @Override
+                    public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+                        System.out.println(consoleMessage.message());
+                        return super.onConsoleMessage(consoleMessage);
+                    }
+
+                    @Override
+                    public void onProgressChanged(WebView view, int newProgress) {
+                        if (newProgress < 100) {
+                            mLoadingProgress.setVisibility(View.VISIBLE);
+                            System.out.println("Loading " + newProgress + "%");
+                            mLoadingProgress.setProgress(newProgress);
+                        } else {
+                            mLoadingProgress.setVisibility(View.INVISIBLE);
+                        }
+                    }
+                });
+        return root;
     }
 
     @Override
     protected void customResume() {
-        if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
+        if (this.mScreenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
             //load needed data
-            this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
+            this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
             loadReserveInfo();
 
-        } else if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusLoading) {
+        } else if (this.mScreenDataStatus == ScreenDataStatus.ScreenDataStatusLoading) {
             //just waiting
 
         } else {
@@ -108,7 +142,7 @@ public class FragmentReserve extends AbstractFragment {
     @Override
     void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
         if (savedInstanceState.containsKey(SCREEN_DATA)) {
-            //this.screenData = (TopInfo.Response.ResponseData) savedInstanceState.getSerializable(SCREEN_DATA);
+            //this.mScreenData = (TopInfo.Response.ResponseData) savedInstanceState.getSerializable(SCREEN_DATA);
         }
     }
 
@@ -122,12 +156,17 @@ public class FragmentReserve extends AbstractFragment {
 
     }
 
+    @Override
+    boolean canCloseByBackpressed() {
+        return false;
+    }
+
     void loadReserveInfo() {
         ReserveInfo.Request requestParams = new ReserveInfo.Request();
-        if (storeInfo != null) {
-            requestParams.store_id = storeInfo.id;
+        if (mStoreInfo != null) {
+            requestParams.store_id = mStoreInfo.id;
         } else {
-            requestParams.store_id = 1;
+            requestParams.store_id = this.mStoreId;
         }
 
         Bundle params = new Bundle();
@@ -140,10 +179,9 @@ public class FragmentReserve extends AbstractFragment {
                         if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
                             int resultApi = responseParams.getInt(Key.ResponseResultApi);
                             if (resultApi == CommonResponse.ResultSuccess) {
-                                //TODO:
                                 ReserveInfo.Response response = (ReserveInfo.Response) responseParams.getSerializable(Key.ResponseObject);
                                 if (response.data.reserve.size() > 0) {
-                                    screenData = response.data.reserve.get(0);
+                                    mScreenData = response.data.reserve.get(0);
                                     previewScreenData();
                                 } else {
                                     Utils.showAlert(getContext(),

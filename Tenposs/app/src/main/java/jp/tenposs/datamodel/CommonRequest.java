@@ -67,42 +67,33 @@ public abstract class CommonRequest implements Serializable {
         sig = CryptoUtils.sha256(input);
     }
 
-    public String makeParams(String method) {
+    public String makeParams() {
         try {
             generateSig();
             String params = "";
-            if (method.compareToIgnoreCase("GET") == 0) {
-                Field[] fields = this.getClass().getFields();
-                String separate = "";
-                for (Field field : fields) {
-                    try {
-                        if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
-                            continue;
-                        }
-                        String name = URLEncoder.encode(field.getName(), "UTF-8");
-                        Object value = field.get(this);
-                        if (value != null) {
-                            if (value instanceof Double || value instanceof Integer || value instanceof String || value instanceof Boolean || value instanceof Long || value instanceof Float || value instanceof Short) {
-                                params += separate + name + "=" + URLEncoder.encode(value.toString(), "UTF-8");
-                            } else if (value instanceof Date) {
-                                params += separate + name + "=" + URLEncoder.encode(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format((Date) value), "UTF-8");
-                            }
-                            if (separate == "") {
-                                separate = "&";
-                            }
-                        }
-                    } catch (IllegalArgumentException e) {
-                        e.printStackTrace();
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
+            Field[] fields = this.getClass().getFields();
+            String separate = "";
+            for (Field field : fields) {
+                try {
+                    if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+                        continue;
                     }
-                }
-            } else {
-                params += "app_id=" + app_id;
-                params += "&time=" + time;
-                params += "&sig=" + sig;
-                if (token != null) {
-                    params += "&token=" + token;
+                    String name = URLEncoder.encode(field.getName(), "UTF-8");
+                    Object value = field.get(this);
+                    if (value != null) {
+                        if (value instanceof Double || value instanceof Integer || value instanceof String || value instanceof Boolean || value instanceof Long || value instanceof Float || value instanceof Short) {
+                            params += separate + name + "=" + URLEncoder.encode(value.toString(), "UTF-8");
+                        } else if (value instanceof Date) {
+                            params += separate + name + "=" + URLEncoder.encode(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format((Date) value), "UTF-8");
+                        }
+                        if (separate == "") {
+                            separate = "&";
+                        }
+                    }
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
                 }
             }
             return params;

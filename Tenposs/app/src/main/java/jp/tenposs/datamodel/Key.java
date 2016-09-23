@@ -17,8 +17,8 @@ public class Key {
     public static String ResponseHeader = "ResponseHeader";
 
     public static String Settings = "Settings";
-    public static String Profile = "Profile";
     public static String UserProfile = "UserProfile";
+    public static String FireBaseTokenKey = "FireBaseTokenKey";
     public static String TokenKey = "TokenKey";
 
     public static String FacebookTokenKey = "FacebookTokenKey";
@@ -27,4 +27,10 @@ public class Key {
     public static String RequestConnectionTimeout = "RequestConnectionTimeout";
     public static String RequestReadTimeout = "RequestReadTimeout";
     public static String RequestWriteTimeout = "RequestWriteTimeout";
+
+    public static String UpdateProfileAvatar = "UpdateProfileAvatar";
+    public static String UpdateProfileName = "UpdateProfileName";
+    public static String UpdateProfileGender = "UpdateProfileGender";
+    public static String UpdateProfileAddress = "UpdateProfileAddress";
+
 }

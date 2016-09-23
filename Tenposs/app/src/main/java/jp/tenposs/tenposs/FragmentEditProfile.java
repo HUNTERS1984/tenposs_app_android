@@ -1,10 +1,18 @@
 package jp.tenposs.tenposs;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,69 +23,122 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.Profile;
+import com.facebook.ProfileTracker;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
+import com.twitter.sdk.android.core.Callback;
+import com.twitter.sdk.android.core.Result;
+import com.twitter.sdk.android.core.TwitterAuthToken;
+import com.twitter.sdk.android.core.TwitterException;
+import com.twitter.sdk.android.core.TwitterSession;
+import com.twitter.sdk.android.core.identity.TwitterLoginButton;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import jp.tenposs.communicator.SignOutCommunicator;
+import jp.tenposs.communicator.SocialProfileCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
 import jp.tenposs.communicator.UpdateProfileCommunicator;
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
+import jp.tenposs.datamodel.ScreenDataStatus;
+import jp.tenposs.datamodel.SignInInfo;
 import jp.tenposs.datamodel.SignOutInfo;
+import jp.tenposs.datamodel.SocialProfileInfo;
+import jp.tenposs.datamodel.SocialSigninInfo;
 import jp.tenposs.datamodel.UpdateProfileInfo;
-import jp.tenposs.datamodel.UserInfo;
+import jp.tenposs.utils.CropUtil;
 import jp.tenposs.utils.Utils;
 import jp.tenposs.view.CircleImageView;
 
 /**
  * Created by ambient on 8/17/16.
  */
-public class FragmentEditProfile extends AbstractFragment {
+public class FragmentEditProfile extends AbstractFragment implements View.OnClickListener {
 
-    CircleImageView userAvatarImage;
-    Button changeAvatarButton;
+    CircleImageView mUserAvatarImage;
+    Button mChangeAvatarButton;
 
-    TextView idLabel;
-    EditText idEdit;
+    TextView mIdLabel;
+    EditText mIdEdit;
 
-    TextView userNameLabel;
-    EditText userNameEdit;
+    TextView mUserNameLabel;
+    EditText mUserNameEdit;
 
-    TextView emailLabel;
-    EditText emailEdit;
+    TextView mEmailLabel;
+    EditText mEmailEdit;
 
-    TextView genderLabel;
-    Spinner genderSpinner;
+    TextView mGenderLabel;
+    Spinner mGenderSpinner;
 
-    TextView provinceLabel;
-    Spinner provinceSpinner;
+    TextView mProvinceLabel;
+    Spinner mProvinceSpinner;
 
-    ImageView facebookIcon;
-    TextView linkWithFacebookLabel;
-    Button linkFacebookButton;
+    ImageView mFacebookIcon;
+    TextView mLinkWithFacebookLabel;
+    Button mLinkFacebookButton;
+    LoginButton mFacebookLogin;
 
-    ImageView twitterIcon;
-    TextView linkWithTwitterLabel;
-    Button linkTwitterButton;
+    ImageView mTwitterIcon;
+    TextView mLinkWithTwitterLabel;
+    Button mLinkTwitterButton;
+    TwitterLoginButton mTwitterLogin;
 
-    ImageView instagramIcon;
-    TextView linkWithInstagram;
-    Button linkInstargramButton;
+    ImageView mInstagramIcon;
+    TextView mLinkWithInstagram;
+    Button mLinkInstagramButton;
 
-    UserInfo.User screenData;
+    SignInInfo.User mScreenData;
+
+    CallbackManager mCallbackManager;
+    ProfileTracker mProfileTracker;
 
     @Override
-    protected void customClose() {
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            previewScreenData();
+        }
+    }
 
+
+    @Override
+    protected boolean customClose() {
+        String userName = (String) mApplication.getSerializable(Key.UpdateProfileName);
+        String gender = (String) mApplication.getSerializable(Key.UpdateProfileGender);
+        String address = (String) mApplication.getSerializable(Key.UpdateProfileAddress);
+        Uri selectedImage = (Uri) mApplication.getParcelable(Key.UpdateProfileAvatar);
+
+        if (userName == null && gender == null && address == null && selectedImage == null) {
+            return false;
+        }
+
+        updateProfile(gender, userName, address, selectedImage);
+        return true;
     }
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings.toolbarTitle = getString(R.string.edit_profile);
-        toolbarSettings.toolbarLeftIcon = "flaticon-back";
-        toolbarSettings.toolbarRightIcon = "flaticon-sign-out";
-        toolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+        mToolbarSettings.toolbarTitle = getString(R.string.edit_profile);
+        mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+        mToolbarSettings.toolbarRightIcon = "flaticon-sign-out";
+        mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+    }
+
+    @Override
+    protected void clearScreenData() {
+
     }
 
     @Override
@@ -87,44 +148,31 @@ public class FragmentEditProfile extends AbstractFragment {
 
     @Override
     protected void previewScreenData() {
-        this.changeAvatarButton.setOnClickListener(
+        this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
+        this.mChangeAvatarButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         //show image capture
-                        Bundle params = new Bundle();
-                        UpdateProfileInfo.Request request = new UpdateProfileInfo.Request();
-                        request.token = getKeyString(Key.TokenKey);
-                        request.username = userNameEdit.getEditableText().toString();
-                        request.gender = 0;
-                        request.address = getString(R.string.tokyo);
-                        request.avatar = "/sdcard/avatar.png";
-                        params.putSerializable(Key.RequestObject, request);
-                        UpdateProfileCommunicator communicator = new UpdateProfileCommunicator(
-                                new TenpossCommunicator.TenpossCommunicatorListener() {
-                                    @Override
-                                    public void completed(TenpossCommunicator request, Bundle responseParams) {
-                                        hideProgress();
-                                        int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                                        if (resultApi == CommonResponse.ResultSuccess) {
-                                            //TODO:
-
-                                        } else {
-                                            String strMessage = responseParams.getString(Key.ResponseMessage);
-                                            errorWithMessage(responseParams, strMessage);
-                                        }
-                                    }
-                                }
-                        );
-
-                        showProgress(getString(R.string.msg_updating_profile));
-                        communicator.execute(params);
+                        if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                            ActivityCompat.requestPermissions(getActivity(),
+                                    new String[]{android.Manifest.permission.CAMERA,
+                                            android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                                            Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                    AbstractFragment.CAPTURE_IMAGE_REQUEST);
+                        } else {
+                            showImageCapture();
+                        }
+                        /*FragmentSelectAvatar fragmentSelectAvatar = new FragmentSelectAvatar();
+                        fragmentSelectAvatar.setTargetFragment(FragmentEditProfile.this, FragmentSelectAvatar.CAPTURE_IMAGE_INTENT);
+                        //fragmentSelectAvatar.
+                        mActivityListener.showFragment(fragmentSelectAvatar, FragmentSelectAvatar.class.getCanonicalName(), true);
+                        /**/
                     }
                 }
-
         );
-        this.rightToolbarButton.setVisibility(View.INVISIBLE);
-        this.rightToolbarButton.setOnClickListener(
+        this.mRightToolbarButton.setVisibility(View.INVISIBLE);
+        this.mRightToolbarButton.setOnClickListener(
                 new View.OnClickListener()
 
                 {
@@ -136,131 +184,261 @@ public class FragmentEditProfile extends AbstractFragment {
                 }
 
         );
-        this.rightToolbarButton.setVisibility(View.VISIBLE);
-        //        this.userAvatarImage;
-        //TextView userNameLabel;
+//        this.mRightToolbarButton.setVisibility(View.VISIBLE);
+        //        this.mUserAvatarImage;
+        //TextView mUserNameLabel;
+
         Picasso ps = Picasso.with(getContext());
-        ps.load(this.screenData.profile.getImageUrl())
-                .resize(thumbImageSize, thumbImageSize)
-                .centerInside()
-                .into(
-                        new Target() {
-                            @Override
-                            public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+        ps.load(this.mScreenData.profile.getImageUrl())
+                .resize(mFullImageSize, 640)
+                .centerCrop()
+                .placeholder(R.drawable.no_avatar)
+                .into(mUserAvatarImage);
 
-                                //Set it in the ImageView
-                                userAvatarImage.setImageBitmap(bitmap);
-                            }
+        this.mIdEdit.setText(Integer.toString(this.mScreenData.id));
 
-                            @Override
-                            public void onPrepareLoad(Drawable placeHolderDrawable) {
+        this.mUserNameEdit.setText(this.mScreenData.profile.name);
 
-                            }
-
-                            @Override
-                            public void onBitmapFailed(Drawable errorDrawable) {
-
-                            }
-                        }
-
-                );
-
-        this.idEdit.setText(Integer.toString(this.screenData.id));
-
-        this.userNameEdit.setText(this.screenData.profile.name);
-
-        this.emailEdit.setText(this.screenData.email);
+        this.mEmailEdit.setText(this.mScreenData.email);
 
         ArrayAdapter<CharSequence> adapterGender = ArrayAdapter.createFromResource(this.getContext(),
                 R.array.gender_array, android.R.layout.simple_spinner_item);
         adapterGender.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        this.genderSpinner.setAdapter(adapterGender);
+        this.mGenderSpinner.setAdapter(adapterGender);
         try {
-            this.genderSpinner.setSelection(screenData.profile.gender);
-        } catch (Exception ignored
-                )
-
-        {
+            this.mGenderSpinner.setSelection(mScreenData.profile.gender);
+        } catch (Exception ignored) {
 
         }
 
         ArrayAdapter<CharSequence> adapterProvince = ArrayAdapter.createFromResource(this.getContext(),
                 R.array.japan_prefectures, android.R.layout.simple_spinner_item);
         adapterProvince.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        this.provinceSpinner.setAdapter(adapterProvince);
-        try
-
-        {
-            this.provinceSpinner.setSelection(screenData.profile.province);
-        } catch (Exception ignored)
-
-        {
+        this.mProvinceSpinner.setAdapter(adapterProvince);
+        try {
+            //this.mProvinceSpinner.setSelection(mScreenData.profile.address);
+        } catch (Exception ignored) {
 
         }
 
-        updateToolbar();
+        List<String> permission = new ArrayList<>();
+        permission.add("public_profile");
+        permission.add("email");
 
+        this.mCallbackManager = mActivityListener.getCallbackManager();
+
+        this.mFacebookLogin.setReadPermissions(permission);
+        this.mFacebookLogin.setFragment(this);
+        this.mFacebookLogin.registerCallback(this.mCallbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                // App code
+                final String token = loginResult.getAccessToken().getToken();
+                Profile profile = Profile.getCurrentProfile();
+                if (profile == null) {
+                    mProfileTracker = new ProfileTracker() {
+                        @Override
+                        protected void onCurrentProfileChanged(Profile profile, Profile profile2) {
+                            linkWithSocialAccount(
+                                    SocialSigninInfo.FACEBOOK,
+                                    profile2.getId(),
+                                    token, null);
+                            mProfileTracker.stopTracking();
+                        }
+                    };
+                } else {
+                    linkWithSocialAccount(
+                            SocialSigninInfo.FACEBOOK,
+                            profile.getId(),
+                            token, null);
+                }
+            }
+
+            @Override
+            public void onCancel() {
+                // App code
+            }
+
+            @Override
+            public void onError(FacebookException exception) {
+                // App code
+                System.out.print("FragmentSignIn " + exception.getMessage());
+            }
+        });
+
+        this.mTwitterLogin.setCallback(new Callback<TwitterSession>() {
+            @Override
+            public void success(Result<TwitterSession> result) {
+
+                TwitterAuthToken token = result.data.getAuthToken();
+                String twitterToken = token.token;
+
+                String secretKey = token.secret;
+
+                linkWithSocialAccount(SocialSigninInfo.TWITTER,
+                        Long.toString(result.data.getId()),
+                        twitterToken,//token
+                        secretKey
+                );
+            }
+
+            @Override
+            public void failure(TwitterException exception) {
+
+            }
+        });
+        updateToolbar();
     }
 
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_edit_profile, null);
-        this.userAvatarImage = (CircleImageView) root.findViewById(R.id.user_avatar_image);
-        this.changeAvatarButton = (Button) root.findViewById(R.id.change_avatar_button);
-        //TextView userNameLabel;
+        this.mUserAvatarImage = (CircleImageView) root.findViewById(R.id.user_avatar_image);
+        this.mChangeAvatarButton = (Button) root.findViewById(R.id.change_avatar_button);
+        //TextView mUserNameLabel;
         //        this.idLabel = root.findViewById(R.id.id_la);
-        this.idEdit = (EditText) root.findViewById(R.id.id_edit);
+        this.mIdEdit = (EditText) root.findViewById(R.id.id_edit);
 
-        this.userNameLabel = (TextView) root.findViewById(R.id.user_name_label);
-        this.userNameEdit = (EditText) root.findViewById(R.id.user_name_edit);
+        this.mUserNameLabel = (TextView) root.findViewById(R.id.user_name_label);
+        this.mUserNameEdit = (EditText) root.findViewById(R.id.user_name_edit);
 
-        this.emailLabel = (TextView) root.findViewById(R.id.email_label);
-        this.emailEdit = (EditText) root.findViewById(R.id.email_edit);
+        this.mEmailLabel = (TextView) root.findViewById(R.id.email_label);
+        this.mEmailEdit = (EditText) root.findViewById(R.id.email_edit);
 
-        this.genderLabel = (TextView) root.findViewById(R.id.gender_label);
-        this.genderSpinner = (Spinner) root.findViewById(R.id.gender_spinner);
+        this.mGenderLabel = (TextView) root.findViewById(R.id.gender_label);
+        this.mGenderSpinner = (Spinner) root.findViewById(R.id.gender_spinner);
 
-        this.provinceLabel = (TextView) root.findViewById(R.id.province_label);
-        this.provinceSpinner = (Spinner) root.findViewById(R.id.province_spinner);
+        this.mProvinceLabel = (TextView) root.findViewById(R.id.province_label);
+        this.mProvinceSpinner = (Spinner) root.findViewById(R.id.province_spinner);
 
-        this.facebookIcon = (ImageView) root.findViewById(R.id.facebook_icon);
-        this.linkWithFacebookLabel = (TextView) root.findViewById(R.id.facebook_label);
-        this.linkFacebookButton = (Button) root.findViewById(R.id.facebook_button);
+        this.mFacebookIcon = (ImageView) root.findViewById(R.id.facebook_icon);
+        this.mLinkWithFacebookLabel = (TextView) root.findViewById(R.id.facebook_label);
+        this.mLinkFacebookButton = (Button) root.findViewById(R.id.facebook_button);
+        this.mFacebookLogin = (LoginButton) root.findViewById(R.id.facebook_login);
 
-        this.twitterIcon = (ImageView) root.findViewById(R.id.twitter_icon);
-        this.linkWithTwitterLabel = (TextView) root.findViewById(R.id.twitter_label);
-        this.linkTwitterButton = (Button) root.findViewById(R.id.twitter_button);
+        this.mTwitterIcon = (ImageView) root.findViewById(R.id.twitter_icon);
+        this.mLinkWithTwitterLabel = (TextView) root.findViewById(R.id.twitter_label);
+        this.mLinkTwitterButton = (Button) root.findViewById(R.id.twitter_button);
+        this.mTwitterLogin = (TwitterLoginButton) root.findViewById(R.id.twitter_login);
 
-        this.instagramIcon = (ImageView) root.findViewById(R.id.instagram_icon);
-        this.linkWithInstagram = (TextView) root.findViewById(R.id.instagram_label);
-        this.linkInstargramButton = (Button) root.findViewById(R.id.instargram_button);
+        this.mInstagramIcon = (ImageView) root.findViewById(R.id.instagram_icon);
+        this.mLinkWithInstagram = (TextView) root.findViewById(R.id.instagram_label);
+        this.mLinkInstagramButton = (Button) root.findViewById(R.id.instargram_button);
 
+        this.mLinkFacebookButton.setOnClickListener(this);
+        this.mLinkTwitterButton.setOnClickListener(this);
+        this.mLinkInstagramButton.setOnClickListener(this);
         String userProfile = getKeyString(Key.UserProfile);
-        this.screenData = (UserInfo.User) CommonObject.fromJSONString(userProfile, UserInfo.User.class, null);
+        this.mScreenData = (SignInInfo.User) CommonObject.fromJSONString(userProfile, SignInInfo.User.class, null);
 
         return root;
     }
 
     @Override
     protected void customResume() {
-        previewScreenData();
+
     }
 
     @Override
     void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
         if (savedInstanceState.containsKey(SCREEN_DATA)) {
-            this.screenData = (UserInfo.User) savedInstanceState.getSerializable(SCREEN_DATA);
+            this.mScreenData = (SignInInfo.User) savedInstanceState.getSerializable(SCREEN_DATA);
         }
     }
 
     @Override
     void customSaveInstanceState(Bundle outState) {
-        outState.putSerializable(SCREEN_DATA, screenData);
+        outState.putSerializable(SCREEN_DATA, mScreenData);
     }
 
     @Override
     void setRefreshing(boolean refreshing) {
 
+    }
+
+    @Override
+    boolean canCloseByBackpressed() {
+        return true;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == CAPTURE_IMAGE_REQUEST) {
+            if (resultCode == PackageManager.PERMISSION_GRANTED) {
+                showImageCapture();
+            }
+        } else if (requestCode == CAPTURE_IMAGE_INTENT) {
+            if (resultCode == Activity.RESULT_OK) {
+                String strFilePath = "";
+                try {
+                    if (data != null) {
+                        Uri selectedImage = (Uri) data.getData();
+                        if (selectedImage != null) {
+                            //strFilePath = path.getPath();
+                            if (selectedImage.getScheme().compareToIgnoreCase("file") == 0) {
+                                strFilePath = selectedImage.getPath();
+                            } else if (selectedImage.getScheme().compareToIgnoreCase("content") == 0) {
+
+                                String[] filePathColumn = {MediaStore.Images.Media.DATA};
+
+                                Cursor cursor = getActivity().getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+                                cursor.moveToFirst();
+
+                                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                                strFilePath = cursor.getString(columnIndex);
+
+                                cursor.close();
+                                System.out.println("file Path +" + strFilePath);  //path of sdcard
+                            } else {
+                                //showAlert("Not support file format.", "OK", null, AlertTag.AlertCommon.ordinal());
+                                return;
+                            }
+                        } else {
+                            Bundle extras = data.getExtras();
+                            if (extras == null) {
+                                strFilePath = null;
+                            } else {
+                                File outputDir = getActivity().getCacheDir(); // context being the Activity pointer
+                                File inputFile = File.createTempFile("IMG_IN_", ".jpg", outputDir);
+                                strFilePath = inputFile.getPath();
+                                Bitmap bitmap = (Bitmap) extras.get("data");
+                                OutputStream outputStream = null;
+                                try {
+                                    outputStream = getActivity().getContentResolver().openOutputStream(Uri.fromFile(inputFile));
+                                    if (outputStream != null) {
+                                        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
+                                    }
+                                } catch (IOException e) {
+                                } finally {
+                                    CropUtil.closeSilently(outputStream);
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception ignored) {
+                    ignored.printStackTrace();
+                    strFilePath = null;
+                }
+
+                try {
+                    File outputDir = getActivity().getCacheDir(); // context being the Activity pointer
+                    File outputFile = File.createTempFile("IMG_OUT_", ".png", outputDir);
+                    FragmentSelectAvatar fragmentSelectAvatar =
+                            FragmentSelectAvatar.newInstance(
+                                    Uri.fromFile(new File(strFilePath)),
+                                    Uri.fromFile(outputFile));
+                    fragmentSelectAvatar.setTargetFragment(FragmentEditProfile.this, FragmentSelectAvatar.CAPTURE_IMAGE_INTENT);
+                    mActivityListener.showFragment(fragmentSelectAvatar, FragmentSelectAvatar.class.getCanonicalName(), true);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else if (requestCode == CROP_IMAGE_INTENT) {
+            if (data != null) {
+                Bundle extras = data.getExtras();
+                mApplication.putParceable(Key.UpdateProfileAvatar, extras.getParcelable(Key.UpdateProfileAvatar));
+            }
+        }
     }
 
     void performSignOut() {
@@ -287,8 +465,7 @@ public class FragmentEditProfile extends AbstractFragment {
                                                         //clear token and user profile
                                                         setKeyString(Key.TokenKey, "");
                                                         setKeyString(Key.UserProfile, "");
-                                                        setKeyString(Key.Profile, "");
-                                                        activityListener.updateUserInfo(null);
+                                                        mActivityListener.updateUserInfo(null);
                                                         close();
                                                     } else {
                                                         String strMessage = responseParams.getString(Key.ResponseMessage);
@@ -316,5 +493,144 @@ public class FragmentEditProfile extends AbstractFragment {
                         }
                     }
                 });
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == this.mLinkFacebookButton) {
+            Profile profile = Profile.getCurrentProfile();
+            String token = getKeyString(Key.FacebookTokenKey);
+            if (profile != null && token.length() > 0) {
+                // user has logged in
+                linkWithSocialAccount(
+                        SocialSigninInfo.FACEBOOK,
+                        profile.getId(),
+                        token,
+                        null);
+            } else {
+                this.mFacebookLogin.performClick();
+            }
+        } else if (v == this.mLinkTwitterButton) {
+            this.mTwitterLogin.performClick();
+
+        } else if (v == this.mLinkInstagramButton) {
+            showPopupInstagram();
+        }
+    }
+
+    void linkWithSocialAccount(String socialType,
+                               String socialId,
+                               String socialToken,
+                               String socialSecret) {
+        Bundle params = new Bundle();
+        SocialProfileInfo.Request request = new SocialProfileInfo.Request();
+
+        request.social_type = socialType;
+        request.social_id = socialId;//1: facebook 2:twitter
+        request.social_token = socialToken;
+        request.social_secret = socialSecret;//twitter secret (used for twitter only)
+        //request.nickname = "???";
+
+        request.token = getKeyString(Key.TokenKey);
+        params.putSerializable(Key.RequestObject, request);
+        SocialProfileCommunicator communicator = new SocialProfileCommunicator(
+                new TenpossCommunicator.TenpossCommunicatorListener() {
+                    @Override
+                    public void completed(TenpossCommunicator request, Bundle responseParams) {
+                        hideProgress();
+                        int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                        if (resultApi == CommonResponse.ResultSuccess) {
+                            //clear all data
+
+                            mApplication.remove(Key.UpdateProfileName);
+                            mApplication.remove(Key.UpdateProfileGender);
+                            mApplication.remove(Key.UpdateProfileAddress);
+                            mApplication.remove(Key.UpdateProfileAvatar);
+
+                            close();
+
+                        } else {
+                            String strMessage = responseParams.getString(Key.ResponseMessage);
+                            errorWithMessage(responseParams, strMessage);
+                        }
+                    }
+                }
+        );
+
+        showProgress(getString(R.string.msg_updating_profile));
+        communicator.execute(params);
+    }
+
+    void showImageCapture() {
+        final Intent videoGalleryIntent =
+                new Intent(Intent.ACTION_PICK)
+                        .setType("image/*")
+                        .putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(this.getActivity().getPackageManager()) != null) {
+            final Intent chooserIntent = Intent.createChooser(videoGalleryIntent, getString(R.string.title_select_or_capture_picture));
+            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{takePictureIntent});
+            getActivity().startActivityForResult(chooserIntent, CAPTURE_IMAGE_INTENT);
+        }
+    }
+
+    void updateProfile(String gender, String userName, String address, Uri avatar) {
+        Bundle params = new Bundle();
+        UpdateProfileInfo.Request request = new UpdateProfileInfo.Request();
+        request.token = getKeyString(Key.TokenKey);
+
+        if (userName != null) {
+            request.username = userName;
+        }
+
+        if (gender != null) {
+            request.gender = Utils.atoi(gender);
+        }
+
+        if (address != null) {
+            request.address = address;//getString(R.string.tokyo);
+        }
+
+        if (avatar != null) {
+            request.avatar = avatar.getPath();
+        }
+
+        params.putSerializable(Key.RequestObject, request);
+        UpdateProfileCommunicator communicator = new UpdateProfileCommunicator(
+                new TenpossCommunicator.TenpossCommunicatorListener() {
+                    @Override
+                    public void completed(TenpossCommunicator request, Bundle responseParams) {
+                        hideProgress();
+                        int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                        if (resultApi == CommonResponse.ResultSuccess) {
+                            //clear all data
+
+                            mApplication.remove(Key.UpdateProfileName);
+                            mApplication.remove(Key.UpdateProfileGender);
+                            mApplication.remove(Key.UpdateProfileAddress);
+                            mApplication.remove(Key.UpdateProfileAvatar);
+
+                            close();
+
+                        } else {
+                            String strMessage = responseParams.getString(Key.ResponseMessage);
+                            errorWithMessage(responseParams, strMessage);
+                        }
+                    }
+                }
+        );
+
+        showProgress(getString(R.string.msg_updating_profile));
+        communicator.execute(params);
+    }
+
+    void showPopupInstagram() {
+        PopupInstagram popupInstagram = new PopupInstagram(this.getContext());
+        popupInstagram.show(new PopupInstagram.PopupListener() {
+            @Override
+            public void onPopupDismiss(int which, Serializable extras) {
+
+            }
+        });
     }
 }

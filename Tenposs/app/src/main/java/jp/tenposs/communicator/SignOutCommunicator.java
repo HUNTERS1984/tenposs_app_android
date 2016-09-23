@@ -8,7 +8,6 @@ import java.io.OutputStream;
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
-import jp.tenposs.datamodel.SignInInfo;
 import jp.tenposs.datamodel.SignOutInfo;
 
 /**
@@ -17,7 +16,7 @@ import jp.tenposs.datamodel.SignOutInfo;
 public class SignOutCommunicator extends TenpossCommunicator {
     public SignOutCommunicator(TenpossCommunicatorListener listener) {
         super(listener);
-        mMethod = "POST";
+        mMethod = METHOD_POST;
     }
 
     @Override
@@ -38,7 +37,7 @@ public class SignOutCommunicator extends TenpossCommunicator {
         result = request(strUrl, output, bundle);
         if (result == CommunicationCode.ConnectionSuccess.ordinal()) {
             String strResponse = output.toString();
-            CommonResponse response = (SignOutInfo.Response) CommonObject.fromJSONString(strResponse, SignInInfo.Response.class, null);
+            CommonResponse response = (SignOutInfo.Response) CommonObject.fromJSONString(strResponse, SignOutInfo.Response.class, null);
             if (response == null) {
                 response = (CommonResponse) CommonObject.fromJSONString(strResponse, CommonResponse.class, null);
             }

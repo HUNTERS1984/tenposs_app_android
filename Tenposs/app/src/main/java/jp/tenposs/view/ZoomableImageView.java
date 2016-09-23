@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -14,7 +15,10 @@ import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.View;
 
-public class ZoomableImageView extends View {
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+
+public class ZoomableImageView extends View implements Target {
 
     private static final String TAG = "ZoomableImageView";
 
@@ -520,6 +524,21 @@ public class ZoomableImageView extends View {
             }
         }
     };
+
+    @Override
+    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+        setImageBitmap(bitmap);
+    }
+
+    @Override
+    public void onBitmapFailed(Drawable errorDrawable) {
+
+    }
+
+    @Override
+    public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+    }
 
     /**
      * Show an event in the LogCat view, for debugging

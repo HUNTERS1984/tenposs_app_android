@@ -45,6 +45,7 @@ public class CommonObject implements Serializable {
 
             return gs.fromJson(json, cls);
         } catch (Exception ex) {
+            System.out.println(json);
             ex.printStackTrace();
         }
         return null;

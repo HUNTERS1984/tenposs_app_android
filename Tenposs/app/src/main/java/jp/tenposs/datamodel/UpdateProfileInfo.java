@@ -28,7 +28,9 @@ public class UpdateProfileInfo {
                 formData.put("username", username);
                 formData.put("gender", Integer.toString(gender));
                 formData.put("address", address);
-                formData.put("avatar", avatar);
+                if (avatar != null) {
+                    formData.put("avatar", avatar);
+                }
                 formData.put("sig", sig);
             } catch (Exception ignored) {
 

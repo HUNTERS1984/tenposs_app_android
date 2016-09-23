@@ -14,6 +14,7 @@ import java.io.Serializable;
 
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.Key;
+import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.utils.Utils;
 
 //import jp.tenposs.adapter.SettingsAdapter;
@@ -23,25 +24,30 @@ import jp.tenposs.utils.Utils;
  */
 public class FragmentSetting extends AbstractFragment implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
-    Button editProfileButton;
-    Switch receivePushSwitch;
-    Switch receiveCouponSwitch;
-    Button issueButton;
-    Button companyInfoButton;
-    Button userPrivacyButton;
+    Button mEditProfileButton;
+    Switch mReceivePushSwitch;
+    Switch mReceiveCouponSwitch;
+    Button mIssueButton;
+    Button mCompanyInfoButton;
+    Button mUserPrivacyButton;
 
-    SettingInfo screenData;
+    SettingInfo mScreenData;
 
     @Override
-    protected void customClose() {
-
+    protected boolean customClose() {
+        return false;
     }
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings.toolbarTitle = getString(R.string.setting);
-        toolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
-        toolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        mToolbarSettings.toolbarTitle = getString(R.string.setting);
+        mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
+        mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+    }
+
+    @Override
+    protected void clearScreenData() {
+
     }
 
     @Override
@@ -51,32 +57,33 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
 
     @Override
     protected void previewScreenData() {
-        this.receivePushSwitch.setChecked(this.screenData.receivePush);
-        this.receiveCouponSwitch.setChecked(this.screenData.receiveCouponInformation);
+        this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
+        this.mReceivePushSwitch.setChecked(this.mScreenData.receivePush);
+        this.mReceiveCouponSwitch.setChecked(this.mScreenData.receiveCouponInformation);
         updateToolbar();
     }
 
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View mRoot = inflater.inflate(R.layout.fragment_setting, null);
-        this.editProfileButton = (Button) mRoot.findViewById(R.id.edit_profile_button);
-        this.receivePushSwitch = (Switch) mRoot.findViewById(R.id.receive_push_switch);
-        this.receiveCouponSwitch = (Switch) mRoot.findViewById(R.id.receive_coupon_switch);
-        this.issueButton = (Button) mRoot.findViewById(R.id.issue_button);
-        this.companyInfoButton = (Button) mRoot.findViewById(R.id.company_info_button);
-        this.userPrivacyButton = (Button) mRoot.findViewById(R.id.user_privacy_button);
+        this.mEditProfileButton = (Button) mRoot.findViewById(R.id.edit_profile_button);
+        this.mReceivePushSwitch = (Switch) mRoot.findViewById(R.id.receive_push_switch);
+        this.mReceiveCouponSwitch = (Switch) mRoot.findViewById(R.id.receive_coupon_switch);
+        this.mIssueButton = (Button) mRoot.findViewById(R.id.issue_button);
+        this.mCompanyInfoButton = (Button) mRoot.findViewById(R.id.company_info_button);
+        this.mUserPrivacyButton = (Button) mRoot.findViewById(R.id.user_privacy_button);
 
-        this.editProfileButton.setOnClickListener(this);
-        this.receivePushSwitch.setOnCheckedChangeListener(this);
-        this.receiveCouponSwitch.setOnCheckedChangeListener(this);
-        this.issueButton.setOnClickListener(this);
-        this.companyInfoButton.setOnClickListener(this);
-        this.userPrivacyButton.setOnClickListener(this);
+        this.mEditProfileButton.setOnClickListener(this);
+        this.mReceivePushSwitch.setOnCheckedChangeListener(this);
+        this.mReceiveCouponSwitch.setOnCheckedChangeListener(this);
+        this.mIssueButton.setOnClickListener(this);
+        this.mCompanyInfoButton.setOnClickListener(this);
+        this.mUserPrivacyButton.setOnClickListener(this);
 
         String settings = getKeyString(Key.Settings);
-        this.screenData = (SettingInfo) CommonObject.fromJSONString(settings, SettingInfo.class, null);
-        if (this.screenData == null) {
-            this.screenData = new SettingInfo();
+        this.mScreenData = (SettingInfo) CommonObject.fromJSONString(settings, SettingInfo.class, null);
+        if (this.mScreenData == null) {
+            this.mScreenData = new SettingInfo();
         }
 
         return mRoot;
@@ -90,7 +97,7 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
     @Override
     void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
         if (savedInstanceState.containsKey(SCREEN_DATA)) {
-            this.screenData = (SettingInfo) savedInstanceState.getSerializable(SCREEN_DATA);
+            this.mScreenData = (SettingInfo) savedInstanceState.getSerializable(SCREEN_DATA);
 
         }
     }
@@ -106,11 +113,16 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
     }
 
     @Override
+    boolean canCloseByBackpressed() {
+        return false;
+    }
+
+    @Override
     public void onClick(View v) {
-        if (v == this.editProfileButton) {
+        if (v == this.mEditProfileButton) {
             // get to
             if (isSignedIn() == true) {
-                this.activityListener.showScreen(AbstractFragment.PROFILE_SCREEN, null);
+                this.mActivityListener.showScreen(AbstractFragment.PROFILE_SCREEN, null);
             } else {
                 Utils.showAlert(this.getContext(),
                         getString(R.string.info),
@@ -125,26 +137,26 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
                         });
             }
 
-        } else if (v == this.issueButton) {
+        } else if (v == this.mIssueButton) {
 
-        } else if (v == this.companyInfoButton) {
-            this.activityListener.showScreen(AbstractFragment.COMPANY_INFO_SCREEN, null);
+        } else if (v == this.mCompanyInfoButton) {
+            this.mActivityListener.showScreen(AbstractFragment.COMPANY_INFO_SCREEN, null);
 
-        } else if (v == this.userPrivacyButton) {
-            this.activityListener.showScreen(AbstractFragment.USER_PRIVACY_SCREEN, null);
+        } else if (v == this.mUserPrivacyButton) {
+            this.mActivityListener.showScreen(AbstractFragment.USER_PRIVACY_SCREEN, null);
 
         }
     }
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if (buttonView == this.receivePushSwitch) {
-            this.screenData.receivePush = isChecked;
-        } else if (buttonView == this.receiveCouponSwitch) {
-            this.screenData.receiveCouponInformation = isChecked;
+        if (buttonView == this.mReceivePushSwitch) {
+            this.mScreenData.receivePush = isChecked;
+        } else if (buttonView == this.mReceiveCouponSwitch) {
+            this.mScreenData.receiveCouponInformation = isChecked;
         }
 
-        String settings = CommonObject.toJSONString(this.screenData, SettingInfo.class);
+        String settings = CommonObject.toJSONString(this.mScreenData, SettingInfo.class);
         setKeyString(Key.Settings, settings);
     }
 

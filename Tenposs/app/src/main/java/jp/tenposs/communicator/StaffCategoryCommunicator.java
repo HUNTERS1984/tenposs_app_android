@@ -40,7 +40,7 @@ public class StaffCategoryCommunicator extends TenpossCommunicator {
     protected boolean request(Bundle bundle) {
         String strUrl;
         StaffCategoryInfo.Request requestData = (StaffCategoryInfo.Request) bundle.getSerializable(Key.RequestObject);
-        strUrl = API_STAFF_CATEGORY + requestData.makeParams("GET");
+        strUrl = API_STAFF_CATEGORY + requestData.makeParams();
         int result = TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal();
         byte[] dataRequest = null;
         OutputStream output = null;

@@ -17,7 +17,7 @@ public class SignInCommunicator extends TenpossCommunicator {
 
     public SignInCommunicator(TenpossCommunicatorListener listener) {
         super(listener);
-        this.mMethod = "POST";
+        this.mMethod = METHOD_POST;
     }
 
     @Override

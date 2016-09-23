@@ -22,7 +22,7 @@ public class UserInfoCommunicator extends TenpossCommunicator {
     protected boolean request(Bundle bundle) {
         String strUrl;
         UserInfo.Request requestData = (UserInfo.Request) bundle.getSerializable(Key.RequestObject);
-        strUrl = API_PROFILE + requestData.makeParams("GET");
+        strUrl = API_PROFILE + requestData.makeParams();
         int result = CommunicationCode.ConnectionSuccess.ordinal();
         byte[] dataRequest = null;
         OutputStream output = null;

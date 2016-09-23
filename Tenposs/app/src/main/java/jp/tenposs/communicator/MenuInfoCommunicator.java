@@ -22,7 +22,7 @@ public class MenuInfoCommunicator extends TenpossCommunicator {
     protected boolean request(Bundle bundle) {
         String strUrl;
         MenuInfo.Request requestData = (MenuInfo.Request) bundle.getSerializable(Key.RequestObject);
-        strUrl = API_MENU + requestData.makeParams("GET");
+        strUrl = API_MENU + requestData.makeParams();
         int result = TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal();
         byte[] dataRequest = null;
         OutputStream output = null;

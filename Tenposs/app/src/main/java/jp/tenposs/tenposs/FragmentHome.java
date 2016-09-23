@@ -22,7 +22,7 @@ import jp.tenposs.communicator.TenpossCommunicator;
 import jp.tenposs.communicator.TopInfoCommunicator;
 import jp.tenposs.datamodel.AppInfo;
 import jp.tenposs.datamodel.CommonResponse;
-import jp.tenposs.datamodel.ItemInfo;
+import jp.tenposs.datamodel.ItemsInfo;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.NewsInfo;
 import jp.tenposs.datamodel.PhotoInfo;
@@ -41,220 +41,70 @@ public class FragmentHome
         CommonAdapter.CommonDataSource,
         OnCommonItemClickListener {
 
-    ArrayList<AppInfo.SideMenu> sideMenuInfo = null;
-    AppInfo.Response appInfo = null;
-    AppInfo.Store storeInfo = null;
 
-    TopInfo.Response topData = null;
-    TopInfo.Response.ResponseData screenData = null;
+    AppInfo.Response mAppInfo = null;
+
+    TopInfo.Response mScreenData = null;
 
 
-    RecyclerView recyclerView;
-    CommonAdapter recyclerAdapter;
-    SwipeRefreshLayout swipeRefreshLayout;
+    RecyclerView mRecyclerView;
+    CommonAdapter mRecyclerAdapter;
+    SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
-    protected void customClose() {
-
+    protected boolean customClose() {
+        return false;
     }
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings.toolbarTitle = "";
-        toolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
-        toolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        mToolbarSettings.toolbarTitle = "";
+        mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
+        mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+    }
+
+    @Override
+    protected void clearScreenData() {
+        this.mAppInfo = null;
+        this.mScreenData = null;
+        this.mScreenDataItems = new ArrayList<>();
+        if (this.mRecyclerAdapter != null) {
+            this.mRecyclerAdapter.notifyDataSetChanged();
+        }
+
     }
 
     @Override
     protected void reloadScreenData() {
-        if (this.screenDataStatus != ScreenDataStatus.ScreenDataStatusUnload) {
+        if (this.mScreenDataStatus != ScreenDataStatus.ScreenDataStatusUnload) {
             return;
         }
-        this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
+        this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
         loadAppInfo();
     }
 
     @Override
     protected void previewScreenData() {
-        screenDataItems = new ArrayList<>();
-        Bundle extras;
-
-//        //Mockup Data
-//        screenData.images.data.add(new TopInfo.Image("http://wallpapers-and-backgrounds.net/wp-content/uploads/2016/01/bikini-hd-background_1.jpg"));
-//        screenData.images.data.add(new TopInfo.Image("http://wallpapers-and-backgrounds.net/wp-content/uploads/2016/01/bikini-1080p-background_1.jpg"));
-//        screenData.images.data.add(new TopInfo.Image("http://wallpapers-and-backgrounds.net/wp-content/uploads/2016/01/bikini-full-hd-background_1.jpg"));
-//        screenData.images.data.add(new TopInfo.Image("http://wallpapers-and-backgrounds.net/wp-content/uploads/2016/01/bikini-1080p-wallpaper_1.jpg"));
-//        screenData.images.data.add(new TopInfo.Image("http://wallpapers-and-backgrounds.net/wp-content/uploads/2016/01/bikini-sexy-background_1.jpg"));
-
-        if (screenData.images != null && screenData.images.size() > 0) {
-            AppInfo.TopComponent component = this.appInfo.data.getTopComponent(screenData.images.top_id);
-            if (component != null) {
-                extras = new Bundle();
-                extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, screenData.images.data);
-
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeTopItem, spanCount, extras));
-            }
+        this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
+        mScreenDataItems = new ArrayList<>();
+        for (AppInfo.TopComponent component : this.mAppInfo.data.top_components) {
+            buildItemForComponent(component);
         }
 
-        if (screenData.items != null && screenData.items.size() > 0) {
-            AppInfo.TopComponent component = this.appInfo.data.getTopComponent(screenData.items.top_id);
-            if (component != null) {
-                /**
-                 * Header
-                 */
-                extras = new Bundle();
-                extras.putString(RecyclerItemWrapper.ITEM_TITLE, component.name);
-                extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.MENU_SCREEN);
+        this.mSwipeRefreshLayout.setRefreshing(false);
 
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, spanCount, extras));
-
-                /**
-                 * Content
-                 */
-                for (ItemInfo.Item item : screenData.items.data) {
-                    extras = new Bundle();
-                    extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
-                    extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.ITEM_SCREEN);
-                    extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.title);
-                    extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.price);
-                    extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
-                    extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
-
-                    screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, spanCount / spanLargeItems, extras));
-                }
-
-                if (component.showViewMore() == true) {
-                    /**
-                     * Footer
-                     */
-                    extras = new Bundle();
-                    extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.MENU_SCREEN);
-                    extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
-
-                    screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
-                }
-            }
-        }
-        if (screenData.photos != null && screenData.photos.size() > 0) {
-            AppInfo.TopComponent component = this.appInfo.data.getTopComponent(screenData.photos.top_id);
-            if (component != null) {
-                /**
-                 * Header
-                 */
-                extras = new Bundle();
-                extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_SCREEN);
-                extras.putString(RecyclerItemWrapper.ITEM_TITLE, component.name);
-
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, spanCount, extras));
-
-                /**
-                 * Content
-                 */
-                for (PhotoInfo.Photo item : screenData.photos.data) {
-                    extras = new Bundle();
-                    extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
-                    extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_ITEM_SCREEN);
-                    extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
-                    extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item.getImageUrl());
-
-                    screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, spanCount / spanSmallItems, extras));
-                }
-
-                if (component.showViewMore() == true) {
-                    /**
-                     * Footer
-                     */
-                    extras = new Bundle();
-                    extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_SCREEN);
-                    extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
-
-                    screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
-                }
-            }
-        }
-
-        if (screenData.news != null && screenData.news.size() > 0) {
-            AppInfo.TopComponent component = this.appInfo.data.getTopComponent(screenData.news.top_id);
-            /**
-             * Header
-             */
-            if (component != null) {
-                extras = new Bundle();
-                extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_SCREEN);
-                extras.putString(RecyclerItemWrapper.ITEM_TITLE, component.name);
-
-                screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, spanCount, extras));
-
-                /**
-                 * Content
-                 */
-                for (NewsInfo.News item : screenData.news.data) {
-                    extras = new Bundle();
-                    extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
-                    extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_DETAILS_SCREEN);
-                    extras.putString(RecyclerItemWrapper.ITEM_CATEGORY, "Category");
-                    extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.title);
-                    extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.description);
-                    extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
-                    extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
-
-                    screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemList, spanCount, extras));
-                }
-
-                if (component.showViewMore() == true) {
-                    /**
-                     * Footer
-                     */
-                    extras = new Bundle();
-                    extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_SCREEN);
-                    extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
-
-                    screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
-                }
-            }
-        }
-
-        if (screenData.contact != null && screenData.contact.size() > 0) {
-            AppInfo.TopComponent component = this.appInfo.data.getTopComponent(screenData.contact.top_id);
-            if (component != null) {
-                for (TopInfo.Contact contact : screenData.contact.data) {
-                    /**
-                     * Content
-                     */
-                    extras = new Bundle();
-                    extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, contact);
-
-                    screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemStore, spanCount, extras));
-
-                    /**
-                     * Footer
-                     */
-                    extras = new Bundle();
-                    extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.RESERVE_SCREEN);
-                    extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.reserve));
-                    extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, contact);
-
-                    screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
-                }
-            }
-        }
-
-        this.swipeRefreshLayout.setRefreshing(false);
-        this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
-
-        if (this.recyclerAdapter == null) {
-            GridLayoutManager manager = new GridLayoutManager(getActivity(), spanCount);//);
-            this.recyclerAdapter = new CommonAdapter(getActivity(), this, this);
-            manager.setSpanSizeLookup(new CommonAdapter.GridSpanSizeLookup(recyclerAdapter));
-            this.recyclerView.setLayoutManager(manager);
-            this.recyclerView.addItemDecoration(new CommonAdapter.MarginDecoration(getActivity()));
-            this.recyclerView.setAdapter(recyclerAdapter);
+        if (this.mRecyclerAdapter == null) {
+            GridLayoutManager manager = new GridLayoutManager(getActivity(), mSpanCount);//);
+            this.mRecyclerAdapter = new CommonAdapter(getActivity(), this, this);
+            manager.setSpanSizeLookup(new CommonAdapter.GridSpanSizeLookup(mRecyclerAdapter));
+            this.mRecyclerView.setLayoutManager(manager);
+            this.mRecyclerView.addItemDecoration(new CommonAdapter.MarginDecoration(getActivity()));
+            this.mRecyclerView.setAdapter(mRecyclerAdapter);
         } else {
-            this.recyclerAdapter.notifyDataSetChanged();
+            this.mRecyclerAdapter.notifyDataSetChanged();
         }
-        this.toolbarSettings.appSetting = this.appInfo.data.app_setting;
-        this.activityListener.updateAppInfo(this.appInfo, storeInfo.id);
-        this.activityListener.updateSideMenuItems(this.sideMenuInfo, isSignedIn());
+        this.mToolbarSettings.appSetting = this.mAppInfo.data.app_setting;
+        this.mActivityListener.updateAppInfo(this.mAppInfo, this.mStoreId);
 
         updateToolbar();
     }
@@ -262,12 +112,13 @@ public class FragmentHome
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View mRoot = inflater.inflate(R.layout.fragment_home, null);
-        this.recyclerView = (RecyclerView) mRoot.findViewById(R.id.recycler_view);
-        this.swipeRefreshLayout = (SwipeRefreshLayout) mRoot.findViewById(R.id.swipe_refresh_layout);
-        this.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        this.mRecyclerView = (RecyclerView) mRoot.findViewById(R.id.recycler_view);
+        this.mSwipeRefreshLayout = (SwipeRefreshLayout) mRoot.findViewById(R.id.swipe_refresh_layout);
+        this.mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                FragmentHome.this.screenDataStatus = ScreenDataStatus.ScreenDataStatusUnload;
+                FragmentHome.this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusUnload;
+                clearScreenData();
                 reloadScreenData();
             }
         });
@@ -276,18 +127,18 @@ public class FragmentHome
 
     @Override
     protected void customResume() {
-        if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
+        if (this.mScreenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
             //load needed data
-            this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
-            this.swipeRefreshLayout.post(new Runnable() {
+            this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
+            this.mSwipeRefreshLayout.post(new Runnable() {
                 @Override
                 public void run() {
-                    FragmentHome.this.swipeRefreshLayout.setRefreshing(true);
-                    loadAppInfo();
+                    setRefreshing(true);
+                    loadTopInfo(FragmentHome.this.mStoreId);
                 }
             });
 
-        } else if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusLoading) {
+        } else if (this.mScreenDataStatus == ScreenDataStatus.ScreenDataStatusLoading) {
             //just waiting
 
         } else {
@@ -299,28 +150,41 @@ public class FragmentHome
     @Override
     void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
         if (savedInstanceState.containsKey(SCREEN_DATA)) {
-            this.screenData = (TopInfo.Response.ResponseData) savedInstanceState.getSerializable(SCREEN_DATA);
+            this.mScreenData = (TopInfo.Response) savedInstanceState.getSerializable(SCREEN_DATA);
+        }
+        if (savedInstanceState.containsKey(APP_DATA)) {
+            this.mAppInfo = (AppInfo.Response) savedInstanceState.getSerializable(APP_DATA);
+        }
+        if (savedInstanceState.containsKey(APP_DATA_STORE_ID)) {
+            this.mStoreId = savedInstanceState.getInt(APP_DATA_STORE_ID);
         }
     }
 
     @Override
     void customSaveInstanceState(Bundle outState) {
-        outState.putSerializable(SCREEN_DATA, this.screenData);
+        outState.putSerializable(SCREEN_DATA, this.mScreenData);
+        outState.putSerializable(APP_DATA, this.mAppInfo);
+        outState.putInt(APP_DATA_STORE_ID, this.mStoreId);
     }
 
     @Override
     void setRefreshing(boolean refreshing) {
-        this.swipeRefreshLayout.setRefreshing(refreshing);
+        this.mSwipeRefreshLayout.setRefreshing(refreshing);
+    }
+
+    @Override
+    boolean canCloseByBackpressed() {
+        return false;
     }
 
     @Override
     public int getItemCount() {
-        return screenDataItems.size();
+        return mScreenDataItems.size();
     }
 
     @Override
     public RecyclerItemWrapper getItemData(int position) {
-        return screenDataItems.get(position);
+        return mScreenDataItems.get(position);
     }
 
     @Override
@@ -335,15 +199,14 @@ public class FragmentHome
 
             case RecyclerItemTypeHeader: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
-                this.activityListener.showScreen(screenId, null);
+                this.mActivityListener.showScreen(screenId, null);
             }
             break;
 
             case RecyclerItemTypeItemList: {
-                //TODO:
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.activityListener.showScreen(screenId, extras);
+                this.mActivityListener.showScreen(screenId, extras);
 
             }
             break;
@@ -356,20 +219,20 @@ public class FragmentHome
             case RecyclerItemTypeItemGrid: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.activityListener.showScreen(screenId, extras);
+                this.mActivityListener.showScreen(screenId, extras);
             }
             break;
 
             case RecyclerItemTypeItemGridImageOnly: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.activityListener.showScreen(screenId, extras);
+                this.mActivityListener.showScreen(screenId, extras);
             }
             break;
 
             case RecyclerItemTypeFooter: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
-                this.activityListener.showScreen(screenId, null);
+                this.mActivityListener.showScreen(screenId, null);
             }
             break;
 
@@ -394,12 +257,11 @@ public class FragmentHome
                         if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
                             int resultApi = responseParams.getInt(Key.ResponseResultApi);
                             if (resultApi == CommonResponse.ResultSuccess) {
-                                FragmentHome.this.appInfo = (AppInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                                if (FragmentHome.this.appInfo.data != null && FragmentHome.this.appInfo.data.stores.size() > 0) {
-                                    FragmentHome.this.storeInfo = FragmentHome.this.appInfo.data.stores.get(0);
-                                    FragmentHome.this.sideMenuInfo = FragmentHome.this.appInfo.data.side_menu;
-                                    toolbarSettings.toolbarTitle = FragmentHome.this.appInfo.data.name;
-                                    loadTopInfo(FragmentHome.this.storeInfo.id);
+                                FragmentHome.this.mAppInfo = (AppInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                if (FragmentHome.this.mAppInfo.data != null && FragmentHome.this.mAppInfo.data.stores.size() > 0) {
+                                    FragmentHome.this.mStoreId = FragmentHome.this.mAppInfo.data.stores.get(0).id;
+                                    mToolbarSettings.toolbarTitle = FragmentHome.this.mAppInfo.data.name;
+                                    loadTopInfo(FragmentHome.this.mStoreId);
                                 } else {
                                     String strMessage = "Invalid response data!";
                                     errorWithMessage(responseParams, strMessage);
@@ -429,8 +291,7 @@ public class FragmentHome
                         if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
                             int resultApi = responseParams.getInt(Key.ResponseResultApi);
                             if (resultApi == CommonResponse.ResultSuccess) {
-                                FragmentHome.this.topData = (TopInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                                FragmentHome.this.screenData = FragmentHome.this.topData.data;
+                                FragmentHome.this.mScreenData = (TopInfo.Response) responseParams.getSerializable(Key.ResponseObject);
                                 previewScreenData();
                             } else {
                                 String strMessage = responseParams.getString(Key.ResponseMessage);
@@ -443,5 +304,161 @@ public class FragmentHome
                     }
                 });
         communicator.execute(params);
+    }
+
+    void buildItemForComponent(AppInfo.TopComponent component) {
+        Bundle extras;
+
+        if (component.id == mScreenData.data.images.top_id) {
+            if (mScreenData.data.images != null && mScreenData.data.images.size() > 0) {
+                if (component != null) {
+                    extras = new Bundle();
+                    extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, mScreenData.data.images.data);
+
+                    mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeTopItem, mSpanCount, extras));
+                }
+            }
+        } else if (component.id == mScreenData.data.items.top_id) {
+
+            if (mScreenData.data.items != null && mScreenData.data.items.size() > 0) {
+                if (component != null) {
+                    /**
+                     * Header
+                     */
+                    extras = new Bundle();
+                    extras.putString(RecyclerItemWrapper.ITEM_TITLE, component.name);
+                    extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.MENU_SCREEN);
+
+                    mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, mSpanCount, extras));
+
+                    /**
+                     * Content
+                     */
+                    for (ItemsInfo.Item item : mScreenData.data.items.data) {
+                        extras = new Bundle();
+                        extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
+                        extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.ITEM_SCREEN);
+                        extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.title);
+                        extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.getPrice());
+                        extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
+                        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
+
+                        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, mSpanCount / mSpanLargeItems, extras));
+                    }
+
+                    if (component.showViewMore() == true) {
+                        /**
+                         * Footer
+                         */
+                        extras = new Bundle();
+                        extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.MENU_SCREEN);
+                        extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
+
+                        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
+                    }
+                }
+            }
+        } else if (component.id == mScreenData.data.photos.top_id) {
+            if (mScreenData.data.photos != null && mScreenData.data.photos.size() > 0) {
+                if (component != null) {
+                    /**
+                     * Header
+                     */
+                    extras = new Bundle();
+                    extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_SCREEN);
+                    extras.putString(RecyclerItemWrapper.ITEM_TITLE, component.name);
+
+                    mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, mSpanCount, extras));
+
+                    /**
+                     * Content
+                     */
+                    for (PhotoInfo.Photo item : mScreenData.data.photos.data) {
+                        extras = new Bundle();
+                        extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
+                        extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_ITEM_SCREEN);
+                        extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
+                        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item.getImageUrl());
+
+                        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, mSpanCount / mSpanSmallItems, extras));
+                    }
+
+                    if (component.showViewMore() == true) {
+                        /**
+                         * Footer
+                         */
+                        extras = new Bundle();
+                        extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_SCREEN);
+                        extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
+
+                        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
+                    }
+                }
+            }
+        } else if (component.id == mScreenData.data.news.top_id) {
+            if (mScreenData.data.news != null && mScreenData.data.news.size() > 0) {
+                /**
+                 * Header
+                 */
+                if (component != null) {
+                    extras = new Bundle();
+                    extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_SCREEN);
+                    extras.putString(RecyclerItemWrapper.ITEM_TITLE, component.name);
+
+                    mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, mSpanCount, extras));
+
+                    /**
+                     * Content
+                     */
+                    for (NewsInfo.News item : mScreenData.data.news.data) {
+                        extras = new Bundle();
+                        extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
+                        extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_DETAILS_SCREEN);
+                        extras.putString(RecyclerItemWrapper.ITEM_CATEGORY, getString(R.string.category_text));
+                        extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.title);
+                        extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.description);
+                        extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
+                        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
+
+                        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemList, mSpanCount, extras));
+                    }
+
+                    if (component.showViewMore() == true) {
+                        /**
+                         * Footer
+                         */
+                        extras = new Bundle();
+                        extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_SCREEN);
+                        extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
+
+                        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
+                    }
+                }
+            }
+        } else if (component.id == mScreenData.data.contact.top_id) {
+            if (mScreenData.data.contact != null && mScreenData.data.contact.size() > 0) {
+                if (component != null) {
+                    for (TopInfo.Contact contact : mScreenData.data.contact.data) {
+                        /**
+                         * Content
+                         */
+                        extras = new Bundle();
+                        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, contact);
+
+                        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemStore, mSpanCount, extras));
+
+                        /**
+                         * Footer
+                         */
+                        extras = new Bundle();
+                        extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.RESERVE_SCREEN);
+                        extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.reserve));
+                        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, contact);
+
+                        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
+                    }
+                }
+            }
+        }
     }
 }

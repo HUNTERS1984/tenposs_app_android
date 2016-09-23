@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent">
+
+    <!--<jp.tenposs.view.ZoomableImageView-->
+    <!--android:id="@+id/item_thumbnail"-->
+    <!--android:layout_marginBottom="5dp"-->
+    <!--android:layout_marginLeft="5dp"-->
+    <!--android:layout_marginRight="5dp"-->
+    <!--android:layout_marginTop="5dp"-->
+    <!--android:background="@drawable/rectangle"-->
+    <!--android:paddingBottom="2dp"-->
+    <!--android:paddingLeft="2dp"-->
+    <!--android:paddingRight="2dp"-->
+    <!--android:paddingTop="2dp"-->
+    <!--android:scaleType="centerCrop"-->
+    <!--app:layout_aspectRatio="100%"-->
+    <!--app:layout_widthPercent="100%" />-->
+
+    <LinearLayout
+        android:id="@+id/pager_layout"
+        android:background="@drawable/rectangle"
+        android:paddingBottom="5dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingTop="5dp"
+        app:layout_aspectRatio="100%"
+        app:layout_widthPercent="100%">
+
+        <ImageView
+            android:id="@+id/item_thumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/login_bg" />
+
+        <!--<android.support.v4.view.ViewPager-->
+        <!--android:id="@+id/view_pager"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent" />-->
+
+    </LinearLayout>
+
+    <ImageButton
+
+
+        android:id="@+id/close_button"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_below="@+id/pager_layout"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/btn_close" />
+
+</android.support.percent.PercentRelativeLayout>

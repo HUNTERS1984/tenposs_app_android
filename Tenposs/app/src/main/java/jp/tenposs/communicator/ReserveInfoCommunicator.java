@@ -23,7 +23,7 @@ public class ReserveInfoCommunicator extends TenpossCommunicator {
     protected boolean request(Bundle bundle) {
         String strUrl;
         ReserveInfo.Request requestData = (ReserveInfo.Request) bundle.getSerializable(Key.RequestObject);
-        strUrl = API_RESERVE + requestData.makeParams("GET");
+        strUrl = API_RESERVE + requestData.makeParams();
         int result = TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal();
         byte[] dataRequest = null;
         OutputStream output = null;

@@ -1,8 +1,9 @@
 package jp.tenposs.view;
 
 import android.content.Context;
-import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +26,7 @@ import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.SignInInfo;
 import jp.tenposs.tenposs.AbstractFragment;
 import jp.tenposs.tenposs.R;
-import jp.tenposs.utils.ThemifyIcon;
+import jp.tenposs.utils.Utils;
 
 
 /**
@@ -59,39 +60,43 @@ public class LeftMenuView extends FrameLayout {
             AppInfo.SideMenu item = getItem(position);
             ImageView menuIcon = (ImageView) row.findViewById(R.id.item_image);
             TextView menuTitle = (TextView) row.findViewById(R.id.item_label);
-            menuTitle.setTextColor(settings.getMenuTitleColor());
+            menuTitle.setTextColor(mSettings.getMenuItemTitleColor());
             menuTitle.setText(item.name);
-            //menuIcon.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
-            //        AbstractFragment.getMenuIconName(item.id),
-            //        60,
-            //       Color.argb(0, 0, 0, 0),
-            //        settings.getMenuIconColor()
-            //));
-            menuIcon.setImageBitmap(ThemifyIcon.fromThemifyIcon(getContext().getAssets(),
-                    item.icon,
-                    60,
-                    Color.argb(0, 0, 0, 0),
-                    settings.getMenuIconColor()
-            ));
+
+            if (menuTitle != null) {
+                try {
+                    Typeface type = Utils.getTypeFaceForFont(mContext, mSettings.getMenuItemTitleFont());
+                    menuTitle.setTypeface(type);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+//            menuIcon.setImageBitmap(ThemifyIcon.fromThemifyIcon(getContext().getAssets(),
+//                    item.icon,
+//                    60,
+//                    Color.argb(0, 0, 0, 0),
+//                    mSettings.getMenuIconColor()
+//            ));
+            menuIcon.setImageBitmap(MenuIcon.getInstance().getIconBitmapWithId(item.id));
             return row;
         }
     }
 
     Context mContext;
 
-    LinearLayout mainLayout;
-    CircleImageView userAvatarImage;
-    TextView userNameLabel;
+    LinearLayout mMainLayout;
+    CircleImageView mUserAvatarImage;
+    TextView mUserNameLabel;
 
-    Button userInfoButton;
-    Button signinButton;
+    Button mUserInfoButton;
+    Button mSignInButton;
 
-    ListView listView;
-    LeftMenuAdapter leftMenuAdapter;
+    ListView mListView;
+    LeftMenuAdapter mAdapter;
 
-    ArrayList<AppInfo.SideMenu> screenData;
-    AppInfo.AppSetting settings;
-    SignInInfo.Profile profile;
+    ArrayList<AppInfo.SideMenu> mScreenData;
+    AppInfo.AppSetting mSettings;
+    SignInInfo.User mUserProfile;
 
     OnLeftMenuItemClickListener onItemClickListener;
 
@@ -119,16 +124,16 @@ public class LeftMenuView extends FrameLayout {
 
     void initView(Context context) {
         View rootView = View.inflate(context, R.layout.nav_content_main, this);
-        this.mainLayout = (LinearLayout) rootView.findViewById(R.id.main_layout);
-        this.userInfoButton = (Button) rootView.findViewById(R.id.user_info_button);
-        this.signinButton = (Button) rootView.findViewById(R.id.sign_in_button);
-        this.userAvatarImage = (CircleImageView) rootView.findViewById(R.id.user_avatar_image);
-        this.userNameLabel = (TextView) rootView.findViewById(R.id.user_name_label);
-        this.listView = (ListView) rootView.findViewById(R.id.list_view);
+        this.mMainLayout = (LinearLayout) rootView.findViewById(R.id.main_layout);
+        this.mUserInfoButton = (Button) rootView.findViewById(R.id.user_info_button);
+        this.mSignInButton = (Button) rootView.findViewById(R.id.sign_in_button);
+        this.mUserAvatarImage = (CircleImageView) rootView.findViewById(R.id.user_avatar_image);
+        this.mUserNameLabel = (TextView) rootView.findViewById(R.id.user_name_label);
+        this.mListView = (ListView) rootView.findViewById(R.id.list_view);
 
-        this.signinButton.setVisibility(View.VISIBLE);
+        this.mSignInButton.setVisibility(View.VISIBLE);
 
-        this.signinButton.setOnClickListener(new OnClickListener() {
+        this.mSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (onItemClickListener != null) {
@@ -138,7 +143,7 @@ public class LeftMenuView extends FrameLayout {
                 }
             }
         });
-        this.userInfoButton.setOnClickListener(new OnClickListener() {
+        this.mUserInfoButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (onItemClickListener != null) {
@@ -156,46 +161,53 @@ public class LeftMenuView extends FrameLayout {
         super.onLayout(changed, left, top, right, bottom);
     }
 
-    public void updateUserInfo(SignInInfo.Profile profile) {
-        this.profile = profile;
-        if (this.profile != null) {
-            userNameLabel.setText(profile.name);
+    public void updateMenu(AppInfo.AppSetting settings, ArrayList<AppInfo.SideMenu> sideMenus, SignInInfo.User userProfile) {
+        this.mSettings = settings;
+        this.mScreenData = (ArrayList<AppInfo.SideMenu>) sideMenus.clone();
+        this.mUserProfile = userProfile;
+
+        if (this.mUserProfile != null) {
+            mUserNameLabel.setText(userProfile.profile.name);
             Picasso ps = Picasso.with(mContext);
-            ps.load(this.profile.getImageUrl())
+            ps.load(this.mUserProfile.profile.getImageUrl())
                     .resize(fullImageSize, 640)
                     .centerCrop()
                     .placeholder(R.drawable.no_avatar)
-                    .into(userAvatarImage);
-            userInfoButton.setVisibility(View.VISIBLE);
-            signinButton.setVisibility(View.GONE);
+                    .into(mUserAvatarImage);
+            mUserInfoButton.setVisibility(View.VISIBLE);
+            mSignInButton.setVisibility(View.GONE);
+            this.mScreenData.add(new AppInfo.SideMenu(AbstractFragment.SIGN_OUT_SCREEN, mContext.getString(R.string.sign_out), "ti-unlock"));
         } else {
-            userNameLabel.setText(mContext.getString(R.string.sign_in));
-            userInfoButton.setVisibility(View.GONE);
-            signinButton.setVisibility(View.VISIBLE);
-        }
-    }
-
-    public void updateMenuItems(AppInfo.AppSetting settings, ArrayList<AppInfo.SideMenu> sideMenus, boolean signedIn) {
-        this.settings = settings;
-        this.screenData = (ArrayList<AppInfo.SideMenu>) sideMenus.clone();
-        //this.screenData.add(new AppInfo.SideMenu(AbstractFragment.SETTING_SCREEN, "Settings"));
-        if (signedIn == true) {
-            this.screenData.add(new AppInfo.SideMenu(AbstractFragment.SIGN_OUT_SCREEN, mContext.getString(R.string.sign_out), "ti-unlock"));
+            mUserNameLabel.setText(mContext.getString(R.string.sign_in));
+            mUserInfoButton.setVisibility(View.GONE);
+            mSignInButton.setVisibility(View.VISIBLE);
+            mUserAvatarImage.setImageBitmap(null);
+            mUserAvatarImage.setImageResource(R.drawable.no_avatar);
         }
 
-        this.signinButton.setTextColor(settings.getMenuTitleColor());
-        this.mainLayout.setBackgroundColor(this.settings.getMenuBackgroundColor());
-        this.leftMenuAdapter = new LeftMenuAdapter(mContext, R.layout.nav_content_item, screenData);
-        this.listView.setAdapter(leftMenuAdapter);
-        this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (onItemClickListener != null) {
-                    Bundle params = new Bundle();
-                    params.putSerializable(Key.RequestObject, screenData.get(position));
-                    onItemClickListener.onClick(position, params);
+        this.mSignInButton.setTextColor(settings.getMenuItemTitleColor());
+        this.mMainLayout.setBackgroundColor(this.mSettings.getMenuBackgroundColor());
+        if (this.mAdapter == null) {
+            this.mAdapter = new LeftMenuAdapter(mContext, R.layout.nav_content_item, mScreenData);
+            this.mListView.setAdapter(mAdapter);
+            this.mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                    if (onItemClickListener != null) {
+                        final Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                Bundle params = new Bundle();
+                                params.putSerializable(Key.RequestObject, mScreenData.get(position));
+                                onItemClickListener.onClick(position, params);
+                            }
+                        }, 200);
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            this.mAdapter.notifyDataSetChanged();
+        }
     }
 }

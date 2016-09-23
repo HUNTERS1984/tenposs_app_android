@@ -36,7 +36,7 @@ public class TopInfo {
     }
 
     public class ListItem extends ListTopObject {
-        public ArrayList<ItemInfo.Item> data;
+        public ArrayList<ItemsInfo.Item> data;
 
         public int size() {
             return data == null ? 0 : data.size();

@@ -116,6 +116,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp"
                     android:orientation="horizontal">
 
                     <TextView
@@ -140,6 +142,8 @@
                     android:id="@+id/coupon_name_label"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp"
                     android:text="@string/coupon"
                     android:textAppearance="@android:style/TextAppearance.DeviceDefault"
                     android:textColor="@color/title_text_color" />
@@ -147,6 +151,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp"
                     android:orientation="horizontal">
 
                     <TextView
@@ -170,21 +176,25 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="15dp"
-                    android:layout_marginTop="15dp"
-                    android:orientation="horizontal">
+                    android:layout_margin="10dp"
+                    android:background="@drawable/bg_hash_tag"
+                    android:orientation="horizontal"
+                    android:padding="0dp">
 
                     <TextView
                         android:id="@+id/hash_tag_label"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:gravity="center"
                         android:text="#hashtag" />
+
 
                     <Button
                         android:id="@+id/copy_hash_tag_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:background="@drawable/bg_button_ex"
                         android:text="@string/copy_one" />
 
                 </LinearLayout>
@@ -198,7 +208,9 @@
                 <TextView
                     android:id="@+id/coupon_description_label"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp" />
 
             </LinearLayout>
 
@@ -212,10 +224,9 @@
             android:visibility="gone">
 
             <Button
+                android:id="@+id/take_advantage_of_coupon_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:layout_marginTop="5dp"
                 android:background="@drawable/bg_button_ex"
                 android:gravity="center"
                 android:text="@string/take_advantage_of_this_coupon"

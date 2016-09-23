@@ -6,6 +6,7 @@ import android.os.Bundle;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Set;
@@ -26,13 +27,12 @@ import okhttp3.Response;
  */
 public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bundle> {
 
-    public final static String API_ADDRESS_DEV = "http://dev.tenposs.jp/api";
-    //public final static String API_ADDRESS = "http://ec2-54-204-210-230.compute-1.amazonaws.com/tenposs/api/public/index.php/api/v1";
-    //public final static String API_ADDRESS = "http://54.153.78.127/api/v1";
+    public final static String METHOD_GET = "METHOD_GET";
+    public final static String METHOD_POST = "METHOD_POST";
+    public final static String METHOD_POST_MULTIPART = "METHOD_POST_MULTIPART";
 
-    //public final static String BASE_ADDRESS = "http://ec2-54-204-210-230.compute-1.amazonaws.com/";
+    public final static String WEB_ADDRESS = "https://ten-po.com/";
     public final static String BASE_ADDRESS = "https://api.ten-po.com/";
-
     private final static String API_ADDRESS = BASE_ADDRESS + "api/v1";
 
     public final static String API_SIGN_IN = API_ADDRESS + "/signin?";
@@ -45,20 +45,32 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
     public final static String API_TOP = API_ADDRESS + "/top?";
     public final static String API_MENU = API_ADDRESS + "/menu?";
     public final static String API_APPINFO = API_ADDRESS + "/appinfo?";
+
     public final static String API_ITEMS = API_ADDRESS + "/items?";
     public final static String API_ITEMS_DETAIL = API_ADDRESS + "/items/detail?";
     public final static String API_ITEMS_RELATE = API_ADDRESS + "/items/related?";
+
     public final static String API_PHOTO_CAT = API_ADDRESS + "/photo_cat?";
     public final static String API_PHOTO = API_ADDRESS + "/photo?";
+
     public final static String API_NEWS = API_ADDRESS + "/news?";
     public final static String API_NEWS_DETAIL = API_ADDRESS + "/news/detail?";
+
     public final static String API_RESERVE = API_ADDRESS + "/reserve?";
+
     public final static String API_COUPON = API_ADDRESS + "/coupon?";
     public final static String API_COUPON_DETAIL = API_ADDRESS + "/coupon/detail?";
+
     public final static String API_APPUSER = API_ADDRESS + "/appuser?";
-    public final static String API_SETPUSHKEY = API_ADDRESS + "/setpushkey?";
+
+    public final static String API_SETPUSHKEY = API_ADDRESS + "/set_push_key?";
+
     public final static String API_STAFF_CATEGORY = API_ADDRESS + "/staff_categories?";
     public final static String API_STAFFS = API_ADDRESS + "/staffs?";
+
+    public final static String API_SOCIAL_PROFILE = API_ADDRESS + "/social_profile?";
+
+
 
     public enum CommunicationCode {
 
@@ -83,7 +95,7 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
 
     private TenpossCommunicatorListener mListener;
     private Bundle mBundle;
-    protected String mMethod = "GET";
+    protected String mMethod = METHOD_GET;
     private OkHttpClient mClient;
     private Call mCall;
 
@@ -121,19 +133,20 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
         int writeTimeout = mBundle.getInt(Key.RequestConnectionTimeout);
 
         if (connectionTimeout == 0)
-            connectionTimeout = 10;
+            connectionTimeout = 60;
 
         if (readTimeout == 0)
-            readTimeout = 30;
+            readTimeout = 60;
 
         if (writeTimeout == 0)
-            writeTimeout = 10;
+            writeTimeout = 60;
 
         String strTemp = url.toLowerCase(Locale.US);
 
         if (strTemp.contains("http://") == false && strTemp.contains("https://") == false)
             url = "http://" + url;
 
+        System.out.println(url);
         try {
 
             Request request = null;
@@ -142,7 +155,7 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
             Response response = null;
 
             requestBuilder = new Request.Builder().url(url);
-            if (this.mMethod == "POST") {
+            if (this.mMethod == METHOD_POST) {
                 FormBody.Builder builder = new FormBody.Builder();
                 HashMap<String, String> params = (HashMap<String, String>) this.mBundle.get(Key.RequestFormData);
                 Set<String> keys = params.keySet();
@@ -151,7 +164,7 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
                 }
                 requestBody = builder.build();
                 requestBuilder.post(requestBody);
-            } else if (this.mMethod == "POST_MULTIPART") {
+            } else if (this.mMethod == METHOD_POST_MULTIPART) {
                 MultipartBody.Builder builder = new MultipartBody.Builder()
                         .setType(MultipartBody.FORM);
                 HashMap<String, String> params = (HashMap<String, String>) this.mBundle.get(Key.RequestFormData);
@@ -161,8 +174,9 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
                     if (key.compareTo("avatar") == 0) {
                         //File
                         File file = new File(value);
-                        String fileName = file.getName();
-                        builder.addFormDataPart("image", fileName,
+//                        String fileName = file.getName();
+                        String fileName = "avatar.png";
+                        builder.addFormDataPart(key, fileName,
                                 RequestBody.create(MediaType.parse("image/png"),
                                         file));
                     } else {
@@ -187,6 +201,11 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
                 output.write(data, 0, data.length);
                 return CommunicationCode.ConnectionSuccess.ordinal();
 
+            } catch (SocketTimeoutException timeout) {
+                mBundle.putInt(Key.ResponseResult, CommunicationCode.ConnectionTimedOut.ordinal());
+                mBundle.putString(Key.ResponseMessage, timeout.getLocalizedMessage());
+                return CommunicationCode.ConnectionTimedOut.ordinal();
+
             } catch (IOException e) {
                 e.printStackTrace();
                 mBundle.putInt(Key.ResponseResult, CommunicationCode.GeneralError.ordinal());
@@ -205,8 +224,7 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
     public boolean cancelRequest(boolean mayInterruptIfRunning) {
         try {
             mCall.cancel();
-        } catch (Exception e) {
-            // TODO: handle exception
+        } catch (Exception ignored) {
         }
         return this.cancel(mayInterruptIfRunning);
     }

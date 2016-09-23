@@ -39,7 +39,7 @@ public class TenpossInstanceIDService extends FirebaseInstanceIdService {
                 new TenpossCommunicator.TenpossCommunicatorListener() {
                     @Override
                     public void completed(TenpossCommunicator request, Bundle responseParams) {
-                        //TODO:
+                        //TODO: chua lam xong
                     }
                 });
         communicator.execute(params);

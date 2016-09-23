@@ -10,10 +10,6 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
-
-import jp.tenposs.adapter.RecyclerItemType;
-import jp.tenposs.adapter.RecyclerItemWrapper;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.datamodel.StaffInfo;
 import jp.tenposs.utils.Utils;
@@ -24,29 +20,34 @@ import jp.tenposs.view.AspectRatioImageView;
  */
 public class FragmentStaffDetail extends AbstractFragment implements View.OnClickListener {
 
-    AspectRatioImageView staffImage;
-    TextView staffCategoryLabel;
-    TextView staffTitleLabel;
-    Button unknownStaffButon;
-    Button staffDescriptionButton;
-    Button staffProfileButton;
-    TextView staffDescriptionLabel;
-    Button moreButton;
+    AspectRatioImageView mStaffImage;
+    TextView mStaffCategoryLabel;
+    TextView mStaffTitleLabel;
+    Button mUnknownStaffButon;
+    Button mStaffDescriptionButton;
+    Button mStaffProfileButton;
+    TextView mStaffDescriptionLabel;
+    Button mMoreButton;
 
-    boolean showDescription = true;
+    boolean mShowDescription = true;
 
-    StaffInfo.Staff screenData;
+    StaffInfo.Staff mScreenData;
 
     @Override
-    protected void customClose() {
-
+    protected boolean customClose() {
+        return false;
     }
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings.toolbarTitle = "";
-        toolbarSettings.toolbarLeftIcon = "flaticon-back";
-        toolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+        mToolbarSettings.toolbarTitle = "";
+        mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+        mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+    }
+
+    @Override
+    protected void clearScreenData() {
+
     }
 
     @Override
@@ -56,58 +57,38 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
 
     @Override
     protected void previewScreenData() {
-        Bundle extras;
-        screenDataItems = new ArrayList<>();
-
+        this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
         Picasso ps = Picasso.with(getContext());
-        ps.load(screenData.getImageUrl())
-                .resize(fullImageSize, fullImageSize)
+        ps.load(mScreenData.getImageUrl())
+                .resize(mFullImageSize, mFullImageSize)
                 .centerCrop()
-                .into(this.staffImage);
+                .into(this.mStaffImage);
 
-        this.staffTitleLabel.setText(screenData.name);
-        //this.staffCategoryLabel.setText(screenData.category);
-        //this.staffDescriptionLabel.setText(this.screenData.description);
-
+        this.mStaffTitleLabel.setText(mScreenData.name);
+        //this.mStaffCategoryLabel.setText(mScreenData.category);
+        //this.mStaffDescriptionLabel.setText(this.mScreenData.description);
 
         showDescriptionOrProfile();
 
-        //title
-        extras = new Bundle();
-        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, screenData);
-        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeProductTitle, spanCount, extras));
-
-        //purchase
-        extras = new Bundle();
-        extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PURCHASE_SCREEN);
-        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, screenData);
-        extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.purchase));
-        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, spanCount, extras));
-
-        //Description
-        extras = new Bundle();
-        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, screenData);
-        screenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeProductDescription, spanCount, extras));
-        this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
-
-        toolbarSettings.toolbarTitle = screenData.name;
+        mToolbarSettings.toolbarTitle = mScreenData.name;
         updateToolbar();
     }
 
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_staff_detail, null);
-        this.staffImage = (AspectRatioImageView) root.findViewById(R.id.staff_image);
-        this.staffCategoryLabel = (TextView) root.findViewById(R.id.staff_category_label);
-        this.staffTitleLabel = (TextView) root.findViewById(R.id.staff_title_label);
-        this.unknownStaffButon = (Button) root.findViewById(R.id.unknown_staff_button);
-        this.staffDescriptionButton = (Button) root.findViewById(R.id.staff_description_button);
-        this.staffProfileButton = (Button) root.findViewById(R.id.staff_profile_button);
-        this.staffDescriptionLabel = (TextView) root.findViewById(R.id.staff_description_label);
-        this.moreButton = (Button) root.findViewById(R.id.more_button);
+        this.mStaffImage = (AspectRatioImageView) root.findViewById(R.id.staff_image);
+        this.mStaffCategoryLabel = (TextView) root.findViewById(R.id.staff_category_label);
+        this.mStaffTitleLabel = (TextView) root.findViewById(R.id.staff_title_label);
+        this.mUnknownStaffButon = (Button) root.findViewById(R.id.unknown_staff_button);
+        this.mStaffDescriptionButton = (Button) root.findViewById(R.id.staff_description_button);
+        this.mStaffProfileButton = (Button) root.findViewById(R.id.staff_profile_button);
+        this.mStaffDescriptionLabel = (TextView) root.findViewById(R.id.staff_description_label);
+        this.mMoreButton = (Button) root.findViewById(R.id.more_button);
 
-        this.staffDescriptionButton.setOnClickListener(this);
-        this.staffProfileButton.setOnClickListener(this);
+        this.mStaffDescriptionButton.setOnClickListener(this);
+        this.mStaffProfileButton.setOnClickListener(this);
+        this.mMoreButton.setOnClickListener(this);
         return root;
     }
 
@@ -119,7 +100,7 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
     @Override
     void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
         if (savedInstanceState.containsKey(SCREEN_DATA)) {
-            this.screenData = (StaffInfo.Staff) savedInstanceState.getSerializable(SCREEN_DATA);
+            this.mScreenData = (StaffInfo.Staff) savedInstanceState.getSerializable(SCREEN_DATA);
         }
     }
 
@@ -133,29 +114,37 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
 
     }
 
+    @Override
+    boolean canCloseByBackpressed() {
+        return true;
+    }
+
     void showDescriptionOrProfile() {
-        if (showDescription == true) {
-            staffDescriptionButton.setTextColor(Utils.getColorInt(getContext(), R.color.category_text_color));
-            staffDescriptionButton.setBackgroundResource(R.drawable.bg_tab_button);
+        if (mShowDescription == true) {
+            mStaffDescriptionButton.setTextColor(Utils.getColorInt(getContext(), R.color.category_text_color));
+            mStaffDescriptionButton.setBackgroundResource(R.drawable.bg_tab_button);
 
-            staffProfileButton.setTextColor(Utils.getColorInt(getContext(), R.color.description_text_color));
-            staffProfileButton.setBackgroundResource(R.drawable.bg_tab_button_inactive);
+            mStaffProfileButton.setTextColor(Utils.getColorInt(getContext(), R.color.description_text_color));
+            mStaffProfileButton.setBackgroundResource(R.drawable.bg_tab_button_inactive);
         } else {
-            staffProfileButton.setTextColor(Utils.getColorInt(getContext(), R.color.category_text_color));
-            staffProfileButton.setBackgroundResource(R.drawable.bg_tab_button);
+            mStaffProfileButton.setTextColor(Utils.getColorInt(getContext(), R.color.category_text_color));
+            mStaffProfileButton.setBackgroundResource(R.drawable.bg_tab_button);
 
-            staffDescriptionButton.setTextColor(Utils.getColorInt(getContext(), R.color.description_text_color));
-            staffDescriptionButton.setBackgroundResource(R.drawable.bg_tab_button_inactive);
+            mStaffDescriptionButton.setTextColor(Utils.getColorInt(getContext(), R.color.description_text_color));
+            mStaffDescriptionButton.setBackgroundResource(R.drawable.bg_tab_button_inactive);
         }
     }
 
     @Override
     public void onClick(View v) {
-        if (v == staffDescriptionButton) {
-            showDescription = true;
-        } else if (v == staffProfileButton) {
-            showDescription = false;
+        if (v == mStaffDescriptionButton) {
+            mShowDescription = true;
+            showDescriptionOrProfile();
+        } else if (v == mStaffProfileButton) {
+            mShowDescription = false;
+            showDescriptionOrProfile();
+        } else if (v == mMoreButton) {
+            //TODO: chua co spec
         }
-        showDescriptionOrProfile();
     }
 }
