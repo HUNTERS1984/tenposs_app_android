@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import jp.tenposs.communicator.InstagramAPI;
 import jp.tenposs.communicator.SignOutCommunicator;
@@ -115,8 +116,13 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
     InstagramAPI mInstagramAPI;
     private String[] mJapanPrefectures;
 
+    String lastUserName;
+    int lastGender;
+    int selectedGender = -1;
 
-    int userIsInteracting = -1;
+    String lastProvince;
+    String selectedProvince = "";
+
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
@@ -129,12 +135,39 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
 
     @Override
     protected boolean customClose() {
-        String userName = (String) mApplication.getSerializable(Key.UpdateProfileName);
-        String gender = (String) mApplication.getSerializable(Key.UpdateProfileGender);
-        String address = (String) mApplication.getSerializable(Key.UpdateProfileAddress);
+        if (lastGender == -1 &&
+                lastUserName == null &&
+                lastProvince == null) {
+            return false;
+        }
         Uri selectedImage = (Uri) mApplication.getParcelable(Key.UpdateProfileAvatar);
+        String userName = mUserNameEdit.getEditableText().toString();
+        String gender;
+        String address;
+        int countChange = 0;
+        if (lastGender != selectedGender) {
+            gender = Integer.toString(selectedGender);
+            countChange++;
+        } else {
+            gender = Integer.toString(lastGender);
+        }
 
-        if (userName == null && gender == null && address == null && selectedImage == null) {
+        if (lastProvince.compareTo(selectedProvince) != 0) {
+            address = selectedProvince;
+            countChange++;
+        } else {
+            address = lastProvince;
+        }
+
+        if (userName.compareTo(lastUserName) != 0) {
+            countChange++;
+        }
+
+        if (selectedImage != null) {
+            countChange++;
+        }
+
+        if (countChange == 0) {
             return false;
         }
 
@@ -162,6 +195,9 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
 
     @Override
     protected void previewScreenData() {
+        lastGender = this.mScreenData.profile.gender;
+        lastProvince = this.mScreenData.profile.address;
+        lastUserName = this.mScreenData.profile.name;
         this.mJapanPrefectures = getResources().getStringArray(R.array.japan_prefectures);
         this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
         this.mChangeAvatarButton.setOnClickListener(
@@ -203,12 +239,13 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
         //        this.mUserAvatarImage;
         //TextView mUserNameLabel;
 
-        Picasso ps = Picasso.with(getContext());
+        reloadImage();
+        /*Picasso ps = Picasso.with(getContext());
         ps.load(this.mScreenData.profile.getImageUrl())
                 .resize(mFullImageSize, 640)
                 .centerCrop()
                 .placeholder(R.drawable.no_avatar)
-                .into(mUserAvatarImage);
+                .into(mUserAvatarImage);*/
 
         this.mIdEdit.setText(Integer.toString(this.mScreenData.id));
 
@@ -222,12 +259,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
         this.mGenderSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                userIsInteracting++;
-                if (userIsInteracting > 2) {
-                    mScreenData.profile.gender = position;
-                    mApplication.putSerializable(Key.UpdateProfileGender, Integer.toString(position));
-                    mApplication.putSerializable(Key.UpdateProfileName, mUserNameEdit.getEditableText().toString());
-                }
+                selectedGender = position;
             }
 
             @Override
@@ -245,7 +277,6 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
         int pos = 0;
         if (mScreenData.profile.address == null) {
             mScreenData.profile.address = this.mJapanPrefectures[0];
-            mApplication.putSerializable(Key.UpdateProfileAddress, mScreenData.profile.address);
         } else {
 
             int i = 0;
@@ -266,14 +297,9 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
         this.mProvinceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                userIsInteracting++;
-                if (userIsInteracting > 2) {
-                    try {
-                        mScreenData.profile.address = mJapanPrefectures[position];
-                    } catch (Exception ignored) {
-
-                    }
-                    mApplication.putSerializable(Key.UpdateProfileAddress, mScreenData.profile.address);
+                try {
+                    selectedProvince = mJapanPrefectures[position];
+                } catch (Exception ignored) {
                 }
             }
 
@@ -467,6 +493,14 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
 
     @Override
     void customSaveInstanceState(Bundle outState) {
+        if (selectedGender != -1) {
+            mScreenData.profile.gender = selectedGender;
+        }
+
+        mScreenData.profile.address = selectedProvince;
+        mScreenData.profile.name = mUserNameEdit.getEditableText().toString();
+
+
         outState.putSerializable(SCREEN_DATA, mScreenData);
     }
 
@@ -555,11 +589,39 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
         } else if (requestCode == CROP_IMAGE_INTENT) {
             if (data != null) {
                 Bundle extras = data.getExtras();
-                mApplication.putParceable(Key.UpdateProfileAvatar, extras.getParcelable(Key.UpdateProfileAvatar));
+                Uri selectedImage = extras.getParcelable(Key.UpdateProfileAvatar);
+                mApplication.putParceable(Key.UpdateProfileAvatar, selectedImage);
+                mScreenData.profile.setImageFile(selectedImage.getPath());
+                mUserAvatarImage.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        reloadImage();
+                    }
+                });
             }
         } else {
             this.mCallbackManager.onActivityResult(requestCode, resultCode, data);
             this.mTwitterLogin.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    private void reloadImage() {
+        Picasso ps = Picasso.with(getContext());
+        String url = this.mScreenData.profile.getImageUrl().toLowerCase(Locale.US);
+        if (url.contains("http://") == true || url.contains("https://") == true) {
+
+            ps.load(this.mScreenData.profile.getImageUrl())
+                    .resize(mFullImageSize, 640)
+                    .centerCrop()
+                    .placeholder(R.drawable.no_avatar)
+                    .into(mUserAvatarImage);
+        } else {
+            File f = new File(this.mScreenData.profile.getImageUrl());
+            ps.load(f)
+                    .resize(mFullImageSize, 640)
+                    .centerCrop()
+                    .placeholder(R.drawable.no_avatar)
+                    .into(mUserAvatarImage);
         }
     }
 
@@ -709,7 +771,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
         }
     }
 
-    void updateProfile(String gender, String userName, String address, Uri avatar) {
+    void updateProfile(final String gender, final String userName, final String address, final Uri avatar) {
         Bundle params = new Bundle();
         UpdateProfileInfo.Request request = new UpdateProfileInfo.Request();
         request.token = getKeyString(Key.TokenKey);
@@ -739,12 +801,22 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
                         int resultApi = responseParams.getInt(Key.ResponseResultApi);
                         if (resultApi == CommonResponse.ResultSuccess) {
                             //clear all data
+                            lastGender = -1;
+                            lastProvince = null;
+                            lastUserName = null;
 
-                            mApplication.remove(Key.UpdateProfileName);
-                            mApplication.remove(Key.UpdateProfileGender);
-                            mApplication.remove(Key.UpdateProfileAddress);
+                            mScreenData.profile.gender = Utils.atoi(gender);
+                            mScreenData.profile.address = address;
+                            mScreenData.profile.name = userName;
+                            if (avatar != null) {
+                                mScreenData.profile.setImageFile(avatar.getPath());
+                            }
+
+                            setKeyString(Key.UserProfile, CommonObject.toJSONString(mScreenData, mScreenData.getClass()));
+
                             mApplication.remove(Key.UpdateProfileAvatar);
 
+                            mActivityListener.updateUserInfo(mScreenData);
                             close();
 
                         } else {

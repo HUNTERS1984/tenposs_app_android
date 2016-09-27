@@ -19,7 +19,9 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import jp.tenposs.datamodel.AppInfo;
 import jp.tenposs.datamodel.Key;
@@ -170,12 +172,9 @@ public class LeftMenuView extends FrameLayout {
 
         if (this.mUserProfile != null) {
             mUserNameLabel.setText(userProfile.profile.name);
-            Picasso ps = Picasso.with(mContext);
-            ps.load(this.mUserProfile.profile.getImageUrl())
-                    .resize(fullImageSize, 640)
-                    .centerCrop()
-                    .placeholder(R.drawable.no_avatar)
-                    .into(mUserAvatarImage);
+
+            reloadUserInfo(mUserProfile);
+
             mUserInfoButton.setVisibility(View.VISIBLE);
             mSignInButton.setVisibility(View.GONE);
             this.mScreenData.add(new AppInfo.SideMenu(AbstractFragment.SIGN_OUT_SCREEN, mContext.getString(R.string.sign_out), "ti-unlock"));
@@ -210,6 +209,27 @@ public class LeftMenuView extends FrameLayout {
             });
         } else {
             this.mAdapter.notifyDataSetChanged();
+        }
+    }
+
+    public void reloadUserInfo(SignInInfo.User userProfile) {
+        this.mUserProfile = userProfile;
+        Picasso ps = Picasso.with(mContext);
+        String url = this.mUserProfile.profile.getImageUrl().toLowerCase(Locale.US);
+        if (url.contains("http://") == true || url.contains("https://") == true) {
+
+            ps.load(this.mUserProfile.profile.getImageUrl())
+                    .resize(fullImageSize, 640)
+                    .centerCrop()
+                    .placeholder(R.drawable.no_avatar)
+                    .into(mUserAvatarImage);
+        } else {
+            File f = new File(this.mUserProfile.profile.getImageUrl());
+            ps.load(f)
+                    .resize(fullImageSize, 640)
+                    .centerCrop()
+                    .placeholder(R.drawable.no_avatar)
+                    .into(mUserAvatarImage);
         }
     }
 }

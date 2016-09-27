@@ -85,12 +85,20 @@ public class SignInInfo {
         public int gender;              //integer
         public String address;
         String avatar_url;       //string
+        String avatar_file;       //string
         public int facebook_status;
         public int twitter_status;
         public int instagram_status;
 
+        public void setImageFile(String filePath) {
+            avatar_file = filePath;
+        }
+
         @Override
         public String getImageUrl() {
+            if (avatar_file != null) {
+                return avatar_file;
+            }
             try {
                 String temp = avatar_url.toLowerCase(Locale.US);
                 if (temp.indexOf("http://") != -1 || temp.indexOf("https://") != -1) {
