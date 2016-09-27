@@ -51,7 +51,7 @@ public class NewsInfo {
         public String date;
         public int store_id;
         String image_url;
-        public String category = "";
+        String category = "";
 
         @Override
         public String getImageUrl() {
@@ -65,6 +65,14 @@ public class NewsInfo {
 
         public String getCreatedDate() {
             return date;
+        }
+
+        public String getCategory(){
+            if(this.category != null){
+                return this.category;
+            }else{
+                return "カテゴリー";
+            }
         }
     }
 

@@ -91,103 +91,63 @@ public class AppInfo {
     }
 
     public class AppSetting implements Serializable {
-
-
         int id;
         int app_id;
         String title;
+
         String title_color;
-        int font_size;
+        String font_size;
         String font_family;
         String header_color;
+
         String menu_icon_color;
         String menu_background_color;
         String menu_font_color;
-        int menu_font_size;
+        String menu_font_size;
         String menu_font_family;
         int template_id;
 
+        public String company_info;
+        public String user_privacy;
+
+
         public int getToolbarIconColor() {
-            try {
-                String color = this.title_color;
-                if (color.indexOf("#") != 0) {
-                    color = "#" + this.title_color;
-                }
-                return Color.parseColor(color);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-            return Color.BLACK;
+            return Utils.colorFromHex(this.menu_icon_color, Color.WHITE);
         }
 
         public int getToolbarTitleColor() {
-            try {
-                String color = this.title_color;
-                if (color.indexOf("#") != 0) {
-                    color = "#" + this.title_color;
-                }
-                return Color.parseColor(color);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-            return Color.BLACK;
+            return Utils.colorFromHex(this.title_color, Color.BLACK);
         }
 
         public int getToolbarBackgroundColor() {
-            try {
-                String color = this.header_color;
-                if (color.indexOf("#") != 0) {
-                    color = "#" + this.header_color;
-                }
-                return Color.parseColor(color);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-            return Color.BLACK;
+            return Utils.colorFromHex(this.header_color, Color.WHITE);
         }
+
+//        public int getMenuIconColor() {
+//            return Utils.colorFromHex(this.menu_icon_color, Color.WHITE);
+//        }
 
         public int getMenuBackgroundColor() {
-            try {
-                String color = this.menu_background_color;
-                if (color.indexOf("#") != 0) {
-                    color = "#" + this.menu_background_color;
-                }
-                return Color.parseColor(color);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-            return Color.BLACK;
+            return Utils.colorFromHex(this.menu_background_color, Color.GRAY);
         }
 
-        public int getMenuIconColor() {
-            try {
-                String color = this.menu_icon_color;
-                if (color.indexOf("#") != 0) {
-                    color = "#" + this.menu_icon_color;
-                }
-                return Color.parseColor(color);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-            return Color.BLACK;
-        }
 
-        public int getMenuItemTitleFontSize() {
+        public String getMenuItemTitleFontSize() {
             try {
                 return this.menu_font_size;
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-            return Color.BLACK;
+            return "";
         }
 
-        public int getToolbarTitleFontSize() {
+        public String getToolbarTitleFontSize() {
             try {
                 return this.font_size;
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-            return Color.BLACK;
+            return "";
         }
 
         public int getMenuItemTitleColor() {

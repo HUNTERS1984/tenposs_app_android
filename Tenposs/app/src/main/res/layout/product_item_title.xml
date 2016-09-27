@@ -3,7 +3,8 @@
     android:id="@+id/product_title"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="@dimen/common_padding">
 
     <TextView
         android:id="@+id/product_category_label"
@@ -22,7 +23,10 @@
             android:id="@+id/product_name_label"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:text="PRODUCT NAME"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/product_price_label"
@@ -30,7 +34,18 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dip"
             android:text="¥ 1200"
-            android:textColor="@android:color/holo_red_light" />
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+            android:textColor="@android:color/holo_red_light"
+            android:textStyle="bold" />
 
     </LinearLayout>
+
+    <Button
+        android:id="@+id/purchase_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/bg_button_ex"
+        android:text="@string/purchase"
+        android:textColor="@android:color/white" />
 </jp.tenposs.view.ProductTitle>

@@ -53,7 +53,6 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
     PhotoCategoryInfo.PhotoCat mCurrentPhotoCat;
     int mCurrentPhotoCatIndex;
 
-
     ArrayList<Bundle> mAllItems;
 
     /**

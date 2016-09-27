@@ -97,18 +97,19 @@ public abstract class AbstractFragment extends Fragment {
 
     public final static int SETTING_SCREEN = 10;
     public final static int PROFILE_SCREEN = 1001;
+    public final static int ISSUE_INFO_SCREEN = 1002;
+    public final static int COMPANY_INFO_SCREEN = 1003;
+    public final static int USER_PRIVACY_SCREEN = 1004;
 
 
     public final static int SIGN_IN_SCREEN = 11;
     public final static int SIGN_IN_EMAIL_SCREEN = 1101;
     public final static int SIGN_UP_SCREEN = 1102;
 
-    public final static int COMPANY_INFO_SCREEN = 12;
-    public final static int USER_PRIVACY_SCREEN = 14;
 
     public final static int SIGN_OUT_SCREEN = 16;
 
-    public final static int DEFAULT_RECORD_PER_PAGE = 6;
+    public final static int DEFAULT_RECORD_PER_PAGE = 48;
 
     public class ToolbarSettings {
 
@@ -145,6 +146,14 @@ public abstract class AbstractFragment extends Fragment {
             }
         }
 
+//        public int getMenuIconColor() {
+//            if (appSetting != null) {
+//                return appSetting.getMenuIconColor();
+//            } else {
+//                return Color.WHITE;
+//            }
+//        }
+
         public int getMenuBackgroundColor() {
             if (appSetting != null) {
                 return appSetting.getMenuBackgroundColor();
@@ -153,19 +162,35 @@ public abstract class AbstractFragment extends Fragment {
             }
         }
 
-        public int getMenuIconColor() {
+        public String getMenuItemTitleFontSize() {
             if (appSetting != null) {
-                return appSetting.getMenuIconColor();
+                return appSetting.getMenuItemTitleFontSize();
+            } else {
+                return "";
+            }
+        }
+
+        public String getToolbarTitleFontSize() {
+            if (appSetting != null) {
+                return appSetting.getToolbarTitleFontSize();
+            } else {
+                return "";
+            }
+        }
+
+        public int getMenuItemTitleColor() {
+            if (appSetting != null) {
+                return appSetting.getMenuItemTitleColor();
             } else {
                 return Color.WHITE;
             }
         }
 
-        public int getMenuTitleColor() {
+        public String getMenuItemTitleFont() {
             if (appSetting != null) {
-                return appSetting.getMenuItemTitleColor();
+                return appSetting.getMenuItemTitleFont();
             } else {
-                return Color.WHITE;
+                return "Arial";
             }
         }
 
@@ -176,6 +201,7 @@ public abstract class AbstractFragment extends Fragment {
                 return "Arial";
             }
         }
+
     }
 
     public static String SCREEN_DATA = "SCREEN_DATA";
@@ -636,13 +662,14 @@ public abstract class AbstractFragment extends Fragment {
 
             if (this.mTitleToolbarLabel != null) {
                 this.mTitleToolbarLabel.setText(mToolbarSettings.toolbarTitle);
-                this.mTitleToolbarLabel.setTextColor(mToolbarSettings.getToolbarTitleColor());
                 try {
+                    Utils.setTextApperance(getContext(), this.mTitleToolbarLabel, mToolbarSettings.getToolbarTitleFontSize());
                     Typeface type = Utils.getTypeFaceForFont(getActivity(), mToolbarSettings.getToolBarTitleFont());
                     this.mTitleToolbarLabel.setTypeface(type);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
+                this.mTitleToolbarLabel.setTextColor(mToolbarSettings.getToolbarTitleColor());
             }
 
             if (this.mToolbarSettings.toolbarType == ToolbarSettings.LEFT_MENU_BUTTON) {

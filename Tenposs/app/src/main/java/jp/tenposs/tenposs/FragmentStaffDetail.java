@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -27,6 +28,7 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
     Button mStaffDescriptionButton;
     Button mStaffProfileButton;
     TextView mStaffDescriptionLabel;
+    LinearLayout mStaffProfileLayout;
     Button mMoreButton;
 
     boolean mShowDescription = true;
@@ -84,6 +86,7 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
         this.mStaffDescriptionButton = (Button) root.findViewById(R.id.staff_description_button);
         this.mStaffProfileButton = (Button) root.findViewById(R.id.staff_profile_button);
         this.mStaffDescriptionLabel = (TextView) root.findViewById(R.id.staff_description_label);
+        this.mStaffProfileLayout = (LinearLayout) root.findViewById(R.id.staff_profile_layout);
         this.mMoreButton = (Button) root.findViewById(R.id.more_button);
 
         this.mStaffDescriptionButton.setOnClickListener(this);
@@ -126,12 +129,18 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
 
             mStaffProfileButton.setTextColor(Utils.getColorInt(getContext(), R.color.description_text_color));
             mStaffProfileButton.setBackgroundResource(R.drawable.bg_tab_button_inactive);
+
+            mStaffDescriptionLabel.setVisibility(View.VISIBLE);
+            mStaffProfileLayout.setVisibility(View.GONE);
         } else {
             mStaffProfileButton.setTextColor(Utils.getColorInt(getContext(), R.color.category_text_color));
             mStaffProfileButton.setBackgroundResource(R.drawable.bg_tab_button);
 
             mStaffDescriptionButton.setTextColor(Utils.getColorInt(getContext(), R.color.description_text_color));
             mStaffDescriptionButton.setBackgroundResource(R.drawable.bg_tab_button_inactive);
+
+            mStaffProfileLayout.setVisibility(View.VISIBLE);
+            mStaffDescriptionLabel.setVisibility(View.GONE);
         }
     }
 

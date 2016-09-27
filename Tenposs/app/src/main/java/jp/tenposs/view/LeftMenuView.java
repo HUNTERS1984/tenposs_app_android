@@ -60,17 +60,19 @@ public class LeftMenuView extends FrameLayout {
             AppInfo.SideMenu item = getItem(position);
             ImageView menuIcon = (ImageView) row.findViewById(R.id.item_image);
             TextView menuTitle = (TextView) row.findViewById(R.id.item_label);
-            menuTitle.setTextColor(mSettings.getMenuItemTitleColor());
+
             menuTitle.setText(item.name);
 
             if (menuTitle != null) {
                 try {
+                    Utils.setTextApperance(getContext(), menuTitle, mSettings.getMenuItemTitleFontSize());
                     Typeface type = Utils.getTypeFaceForFont(mContext, mSettings.getMenuItemTitleFont());
                     menuTitle.setTypeface(type);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             }
+            menuTitle.setTextColor(mSettings.getMenuItemTitleColor());
 //            menuIcon.setImageBitmap(ThemifyIcon.fromThemifyIcon(getContext().getAssets(),
 //                    item.icon,
 //                    60,

@@ -70,7 +70,7 @@ public class FragmentNewsDetail
                 .into(this.mNewsImage);
 
         this.mNewsTitleLabel.setText(mScreenData.title);
-        this.mNewsCategoryLabel.setText(mScreenData.category);
+        this.mNewsCategoryLabel.setText(mScreenData.getCategory());
         this.mNewsDateLabel.setText(this.mScreenData.getCreatedDate());
         this.mNewsDescriptionLabel.setText(this.mScreenData.description);
 

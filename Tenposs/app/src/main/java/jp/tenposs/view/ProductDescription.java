@@ -22,6 +22,7 @@ public class ProductDescription extends LinearLayout implements View.OnClickList
     Button productDetailButton;
     Button productSizeButton;
     TextView productDescriptionLabel;
+    LinearLayout productSizeLayout;
     ItemsInfo.Item screenData;
 
     boolean showDescription = true;
@@ -44,6 +45,7 @@ public class ProductDescription extends LinearLayout implements View.OnClickList
         productDetailButton = (Button) findViewById(R.id.product_detail_button);
         productSizeButton = (Button) findViewById(R.id.product_size_button);
         productDescriptionLabel = (TextView) findViewById(R.id.product_description_label);
+        productSizeLayout = (LinearLayout) findViewById(R.id.product_size_layout);
 
         productDetailButton.setOnClickListener(this);
         productSizeButton.setOnClickListener(this);
@@ -69,12 +71,18 @@ public class ProductDescription extends LinearLayout implements View.OnClickList
 
             productSizeButton.setTextColor(Utils.getColorInt(getContext(), R.color.description_text_color));
             productSizeButton.setBackgroundResource(R.drawable.bg_tab_button_inactive);
+
+            productDescriptionLabel.setVisibility(VISIBLE);
+            productSizeLayout.setVisibility(GONE);
         } else {
             productSizeButton.setTextColor(Utils.getColorInt(getContext(), R.color.category_text_color));
             productSizeButton.setBackgroundResource(R.drawable.bg_tab_button);
 
             productDetailButton.setTextColor(Utils.getColorInt(getContext(), R.color.description_text_color));
             productDetailButton.setBackgroundResource(R.drawable.bg_tab_button_inactive);
+
+            productDescriptionLabel.setVisibility(GONE);
+            productSizeLayout.setVisibility(VISIBLE);
         }
     }
 }

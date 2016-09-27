@@ -58,7 +58,7 @@ public class FragmentHome
 
     @Override
     protected void customToolbarInit() {
-        mToolbarSettings.toolbarTitle = "";
+        mToolbarSettings.toolbarTitle = this.mAppInfo.data.name;
         mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
         mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
     }

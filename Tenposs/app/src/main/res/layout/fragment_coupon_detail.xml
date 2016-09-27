@@ -116,8 +116,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginRight="15dp"
+                    android:layout_marginLeft="@dimen/common_padding"
+                    android:layout_marginRight="@dimen/common_padding"
                     android:orientation="horizontal">
 
                     <TextView
@@ -142,8 +142,8 @@
                     android:id="@+id/coupon_name_label"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginRight="15dp"
+                    android:layout_marginLeft="@dimen/common_padding"
+                    android:layout_marginRight="@dimen/common_padding"
                     android:text="@string/coupon"
                     android:textAppearance="@android:style/TextAppearance.DeviceDefault"
                     android:textColor="@color/title_text_color" />
@@ -151,8 +151,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginRight="15dp"
+                    android:layout_marginLeft="@dimen/common_padding"
+                    android:layout_marginRight="@dimen/common_padding"
                     android:orientation="horizontal">
 
                     <TextView
@@ -195,7 +195,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/bg_button_ex"
-                        android:text="@string/copy_one" />
+                        android:text="@string/copy_one"
+                        android:textColor="@android:color/white" />
 
                 </LinearLayout>
 
@@ -209,8 +210,8 @@
                     android:id="@+id/coupon_description_label"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginRight="15dp" />
+                    android:layout_marginLeft="@dimen/common_padding"
+                    android:layout_marginRight="@dimen/common_padding" />
 
             </LinearLayout>
 

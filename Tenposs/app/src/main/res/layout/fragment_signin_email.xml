@@ -139,20 +139,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/info_layout"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/bg_button"
+        android:layout_marginLeft="@dimen/common_padding"
+        android:layout_marginRight="@dimen/common_padding"
+        android:layout_marginTop="@dimen/common_padding"
+        android:background="@drawable/bg_button_ex"
         android:text="@string/sign_in"
-        android:textColor="@color/button_text_color" />
+        android:textColor="@android:color/white" />
 
     <TextView
         android:id="@+id/go_to_sign_up_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/sign_in_button"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
+        android:layout_marginLeft="@dimen/common_padding"
+        android:layout_marginRight="@dimen/common_padding"
         android:layout_marginTop="20dp"
         android:gravity="center"
         android:hint="@string/not_sign_up"

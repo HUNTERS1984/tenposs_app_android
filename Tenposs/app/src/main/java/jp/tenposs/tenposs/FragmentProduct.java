@@ -72,12 +72,12 @@ public class FragmentProduct extends AbstractFragment implements CommonAdapter.C
         extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, mScreenData);
         mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeProductTitle, mSpanCount, extras));
 
-        //purchase
-        extras = new Bundle();
-        extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.ITEM_PURCHASE_SCREEN);
-        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, mScreenData);
-        extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.purchase));
-        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
+        //TODO: purchase
+//        extras = new Bundle();
+//        extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.ITEM_PURCHASE_SCREEN);
+//        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, mScreenData);
+//        extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.purchase));
+//        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
 
         //Description
         extras = new Bundle();
@@ -109,7 +109,7 @@ public class FragmentProduct extends AbstractFragment implements CommonAdapter.C
             }
 
             /**
-             * Footer
+             * TODO: Footer
 
              extras = new Bundle();
              extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));

@@ -31,8 +31,7 @@
         <attr name="border_overlay" format="boolean" />
     </declare-styleable>
 
-    <style name="NormalDialog" parent="android:Theme.Dialog">
-    </style>
+    <style name="NormalDialog" parent="android:Theme.Dialog"></style>
 
     <style name="CustomDialog" parent="android:Theme.Dialog">
         <item name="android:windowIsTranslucent">true</item>
@@ -89,4 +88,12 @@
             <enum name="mirror" value="2" />
         </attr>
     </declare-styleable>
+
+    <!--<style name="TextAppearance_Micro">-->
+    <!--<item name="textSize">12sp</item>-->
+    <!--</style>-->
+
+    <!--<style name="TextAppearance_ExtraLarge">-->
+    <!--<item name="textSize">26sp</item>-->
+    <!--</style>-->
 </resources>

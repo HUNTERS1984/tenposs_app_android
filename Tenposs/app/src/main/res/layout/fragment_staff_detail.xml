@@ -97,6 +97,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
             android:orientation="vertical">
 
             <jp.tenposs.view.AspectRatioImageView
@@ -110,23 +111,31 @@
                 android:id="@+id/staff_category_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/common_padding"
+                android:paddingRight="@dimen/common_padding"
+                android:paddingTop="@dimen/common_padding"
                 android:text="@string/category_text"
                 android:textAppearance="@android:style/TextAppearance.Small"
-                android:textColor="@color/category_text_color" />
+                android:textColor="@color/description_text_color" />
 
             <TextView
                 android:id="@+id/staff_title_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/common_padding"
                 android:text="Staff Title"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault"
-                android:textColor="@color/title_text_color" />
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+                android:textColor="@color/title_text_color"
+                android:textStyle="bold" />
 
             <Button
                 android:id="@+id/unknown_staff_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_marginBottom="@dimen/common_padding"
+                android:layout_marginLeft="@dimen/common_padding"
+                android:layout_marginRight="@dimen/common_padding"
+                android:layout_marginTop="@dimen/common_padding"
                 android:background="@drawable/bg_button_ex"
                 android:text="@string/staff_unknown_button"
                 android:textColor="@android:color/white" />
@@ -134,13 +143,16 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.5dip"
-                android:layout_marginBottom="10dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginBottom="@dimen/common_padding"
+
+                android:layout_marginTop="@dimen/common_padding"
                 android:background="@color/colorSeparate" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/common_padding"
+                android:layout_marginRight="@dimen/common_padding"
                 android:background="@color/tab_color"
                 android:orientation="horizontal">
 
@@ -170,14 +182,26 @@
                 android:id="@+id/staff_description_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="@dimen/common_padding"
+                android:text="説明が入ります説明が入ります説明が入ります説明が入り ます説明が入ります説明が入ります説明が入ります説明が 入ります説明が入ります説明が入ります説明が入ります説 明が入ります説明が入ります説明が入ります説明が入りま す説明が入ります。説明が入ります説明が入ります説明が 入ります説明が入ります説明が入ります説明が入ります説 明が入ります説明が入ります。説明が入ります説明が入り ます説明が入ります説明が入ります説明が入ります説明が 入ります説明が入ります説明が入ります"
                 android:textAppearance="@android:style/TextAppearance.DeviceDefault"
                 android:textColor="@color/title_text_color" />
+
+            <LinearLayout
+                android:id="@+id/staff_profile_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/common_padding"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+            </LinearLayout>
 
             <Button
                 android:id="@+id/more_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_margin="@dimen/common_padding"
                 android:background="@drawable/bg_button"
                 android:text="@string/more"
                 android:textColor="@color/button_text_color" />

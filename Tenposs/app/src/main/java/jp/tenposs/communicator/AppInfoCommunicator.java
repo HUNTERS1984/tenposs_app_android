@@ -13,7 +13,8 @@ import jp.tenposs.datamodel.Key;
 /**
  * Created by ambient on 8/5/16.
  */
-public class AppInfoCommunicator extends TenpossCommunicator {
+public class
+AppInfoCommunicator extends TenpossCommunicator {
     public AppInfoCommunicator(TenpossCommunicatorListener listener) {
         super(listener);
     }

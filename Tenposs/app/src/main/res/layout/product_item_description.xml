@@ -5,9 +5,19 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
+    <View
+        android:id="@+id/top_separate"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dip"
+        android:layout_below="@+id/app_bar"
+        android:background="@color/colorSeparate" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/common_padding"
+        android:layout_marginRight="@dimen/common_padding"
+        android:layout_marginTop="@dimen/common_padding"
         android:background="@color/tab_color"
         android:orientation="horizontal">
 
@@ -37,5 +47,22 @@
         android:id="@+id/product_description_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/common_padding"
+        android:layout_marginTop="@dimen/common_padding"
+        android:paddingLeft="@dimen/common_padding"
+        android:paddingRight="@dimen/common_padding"
+        android:text="説明が入ります説明が入ります説明が入ります説明が入り ます説明が入ります説明が入ります説明が入ります説明が 入ります説明が入ります説明が入ります説明が入ります説 明が入ります説明が入ります説明が入ります説明が入りま す説明が入ります。説明が入ります説明が入ります説明が 入ります説明が入ります説明が入ります説明が入ります説 明が入ります説明が入ります。説明が入ります説明が入り ます説明が入ります説明が入ります説明が入ります説明が 入ります説明が入ります説明が入ります"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault"
         android:textColor="@color/title_text_color" />
+
+    <LinearLayout
+        android:id="@+id/product_size_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/common_padding"
+        android:layout_marginTop="@dimen/common_padding"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/common_padding"
+        android:paddingRight="@dimen/common_padding"
+        android:visibility="gone"></LinearLayout>
 </jp.tenposs.view.ProductDescription>

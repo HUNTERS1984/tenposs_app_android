@@ -138,6 +138,7 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
             }
 
         } else if (v == this.mIssueButton) {
+            this.mActivityListener.showScreen(AbstractFragment.ISSUE_INFO_SCREEN, null);
 
         } else if (v == this.mCompanyInfoButton) {
             this.mActivityListener.showScreen(AbstractFragment.COMPANY_INFO_SCREEN, null);

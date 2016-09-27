@@ -136,7 +136,8 @@ public class MainActivity extends AppCompatActivity
             AbstractFragment topFragment = getTopFragment();
             if (topFragment != null) {
                 if (!mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-                    if (topFragment.mToolbarSettings.toolbarType == AbstractFragment.ToolbarSettings.LEFT_MENU_BUTTON) {
+                    if (topFragment.mToolbarSettings.toolbarType == AbstractFragment.ToolbarSettings.LEFT_MENU_BUTTON &&
+                            this.mDrawerLayout.getDrawerLockMode(Gravity.LEFT) == DrawerLayout.LOCK_MODE_UNLOCKED) {
                         mDrawerLayout.openDrawer(GravityCompat.START);
                     }
                 } else {
@@ -237,11 +238,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void showScreen(int screenId, Serializable extras) {
         switch (screenId) {
-            case AbstractFragment.HOME_SCREEN: {
-                showHomeScreen();
-            }
-            break;
 
+
+            //2
             case AbstractFragment.MENU_SCREEN: {
                 showMenuScreen(this.mStoreId);
             }
@@ -257,11 +256,7 @@ public class MainActivity extends AppCompatActivity
             }
             break;
 
-            case AbstractFragment.RESERVE_SCREEN: {
-                showReserveScreen(extras);
-            }
-            break;
-
+            //3
             case AbstractFragment.NEWS_SCREEN: {
                 showNewsScreen(this.mStoreId);
             }
@@ -272,6 +267,13 @@ public class MainActivity extends AppCompatActivity
             }
             break;
 
+            //4
+            case AbstractFragment.RESERVE_SCREEN: {
+                showReserveScreen(extras);
+            }
+            break;
+
+            //5
             case AbstractFragment.PHOTO_SCREEN: {
                 showPhotoScreen(this.mStoreId);
             }
@@ -282,14 +284,8 @@ public class MainActivity extends AppCompatActivity
             }
             break;
 
-            case AbstractFragment.COUPON_SCREEN: {
-                showCouponScreen(this.mStoreId);
-
-            }
-            break;
-
-            case AbstractFragment.COUPON_DETAIL_SCREEN: {
-                showCouponDetailScreen(extras);
+            case AbstractFragment.HOME_SCREEN: {
+                showHomeScreen();
             }
             break;
 
@@ -311,6 +307,18 @@ public class MainActivity extends AppCompatActivity
             }
             break;
 
+
+            case AbstractFragment.COUPON_SCREEN: {
+                showCouponScreen(this.mStoreId);
+
+            }
+            break;
+
+            case AbstractFragment.COUPON_DETAIL_SCREEN: {
+                showCouponDetailScreen(extras);
+            }
+            break;
+
             case AbstractFragment.SETTING_SCREEN: {
                 showSettingScreen(this.mStoreId);
             }
@@ -320,6 +328,17 @@ public class MainActivity extends AppCompatActivity
                 showProfileScreen();
             }
             break;
+
+            case AbstractFragment.COMPANY_INFO_SCREEN: {
+                showCompanyInfo();
+            }
+            break;
+
+            case AbstractFragment.USER_PRIVACY_SCREEN: {
+                showUserPrivacy();
+            }
+            break;
+
 
             case AbstractFragment.SIGN_IN_SCREEN: {
                 showSignInScreen(true);
@@ -341,15 +360,6 @@ public class MainActivity extends AppCompatActivity
             }
             break;
 
-            case AbstractFragment.COMPANY_INFO_SCREEN: {
-                showCompanyInfo();
-            }
-            break;
-
-            case AbstractFragment.USER_PRIVACY_SCREEN: {
-                showUserPrivacy();
-            }
-            break;
 
             case AbstractFragment.STAFF_SCREEN: {
                 showStaffScreen(this.mStoreId);
@@ -842,6 +852,10 @@ public class MainActivity extends AppCompatActivity
             if (fragment != null) {
                 fragment.onActivityResult(requestCode, resultCode, data);
             }
+            Fragment fragmentEditProfile = getFragmentForTag(FragmentEditProfile.class.getCanonicalName());
+            if (fragmentEditProfile != null) {
+                fragmentEditProfile.onActivityResult(requestCode, resultCode, data);
+            }
         }
     }
 
@@ -905,9 +919,13 @@ public class MainActivity extends AppCompatActivity
 
                                                         try {
                                                             //Twitter
-                                                            CookieSyncManager.createInstance(MainActivity.this);
                                                             CookieManager cookieManager = CookieManager.getInstance();
-                                                            cookieManager.removeSessionCookie();
+                                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                                                cookieManager.removeSessionCookies(null);
+                                                            } else {
+                                                                CookieSyncManager.createInstance(MainActivity.this);
+                                                                cookieManager.removeSessionCookie();
+                                                            }
                                                             Twitter.getSessionManager().clearActiveSession();
                                                             Twitter.logOut();
                                                         } catch (Exception ex) {

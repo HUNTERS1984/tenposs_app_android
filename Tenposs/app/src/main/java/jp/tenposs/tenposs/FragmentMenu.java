@@ -110,6 +110,7 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
         }
 
         mTitleLabel.setText(mCurrentMenu.name);
+
         if (this.mRecyclerAdapter == null) {
             GridLayoutManager manager = new GridLayoutManager(getActivity(), mSpanCount);//);
             this.mRecyclerAdapter = new CommonAdapter(getActivity(), this, this);
@@ -251,7 +252,6 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
                             int resultApi = responseParams.getInt(Key.ResponseResultApi);
                             if (resultApi == CommonResponse.ResultSuccess) {
                                 mScreenData = (MenuInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                                mCurrentMenuIndex = 0;
                                 mAllItems = new ArrayList<>();
                                 if (mScreenData.data.menus.size() > 0) {
                                     for (int i = 0; i < mScreenData.data.menus.size(); i++) {

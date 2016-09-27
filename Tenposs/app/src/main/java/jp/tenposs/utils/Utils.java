@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
@@ -24,12 +25,13 @@ import android.widget.TextView;
 
 import junit.framework.Assert;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Currency;
 import java.util.Date;
-import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -230,6 +232,49 @@ public class Utils {
         NumberFormat format = NumberFormat.getInstance();
         format.setCurrency(Currency.getInstance(Locale.JAPAN));
         return format.format(value);
+    }
+
+    public static String urlEncode(String input) {
+        try {
+            return URLEncoder.encode(input, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return input;
+        }
+    }
+
+    public static void setTextApperance(Context context, TextView view, String textStyle) {
+        int textApperance = android.R.style.TextAppearance_DeviceDefault;
+
+        if (textStyle == "micro") {
+
+        } else if (textStyle == "small") {
+            textApperance = android.R.style.TextAppearance_DeviceDefault_Small;
+        } else if (textStyle == "medium") {
+            textApperance = android.R.style.TextAppearance_DeviceDefault_Medium;
+        } else if (textStyle == "large") {
+            textApperance = android.R.style.TextAppearance_DeviceDefault_Large;
+        } else if (textStyle == "extra-large") {
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            view.setTextAppearance(textApperance);
+        } else {
+            view.setTextAppearance(context, textApperance);
+        }
+    }
+
+    public static int colorFromHex(String hexColor, int defaultColor) {
+        try {
+            String color = hexColor;
+            if (color.indexOf("#") != 0) {
+                color = "#" + hexColor;
+            }
+            return Color.parseColor(color);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return defaultColor;
+        }
     }
 }
 

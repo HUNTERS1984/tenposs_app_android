@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -12,16 +12,17 @@
 
         <android.support.v4.view.ViewPager
             android:id="@+id/view_pager"
-            app:layout_aspectRatio="200%"
+            app:layout_aspectRatio="186%"
             app:layout_widthPercent="100%" />
 
-        <LinearLayout
-            android:id="@+id/view_pager_dots_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="10dp"
-            android:gravity="center"
-            android:orientation="horizontal" />
     </android.support.percent.PercentRelativeLayout>
-</LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/view_pager_dots_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:orientation="horizontal" />
+</RelativeLayout>
