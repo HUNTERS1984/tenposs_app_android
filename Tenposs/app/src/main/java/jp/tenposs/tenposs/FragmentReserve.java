@@ -3,15 +3,6 @@ package jp.tenposs.tenposs;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.webkit.ConsoleMessage;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.ProgressBar;
 
 import java.util.Locale;
 
@@ -27,9 +18,7 @@ import jp.tenposs.utils.Utils;
 /**
  * Created by ambient on 7/29/16.
  */
-public class FragmentReserve extends AbstractFragment {
-    ProgressBar mLoadingProgress;
-    WebView mWebView;
+public class FragmentReserve extends FragmentWebView {
     ReserveInfo.Reserve mScreenData;
     TopInfo.Contact mStoreInfo;
 
@@ -41,12 +30,6 @@ public class FragmentReserve extends AbstractFragment {
         b.putSerializable(STORE_INFO, storeInfo);
         gm.setArguments(b);
         return gm;
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        this.mStoreInfo = (TopInfo.Contact) getArguments().getSerializable(STORE_INFO);
     }
 
     @Override
@@ -70,57 +53,6 @@ public class FragmentReserve extends AbstractFragment {
     @Override
     protected void reloadScreenData() {
 
-    }
-
-    @Override
-    protected void previewScreenData() {
-        this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
-        String strUrl = mScreenData.reserve_url.toLowerCase(Locale.US);
-        String strTemp = mScreenData.reserve_url.toLowerCase(Locale.US);
-
-        if (strTemp.contains("http://") == false && strTemp.contains("https://") == false)
-            strUrl = "http://" + strUrl;
-
-        //strUrl = "http://vnexpress.net/";
-        this.mWebView.loadUrl(strUrl);
-        updateToolbar();
-    }
-
-    @Override
-    protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_web_view, null);
-        this.mLoadingProgress = (ProgressBar) root.findViewById(R.id.loading_progress);
-        this.mWebView = (WebView) root.findViewById(R.id.web_view);
-        this.mWebView.measure(100, 100);
-        this.mWebView.getSettings().setUseWideViewPort(true);
-        this.mWebView.getSettings().setLoadWithOverviewMode(true);
-        this.mWebView.getSettings().setJavaScriptEnabled(true);
-        this.mWebView.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(final WebView view, final String url) {
-                return false;
-            }
-        });
-        this.mWebView.setWebChromeClient(
-                new WebChromeClient() {
-                    @Override
-                    public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-                        System.out.println(consoleMessage.message());
-                        return super.onConsoleMessage(consoleMessage);
-                    }
-
-                    @Override
-                    public void onProgressChanged(WebView view, int newProgress) {
-                        if (newProgress < 100) {
-                            mLoadingProgress.setVisibility(View.VISIBLE);
-                            System.out.println("Loading " + newProgress + "%");
-                            mLoadingProgress.setProgress(newProgress);
-                        } else {
-                            mLoadingProgress.setVisibility(View.INVISIBLE);
-                        }
-                    }
-                });
-        return root;
     }
 
     @Override
@@ -182,6 +114,12 @@ public class FragmentReserve extends AbstractFragment {
                                 ReserveInfo.Response response = (ReserveInfo.Response) responseParams.getSerializable(Key.ResponseObject);
                                 if (response.data.reserve.size() > 0) {
                                     mScreenData = response.data.reserve.get(0);
+                                    String strUrl = mScreenData.reserve_url.toLowerCase(Locale.US);
+                                    String strTemp = mScreenData.reserve_url.toLowerCase(Locale.US);
+
+                                    if (strTemp.contains("http://") == false && strTemp.contains("https://") == false)
+                                        mUrl = "http://" + strUrl;
+
                                     previewScreenData();
                                 } else {
                                     Utils.showAlert(getContext(),

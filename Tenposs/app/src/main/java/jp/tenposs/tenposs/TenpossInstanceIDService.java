@@ -1,21 +1,23 @@
 package jp.tenposs.tenposs;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 
 import jp.tenposs.communicator.SetPushKeyCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.RequestBody;
+import jp.tenposs.datamodel.CommonResponse;
+import jp.tenposs.datamodel.Key;
+import jp.tenposs.datamodel.SetPushKeyInfo;
 
 /**
  * Created by ambient on 9/15/16.
  */
 public class TenpossInstanceIDService extends FirebaseInstanceIdService {
+    protected SharedPreferences mAppPreferences;
 
     @Override
     public void onTokenRefresh() {
@@ -25,23 +27,55 @@ public class TenpossInstanceIDService extends FirebaseInstanceIdService {
         registerToken(token);
     }
 
-    private void registerToken(String token) {
+    protected String getPrefString(String key) {
+        if (this.mAppPreferences == null) {
+            this.mAppPreferences = this.getSharedPreferences("settings", Context.MODE_PRIVATE);
+        }
+        return this.mAppPreferences.getString(key, "");
+    }
 
-        OkHttpClient client = new OkHttpClient();
-        RequestBody body = new FormBody.Builder()
-                .add("Token", token)
-                .build();
-        Log.i("demo-register", token);
-        //goi api set token
+    protected boolean setPrefString(String key, String value) {
+        if (this.mAppPreferences == null) {
+            this.mAppPreferences = this.getSharedPreferences("settings", Context.MODE_PRIVATE);
+        }
+        boolean ret;
+        SharedPreferences.Editor editor = this.mAppPreferences.edit();
+        editor.putString(key, value);
+        ret = editor.commit();
+        return ret;
+    }
+
+
+    private void registerToken(String firebaseToken) {
 
         Bundle params = new Bundle();
+        SetPushKeyInfo.Request request = new SetPushKeyInfo.Request();
+        request.token = getPrefString(Key.TokenKey);
+        request.key = firebaseToken;
+        params.putSerializable(Key.RequestObject, request);
+
         SetPushKeyCommunicator communicator = new SetPushKeyCommunicator(
                 new TenpossCommunicator.TenpossCommunicatorListener() {
                     @Override
                     public void completed(TenpossCommunicator request, Bundle responseParams) {
-                        //TODO: chua lam xong
+                        int result = responseParams.getInt(Key.ResponseResult);
+                        if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                            int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                            if (resultApi == CommonResponse.ResultSuccess) {
+                                //Update User profile
+                                SetPushKeyInfo.Response response = (SetPushKeyInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                            } else {
+
+                                String strMessage = responseParams.getString(Key.ResponseMessage);
+//                                errorWithMessage(responseParams, strMessage);
+                            }
+                        } else {
+                            String strMessage = responseParams.getString(Key.ResponseMessage);
+//                            errorWithMessage(responseParams, strMessage);
+                        }
                     }
                 });
+//        showProgress(getString(R.string.msg_loading_profile));
         communicator.execute(params);
     }
 }

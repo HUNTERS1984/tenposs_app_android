@@ -89,11 +89,24 @@
         </attr>
     </declare-styleable>
 
-    <!--<style name="TextAppearance_Micro">-->
-    <!--<item name="textSize">12sp</item>-->
-    <!--</style>-->
 
-    <!--<style name="TextAppearance_ExtraLarge">-->
-    <!--<item name="textSize">26sp</item>-->
-    <!--</style>-->
+    <style name="TextAppearance_Micro">
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="TextAppearance_Small">
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="TextAppearance_Medium">
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="TextAppearance_Large">
+        <item name="android:textSize">22sp</item>
+    </style>
+
+    <style name="TextAppearance_ExtraLarge">
+        <item name="android:textSize">26sp</item>
+    </style>
 </resources>

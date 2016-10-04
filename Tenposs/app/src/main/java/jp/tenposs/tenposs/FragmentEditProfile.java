@@ -140,10 +140,10 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
                 lastProvince == null) {
             return false;
         }
-        Uri selectedImage = (Uri) mApplication.getParcelable(Key.UpdateProfileAvatar);
-        String userName = mUserNameEdit.getEditableText().toString();
-        String gender;
-        String address;
+        final Uri selectedImage = (Uri) mApplication.getParcelable(Key.UpdateProfileAvatar);
+        final String userName = mUserNameEdit.getEditableText().toString();
+        final String gender;
+        final String address;
         int countChange = 0;
         if (lastGender != selectedGender) {
             gender = Integer.toString(selectedGender);
@@ -171,7 +171,31 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
             return false;
         }
 
-        updateProfile(gender, userName, address, selectedImage);
+        Utils.showAlert(getContext(),
+                getString(R.string.info),
+                getString(R.string.msg_save_profile_confirm),
+                getString(R.string.yes),
+                getString(R.string.no),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case DialogInterface.BUTTON_POSITIVE: {
+                                updateProfile(gender, userName, address, selectedImage);
+                            }
+                            break;
+                            case DialogInterface.BUTTON_NEGATIVE: {
+                                lastGender = -1;
+                                lastUserName = null;
+                                lastProvince = null;
+                                close();
+                            }
+                            break;
+                        }
+                    }
+                }
+        );
+
         return true;
     }
 
@@ -214,38 +238,20 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
                         } else {
                             showImageCapture();
                         }
-                        /*FragmentSelectAvatar fragmentSelectAvatar = new FragmentSelectAvatar();
-                        fragmentSelectAvatar.setTargetFragment(FragmentEditProfile.this, FragmentSelectAvatar.CAPTURE_IMAGE_INTENT);
-                        //fragmentSelectAvatar.
-                        mActivityListener.showFragment(fragmentSelectAvatar, FragmentSelectAvatar.class.getCanonicalName(), true);
-                        /**/
                     }
                 }
         );
         this.mRightToolbarButton.setVisibility(View.INVISIBLE);
         this.mRightToolbarButton.setOnClickListener(
-                new View.OnClickListener()
-
-                {
+                new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //showalert
                         performSignOut();
                     }
                 }
-
         );
-//        this.mRightToolbarButton.setVisibility(View.VISIBLE);
-        //        this.mUserAvatarImage;
-        //TextView mUserNameLabel;
 
         reloadImage();
-        /*Picasso ps = Picasso.with(getContext());
-        ps.load(this.mScreenData.profile.getImageUrl())
-                .resize(mFullImageSize, 640)
-                .centerCrop()
-                .placeholder(R.drawable.no_avatar)
-                .into(mUserAvatarImage);*/
 
         this.mIdEdit.setText(Integer.toString(this.mScreenData.id));
 
@@ -278,9 +284,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
         if (mScreenData.profile.address == null) {
             mScreenData.profile.address = this.mJapanPrefectures[0];
         } else {
-
             int i = 0;
-
             for (String s : this.mJapanPrefectures) {
                 if (s.compareToIgnoreCase(mScreenData.profile.address) == 0) {
                     pos = i;
@@ -289,11 +293,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
                 i++;
             }
         }
-        try {
-            this.mProvinceSpinner.setSelection(pos);
-        } catch (Exception ignored) {
 
-        }
         this.mProvinceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -313,7 +313,11 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
                 R.array.japan_prefectures, android.R.layout.simple_spinner_item);
         adapterProvince.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         this.mProvinceSpinner.setAdapter(adapterProvince);
+        try {
+            this.mProvinceSpinner.setSelection(pos);
+        } catch (Exception ignored) {
 
+        }
         List<String> permission = new ArrayList<>();
         permission.add("public_profile");
         permission.add("email");
@@ -366,7 +370,6 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
         this.mTwitterLogin.setCallback(new Callback<TwitterSession>() {
             @Override
             public void success(Result<TwitterSession> result) {
-
                 TwitterAuthToken token = result.data.getAuthToken();
                 String twitterToken = token.token;
 
@@ -392,7 +395,6 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
                 InstagramRedirectUri);
 
         mInstagramAPI.setListener(new InstagramAPI.OAuthAuthenticationListener() {
-
             @Override
             public void onSuccess() {
                 //mInstagramAPI.fetchUserName();
@@ -473,7 +475,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
         this.mLinkFacebookButton.setOnClickListener(this);
         this.mLinkTwitterButton.setOnClickListener(this);
         this.mLinkInstagramButton.setOnClickListener(this);
-        String userProfile = getKeyString(Key.UserProfile);
+        String userProfile = getPrefString(Key.UserProfile);
         this.mScreenData = (SignInInfo.User) CommonObject.fromJSONString(userProfile, SignInInfo.User.class, null);
 
         return root;
@@ -612,14 +614,14 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
 
             ps.load(this.mScreenData.profile.getImageUrl())
                     .resize(mFullImageSize, 640)
-                    .centerCrop()
+                    .centerInside()
                     .placeholder(R.drawable.no_avatar)
                     .into(mUserAvatarImage);
         } else {
             File f = new File(this.mScreenData.profile.getImageUrl());
             ps.load(f)
                     .resize(mFullImageSize, 640)
-                    .centerCrop()
+                    .centerInside()
                     .placeholder(R.drawable.no_avatar)
                     .into(mUserAvatarImage);
         }
@@ -647,8 +649,8 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
                                                     if (resultApi == CommonResponse.ResultSuccess ||
                                                             resultApi == CommonResponse.ResultErrorInvalidToken) {
                                                         //clear token and user profile
-                                                        setKeyString(Key.TokenKey, "");
-                                                        setKeyString(Key.UserProfile, "");
+                                                        setPref(Key.TokenKey, "");
+                                                        setPref(Key.UserProfile, "");
                                                         mActivityListener.updateUserInfo(null);
                                                         close();
                                                     } else {
@@ -663,7 +665,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
                                         });
                                 Bundle params = new Bundle();
                                 SignOutInfo.Request request = new SignOutInfo.Request();
-                                request.token = getKeyString(Key.TokenKey);
+                                request.token = getPrefString(Key.TokenKey);
                                 params.putSerializable(Key.RequestObject, request);
                                 showProgress(getString(R.string.msg_signing_out));
                                 communicator.execute(params);
@@ -683,7 +685,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
     public void onClick(View v) {
         if (v == this.mLinkFacebookButton) {
             Profile profile = Profile.getCurrentProfile();
-            String token = getKeyString(Key.FacebookTokenKey);
+            String token = getPrefString(Key.FacebookTokenKey);
             if (profile != null && token.length() > 0) {
                 // user has logged in
                 linkWithSocialAccount(getString(R.string.msg_link_with_facebook),
@@ -723,7 +725,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
         request.social_secret = socialSecret;//twitter secret (used for twitter only)
         request.nickname = socialName;
 
-        request.token = getKeyString(Key.TokenKey);
+        request.token = getPrefString(Key.TokenKey);
         params.putSerializable(Key.RequestObject, request);
         SocialProfileCommunicator communicator = new SocialProfileCommunicator(
                 new TenpossCommunicator.TenpossCommunicatorListener() {
@@ -743,7 +745,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
                             } else if (socialType.equalsIgnoreCase(SocialSigninInfo.INSTAGRAM) == true) {
                                 mScreenData.profile.instagram_status = 1;
                             }
-                            setKeyString(Key.UserProfile, CommonObject.toJSONString(mScreenData, mScreenData.getClass()));
+                            setPref(Key.UserProfile, CommonObject.toJSONString(mScreenData, mScreenData.getClass()));
                             updateLinkButton();
 
                         } else {
@@ -774,7 +776,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
     void updateProfile(final String gender, final String userName, final String address, final Uri avatar) {
         Bundle params = new Bundle();
         UpdateProfileInfo.Request request = new UpdateProfileInfo.Request();
-        request.token = getKeyString(Key.TokenKey);
+        request.token = getPrefString(Key.TokenKey);
 
         if (userName != null) {
             request.username = userName;
@@ -812,7 +814,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
                                 mScreenData.profile.setImageFile(avatar.getPath());
                             }
 
-                            setKeyString(Key.UserProfile, CommonObject.toJSONString(mScreenData, mScreenData.getClass()));
+                            setPref(Key.UserProfile, CommonObject.toJSONString(mScreenData, mScreenData.getClass()));
 
                             mApplication.remove(Key.UpdateProfileAvatar);
 

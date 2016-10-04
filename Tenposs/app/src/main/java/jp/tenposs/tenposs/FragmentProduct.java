@@ -207,7 +207,7 @@ public class FragmentProduct extends AbstractFragment implements CommonAdapter.C
                 ItemsInfo.Item relatedItem = (ItemsInfo.Item) item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
 
                 ItemDetail.Request requestParams = new ItemDetail.Request();
-                requestParams.token = getKeyString(Key.TokenKey);
+                requestParams.token = getPrefString(Key.TokenKey);
                 requestParams.item_id = relatedItem.id;
 
                 Bundle params = new Bundle();

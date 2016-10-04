@@ -36,6 +36,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import jp.tenposs.tenposs.R;
+
 /**
  * Created by ambient on 8/19/16.
  */
@@ -244,17 +246,30 @@ public class Utils {
     }
 
     public static void setTextApperance(Context context, TextView view, String textStyle) {
-        int textApperance = android.R.style.TextAppearance_DeviceDefault;
+//        int textApperance = android.R.style.TextAppearance_DeviceDefault;
+//
+//        if (textStyle == "micro") {
+//
+//        } else if (textStyle == "small") {
+//            textApperance = android.R.style.TextAppearance_DeviceDefault_Small;
+//        } else if (textStyle == "medium") {
+//            textApperance = android.R.style.TextAppearance_DeviceDefault_Medium;
+//        } else if (textStyle == "large") {
+//            textApperance = android.R.style.TextAppearance_DeviceDefault_Large;
+//        } else if (textStyle == "extra-large") {
+//        }
 
+        int textApperance = R.style.TextAppearance_Medium;
         if (textStyle == "micro") {
-
+            textApperance = R.style.TextAppearance_Micro;
         } else if (textStyle == "small") {
-            textApperance = android.R.style.TextAppearance_DeviceDefault_Small;
+            textApperance = R.style.TextAppearance_Small;
         } else if (textStyle == "medium") {
-            textApperance = android.R.style.TextAppearance_DeviceDefault_Medium;
+            textApperance = R.style.TextAppearance_Medium;
         } else if (textStyle == "large") {
-            textApperance = android.R.style.TextAppearance_DeviceDefault_Large;
+            textApperance = R.style.TextAppearance_Large;
         } else if (textStyle == "extra-large") {
+            textApperance = R.style.TextAppearance_ExtraLarge;
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -274,6 +289,27 @@ public class Utils {
         } catch (Exception ex) {
             ex.printStackTrace();
             return defaultColor;
+        }
+    }
+
+    public static String encodeUrlParams(String input) {
+        String output = input;
+        output = output.replace(" ", "%20");
+        //TODO: need more special chracter
+        return output;
+    }
+
+    public static String getImageUrl(String domain, String url, String defaultUrl) {
+        try {
+            String temp = url.toLowerCase(Locale.US);
+            if (temp.indexOf("http://") != -1 || temp.indexOf("https://") != -1) {
+
+                return encodeUrlParams(url);
+            } else {
+                return domain + encodeUrlParams(url);
+            }
+        } catch (Exception ignored) {
+            return defaultUrl;
         }
     }
 }

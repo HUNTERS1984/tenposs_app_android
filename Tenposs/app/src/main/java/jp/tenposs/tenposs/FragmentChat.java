@@ -48,7 +48,7 @@ public class FragmentChat extends AbstractFragment {
     protected void previewScreenData() {
         this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
         updateToolbar();
-        String userProfile = getKeyString(Key.UserProfile);
+        String userProfile = getPrefString(Key.UserProfile);
         SignInInfo.User user = (SignInInfo.User) CommonObject.fromJSONString(userProfile, SignInInfo.User.class, null);
         this.mWebView.setWebChromeClient(new WebChromeClient() {
                                             @Override

@@ -129,8 +129,8 @@ public class FragmentSignInEmail extends AbstractFragment implements View.OnClic
                                     if (resultApi == CommonResponse.ResultSuccess) {
                                         SignInInfo.Response response = (SignInInfo.Response) responseParams.get(Key.ResponseObject);
                                         String token = response.data.token;
-                                        setKeyString(Key.TokenKey, token);
-                                        setKeyString(Key.UserProfile, CommonObject.toJSONString(response.data, response.data.getClass()));
+                                        setPref(Key.TokenKey, token);
+                                        setPref(Key.UserProfile, CommonObject.toJSONString(response.data, response.data.getClass()));
                                         mActivityListener.updateUserInfo(response.data);
                                         close();
 

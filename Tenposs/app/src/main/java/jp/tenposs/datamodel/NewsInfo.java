@@ -2,9 +2,9 @@ package jp.tenposs.datamodel;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Locale;
 
 import jp.tenposs.communicator.TenpossCommunicator;
+import jp.tenposs.utils.Utils;
 
 /**
  * Created by ambient on 8/10/16.
@@ -55,22 +55,17 @@ public class NewsInfo {
 
         @Override
         public String getImageUrl() {
-            String temp = image_url.toLowerCase(Locale.US);
-            if (temp.indexOf("http://") != -1 || temp.indexOf("https://") != -1) {
-                return image_url;
-            } else {
-                return TenpossCommunicator.BASE_ADDRESS + image_url;
-            }
+            return Utils.getImageUrl(TenpossCommunicator.DOMAIN_ADDRESS, image_url, "https://google.com");
         }
 
         public String getCreatedDate() {
             return date;
         }
 
-        public String getCategory(){
-            if(this.category != null){
+        public String getCategory() {
+            if (this.category != null) {
                 return this.category;
-            }else{
+            } else {
                 return "カテゴリー";
             }
         }

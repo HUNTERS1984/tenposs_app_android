@@ -2,13 +2,17 @@ package jp.tenposs.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
+import jp.tenposs.adapter.TableAdapter;
 import jp.tenposs.datamodel.ItemsInfo;
 import jp.tenposs.tenposs.R;
 import jp.tenposs.utils.Utils;
@@ -17,13 +21,18 @@ import jp.tenposs.utils.Utils;
  * Created by ambient on 8/29/16.
  */
 
-public class ProductDescription extends LinearLayout implements View.OnClickListener {
+public class ProductDescription
+        extends
+        LinearLayout
+        implements
+        View.OnClickListener {
 
-    Button productDetailButton;
-    Button productSizeButton;
-    TextView productDescriptionLabel;
-    LinearLayout productSizeLayout;
-    ItemsInfo.Item screenData;
+    Button mProductDetailButton;
+    Button mProductSizeButton;
+    TextView mProductDescriptionLabel;
+    TableView mProductSizeLayout;
+    ItemsInfo.Item mViewData;
+    SizeAdapter mAdapter;
 
     boolean showDescription = true;
 
@@ -40,25 +49,34 @@ public class ProductDescription extends LinearLayout implements View.OnClickList
     }
 
     public void reloadData(Serializable serializable) {
-        screenData = (ItemsInfo.Item) serializable;
+        mViewData = (ItemsInfo.Item) serializable;
 
-        productDetailButton = (Button) findViewById(R.id.product_detail_button);
-        productSizeButton = (Button) findViewById(R.id.product_size_button);
-        productDescriptionLabel = (TextView) findViewById(R.id.product_description_label);
-        productSizeLayout = (LinearLayout) findViewById(R.id.product_size_layout);
+        mProductDetailButton = (Button) findViewById(R.id.product_detail_button);
+        mProductSizeButton = (Button) findViewById(R.id.product_size_button);
+        mProductDescriptionLabel = (TextView) findViewById(R.id.product_description_label);
+        mProductSizeLayout = (TableView) findViewById(R.id.product_size_layout);
 
-        productDetailButton.setOnClickListener(this);
-        productSizeButton.setOnClickListener(this);
+        mProductDetailButton.setOnClickListener(this);
+        mProductSizeButton.setOnClickListener(this);
 
-        productDescriptionLabel.setText(screenData.description);
+        mProductDescriptionLabel.setText(mViewData.description);
+
+        if (this.mViewData.hasSizes() == true) {
+            if (mAdapter == null) {
+                mAdapter = new SizeAdapter(this.getContext(), this);
+                mProductSizeLayout.setAdapter(this.mAdapter);
+            } else {
+                mAdapter.notifyDataSetChanged();
+            }
+        }
         showDescriptionOrSize();
     }
 
     @Override
     public void onClick(View v) {
-        if (v == productDetailButton) {
+        if (v == mProductDetailButton) {
             showDescription = true;
-        } else if (v == productSizeButton) {
+        } else if (v == mProductSizeButton) {
             showDescription = false;
         }
         showDescriptionOrSize();
@@ -66,23 +84,177 @@ public class ProductDescription extends LinearLayout implements View.OnClickList
 
     void showDescriptionOrSize() {
         if (showDescription == true) {
-            productDetailButton.setTextColor(Utils.getColorInt(getContext(), R.color.category_text_color));
-            productDetailButton.setBackgroundResource(R.drawable.bg_tab_button);
+            mProductDetailButton.setTextColor(Utils.getColorInt(getContext(), R.color.category_text_color));
+            mProductDetailButton.setBackgroundResource(R.drawable.bg_tab_button);
 
-            productSizeButton.setTextColor(Utils.getColorInt(getContext(), R.color.description_text_color));
-            productSizeButton.setBackgroundResource(R.drawable.bg_tab_button_inactive);
+            mProductSizeButton.setTextColor(Utils.getColorInt(getContext(), R.color.description_text_color));
+            mProductSizeButton.setBackgroundResource(R.drawable.bg_tab_button_inactive);
 
-            productDescriptionLabel.setVisibility(VISIBLE);
-            productSizeLayout.setVisibility(GONE);
+            mProductDescriptionLabel.setVisibility(VISIBLE);
+            mProductSizeLayout.setVisibility(GONE);
         } else {
-            productSizeButton.setTextColor(Utils.getColorInt(getContext(), R.color.category_text_color));
-            productSizeButton.setBackgroundResource(R.drawable.bg_tab_button);
+            mProductSizeButton.setTextColor(Utils.getColorInt(getContext(), R.color.category_text_color));
+            mProductSizeButton.setBackgroundResource(R.drawable.bg_tab_button);
 
-            productDetailButton.setTextColor(Utils.getColorInt(getContext(), R.color.description_text_color));
-            productDetailButton.setBackgroundResource(R.drawable.bg_tab_button_inactive);
+            mProductDetailButton.setTextColor(Utils.getColorInt(getContext(), R.color.description_text_color));
+            mProductDetailButton.setBackgroundResource(R.drawable.bg_tab_button_inactive);
 
-            productDescriptionLabel.setVisibility(GONE);
-            productSizeLayout.setVisibility(VISIBLE);
+            mProductDescriptionLabel.setVisibility(GONE);
+            mProductSizeLayout.setVisibility(VISIBLE);
+        }
+    }
+
+    public int numberOfRows() {
+        return this.mViewData.numberOfRows();
+    }
+
+    public int numberOfColumns() {
+        return this.mViewData.numberOfColumns();
+    }
+
+    public ArrayList<String> getTableHeaders() {
+        return this.mViewData.getTableHeaders();
+    }
+
+    public ArrayList<String> getTableItems() {
+        return this.mViewData.getTableItems();
+    }
+
+
+    public class SizeAdapter extends TableAdapter {
+
+        final static int FIRST_HEADER = 0;
+        final static int HEADER = 1;
+        final static int FIRST_BODY = 2;
+        final static int BODY = 3;
+
+        Context mContext;
+        private final float mDensity;
+        LayoutInflater mInflater;
+        ProductDescription mDataSource;
+
+        public SizeAdapter(Context context, ProductDescription dataSource) {
+            this.mContext = context;
+            this.mDataSource = dataSource;
+            this.mDensity = context.getResources().getDisplayMetrics().density;
+            this.mInflater = LayoutInflater.from(mContext);
+        }
+
+        @Override
+        public int getRowCount() {
+            return this.mDataSource.numberOfRows();
+        }
+
+        @Override
+        public int getColumnCount() {
+            return this.mDataSource.numberOfColumns();
+        }
+
+        @Override
+        public View getView(int row, int column, View convertView, ViewGroup parent) {
+            final View view;
+            switch (getItemViewType(row, column)) {
+                case FIRST_HEADER:
+                    view = getFirstHeader(row, column, convertView, parent);
+                    break;
+
+                case HEADER:
+                    view = getHeader(row, column, convertView, parent);
+                    break;
+
+                case FIRST_BODY:
+                    view = getFirstBody(row, column, convertView, parent);
+                    break;
+
+                case BODY:
+                    view = getBody(row, column, convertView, parent);
+                    break;
+
+                default:
+                    throw new RuntimeException("wtf?");
+            }
+            return view;
+        }
+
+        private View getFirstHeader(int row, int column, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = this.mInflater.inflate(R.layout.item_table_header_first, parent, false);
+            }
+            ((TextView) convertView.findViewById(android.R.id.text1)).setText(mDataSource.getTableHeaders().get(0));
+            return convertView;
+        }
+
+        private View getHeader(int row, int column, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = this.mInflater.inflate(R.layout.item_table_header, parent, false);
+            }
+            ((TextView) convertView.findViewById(android.R.id.text1)).setText(mDataSource.getTableHeaders().get(column + 1));
+            return convertView;
+        }
+
+        private View getFirstBody(int row, int column, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = this.mInflater.inflate(R.layout.item_table_first, parent, false);
+            }
+            convertView.setBackgroundResource(row % 2 == 0 ? R.drawable.bg_table_color1 : R.drawable.bg_table_color2);
+            ((TextView) convertView.findViewById(android.R.id.text1)).setText(getBodyText(row, column));
+            return convertView;
+        }
+
+        private View getBody(int row, int column, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = this.mInflater.inflate(R.layout.item_table, parent, false);
+            }
+            convertView.setBackgroundResource(row % 2 == 0 ? R.drawable.bg_table_color1 : R.drawable.bg_table_color2);
+            ((TextView) convertView.findViewById(android.R.id.text1)).setText(getBodyText(row, column));
+            return convertView;
+        }
+
+        public String getBodyText(int row, int column) {
+            int index = 0;
+            int realColum = this.mDataSource.numberOfColumns() + 1;
+            if (column == -1) {
+                index = (row * realColum);
+            } else {
+                index = (row * realColum) + column + 1;
+            }
+            return this.mDataSource.getTableItems().get(index);
+        }
+
+        @Override
+        public int getWidth(int column) {
+            return Math.round(120 * mDensity);
+        }
+
+        @Override
+        public int getHeight(int row) {
+            final int height;
+            if (row == -1) {
+                height = 35;
+            } else {
+                height = 45;
+            }
+            return Math.round(height * mDensity);
+        }
+
+        @Override
+        public int getItemViewType(int row, int column) {
+            final int itemViewType;
+            if (row == -1 && column == -1) {
+                itemViewType = FIRST_HEADER;
+            } else if (row == -1) {
+                itemViewType = HEADER;
+            } else if (column == -1) {
+                itemViewType = FIRST_BODY;
+            } else {
+                itemViewType = BODY;
+            }
+            return itemViewType;
+        }
+
+        @Override
+        public int getViewTypeCount() {
+            return 4;
         }
     }
 }

@@ -2,18 +2,19 @@ package jp.tenposs.tenposs;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.webkit.WebView;
-
-import jp.tenposs.datamodel.ScreenDataStatus;
 
 /**
- * Created by ambient on 8/4/16.
+ * Created by ambient on 7/29/16.
  */
-public class FragmentCompanyInfo extends AbstractFragment {
-    WebView mWebView;
+public class FragmentCompanyInfo extends FragmentWebView {
+
+    public static FragmentCompanyInfo newInstance(@NonNull String url) {
+        FragmentCompanyInfo gm = new FragmentCompanyInfo();
+        Bundle b = new Bundle();
+        b.putString(SCREEN_DATA, url);
+        gm.setArguments(b);
+        return gm;
+    }
 
     @Override
     protected boolean customClose() {
@@ -38,33 +39,20 @@ public class FragmentCompanyInfo extends AbstractFragment {
     }
 
     @Override
-    protected void previewScreenData() {
-        this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
-        updateToolbar();
-    }
-
-    @Override
-    protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View mRoot = inflater.inflate(R.layout.fragment_web_view, null);
-        this.mWebView = (WebView) mRoot.findViewById(R.id.web_view);
-        return mRoot;
-    }
-
-    @Override
     protected void customResume() {
         previewScreenData();
     }
 
     @Override
     void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
-        if (savedInstanceState.containsKey(APP_DATA_STORE_ID)) {
-            this.mStoreId = savedInstanceState.getInt(APP_DATA_STORE_ID);
+        if (savedInstanceState.containsKey(SCREEN_DATA)) {
+            this.mUrl = savedInstanceState.getString(SCREEN_DATA);
         }
     }
 
     @Override
     void customSaveInstanceState(Bundle outState) {
-        outState.putInt(APP_DATA_STORE_ID, this.mStoreId);
+
     }
 
     @Override
@@ -76,4 +64,5 @@ public class FragmentCompanyInfo extends AbstractFragment {
     boolean canCloseByBackpressed() {
         return true;
     }
+
 }

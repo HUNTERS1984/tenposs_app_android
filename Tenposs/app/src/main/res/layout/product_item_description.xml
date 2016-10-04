@@ -48,21 +48,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/common_padding"
+        android:layout_marginLeft="@dimen/common_padding"
+        android:layout_marginRight="@dimen/common_padding"
         android:layout_marginTop="@dimen/common_padding"
-        android:paddingLeft="@dimen/common_padding"
-        android:paddingRight="@dimen/common_padding"
         android:text="説明が入ります説明が入ります説明が入ります説明が入り ます説明が入ります説明が入ります説明が入ります説明が 入ります説明が入ります説明が入ります説明が入ります説 明が入ります説明が入ります説明が入ります説明が入りま す説明が入ります。説明が入ります説明が入ります説明が 入ります説明が入ります説明が入ります説明が入ります説 明が入ります説明が入ります。説明が入ります説明が入り ます説明が入ります説明が入ります説明が入ります説明が 入ります説明が入ります説明が入ります"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault"
-        android:textColor="@color/title_text_color" />
+        android:textColor="@color/title_text_color"
+        android:visibility="gone" />
 
-    <LinearLayout
+    <jp.tenposs.view.TableView
         android:id="@+id/product_size_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/common_padding"
+        android:layout_marginLeft="@dimen/common_padding"
+        android:layout_marginRight="@dimen/common_padding"
         android:layout_marginTop="@dimen/common_padding"
-        android:orientation="vertical"
-        android:paddingLeft="@dimen/common_padding"
-        android:paddingRight="@dimen/common_padding"
-        android:visibility="gone"></LinearLayout>
+        android:visibility="visible">
+
+    </jp.tenposs.view.TableView>
 </jp.tenposs.view.ProductDescription>

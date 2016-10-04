@@ -2,18 +2,19 @@ package jp.tenposs.tenposs;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.webkit.WebView;
-
-import jp.tenposs.datamodel.ScreenDataStatus;
 
 /**
- * Created by ambient on 8/4/16.
+ * Created by ambient on 7/29/16.
  */
-public class FragmentUserPrivacy extends AbstractFragment {
-    WebView mWebView;
+public class FragmentUserPrivacy extends FragmentWebView {
+
+    public static FragmentUserPrivacy newInstance(@NonNull String url) {
+        FragmentUserPrivacy gm = new FragmentUserPrivacy();
+        Bundle b = new Bundle();
+        b.putString(SCREEN_DATA, url);
+        gm.setArguments(b);
+        return gm;
+    }
 
     @Override
     protected boolean customClose() {
@@ -38,19 +39,6 @@ public class FragmentUserPrivacy extends AbstractFragment {
     }
 
     @Override
-    protected void previewScreenData() {
-        this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
-        updateToolbar();
-    }
-
-    @Override
-    protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View mRoot = inflater.inflate(R.layout.fragment_web_view, null);
-        this.mWebView = (WebView) mRoot.findViewById(R.id.web_view);
-        return mRoot;
-    }
-
-    @Override
     protected void customResume() {
         previewScreenData();
     }
@@ -58,16 +46,13 @@ public class FragmentUserPrivacy extends AbstractFragment {
     @Override
     void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
         if (savedInstanceState.containsKey(SCREEN_DATA)) {
-            //this.mScreenData = (TopInfo.Response.ResponseData) savedInstanceState.getSerializable(SCREEN_DATA);
-        }
-        if (savedInstanceState.containsKey(APP_DATA_STORE_ID)) {
-            this.mStoreId = savedInstanceState.getInt(APP_DATA_STORE_ID);
+            this.mUrl = savedInstanceState.getString(SCREEN_DATA);
         }
     }
 
     @Override
     void customSaveInstanceState(Bundle outState) {
-        outState.putInt(APP_DATA_STORE_ID, this.mStoreId);
+
     }
 
     @Override
@@ -79,4 +64,5 @@ public class FragmentUserPrivacy extends AbstractFragment {
     boolean canCloseByBackpressed() {
         return true;
     }
+
 }

@@ -31,6 +31,7 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginManager;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -41,6 +42,7 @@ import com.twitter.sdk.android.core.TwitterCore;
 import junit.framework.Assert;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 import io.fabric.sdk.android.Fabric;
 import jp.tenposs.communicator.AppInfoCommunicator;
@@ -64,22 +66,12 @@ public class MainActivity extends AppCompatActivity
         AbstractFragment.MainActivityListener,
         LeftMenuView.OnLeftMenuItemClickListener {
 
-
     AppInfo.Response mAppInfo;
     int mStoreId;
 
     FragmentManager mFragmentManager;
     FragmentHome mFragmentHome;
 
-    //ImageButton toggleMenuButton;
-    //ImageButton backButton;
-
-    //ImageButton closeButton;
-
-    //TextView navTitleLabel;
-    //ImageButton signOutButton;
-
-    //Toolbar mToolbar;
     DrawerLayout mDrawerLayout;
     LeftMenuView mLeftMenuView;
     FrameLayout mContentContainer;
@@ -87,9 +79,10 @@ public class MainActivity extends AppCompatActivity
     CallbackManager mCallbackManager;
 
     protected SharedPreferences mAppPreferences;
+    protected HashMap<String, String> mSessionValues;
 
     protected ProgressDialog mProgressDialog;
-    private boolean mSignedIn;
+    private boolean serviceNotStart = true;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -105,6 +98,10 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (!FirebaseApp.getApps(this).isEmpty())
+            FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        FirebaseMessaging.getInstance().subscribeToTopic("DEMO");
 
         MainApplication.setContext(this.getApplicationContext());
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -217,7 +214,7 @@ public class MainActivity extends AppCompatActivity
         this.mAppInfo = appInfo;
         this.mStoreId = storeId;
 
-        String userProfileStr = getKeyString(Key.UserProfile);
+        String userProfileStr = getPrefString(Key.UserProfile);
         SignInInfo.User userProfile = null;
         if (userProfileStr.length() > 0) {
             try {
@@ -464,7 +461,38 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    public void setSessionValue(String key, String value) {
+        try {
+
+            if (this.mSessionValues == null) {
+                this.mSessionValues = new HashMap<>();
+            }
+            if (value != null) {
+                this.mSessionValues.put(key, value);
+            } else {
+                this.mSessionValues.remove(key);
+            }
+        } catch (Exception ignored) {
+
+        }
+    }
+
+    @Override
+    public String getSessionValue(String key, String valueDefault) {
+        if (this.mSessionValues == null) {
+            return valueDefault;
+        } else {
+            return this.mSessionValues.get(key);
+        }
+    }
+
     void showHomeScreen() {
+        if (isSignedIn() && serviceNotStart) {
+            startService(new Intent(this, TenpossInstanceIDService.class));
+            startService(new Intent(this, TenpossMessagingService.class));
+            serviceNotStart = false;
+        }
         if (this.mFragmentHome == null) {
             this.mFragmentHome = new FragmentHome();
             Bundle b = new Bundle();
@@ -479,8 +507,8 @@ public class MainActivity extends AppCompatActivity
         //clear token and user profile
 
         //Local
-        setKeyString(Key.TokenKey, "");
-        setKeyString(Key.UserProfile, "");
+        setPrefString(Key.TokenKey, "");
+        setPrefString(Key.UserProfile, "");
 
         //Facebook
         LoginManager.getInstance().logOut();
@@ -665,7 +693,7 @@ public class MainActivity extends AppCompatActivity
     void showCompanyInfo() {
         FragmentCompanyInfo fragmentCompanyInfo = (FragmentCompanyInfo) getFragmentForTag(FragmentCompanyInfo.class.getCanonicalName());
         if (fragmentCompanyInfo == null) {
-            fragmentCompanyInfo = new FragmentCompanyInfo();
+            fragmentCompanyInfo = FragmentCompanyInfo.newInstance(this.getAppInfo().app_setting.company_info);
         }
         showFragment(fragmentCompanyInfo, FragmentCompanyInfo.class.getCanonicalName(), true);
     }
@@ -673,7 +701,7 @@ public class MainActivity extends AppCompatActivity
     void showUserPrivacy() {
         FragmentUserPrivacy fragmentUserPrivacy = (FragmentUserPrivacy) getFragmentForTag(FragmentUserPrivacy.class.getCanonicalName());
         if (fragmentUserPrivacy == null) {
-            fragmentUserPrivacy = new FragmentUserPrivacy();
+            fragmentUserPrivacy = FragmentUserPrivacy.newInstance(this.getAppInfo().app_setting.user_privacy);
         }
         showFragment(fragmentUserPrivacy, FragmentUserPrivacy.class.getCanonicalName(), true);
     }
@@ -784,7 +812,7 @@ public class MainActivity extends AppCompatActivity
                         public void onClick(DialogInterface dialog, int which) {
                             switch (which) {
                                 case DialogInterface.BUTTON_POSITIVE: {
-                                    showWifiSettings();
+//                                    showWifiSettings();
                                 }
                                 break;
                                 case DialogInterface.BUTTON_NEGATIVE: {
@@ -819,9 +847,9 @@ public class MainActivity extends AppCompatActivity
         FirebaseMessaging.getInstance().subscribeToTopic("test");
         String token = FirebaseInstanceId.getInstance().getToken();
         if (token != null) {
-            setKeyString(Key.FireBaseTokenKey, token);
+            setPrefString(Key.FireBaseTokenKey, token);
         } else {
-            setKeyString(Key.FireBaseTokenKey, "");
+            setPrefString(Key.FireBaseTokenKey, "");
         }
 
         this.mFragmentHome = (FragmentHome) getFragmentForTag(FragmentHome.class.getCanonicalName());
@@ -859,14 +887,14 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    protected String getKeyString(String key) {
+    protected String getPrefString(String key) {
         if (this.mAppPreferences == null) {
             this.mAppPreferences = this.getSharedPreferences("settings", Context.MODE_PRIVATE);
         }
         return this.mAppPreferences.getString(key, "");
     }
 
-    protected boolean setKeyString(String key, String value) {
+    protected boolean setPrefString(String key, String value) {
         if (this.mAppPreferences == null) {
             this.mAppPreferences = this.getSharedPreferences("settings", Context.MODE_PRIVATE);
         }
@@ -907,8 +935,12 @@ public class MainActivity extends AppCompatActivity
                                                     if (resultApi == CommonResponse.ResultSuccess ||
                                                             resultApi == CommonResponse.ResultErrorInvalidToken) {
                                                         //clear token and user profile
-                                                        setKeyString(Key.TokenKey, "");
-                                                        setKeyString(Key.UserProfile, "");
+                                                        setSessionValue(Key.PushSettings, null);
+                                                        setPrefString(Key.TokenKey, "");
+                                                        setPrefString(Key.UserProfile, "");
+
+                                                        serviceNotStart = true;
+                                                        //TODO stop service
 
                                                         try {
                                                             //Facebook
@@ -945,7 +977,7 @@ public class MainActivity extends AppCompatActivity
                                         });
                                 Bundle params = new Bundle();
                                 SignOutInfo.Request request = new SignOutInfo.Request();
-                                request.token = getKeyString(Key.TokenKey);
+                                request.token = getPrefString(Key.TokenKey);
                                 params.putSerializable(Key.RequestObject, request);
                                 showProgress(getString(R.string.msg_signing_out));
                                 communicator.execute(params);
@@ -1020,7 +1052,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void getUserDetail() {
-        String token = getKeyString(Key.TokenKey);
+        String token = getPrefString(Key.TokenKey);
         if (token.length() > 0) {
             Bundle params = new Bundle();
             UserInfo.Request request = new UserInfo.Request();
@@ -1039,7 +1071,7 @@ public class MainActivity extends AppCompatActivity
                                     //Update User profile
 
                                     UserInfo.Response data = (UserInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                                    setKeyString(Key.UserProfile, CommonObject.toJSONString(data.data.user, SignInInfo.User.class));
+                                    setPrefString(Key.UserProfile, CommonObject.toJSONString(data.data.user, SignInInfo.User.class));
 
                                     showHomeScreen();
 
@@ -1111,8 +1143,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public boolean isSignedIn() {
-        String token = getKeyString(Key.TokenKey);
-        String userProfile = getKeyString(Key.UserProfile);
+        String token = getPrefString(Key.TokenKey);
+        String userProfile = getPrefString(Key.UserProfile);
         if (token.length() > 0 && userProfile.length() > 0) {
             return true;
         } else {

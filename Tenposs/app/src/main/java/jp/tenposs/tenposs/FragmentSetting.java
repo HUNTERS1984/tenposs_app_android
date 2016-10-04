@@ -7,13 +7,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.Switch;
 
-import java.io.Serializable;
-
+import jp.tenposs.communicator.GetPushSettingsCommunicator;
+import jp.tenposs.communicator.SetPushSettingsCommunicator;
+import jp.tenposs.communicator.TenpossCommunicator;
 import jp.tenposs.datamodel.CommonObject;
+import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
+import jp.tenposs.datamodel.PushInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.utils.Utils;
 
@@ -22,7 +24,7 @@ import jp.tenposs.utils.Utils;
 /**
  * Created by ambient on 8/4/16.
  */
-public class FragmentSetting extends AbstractFragment implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
+public class FragmentSetting extends AbstractFragment implements View.OnClickListener {
 
     Button mEditProfileButton;
     Switch mReceivePushSwitch;
@@ -31,7 +33,16 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
     Button mCompanyInfoButton;
     Button mUserPrivacyButton;
 
-    SettingInfo mScreenData;
+    PushInfo.Response mScreenData;
+    PushInfo.Response mScreenDataTemp;
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            reloadSwitch();
+        }
+    }
 
     @Override
     protected boolean customClose() {
@@ -58,8 +69,18 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
     @Override
     protected void previewScreenData() {
         this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
-        this.mReceivePushSwitch.setChecked(this.mScreenData.receivePush);
-        this.mReceiveCouponSwitch.setChecked(this.mScreenData.receiveCouponInformation);
+
+        if (isSignedIn() == true) {
+            this.mReceivePushSwitch.setEnabled(true);
+            this.mReceiveCouponSwitch.setEnabled(true);
+
+            this.mReceivePushSwitch.setChecked(this.mScreenData.data.push_setting.isAtLeastOneEnable());
+            this.mReceiveCouponSwitch.setChecked(this.mScreenData.data.push_setting.isCouponEnable());
+        } else {
+            this.mReceivePushSwitch.setEnabled(false);
+            this.mReceiveCouponSwitch.setEnabled(false);
+        }
+
         updateToolbar();
     }
 
@@ -74,30 +95,70 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
         this.mUserPrivacyButton = (Button) mRoot.findViewById(R.id.user_privacy_button);
 
         this.mEditProfileButton.setOnClickListener(this);
-        this.mReceivePushSwitch.setOnCheckedChangeListener(this);
-        this.mReceiveCouponSwitch.setOnCheckedChangeListener(this);
+
+        this.mReceivePushSwitch.setOnClickListener(this);
+        this.mReceiveCouponSwitch.setOnClickListener(this);
+
         this.mIssueButton.setOnClickListener(this);
         this.mCompanyInfoButton.setOnClickListener(this);
         this.mUserPrivacyButton.setOnClickListener(this);
 
-        String settings = getKeyString(Key.Settings);
-        this.mScreenData = (SettingInfo) CommonObject.fromJSONString(settings, SettingInfo.class, null);
-        if (this.mScreenData == null) {
-            this.mScreenData = new SettingInfo();
-        }
 
         return mRoot;
     }
 
     @Override
     protected void customResume() {
-        previewScreenData();
+        //TODO:previewScreenData();
+        if (this.mScreenDataStatus == ScreenDataStatus.ScreenDataStatusUnload && isSignedIn()) {
+            String settings = this.mActivityListener.getSessionValue(Key.PushSettings, null);
+            if (settings != null) {
+                this.mScreenData = (PushInfo.Response) CommonObject.fromJSONString(settings, PushInfo.Response.class, null);
+            }
+            if (this.mScreenData == null) {
+                Bundle params = new Bundle();
+
+                showProgress(getString(R.string.msg_loading));
+                PushInfo.RequestGet request = new PushInfo.RequestGet();
+                request.token = getPrefString(Key.TokenKey);
+                params.putSerializable(Key.RequestObject, request);
+                GetPushSettingsCommunicator communicator = new GetPushSettingsCommunicator(
+                        new TenpossCommunicator.TenpossCommunicatorListener() {
+                            @Override
+                            public void completed(TenpossCommunicator request, Bundle responseParams) {
+                                hideProgress();
+                                int result = responseParams.getInt(Key.ResponseResult);
+                                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                                    if (resultApi == CommonResponse.ResultSuccess) {
+                                        FragmentSetting.this.mScreenData = (PushInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                        mActivityListener.setSessionValue(Key.PushSettings,
+                                                CommonObject.toJSONString(FragmentSetting.this.mScreenData, FragmentSetting.this.mScreenData.getClass()));
+                                        previewScreenData();
+                                    } else {
+                                        String strMessage = responseParams.getString(Key.ResponseMessage);
+                                        errorWithMessage(responseParams, strMessage);
+                                    }
+                                } else {
+                                    String strMessage = responseParams.getString(Key.ResponseMessage);
+                                    errorWithMessage(responseParams, strMessage);
+                                }
+                            }
+                        }
+                );
+                communicator.execute(params);
+            } else {
+                previewScreenData();
+            }
+        } else {
+            previewScreenData();
+        }
     }
 
     @Override
     void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
         if (savedInstanceState.containsKey(SCREEN_DATA)) {
-            this.mScreenData = (SettingInfo) savedInstanceState.getSerializable(SCREEN_DATA);
+            this.mScreenData = (PushInfo.Response) savedInstanceState.getSerializable(SCREEN_DATA);
 
         }
     }
@@ -145,24 +206,65 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
 
         } else if (v == this.mUserPrivacyButton) {
             this.mActivityListener.showScreen(AbstractFragment.USER_PRIVACY_SCREEN, null);
-
+        } else if (v == this.mReceivePushSwitch) {
+            this.mScreenDataTemp = this.mScreenData.copy();
+            this.mScreenDataTemp.data.push_setting.enableAll(((Switch) v).isChecked());
+            updatePushSettings();
+        } else if (v == this.mReceiveCouponSwitch) {
+            this.mScreenDataTemp = this.mScreenData.copy();
+            this.mScreenDataTemp.data.push_setting.enableCoupon(((Switch) v).isChecked());
+            updatePushSettings();
         }
     }
 
-    @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if (buttonView == this.mReceivePushSwitch) {
-            this.mScreenData.receivePush = isChecked;
-        } else if (buttonView == this.mReceiveCouponSwitch) {
-            this.mScreenData.receiveCouponInformation = isChecked;
-        }
+    private void updatePushSettings() {
+        showProgress(getString(R.string.msg_updating));
 
-        String settings = CommonObject.toJSONString(this.mScreenData, SettingInfo.class);
-        setKeyString(Key.Settings, settings);
+        Bundle params = new Bundle();
+        PushInfo.RequestSet request = new PushInfo.RequestSet();
+        request.token = getPrefString(Key.TokenKey);
+        request.chat = this.mScreenDataTemp.data.push_setting.isChatEnable() ? 1 : 0;
+        request.news = this.mScreenDataTemp.data.push_setting.isNewsEnable() ? 1 : 0;
+        request.coupon = this.mScreenDataTemp.data.push_setting.isCouponEnable() ? 1 : 0;
+        request.ranking = this.mScreenDataTemp.data.push_setting.isRankingEnable() ? 1 : 0;
+
+        params.putSerializable(Key.RequestObject, request);
+        SetPushSettingsCommunicator communicator = new SetPushSettingsCommunicator(
+                new TenpossCommunicator.TenpossCommunicatorListener() {
+                    @Override
+                    public void completed(TenpossCommunicator request, Bundle responseParams) {
+                        hideProgress();
+                        int result = responseParams.getInt(Key.ResponseResult);
+                        if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                            int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                            if (resultApi == CommonResponse.ResultSuccess) {
+                                mScreenData = mScreenDataTemp.copy();
+
+                            } else {
+                                String strMessage = responseParams.getString(Key.ResponseMessage);
+                                errorWithMessage(responseParams, strMessage);
+                            }
+                        } else {
+                            String strMessage = responseParams.getString(Key.ResponseMessage);
+                            errorWithMessage(responseParams, strMessage);
+                        }
+                        reloadSwitch();
+                    }
+                }
+        );
+        communicator.execute(params);
     }
 
-    class SettingInfo implements Serializable {
-        public boolean receivePush;
-        public boolean receiveCouponInformation;
+    private void reloadSwitch() {
+        if (isSignedIn() == true && this.mScreenData != null) {
+            this.mReceivePushSwitch.setEnabled(true);
+            this.mReceiveCouponSwitch.setEnabled(true);
+
+            this.mReceivePushSwitch.setChecked(this.mScreenData.data.push_setting.isAtLeastOneEnable());
+            this.mReceiveCouponSwitch.setChecked(this.mScreenData.data.push_setting.isCouponEnable());
+        } else {
+            this.mReceivePushSwitch.setEnabled(false);
+            this.mReceiveCouponSwitch.setEnabled(false);
+        }
     }
 }

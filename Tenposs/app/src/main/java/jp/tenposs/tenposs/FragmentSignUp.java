@@ -132,8 +132,8 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
                                         SignUpInfo.Response response = (SignUpInfo.Response) responseParams.getSerializable(Key.ResponseObject);
                                         String token = response.data.token;
                                         SignInInfo.Profile profile = response.data.profile;
-                                        setKeyString(Key.TokenKey, token);
-                                        setKeyString(Key.UserProfile, CommonObject.toJSONString(response.data, response.data.getClass()));
+                                        setPref(Key.TokenKey, token);
+                                        setPref(Key.UserProfile, CommonObject.toJSONString(response.data, response.data.getClass()));
                                         mActivityListener.updateUserInfo(response.data);
                                         close();
                                     } else {

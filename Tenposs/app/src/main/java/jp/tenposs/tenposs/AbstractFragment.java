@@ -61,6 +61,10 @@ public abstract class AbstractFragment extends Fragment {
         void setDrawerLockMode(int mode);
 
         void showFragment(AbstractFragment fragment, String fragmentTag, boolean animated);
+
+        void setSessionValue(String key, String value);
+
+        String getSessionValue(String key, String valueDefault);
     }
 
     public static final int WIFI_SETTINGS = 0xDAD0;
@@ -482,12 +486,12 @@ public abstract class AbstractFragment extends Fragment {
         }
     }
 
-    protected String getKeyString(String key) {
+    protected String getPrefString(String key) {
         setupVariables();
         return this.mAppPreferences.getString(key, "");
     }
 
-    protected boolean setKeyString(String key, String value) {
+    protected boolean setPref(String key, String value) {
         setupVariables();
         boolean ret;
         SharedPreferences.Editor editor = this.mAppPreferences.edit();
@@ -696,8 +700,8 @@ public abstract class AbstractFragment extends Fragment {
     }
 
     boolean isSignedIn() {
-        String token = getKeyString(Key.TokenKey);
-        String userProfile = getKeyString(Key.UserProfile);
+        String token = getPrefString(Key.TokenKey);
+        String userProfile = getPrefString(Key.UserProfile);
         if (token.length() > 0 && userProfile.length() > 0) {
             return true;
         } else {

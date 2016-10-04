@@ -183,5 +183,7 @@
     <string name="msg_link_with_twitter">ちょっとお待ちください…</string>
     <string name="msg_link_with_instagram">ちょっとお待ちください…</string>
     <string name="msg_no_content">データがありません</string>
+    <string name="msg_save_profile_confirm">データが変更されています。保存しますか？</string>
+    <string name="msg_updating">Updating...</string>
 
 </resources>

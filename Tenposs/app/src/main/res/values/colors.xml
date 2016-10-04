@@ -22,6 +22,7 @@
     <color name="tab_color">#F8F8FA</color>
     <color name="hashtag_bg_color">#F9F9FB</color>
 
-
+    <color name="shadow_start">#80000000</color>
+    <color name="shadow_end">#00000000</color>
 
 </resources>

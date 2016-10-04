@@ -220,14 +220,14 @@ public class LeftMenuView extends FrameLayout {
 
             ps.load(this.mUserProfile.profile.getImageUrl())
                     .resize(fullImageSize, 640)
-                    .centerCrop()
+                    .centerInside()
                     .placeholder(R.drawable.no_avatar)
                     .into(mUserAvatarImage);
         } else {
             File f = new File(this.mUserProfile.profile.getImageUrl());
             ps.load(f)
                     .resize(fullImageSize, 640)
-                    .centerCrop()
+                    .centerInside()
                     .placeholder(R.drawable.no_avatar)
                     .into(mUserAvatarImage);
         }

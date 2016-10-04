@@ -32,8 +32,8 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
     public final static String METHOD_POST_MULTIPART = "METHOD_POST_MULTIPART";
 
     public final static String WEB_ADDRESS = "https://ten-po.com/";
-    public final static String BASE_ADDRESS = "https://api.ten-po.com/";
-    private final static String API_ADDRESS = BASE_ADDRESS + "api/v1";
+    public final static String DOMAIN_ADDRESS = "https://api.ten-po.com/";
+    private final static String API_ADDRESS = DOMAIN_ADDRESS + "api/v1";
 
     public final static String API_SIGN_IN = API_ADDRESS + "/signin?";
     public final static String API_SOCIAL_SIGN_IN = API_ADDRESS + "/social_login?";
@@ -70,6 +70,8 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
 
     public final static String API_SOCIAL_PROFILE = API_ADDRESS + "/social_profile?";
 
+    public final static String API_GET_PUSH_SETTINGS = API_ADDRESS + "/get_push_setting?";
+    public final static String API_SET_PUSH_SETTINGS = API_ADDRESS + "/set_push_setting?";
 
 
     public enum CommunicationCode {

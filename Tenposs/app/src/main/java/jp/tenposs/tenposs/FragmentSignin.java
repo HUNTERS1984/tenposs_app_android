@@ -179,7 +179,7 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
                 System.out.println("onSuccess " + System.currentTimeMillis());
                 //Save AccessToken
                 final String token = loginResult.getAccessToken().getToken();
-                setKeyString(Key.FacebookTokenKey, token);
+                setPref(Key.FacebookTokenKey, token);
 
                 Profile profile = Profile.getCurrentProfile();
                 if (profile == null) {
@@ -225,7 +225,7 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
                 String twitterToken = token.token;
 
                 //Save Token
-                setKeyString(Key.TwitterTokenKey, twitterToken);
+                setPref(Key.TwitterTokenKey, twitterToken);
 
                 //Save secretKey
                 String secretKey = token.secret;
@@ -309,7 +309,7 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
     public void onClick(View v) {
         if (v == this.mFacebookButton) {
             Profile profile = Profile.getCurrentProfile();
-            String token = getKeyString(Key.FacebookTokenKey);
+            String token = getPrefString(Key.FacebookTokenKey);
             if (profile != null && token.length() > 0) {
                 // user has logged in
 
@@ -368,8 +368,8 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
                             if (resultApi == CommonResponse.ResultSuccess) {
                                 SignInInfo.Response response = (SignInInfo.Response) responseParams.get(Key.ResponseObject);
                                 String token = response.data.token;
-                                setKeyString(Key.TokenKey, token);
-                                setKeyString(Key.UserProfile, CommonObject.toJSONString(response.data, response.data.getClass()));
+                                setPref(Key.TokenKey, token);
+                                setPref(Key.UserProfile, CommonObject.toJSONString(response.data, response.data.getClass()));
                                 mActivityListener.updateUserInfo(response.data);
                                 getUserDetail(token);
 
@@ -403,7 +403,7 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
     public void onBackStackChanged() {
         AbstractFragment topFragment = getTopFragment();
         if (topFragment == this) {
-            String token = getKeyString(Key.TokenKey);
+            String token = getPrefString(Key.TokenKey);
             if (token.length() > 0) {
                 getUserDetail(token);
             } else {
@@ -433,23 +433,23 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
                                     //Update User profile
 
                                     UserInfo.Response response = (UserInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                                    setKeyString(Key.UserProfile, CommonObject.toJSONString(response.data.user, SignInInfo.User.class));
+                                    setPref(Key.UserProfile, CommonObject.toJSONString(response.data.user, SignInInfo.User.class));
 
                                     mActivityListener.updateUserInfo(response.data.user);
 
                                     setPushKey(token);
                                 } else {
                                     //clear token
-                                    setKeyString(Key.TokenKey, "");
-                                    setKeyString(Key.UserProfile, "");
+                                    setPref(Key.TokenKey, "");
+                                    setPref(Key.UserProfile, "");
                                     String strMessage = responseParams.getString(Key.ResponseMessage);
                                     errorWithMessage(responseParams, strMessage);
                                 }
                             } else {
                                 hideProgress();
                                 //clear token
-                                setKeyString(Key.TokenKey, "");
-                                setKeyString(Key.UserProfile, "");
+                                setPref(Key.TokenKey, "");
+                                setPref(Key.UserProfile, "");
                                 String strMessage = responseParams.getString(Key.ResponseMessage);
                                 errorWithMessage(responseParams, strMessage);
                             }
@@ -461,7 +461,7 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
     }
 
     private void setPushKey(String token) {
-        String firebaseToken = getKeyString(Key.FireBaseTokenKey);
+        String firebaseToken = getPrefString(Key.FireBaseTokenKey);
         if (firebaseToken != null && firebaseToken.length() > 0) {
             Bundle params = new Bundle();
             SetPushKeyInfo.Request request = new SetPushKeyInfo.Request();

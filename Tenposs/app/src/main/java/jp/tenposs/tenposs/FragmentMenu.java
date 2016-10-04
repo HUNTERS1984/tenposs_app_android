@@ -367,7 +367,8 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
         }
         try {
             if (mCurrentMenuIndex < this.mScreenData.data.menus.size() - 1) {
-                mCurrentMenuIndex++;
+//                mCurrentMenuIndex++;
+                mCurrentMenuIndex = this.mScreenData.data.menus.size() - 1;
             }
         } catch (Exception ignored) {
 

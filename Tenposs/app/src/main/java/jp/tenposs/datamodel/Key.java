@@ -29,6 +29,8 @@ public class Key {
     public static String RequestWriteTimeout = "RequestWriteTimeout";
 
     public static String UpdateProfileAvatar = "UpdateProfileAvatar";
+
+    public static String PushSettings = "PushSettings";
 //    public static String UpdateProfileName = "UpdateProfileName";
 //    public static String UpdateProfileGender = "UpdateProfileGender";
 //    public static String UpdateProfileAddress = "UpdateProfileAddress";

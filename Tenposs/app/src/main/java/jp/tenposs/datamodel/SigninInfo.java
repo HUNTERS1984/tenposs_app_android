@@ -2,10 +2,10 @@ package jp.tenposs.datamodel;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Locale;
 
 import jp.tenposs.communicator.TenpossCommunicator;
 import jp.tenposs.utils.CryptoUtils;
+import jp.tenposs.utils.Utils;
 
 /**
  * Created by ambient on 7/26/16.
@@ -99,16 +99,7 @@ public class SignInInfo {
             if (avatar_file != null) {
                 return avatar_file;
             }
-            try {
-                String temp = avatar_url.toLowerCase(Locale.US);
-                if (temp.indexOf("http://") != -1 || temp.indexOf("https://") != -1) {
-                    return avatar_url;
-                } else {
-                    return TenpossCommunicator.BASE_ADDRESS + avatar_url;
-                }
-            } catch (Exception ignored) {
-                return null;
-            }
+            return Utils.getImageUrl(TenpossCommunicator.DOMAIN_ADDRESS, avatar_url, "https://google.com");
         }
     }
 }
