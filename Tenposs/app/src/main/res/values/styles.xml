@@ -109,4 +109,23 @@
     <style name="TextAppearance_ExtraLarge">
         <item name="android:textSize">26sp</item>
     </style>
+
+    <style name="SwitchButtonStyle">
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+    </style>
+
+    <style name="SwitchButtonMD">
+        <item name="swThumbDrawable">@drawable/sw_thumb</item>
+        <item name="swBackColor">@color/switch_button_back_color</item>
+        <item name="swBackMeasureRatio">1.45</item>
+        <item name="swThumbMarginLeft">-16dp</item>
+        <item name="swThumbMarginTop">-14dp</item>
+        <item name="swThumbMarginRight">-16dp</item>
+        <item name="swThumbMarginBottom">-14dp</item>
+        <item name="swThumbWidth">@dimen/sw_thumb_ripple_size</item>
+        <item name="swThumbHeight">@dimen/sw_thumb_ripple_size</item>
+    </style>
 </resources>

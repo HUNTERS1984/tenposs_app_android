@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/item_table1_header"
     android:gravity="center"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <TextView
         android:id="@android:id/text1"

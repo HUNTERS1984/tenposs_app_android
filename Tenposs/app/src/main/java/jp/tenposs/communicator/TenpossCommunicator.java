@@ -54,6 +54,8 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
     public final static String API_PHOTO = API_ADDRESS + "/photo?";
 
     public final static String API_NEWS = API_ADDRESS + "/news?";
+    public final static String API_NEWS_CATEGORY = API_ADDRESS + "/news_cat?";
+
     public final static String API_NEWS_DETAIL = API_ADDRESS + "/news/detail?";
 
     public final static String API_RESERVE = API_ADDRESS + "/reserve?";

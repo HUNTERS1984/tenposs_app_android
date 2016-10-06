@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="gender_array">
-        <item>@string/undefined</item>
         <item>@string/gender_male</item>
         <item>@string/gender_female</item>
     </string-array>
 
 
     <string-array name="japan_prefectures">
-        <item>@string/undefined</item>
         <item>@string/hokkaido</item>
         <item>@string/aomori</item>
         <item>@string/iwate</item>

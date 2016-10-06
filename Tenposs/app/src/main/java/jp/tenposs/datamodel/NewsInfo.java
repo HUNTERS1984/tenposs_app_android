@@ -11,13 +11,14 @@ import jp.tenposs.utils.Utils;
  */
 public class NewsInfo {
     public static class Request extends CommonRequest {
-        public int store_id;
+
+        public int category_id;
         public int pageindex;
         public int pagesize;
 
         @Override
         String sigInput() {
-            return app_id + "" + time + "" + store_id + "" + privateKey;
+            return app_id + "" + time + "" + category_id + "" + privateKey;
         }
     }
 
@@ -60,6 +61,10 @@ public class NewsInfo {
 
         public String getCreatedDate() {
             return date;
+        }
+
+        public void setCategory(String category) {
+            this.category = category;
         }
 
         public String getCategory() {

@@ -163,20 +163,33 @@
                         android:textAppearance="@android:style/TextAppearance.DeviceDefault"
                         android:textColor="@color/title_text_color" />
 
-                    <Switch
+                    <jp.tenposs.view.SwitchButton
                         android:id="@+id/receive_push_switch"
+                        style="@style/SwitchButtonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textOff="@string/off"
-                        android:textOn="@string/on" />
+                        app:swAnimationDuration="300"
+                        app:swBackDrawable="@drawable/ios_back_drawable"
+                        app:swBackMeasureRatio="1.4"
+                        app:swThumbDrawable="@drawable/ios_thumb_selector"
+                        app:swThumbMarginBottom="-8dp"
+                        app:swThumbMarginLeft="-5dp"
+                        app:swThumbMarginRight="-5dp"
+                        app:swThumbMarginTop="-2.5dp" />
+                    <!--<Switch-->
+                    <!--android:id="@+id/receive_push_switch"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:textOff="@string/off"-->
+                    <!--android:textOn="@string/on" />-->
                 </LinearLayout>
 
-                <Button
-                    android:id="@+id/notify_button"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/bg_button_setting"
-                    android:visibility="invisible" />
+                <!--<Button-->
+                <!--android:id="@+id/notify_button"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:background="@drawable/bg_button_setting"-->
+                <!--android:visibility="invisible" />-->
             </RelativeLayout>
 
             <View
@@ -207,20 +220,33 @@
                         android:textAppearance="@android:style/TextAppearance.DeviceDefault"
                         android:textColor="@color/title_text_color" />
 
-                    <Switch
+                    <jp.tenposs.view.SwitchButton
                         android:id="@+id/receive_coupon_switch"
+                        style="@style/SwitchButtonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textOff="@string/off"
-                        android:textOn="@string/on" />
+                        app:swAnimationDuration="300"
+                        app:swBackDrawable="@drawable/ios_back_drawable"
+                        app:swBackMeasureRatio="1.4"
+                        app:swThumbDrawable="@drawable/ios_thumb_selector"
+                        app:swThumbMarginBottom="-8dp"
+                        app:swThumbMarginLeft="-5dp"
+                        app:swThumbMarginRight="-5dp"
+                        app:swThumbMarginTop="-2.5dp" />
+                    <!--<Switch-->
+                    <!--android:id="@+id/receive_coupon_switch"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:textOff="@string/off"-->
+                    <!--android:textOn="@string/on" />-->
                 </LinearLayout>
 
-                <Button
-                    android:id="@+id/receive_button"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@android:color/transparent"
-                    android:visibility="invisible" />
+                <!--<Button-->
+                <!--android:id="@+id/receive_button"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:background="@android:color/transparent"-->
+                <!--android:visibility="invisible" />-->
             </RelativeLayout>
 
             <View

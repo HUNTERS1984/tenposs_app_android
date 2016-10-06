@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Switch;
 
 import jp.tenposs.communicator.GetPushSettingsCommunicator;
 import jp.tenposs.communicator.SetPushSettingsCommunicator;
@@ -18,6 +17,7 @@ import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.PushInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.utils.Utils;
+import jp.tenposs.view.SwitchButton;
 
 //import jp.tenposs.adapter.SettingsAdapter;
 
@@ -27,8 +27,8 @@ import jp.tenposs.utils.Utils;
 public class FragmentSetting extends AbstractFragment implements View.OnClickListener {
 
     Button mEditProfileButton;
-    Switch mReceivePushSwitch;
-    Switch mReceiveCouponSwitch;
+    SwitchButton mReceivePushSwitch;
+    SwitchButton mReceiveCouponSwitch;
     Button mIssueButton;
     Button mCompanyInfoButton;
     Button mUserPrivacyButton;
@@ -88,8 +88,8 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View mRoot = inflater.inflate(R.layout.fragment_setting, null);
         this.mEditProfileButton = (Button) mRoot.findViewById(R.id.edit_profile_button);
-        this.mReceivePushSwitch = (Switch) mRoot.findViewById(R.id.receive_push_switch);
-        this.mReceiveCouponSwitch = (Switch) mRoot.findViewById(R.id.receive_coupon_switch);
+        this.mReceivePushSwitch = (SwitchButton) mRoot.findViewById(R.id.receive_push_switch);
+        this.mReceiveCouponSwitch = (SwitchButton) mRoot.findViewById(R.id.receive_coupon_switch);
         this.mIssueButton = (Button) mRoot.findViewById(R.id.issue_button);
         this.mCompanyInfoButton = (Button) mRoot.findViewById(R.id.company_info_button);
         this.mUserPrivacyButton = (Button) mRoot.findViewById(R.id.user_privacy_button);
@@ -131,7 +131,11 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
                                 if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
                                     int resultApi = responseParams.getInt(Key.ResponseResultApi);
                                     if (resultApi == CommonResponse.ResultSuccess) {
-                                        FragmentSetting.this.mScreenData = (PushInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                        try {
+                                            FragmentSetting.this.mScreenData = (PushInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                        } catch (Exception ignored) {
+                                            FragmentSetting.this.mScreenData = new PushInfo.Response();
+                                        }
                                         mActivityListener.setSessionValue(Key.PushSettings,
                                                 CommonObject.toJSONString(FragmentSetting.this.mScreenData, FragmentSetting.this.mScreenData.getClass()));
                                         previewScreenData();
@@ -208,11 +212,11 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
             this.mActivityListener.showScreen(AbstractFragment.USER_PRIVACY_SCREEN, null);
         } else if (v == this.mReceivePushSwitch) {
             this.mScreenDataTemp = this.mScreenData.copy();
-            this.mScreenDataTemp.data.push_setting.enableAll(((Switch) v).isChecked());
+            this.mScreenDataTemp.data.push_setting.enableAll(this.mReceivePushSwitch.isChecked());
             updatePushSettings();
         } else if (v == this.mReceiveCouponSwitch) {
             this.mScreenDataTemp = this.mScreenData.copy();
-            this.mScreenDataTemp.data.push_setting.enableCoupon(((Switch) v).isChecked());
+            this.mScreenDataTemp.data.push_setting.enableCoupon(this.mReceiveCouponSwitch.isChecked());
             updatePushSettings();
         }
     }

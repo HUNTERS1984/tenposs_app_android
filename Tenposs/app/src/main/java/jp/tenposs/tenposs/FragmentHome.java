@@ -111,7 +111,7 @@ public class FragmentHome
 
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View mRoot = inflater.inflate(R.layout.fragment_home, null);
+        View mRoot = inflater.inflate(R.layout.fragment_recycler_view, null);
         this.mRecyclerView = (RecyclerView) mRoot.findViewById(R.id.recycler_view);
         this.mSwipeRefreshLayout = (SwipeRefreshLayout) mRoot.findViewById(R.id.swipe_refresh_layout);
         this.mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {

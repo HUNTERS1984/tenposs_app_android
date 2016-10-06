@@ -98,7 +98,7 @@ public class FragmentStaff extends AbstractFragment implements View.OnClickListe
         setRefreshing(false);
 
         updateNavigation();
-
+        enableControls(true);
         mScreenDataItems = new ArrayList<>();
 
         for (StaffInfo.Staff staff : mCurrentItem.data.staffs) {
@@ -145,7 +145,7 @@ public class FragmentStaff extends AbstractFragment implements View.OnClickListe
 
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_menu, null);
+        View root = inflater.inflate(R.layout.fragment_recycler_view_paging, null);
 
         this.mLoadingIndicator = (ProgressBar) root.findViewById(R.id.loading_indicator);
         this.mSubToolbar = (LinearLayout) root.findViewById(R.id.sub_toolbar);
@@ -212,8 +212,8 @@ public class FragmentStaff extends AbstractFragment implements View.OnClickListe
         if (savedInstanceState.containsKey(SCREEN_DATA_PAGE_DATA)) {
             this.mCurrentItem = (StaffInfo.Response) savedInstanceState.getSerializable(SCREEN_DATA_PAGE_DATA);
         }
-        if (savedInstanceState.containsKey(SCREEN_DATA_PAGE_INDEX)) {
-            this.mCurrentStaffCatIndex = savedInstanceState.getInt(SCREEN_DATA_PAGE_INDEX);
+        if (savedInstanceState.containsKey(SCREEN_DATA_ITEM_INDEX)) {
+            this.mCurrentStaffCatIndex = savedInstanceState.getInt(SCREEN_DATA_ITEM_INDEX);
         }
     }
 
@@ -223,7 +223,7 @@ public class FragmentStaff extends AbstractFragment implements View.OnClickListe
         outState.putSerializable(SCREEN_DATA, this.mScreenData);
         outState.putSerializable(SCREEN_PAGE_ITEMS, this.mAllItems);
         outState.putSerializable(SCREEN_DATA_PAGE_DATA, this.mCurrentItem);
-        outState.putInt(SCREEN_DATA_PAGE_INDEX, this.mCurrentStaffCatIndex);
+        outState.putInt(SCREEN_DATA_ITEM_INDEX, this.mCurrentStaffCatIndex);
     }
 
     @Override
@@ -237,6 +237,7 @@ public class FragmentStaff extends AbstractFragment implements View.OnClickListe
     }
 
     void loadStaffCatData() {
+        enableControls(false);
         StaffCategoryInfo.Request requestParams = new StaffCategoryInfo.Request();
         requestParams.store_id = this.mStoreId;
 
@@ -285,6 +286,7 @@ public class FragmentStaff extends AbstractFragment implements View.OnClickListe
                 this.mCurrentItem = (StaffInfo.Response) staffCategory.getSerializable(SCREEN_DATA_PAGE_DATA);
                 previewScreenData();
             } else {
+                enableControls(false);
                 StaffInfo.Request requestParams = new StaffInfo.Request();
                 requestParams.category_id = mCurrentStaffCat.id;
                 requestParams.pageindex = staffCategory.getInt(SCREEN_DATA_PAGE_INDEX);
@@ -444,4 +446,10 @@ public class FragmentStaff extends AbstractFragment implements View.OnClickListe
             break;
         }
     }
+
+    void enableControls(boolean enable) {
+        mPreviousButton.setEnabled(enable);
+        mNextButton.setEnabled(enable);
+    }
+
 }

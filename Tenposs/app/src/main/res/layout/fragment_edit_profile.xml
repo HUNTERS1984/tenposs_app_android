@@ -167,7 +167,8 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginLeft="10dp"
-                        android:layout_weight="4"
+                        android:layout_weight="5"
+                        android:maxLines="1"
                         android:text="@string/user_id"
                         android:textAppearance="@android:style/TextAppearance.DeviceDefault"
                         android:textColor="@color/title_text_color" />
@@ -176,9 +177,16 @@
                         android:id="@+id/id_edit"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="7"
+                        android:layout_weight="8"
                         android:background="@android:color/transparent"
                         android:enabled="false" />
+
+                    <ImageButton
+                        android:id="@+id/clear_id_button"
+                        android:layout_width="@dimen/item_setting_height"
+                        android:layout_height="@dimen/item_setting_height"
+                        android:src="@drawable/down_arrow"
+                        android:visibility="invisible" />
 
                 </LinearLayout>
 
@@ -206,7 +214,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginLeft="10dp"
-                        android:layout_weight="4"
+                        android:layout_weight="5"
                         android:text="@string/username"
                         android:textAppearance="@android:style/TextAppearance.DeviceDefault"
                         android:textColor="@color/title_text_color" />
@@ -215,8 +223,26 @@
                         android:id="@+id/user_name_edit"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="7"
-                        android:background="@android:color/transparent" />
+                        android:layout_weight="8"
+                        android:background="@android:color/transparent"
+                        android:drawablePadding="10dip"
+                        android:maxLines="1" />
+
+                    <ImageButton
+                        android:id="@+id/clear_user_name_button"
+                        android:layout_width="@dimen/item_setting_height"
+                        android:layout_height="@dimen/item_setting_height"
+                        android:layout_gravity="center_vertical"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/btn_clear" />
+
+                    <!--android:background="@android:color/transparent" />-->
+                    <!--<EditText-->
+                    <!--android:id="@+id/user_name_edit"-->
+                    <!--android:layout_width="0dp"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="7"-->
+                    <!--android:background="@android:color/transparent" />-->
 
                 </LinearLayout>
 
@@ -245,7 +271,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginLeft="10dp"
-                        android:layout_weight="4"
+                        android:layout_weight="5"
                         android:text="@string/email_address"
                         android:textAppearance="@android:style/TextAppearance.DeviceDefault"
                         android:textColor="@color/title_text_color" />
@@ -254,9 +280,17 @@
                         android:id="@+id/email_edit"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="7"
+                        android:layout_weight="8"
                         android:background="@android:color/transparent"
-                        android:enabled="false" />
+                        android:enabled="false"
+                        android:maxLines="1" />
+
+                    <ImageButton
+                        android:id="@+id/clear_email_button"
+                        android:layout_width="@dimen/item_setting_height"
+                        android:layout_height="@dimen/item_setting_height"
+                        android:src="@drawable/down_arrow"
+                        android:visibility="invisible" />
 
                 </LinearLayout>
 
@@ -286,46 +320,39 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginLeft="10dp"
-                        android:layout_weight="4"
+                        android:layout_weight="5"
                         android:text="@string/gender"
                         android:textAppearance="@android:style/TextAppearance.DeviceDefault"
                         android:textColor="@color/title_text_color" />
 
-                    <Spinner
-                        android:id="@+id/gender_spinner"
+                    <EditText
+                        android:id="@+id/gender_edit"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="7" />
+                        android:layout_weight="8"
+                        android:background="@android:color/transparent" />
 
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="7"
-                        android:gravity="center_vertical"
-                        android:visibility="gone">
 
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/gender"
-                            android:textAppearance="@android:style/TextAppearance.DeviceDefault"
-                            android:textColor="@color/title_text_color" />
-
-                        <ImageView
-                            android:id="@+id/chua_biet_image1"
-                            android:layout_width="@dimen/item_setting_height"
-                            android:layout_height="@dimen/item_setting_height" />
-                    </LinearLayout>
+                    <ImageView
+                        android:id="@+id/gender_select_image"
+                        android:layout_width="@dimen/item_setting_height"
+                        android:layout_height="@dimen/item_setting_height"
+                        android:src="@drawable/down_arrow" />
                 </LinearLayout>
 
+                <Spinner
+                    android:id="@+id/gender_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_centerInParent="true"
+                    android:visibility="invisible" />
+
                 <Button
-                    android:id="@+id/chua_biet_button1"
+                    android:id="@+id/gender_select_button"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginRight="5dp"
-                    android:background="@android:color/transparent"
-                    android:visibility="gone" />
+                    android:background="@android:color/transparent" />
             </RelativeLayout>
 
             <View
@@ -352,45 +379,39 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginLeft="10dp"
-                        android:layout_weight="4"
+                        android:layout_weight="5"
                         android:text="@string/province"
                         android:textAppearance="@android:style/TextAppearance.DeviceDefault"
                         android:textColor="@color/title_text_color" />
 
-                    <Spinner
-                        android:id="@+id/province_spinner"
+                    <EditText
+                        android:id="@+id/province_edit"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="7" />
+                        android:layout_weight="8"
+                        android:background="@android:color/transparent" />
 
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="7"
-                        android:gravity="center_vertical"
-                        android:visibility="gone">
 
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/province"
-                            android:textAppearance="@android:style/TextAppearance.DeviceDefault"
-                            android:textColor="@color/title_text_color" />
-
-                        <ImageView
-                            android:id="@+id/chua_biet_image2"
-                            android:layout_width="@dimen/item_setting_height"
-                            android:layout_height="@dimen/item_setting_height" />
-                    </LinearLayout>
+                    <ImageView
+                        android:id="@+id/province_select_image"
+                        android:layout_width="@dimen/item_setting_height"
+                        android:layout_height="@dimen/item_setting_height"
+                        android:src="@drawable/down_arrow" />
                 </LinearLayout>
 
+                <Spinner
+                    android:id="@+id/province_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_centerInParent="true"
+                    android:visibility="invisible" />
+
                 <Button
-                    android:id="@+id/chua_biet_button2"
+                    android:id="@+id/province_select_button"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@android:color/transparent"
-                    android:visibility="gone" />
+                    android:visibility="visible" />
             </RelativeLayout>
 
             <LinearLayout

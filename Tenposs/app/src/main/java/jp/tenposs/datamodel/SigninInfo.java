@@ -70,25 +70,25 @@ public class SignInInfo {
 
 
     public class User implements Serializable {
-        public int id;
+        public Integer id;
         public String email;
-        public int social_type;
+        public Integer social_type;
         public String social_id;
-        public int app_id;
+        public Integer app_id;
         public String token;
         public Profile profile;
     }
 
     public class Profile extends UrlImageObject implements Serializable {
-        public int app_user_id;     //integer
+        public Integer app_user_id;     //integer
         public String name;             //string
-        public int gender;              //integer
+        public Integer gender;              //integer
         public String address;
         String avatar_url;       //string
         String avatar_file;       //string
-        public int facebook_status;
-        public int twitter_status;
-        public int instagram_status;
+        public Integer facebook_status;
+        public Integer twitter_status;
+        public Integer instagram_status;
 
         public void setImageFile(String filePath) {
             avatar_file = filePath;

@@ -463,7 +463,7 @@ public class CommonAdapter extends RecyclerView.Adapter<CommonAdapter.CommonView
                 break;
 
                 case RecyclerItemTypeProductTitle: {
-                    productTitle.reloadData(itemDataWrapper.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT));
+                    productTitle.reloadData(itemDataWrapper.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT), itemPosition, mClickListener);
                 }
                 break;
 

@@ -96,7 +96,7 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
         setRefreshing(false);
 
         updateNavigation();
-
+        enableControls(true);
         mScreenDataItems = new ArrayList<>();
 
         for (ItemsInfo.Item item : mCurrentItem.data.items) {
@@ -145,7 +145,7 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
 
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_menu, null);
+        View root = inflater.inflate(R.layout.fragment_recycler_view_paging, null);
 
         this.mLoadingIndicator = (ProgressBar) root.findViewById(R.id.loading_indicator);
         this.mSubToolbar = (LinearLayout) root.findViewById(R.id.sub_toolbar);
@@ -212,8 +212,8 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
         if (savedInstanceState.containsKey(SCREEN_DATA_PAGE_DATA)) {
             this.mCurrentItem = (ItemsInfo.Response) savedInstanceState.getSerializable(SCREEN_DATA_PAGE_DATA);
         }
-        if (savedInstanceState.containsKey(SCREEN_DATA_PAGE_INDEX)) {
-            this.mCurrentMenuIndex = savedInstanceState.getInt(SCREEN_DATA_PAGE_INDEX);
+        if (savedInstanceState.containsKey(SCREEN_DATA_ITEM_INDEX)) {
+            this.mCurrentMenuIndex = savedInstanceState.getInt(SCREEN_DATA_ITEM_INDEX);
         }
     }
 
@@ -223,7 +223,7 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
         outState.putSerializable(SCREEN_DATA, this.mScreenData);
         outState.putSerializable(SCREEN_PAGE_ITEMS, this.mAllItems);
         outState.putSerializable(SCREEN_DATA_PAGE_DATA, this.mCurrentItem);
-        outState.putInt(SCREEN_DATA_PAGE_INDEX, this.mCurrentMenuIndex);
+        outState.putInt(SCREEN_DATA_ITEM_INDEX, this.mCurrentMenuIndex);
     }
 
     @Override
@@ -237,6 +237,7 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
     }
 
     void loadMenuData() {
+        enableControls(false);
         MenuInfo.Request requestParams = new MenuInfo.Request();
         requestParams.store_id = this.mStoreId;
 
@@ -285,6 +286,7 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
                 this.mCurrentItem = (ItemsInfo.Response) menuData.getSerializable(SCREEN_DATA_PAGE_DATA);
                 previewScreenData();
             } else {
+                enableControls(false);
                 ItemsInfo.Request requestParams = new ItemsInfo.Request();
                 requestParams.menu_id = mCurrentMenu.id;
                 requestParams.pageindex = menuData.getInt(SCREEN_DATA_PAGE_INDEX);
@@ -443,5 +445,10 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
             }
             break;
         }
+    }
+
+    void enableControls(boolean enable) {
+        mPreviousButton.setEnabled(enable);
+        mNextButton.setEnabled(enable);
     }
 }

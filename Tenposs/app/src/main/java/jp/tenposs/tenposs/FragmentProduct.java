@@ -133,7 +133,7 @@ public class FragmentProduct extends AbstractFragment implements CommonAdapter.C
 
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View mRoot = inflater.inflate(R.layout.fragment_product, null);
+        View mRoot = inflater.inflate(R.layout.fragment_recycler_view, null);
         this.mRecyclerView = (RecyclerView) mRoot.findViewById(R.id.recycler_view);
         return mRoot;
     }
@@ -193,6 +193,10 @@ public class FragmentProduct extends AbstractFragment implements CommonAdapter.C
 
             case RecyclerItemTypeProductTitle: {
                 //Do nothing
+                //showPurchase
+                int screenId = extraData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
+                Serializable extras = extraData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
+                this.mActivityListener.showScreen(screenId, extras);
             }
             break;
 
@@ -260,6 +264,10 @@ public class FragmentProduct extends AbstractFragment implements CommonAdapter.C
             }
             break;
         }
-
     }
+
+//    void enableControls(boolean enable) {
+//        mPreviousButton.setEnabled(enable);
+//        mNextButton.setEnabled(enable);
+//    }
 }

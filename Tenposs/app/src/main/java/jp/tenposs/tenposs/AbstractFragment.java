@@ -211,6 +211,7 @@ public abstract class AbstractFragment extends Fragment {
     public static String SCREEN_DATA = "SCREEN_DATA";
     public static String SCREEN_TITLE = "SCREEN_TITLE";
     public static String SCREEN_PAGE_ITEMS = "SCREEN_PAGE_ITEMS";
+    public static String SCREEN_DATA_ITEM_INDEX = "SCREEN_DATA_ITEM_INDEX";
 
     public static String SCREEN_DATA_PAGE_INDEX = "SCREEN_DATA_PAGE_INDEX";
     public static String SCREEN_DATA_PAGE_SIZE = "SCREEN_DATA_PAGE_SIZE";
@@ -532,9 +533,13 @@ public abstract class AbstractFragment extends Fragment {
         return anim;
     }
 
+    protected void hideKeyboard() {
+        Utils.hideKeyboard(this.getActivity(), null);
+    }
+
     protected void close() {
         try {
-            Utils.hideKeyboard(this.getActivity(), null);
+            hideKeyboard();
             if (customClose() == false) {
                 getActivity().getSupportFragmentManager().popBackStack();
             }

@@ -3,6 +3,7 @@ package jp.tenposs.tenposs;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -17,10 +18,12 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -81,18 +84,25 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
 
     TextView mIdLabel;
     EditText mIdEdit;
+    ImageButton mClearIdButton;
 
     TextView mUserNameLabel;
     EditText mUserNameEdit;
+    ImageButton mClearUserNameButton;
 
     TextView mEmailLabel;
     EditText mEmailEdit;
+    ImageButton mClearEmailButton;
 
     TextView mGenderLabel;
+    EditText mGenderEdit;
     Spinner mGenderSpinner;
+    Button mGenderButton;
 
     TextView mProvinceLabel;
+    EditText mProvinceEdit;
     Spinner mProvinceSpinner;
+    Button mProvinceButton;
 
     ImageView mFacebookIcon;
     TextView mLinkWithFacebookLabel;
@@ -222,6 +232,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
         lastGender = this.mScreenData.profile.gender;
         lastProvince = this.mScreenData.profile.address;
         lastUserName = this.mScreenData.profile.name;
+        final String[] genderArray = getResources().getStringArray(R.array.gender_array);
         this.mJapanPrefectures = getResources().getStringArray(R.array.japan_prefectures);
         this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
         this.mChangeAvatarButton.setOnClickListener(
@@ -259,13 +270,30 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
 
         this.mEmailEdit.setText(this.mScreenData.email);
 
+        if (this.mScreenData.profile.gender != null) {
+            try {
+                mGenderEdit.setText(genderArray[this.mScreenData.profile.gender]);
+            } catch (Exception ignored) {
+
+            }
+        }
+
+        try {
+            mProvinceEdit.setText(this.mScreenData.profile.address);
+        } catch (Exception ignored) {
+
+        }
+
         ArrayAdapter<CharSequence> adapterGender = ArrayAdapter.createFromResource(this.getContext(),
                 R.array.gender_array, android.R.layout.simple_spinner_item);
         adapterGender.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        this.mGenderSpinner.setAdapter(adapterGender);
         this.mGenderSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 selectedGender = position;
+                mGenderEdit.setText(genderArray[position]);
             }
 
             @Override
@@ -273,14 +301,16 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
 
             }
         });
-        this.mGenderSpinner.setAdapter(adapterGender);
-        try {
-            this.mGenderSpinner.setSelection(mScreenData.profile.gender);
-        } catch (Exception ignored) {
 
+        if (this.mScreenData.profile.gender != null) {
+            try {
+                this.mGenderSpinner.setSelection(mScreenData.profile.gender);
+            } catch (Exception ignored) {
+
+            }
         }
 
-        int pos = 0;
+        int pos = -1;
         if (mScreenData.profile.address == null) {
             mScreenData.profile.address = this.mJapanPrefectures[0];
         } else {
@@ -294,11 +324,16 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
             }
         }
 
+        ArrayAdapter<CharSequence> adapterProvince = ArrayAdapter.createFromResource(this.getContext(),
+                R.array.japan_prefectures, android.R.layout.simple_spinner_item);
+        adapterProvince.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        this.mProvinceSpinner.setAdapter(adapterProvince);
         this.mProvinceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 try {
                     selectedProvince = mJapanPrefectures[position];
+                    mProvinceEdit.setText(selectedProvince);
                 } catch (Exception ignored) {
                 }
             }
@@ -309,15 +344,10 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
             }
         });
 
-        ArrayAdapter<CharSequence> adapterProvince = ArrayAdapter.createFromResource(this.getContext(),
-                R.array.japan_prefectures, android.R.layout.simple_spinner_item);
-        adapterProvince.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        this.mProvinceSpinner.setAdapter(adapterProvince);
-        try {
+        if (pos > -1) {
             this.mProvinceSpinner.setSelection(pos);
-        } catch (Exception ignored) {
-
         }
+
         List<String> permission = new ArrayList<>();
         permission.add("public_profile");
         permission.add("email");
@@ -445,18 +475,25 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
         //TextView mUserNameLabel;
         //        this.idLabel = root.findViewById(R.id.id_la);
         this.mIdEdit = (EditText) root.findViewById(R.id.id_edit);
+        this.mClearIdButton = (ImageButton) root.findViewById(R.id.clear_id_button);
 
         this.mUserNameLabel = (TextView) root.findViewById(R.id.user_name_label);
         this.mUserNameEdit = (EditText) root.findViewById(R.id.user_name_edit);
+        this.mClearUserNameButton = (ImageButton) root.findViewById(R.id.clear_user_name_button);
 
         this.mEmailLabel = (TextView) root.findViewById(R.id.email_label);
         this.mEmailEdit = (EditText) root.findViewById(R.id.email_edit);
+        this.mClearEmailButton = (ImageButton) root.findViewById(R.id.clear_email_button);
 
         this.mGenderLabel = (TextView) root.findViewById(R.id.gender_label);
+        this.mGenderEdit = (EditText) root.findViewById(R.id.gender_edit);
         this.mGenderSpinner = (Spinner) root.findViewById(R.id.gender_spinner);
+        this.mGenderButton = (Button) root.findViewById(R.id.gender_select_button);
 
         this.mProvinceLabel = (TextView) root.findViewById(R.id.province_label);
+        this.mProvinceEdit = (EditText) root.findViewById(R.id.province_edit);
         this.mProvinceSpinner = (Spinner) root.findViewById(R.id.province_spinner);
+        this.mProvinceButton = (Button) root.findViewById(R.id.province_select_button);
 
         this.mFacebookIcon = (ImageView) root.findViewById(R.id.facebook_icon);
         this.mLinkWithFacebookLabel = (TextView) root.findViewById(R.id.facebook_label);
@@ -472,9 +509,17 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
         this.mLinkWithInstagram = (TextView) root.findViewById(R.id.instagram_label);
         this.mLinkInstagramButton = (Button) root.findViewById(R.id.instargram_button);
 
+        this.mClearIdButton.setOnClickListener(this);
+        this.mClearUserNameButton.setOnClickListener(this);
+        this.mClearEmailButton.setOnClickListener(this);
+
+        this.mGenderButton.setOnClickListener(this);
+        this.mProvinceButton.setOnClickListener(this);
+
         this.mLinkFacebookButton.setOnClickListener(this);
         this.mLinkTwitterButton.setOnClickListener(this);
         this.mLinkInstagramButton.setOnClickListener(this);
+
         String userProfile = getPrefString(Key.UserProfile);
         this.mScreenData = (SignInInfo.User) CommonObject.fromJSONString(userProfile, SignInInfo.User.class, null);
 
@@ -683,7 +728,25 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
 
     @Override
     public void onClick(View v) {
-        if (v == this.mLinkFacebookButton) {
+        if (v == this.mClearIdButton) {
+            this.mIdEdit.setText("");
+            this.mIdEdit.requestFocus();
+            InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(this.mIdEdit, InputMethodManager.SHOW_IMPLICIT);
+
+        } else if (v == this.mClearUserNameButton) {
+            this.mUserNameEdit.setText("");
+            this.mUserNameEdit.requestFocus();
+            InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(this.mUserNameEdit, InputMethodManager.SHOW_IMPLICIT);
+
+        } else if (v == this.mClearEmailButton) {
+            this.mEmailEdit.setText("");
+            this.mEmailEdit.requestFocus();
+            InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(this.mEmailEdit, InputMethodManager.SHOW_IMPLICIT);
+
+        } else if (v == this.mLinkFacebookButton) {
             Profile profile = Profile.getCurrentProfile();
             String token = getPrefString(Key.FacebookTokenKey);
             if (profile != null && token.length() > 0) {
@@ -702,7 +765,13 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
 
         } else if (v == this.mLinkInstagramButton) {
             connectOrDisconnectUser();
-//            showPopupInstagram();
+
+        } else if (v == this.mGenderButton) {
+            this.mGenderSpinner.performClick();
+
+        } else if (v == this.mProvinceButton) {
+            this.mProvinceSpinner.performClick();
+
         }
     }
 

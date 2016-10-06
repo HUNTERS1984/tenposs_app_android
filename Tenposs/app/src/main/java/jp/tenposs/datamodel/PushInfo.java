@@ -47,10 +47,18 @@ public class PushInfo {
         }
     }
 
-    public class Response extends CommonResponse {
+    public static class Response extends CommonResponse {
+        public Response() {
+            this.data = new ResponseData();
+        }
+
         public ResponseData data;
 
         public class ResponseData {
+            public ResponseData() {
+                this.push_setting = new PushSettings();
+            }
+
             public PushSettings push_setting;
         }
 
@@ -63,11 +71,18 @@ public class PushInfo {
         }
     }
 
-    public class PushSettings {
+    public static class PushSettings {
         int ranking;
         int news;
         int coupon;
         int chat;
+
+        public PushSettings() {
+            this.ranking = 0;
+            this.news = 0;
+            this.coupon = 0;
+            this.chat = 0;
+        }
 
         public boolean isAtLeastOneEnable() {
             return (ranking == 1) ||

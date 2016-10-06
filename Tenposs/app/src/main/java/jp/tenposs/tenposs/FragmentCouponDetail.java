@@ -1,5 +1,7 @@
 package jp.tenposs.tenposs;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
@@ -14,6 +16,8 @@ import com.squareup.picasso.Picasso;
 import jp.tenposs.datamodel.CouponInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.view.AspectRatioImageView;
+
+import static android.content.Context.CLIPBOARD_SERVICE;
 
 /**
  * Created by ambient on 8/4/16.
@@ -73,6 +77,8 @@ public class FragmentCouponDetail extends AbstractFragment {
         this.mCouponNameLabel.setText(mScreenData.title);
         this.mValidityLabel.setText(mScreenData.end_date);
         this.mCouponDescriptionLabel.setText(mScreenData.description);
+        this.mHashTagLabel.setText(this.mScreenData.getHashTag());
+
 
         if (this.mScreenData.status == 1) {
             this.mTakeAdvantageOfCouponLayout.setVisibility(View.VISIBLE);
@@ -104,6 +110,10 @@ public class FragmentCouponDetail extends AbstractFragment {
 
             @Override
             public void onClick(View v) {
+                ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("", mScreenData.getHashTag());
+                clipboard.setPrimaryClip(clip);
+
                 PopupHashTagCopied popupHashTagCopied = new PopupHashTagCopied(getContext());
                 popupHashTagCopied.show();
             }

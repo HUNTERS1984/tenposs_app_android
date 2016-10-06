@@ -183,7 +183,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/common_padding"
-                android:text="説明が入ります説明が入ります説明が入ります説明が入り ます説明が入ります説明が入ります説明が入ります説明が 入ります説明が入ります説明が入ります説明が入ります説 明が入ります説明が入ります説明が入ります説明が入りま す説明が入ります。説明が入ります説明が入ります説明が 入ります説明が入ります説明が入ります説明が入ります説 明が入ります説明が入ります。説明が入ります説明が入り ます説明が入ります説明が入ります説明が入ります説明が 入ります説明が入ります説明が入ります"
+                android:text=""
                 android:textAppearance="@android:style/TextAppearance.DeviceDefault"
                 android:textColor="@color/title_text_color" />
 
@@ -204,7 +204,8 @@
                 android:layout_margin="@dimen/common_padding"
                 android:background="@drawable/bg_button"
                 android:text="@string/more"
-                android:textColor="@color/button_text_color" />
+                android:textColor="@color/button_text_color"
+                android:visibility="gone" />
         </LinearLayout>
     </ScrollView>
 </RelativeLayout>

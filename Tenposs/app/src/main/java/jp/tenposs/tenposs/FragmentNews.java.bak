@@ -1,5 +1,6 @@
 package jp.tenposs.tenposs;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,6 +10,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 import junit.framework.Assert;
 
@@ -17,32 +20,50 @@ import java.util.ArrayList;
 import jp.tenposs.adapter.CommonAdapter;
 import jp.tenposs.adapter.RecyclerItemType;
 import jp.tenposs.adapter.RecyclerItemWrapper;
-import jp.tenposs.communicator.CouponInfoCommunicator;
+import jp.tenposs.communicator.NewsInfoCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
 import jp.tenposs.datamodel.CommonResponse;
-import jp.tenposs.datamodel.CouponInfo;
 import jp.tenposs.datamodel.Key;
+import jp.tenposs.datamodel.NewsInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.listener.OnCommonItemClickListener;
+import jp.tenposs.utils.FlatIcon;
+
 
 /**
- * Created by ambient on 8/4/16.
+ * Created by ambient on 7/27/16.
  */
-public class FragmentCoupon extends AbstractFragment implements CommonAdapter.CommonDataSource, OnCommonItemClickListener {
+public class FragmentNews
+        extends
+        AbstractFragment
+        implements
+        CommonAdapter.CommonDataSource,
+        OnCommonItemClickListener,
+        View.OnClickListener {
 
+    ImageButton mPreviousButton;
+    TextView mTitleLabel;
+    ImageButton mNextButton;
     RecyclerView mRecyclerView;
     CommonAdapter mRecyclerAdapter;
     SwipeRefreshLayout mSwipeRefreshLayout;
 
-    CouponInfo.Response mScreenData = null;
+    NewsInfo.Response mScreenData = null;
 
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mPageIndex = 1;
+        mPageSize = 20;
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(SCREEN_DATA)) {
-                this.mScreenData = (CouponInfo.Response) savedInstanceState.getSerializable(SCREEN_DATA);
+                this.mScreenData = (NewsInfo.Response) savedInstanceState.getSerializable(SCREEN_DATA);
                 startup();
             }
         } else {
@@ -57,7 +78,7 @@ public class FragmentCoupon extends AbstractFragment implements CommonAdapter.Co
 
     @Override
     protected void customToolbarInit() {
-        mToolbarSettings.toolbarTitle = getString(R.string.coupon);
+        mToolbarSettings.toolbarTitle = getString(R.string.news);
         mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
         mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
     }
@@ -74,7 +95,7 @@ public class FragmentCoupon extends AbstractFragment implements CommonAdapter.Co
         }
         this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
         //loadAppInfo();
-        loadCouponsInfo();
+        loadNewsInfo();
     }
 
     @Override
@@ -82,15 +103,13 @@ public class FragmentCoupon extends AbstractFragment implements CommonAdapter.Co
         this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
         mScreenDataItems = new ArrayList<>();
 
-        for (CouponInfo.Coupon item : mScreenData.data.coupons) {
+        for (NewsInfo.News item : mScreenData.data.news) {
             Bundle extras = new Bundle();
             extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
             extras.putString(RecyclerItemWrapper.ITEM_CATEGORY, getString(R.string.category_text));
             extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.title);
             extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.description);
             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
-            extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, COUPON_DETAIL_SCREEN);
-            extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
             mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemList, mSpanCount, extras));
         }
 
@@ -103,39 +122,45 @@ public class FragmentCoupon extends AbstractFragment implements CommonAdapter.Co
             this.mRecyclerView.setLayoutManager(manager);
             this.mRecyclerView.addItemDecoration(new CommonAdapter.MarginDecoration(getActivity()));
             this.mRecyclerView.setAdapter(mRecyclerAdapter);
-
-            this.mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                    super.onScrollStateChanged(recyclerView, newState);
-                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        int lastPos = ((GridLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
-                        if (lastPos != -1) {
-                            if (lastPos == getItemCount() - 1 && getItemCount() < mScreenData.total_coupons) {
-                                loadCouponsInfo();
-                            }
-                        }
-                    }
-                }
-            });
         } else {
             this.mRecyclerAdapter.notifyDataSetChanged();
         }
+        updateNavigation();
+        updateToolbar();
     }
 
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View mRoot = inflater.inflate(R.layout.fragment_recycler_view, null);
+        View mRoot = inflater.inflate(R.layout.fragment_news, null);
+
+        mPreviousButton = (ImageButton) mRoot.findViewById(R.id.previous_button);
+        mTitleLabel = (TextView) mRoot.findViewById(R.id.title_label);
+        mNextButton = (ImageButton) mRoot.findViewById(R.id.next_button);
 
         this.mRecyclerView = (RecyclerView) mRoot.findViewById(R.id.recycler_view);
         this.mSwipeRefreshLayout = (SwipeRefreshLayout) mRoot.findViewById(R.id.swipe_refresh_layout);
         this.mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                FragmentCoupon.this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusUnload;
+                FragmentNews.this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusUnload;
                 reloadScreenData();
             }
         });
+        mPreviousButton.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
+                "flaticon-back",
+                40,
+                Color.argb(0, 0, 0, 0),
+                mToolbarSettings.appSetting.getToolbarIconColor()
+        ));
+
+        mNextButton.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
+                "flaticon-next",
+                40,
+                Color.argb(0, 0, 0, 0),
+                mToolbarSettings.appSetting.getToolbarIconColor()
+        ));
+        mPreviousButton.setOnClickListener(this);
+        mNextButton.setOnClickListener(this);
         return mRoot;
     }
 
@@ -146,12 +171,11 @@ public class FragmentCoupon extends AbstractFragment implements CommonAdapter.Co
 
     @Override
     void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
+        if (savedInstanceState.containsKey(SCREEN_DATA)) {
+            this.mScreenData = (NewsInfo.Response) savedInstanceState.getSerializable(SCREEN_DATA);
+        }
         if (savedInstanceState.containsKey(APP_DATA_STORE_ID)) {
             this.mStoreId = savedInstanceState.getInt(APP_DATA_STORE_ID);
-        }
-
-        if (savedInstanceState.containsKey(SCREEN_DATA)) {
-            this.mScreenData = (CouponInfo.Response) savedInstanceState.getSerializable(SCREEN_DATA);
         }
         if (savedInstanceState.containsKey(SCREEN_DATA_PAGE_INDEX)) {
             this.mPageIndex = savedInstanceState.getInt(SCREEN_DATA_PAGE_INDEX);
@@ -163,11 +187,7 @@ public class FragmentCoupon extends AbstractFragment implements CommonAdapter.Co
 
     @Override
     void customSaveInstanceState(Bundle outState) {
-        outState.putInt(APP_DATA_STORE_ID, this.mStoreId);
 
-        outState.putSerializable(SCREEN_DATA, this.mScreenData);
-        outState.putInt(SCREEN_DATA_PAGE_INDEX, this.mPageIndex);
-        outState.putInt(SCREEN_DATA_PAGE_SIZE, this.mPageSize);
     }
 
     @Override
@@ -177,7 +197,7 @@ public class FragmentCoupon extends AbstractFragment implements CommonAdapter.Co
 
     @Override
     boolean canCloseByBackpressed() {
-        return true;
+        return false;
     }
 
 
@@ -198,8 +218,8 @@ public class FragmentCoupon extends AbstractFragment implements CommonAdapter.Co
         switch (item.itemType) {
             case RecyclerItemTypeItemList: {
                 int id = item.itemData.getInt(RecyclerItemWrapper.ITEM_ID);
-                CouponInfo.Coupon coupon = this.mScreenData.getItemById(id);
-                this.mActivityListener.showScreen(AbstractFragment.COUPON_DETAIL_SCREEN, coupon);
+                NewsInfo.News news = this.mScreenData.getItemById(id);
+                this.mActivityListener.showScreen(AbstractFragment.NEWS_DETAILS_SCREEN, news);
             }
             break;
 
@@ -217,8 +237,8 @@ public class FragmentCoupon extends AbstractFragment implements CommonAdapter.Co
             this.mSwipeRefreshLayout.post(new Runnable() {
                 @Override
                 public void run() {
-                    setRefreshing(true);
-                    loadCouponsInfo();
+                    FragmentNews.this.mSwipeRefreshLayout.setRefreshing(true);
+                    loadNewsInfo();
                 }
             });
 
@@ -231,15 +251,15 @@ public class FragmentCoupon extends AbstractFragment implements CommonAdapter.Co
         }
     }
 
-    void loadCouponsInfo() {
+    void loadNewsInfo() {
         Bundle params = new Bundle();
-        CouponInfo.Request requestParams = new CouponInfo.Request();
+        NewsInfo.Request requestParams = new NewsInfo.Request();
         requestParams.store_id = this.mStoreId;
         requestParams.pageindex = this.mPageIndex;
         requestParams.pagesize = this.mPageSize;
 
         params.putSerializable(Key.RequestObject, requestParams);
-        CouponInfoCommunicator communicator = new CouponInfoCommunicator(
+        NewsInfoCommunicator communicator = new NewsInfoCommunicator(
                 new TenpossCommunicator.TenpossCommunicatorListener() {
                     @Override
                     public void completed(TenpossCommunicator request, Bundle responseParams) {
@@ -247,7 +267,7 @@ public class FragmentCoupon extends AbstractFragment implements CommonAdapter.Co
                         if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
                             int resultApi = responseParams.getInt(Key.ResponseResultApi);
                             if (resultApi == CommonResponse.ResultSuccess) {
-                                FragmentCoupon.this.mScreenData = (CouponInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                FragmentNews.this.mScreenData = (NewsInfo.Response) responseParams.getSerializable(Key.ResponseObject);
                                 previewScreenData();
                             } else {
                                 String strMessage = responseParams.getString(Key.ResponseMessage);
@@ -260,5 +280,46 @@ public class FragmentCoupon extends AbstractFragment implements CommonAdapter.Co
                     }
                 });
         communicator.execute(params);
+    }
+
+    boolean hasPrevious() {
+        //return (menuIndex > 0);
+        return false;
+
+    }
+
+    boolean hasNext() {
+        return false;
+    }
+
+    void updateNavigation() {
+        int previousButtonColor = Color.rgb(128, 128, 128);
+        if (hasPrevious() == true) {
+            previousButtonColor = Color.parseColor("#00CECB");
+        }
+
+        int nextButtonColor = Color.rgb(128, 128, 128);
+        if (hasNext() == true) {
+            nextButtonColor = Color.parseColor("#00CECB");
+        }
+
+        mPreviousButton.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
+                "ti-angle-left",
+                20,
+                Color.argb(0, 0, 0, 0),
+                previousButtonColor
+        ));
+
+        mNextButton.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
+                "ti-angle-right",
+                20,
+                Color.argb(0, 0, 0, 0),
+                nextButtonColor
+        ));
+    }
+
+    @Override
+    public void onClick(View v) {
+
     }
 }

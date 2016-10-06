@@ -68,7 +68,7 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
 
         this.mStaffTitleLabel.setText(mScreenData.name);
         //this.mStaffCategoryLabel.setText(mScreenData.category);
-        //this.mStaffDescriptionLabel.setText(this.mScreenData.description);
+        this.mStaffDescriptionLabel.setText(this.mScreenData.introduction);
 
         showDescriptionOrProfile();
 

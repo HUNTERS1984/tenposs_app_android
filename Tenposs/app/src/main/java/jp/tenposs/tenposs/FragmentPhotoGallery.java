@@ -97,7 +97,7 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
         setRefreshing(false);
 
         updateNavigation();
-
+        enableControls(true);
         mScreenDataItems = new ArrayList<>();
 
         for (PhotoInfo.Photo photo : mCurrentItem.data.photos) {
@@ -144,7 +144,7 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
 
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_menu, null);
+        View root = inflater.inflate(R.layout.fragment_recycler_view_paging, null);
 
         this.mLoadingIndicator = (ProgressBar) root.findViewById(R.id.loading_indicator);
         this.mSubToolbar = (LinearLayout) root.findViewById(R.id.sub_toolbar);
@@ -211,8 +211,8 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
         if (savedInstanceState.containsKey(SCREEN_DATA_PAGE_DATA)) {
             this.mCurrentItem = (PhotoInfo.Response) savedInstanceState.getSerializable(SCREEN_DATA_PAGE_DATA);
         }
-        if (savedInstanceState.containsKey(SCREEN_DATA_PAGE_INDEX)) {
-            this.mCurrentPhotoCatIndex = savedInstanceState.getInt(SCREEN_DATA_PAGE_INDEX);
+        if (savedInstanceState.containsKey(SCREEN_DATA_ITEM_INDEX)) {
+            this.mCurrentPhotoCatIndex = savedInstanceState.getInt(SCREEN_DATA_ITEM_INDEX);
         }
     }
 
@@ -222,7 +222,7 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
         outState.putSerializable(SCREEN_DATA, this.mScreenData);
         outState.putSerializable(SCREEN_PAGE_ITEMS, this.mAllItems);
         outState.putSerializable(SCREEN_DATA_PAGE_DATA, this.mCurrentItem);
-        outState.putInt(SCREEN_DATA_PAGE_INDEX, this.mCurrentPhotoCatIndex);
+        outState.putInt(SCREEN_DATA_ITEM_INDEX, this.mCurrentPhotoCatIndex);
     }
 
     @Override
@@ -236,6 +236,7 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
     }
 
     void loadPhotoCatData() {
+        enableControls(false);
         PhotoCategoryInfo.Request requestParams = new PhotoCategoryInfo.Request();
         requestParams.store_id = this.mStoreId;
 
@@ -284,6 +285,7 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
                 this.mCurrentItem = (PhotoInfo.Response) photoCategory.getSerializable(SCREEN_DATA_PAGE_DATA);
                 previewScreenData();
             } else {
+                enableControls(false);
                 PhotoInfo.Request requestParams = new PhotoInfo.Request();
                 requestParams.category_id = mCurrentPhotoCat.id;
                 requestParams.pageindex = photoCategory.getInt(SCREEN_DATA_PAGE_INDEX);
@@ -442,5 +444,10 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
             }
             break;
         }
+    }
+
+    void enableControls(boolean enable) {
+        mPreviousButton.setEnabled(enable);
+        mNextButton.setEnabled(enable);
     }
 }

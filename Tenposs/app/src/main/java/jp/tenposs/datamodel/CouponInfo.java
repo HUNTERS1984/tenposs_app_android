@@ -46,6 +46,8 @@ public class CouponInfo {
     }
 
     public class Coupon extends UrlImageObject implements Serializable {
+
+
         public int id;
         public int type;
         public String title;
@@ -53,15 +55,41 @@ public class CouponInfo {
         public String start_date;
         public String end_date;
         public int status;
-        String image_url;
         public String created_at;
         public String updated_at;
-        public int store_id;
+        public String deleted_at;
+        String image_url;
+        public String limit;
+        public String coupon_type_id;
+        ArrayList<String> taglist;
+        public boolean can_use;
+
+        public String code;
+        public CouponType coupon_type;
+
+        public class CouponType {
+            public int id;
+            public String name;
+            public String store_id;
+            public String deleted_at;
+        }
+
 
         @Override
         public String getImageUrl() {
             return Utils.getImageUrl(TenpossCommunicator.DOMAIN_ADDRESS, image_url, "https://google.com");
 
+        }
+
+        public String getHashTag() {
+            String hashTag = "";
+
+            if (this.taglist != null && this.taglist.size() > 0) {
+                for (String tag : taglist) {
+                    hashTag += "#" + tag + " ";
+                }
+            }
+            return hashTag;
         }
     }
     //total_coupons

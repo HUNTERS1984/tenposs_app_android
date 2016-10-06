@@ -101,6 +101,16 @@
         android:id="@+id/web_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@+id/nav_control_layout"
         android:layout_below="@+id/loading_progress" />
+
+    <LinearLayout
+        android:id="@+id/nav_control_layout"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_alignParentBottom="true"
+        android:visibility="gone">
+
+    </LinearLayout>
 
 </RelativeLayout>
