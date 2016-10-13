@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F8FA"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="jp.tenposs.tenposs.FragmentSignUp">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.NoActionBar">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorNavBackground"
+            android:contentInsetLeft="0dp"
+            android:contentInsetStart="0dp"
+            android:subtitleTextColor="@color/colorNavSubTextColor"
+            android:textAlignment="center"
+            android:titleTextColor="@color/colorNavTextColor"
+            android:visibility="visible"
+            app:contentInsetLeft="0dp"
+            app:contentInsetStart="0dp"
+            app:popupTheme="@style/AppTheme.PopupOverlay">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/left_toolbar_button"
+                    android:layout_width="?attr/actionBarSize"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="@android:color/transparent"
+                    android:visibility="visible" />
+
+                <FrameLayout
+                    android:id="@+id/nav_center"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <jp.tenposs.view.AutoResizeTextView
+                        android:id="@+id/title_toolbar_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center_vertical"
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="5dp"
+                        android:text="@string/app_name"
+                        android:textAppearance="@android:style/TextAppearance.Medium"
+                        android:visibility="visible" />
+
+                </FrameLayout>
+
+                <ImageButton
+                    android:id="@+id/right_toolbar_button"
+                    android:layout_width="?attr/actionBarSize"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="@android:color/transparent"
+                    android:visibility="invisible" />
+
+            </LinearLayout>
+        </android.support.v7.widget.Toolbar>
+    </android.support.design.widget.AppBarLayout>
+
+    <View
+        android:id="@+id/top_separate"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dip"
+        android:layout_below="@+id/app_bar"
+        android:background="@color/colorSeparate" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/top_separate"
+        android:background="#F8F8FA" />
+
+    <View
+        android:id="@+id/center_separate"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dip"
+        android:layout_below="@+id/top_separate"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:background="@color/colorSeparate" />
+
+    <LinearLayout
+        android:id="@id/info_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/center_separate"
+        android:orientation="vertical">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_marginLeft="10dp"
+            android:background="@android:color/darker_gray" />
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/item_setting_height"
+            android:background="@android:color/white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/item_setting_height"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/gender_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="10dp"
+                    android:layout_weight="5"
+                    android:text="@string/gender"
+                    android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+                    android:textColor="@color/title_text_color" />
+
+                <EditText
+                    android:id="@+id/gender_edit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="8"
+                    android:background="@android:color/transparent" />
+
+
+                <ImageView
+                    android:id="@+id/gender_select_image"
+                    android:layout_width="@dimen/item_setting_height"
+                    android:layout_height="@dimen/item_setting_height"
+                    android:src="@drawable/down_arrow" />
+            </LinearLayout>
+
+            <Spinner
+                android:id="@+id/gender_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                android:visibility="invisible" />
+
+            <Button
+                android:id="@+id/gender_select_button"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginRight="5dp"
+                android:background="@android:color/transparent" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_marginLeft="10dp"
+            android:background="@android:color/darker_gray" />
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/item_setting_height"
+            android:background="@android:color/white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/item_setting_height"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/province_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="10dp"
+                    android:layout_weight="5"
+                    android:text="@string/province"
+                    android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+                    android:textColor="@color/title_text_color" />
+
+                <EditText
+                    android:id="@+id/province_edit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="8"
+                    android:background="@android:color/transparent" />
+
+
+                <ImageView
+                    android:id="@+id/province_select_image"
+                    android:layout_width="@dimen/item_setting_height"
+                    android:layout_height="@dimen/item_setting_height"
+                    android:src="@drawable/down_arrow" />
+            </LinearLayout>
+
+            <Spinner
+                android:id="@+id/province_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                android:visibility="invisible" />
+
+            <Button
+                android:id="@+id/province_select_button"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:visibility="visible" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_marginLeft="10dp"
+            android:background="@android:color/darker_gray" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@android:color/darker_gray" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/sign_up_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/info_layout"
+        android:layout_marginLeft="@dimen/common_padding"
+        android:layout_marginRight="@dimen/common_padding"
+        android:layout_marginTop="@dimen/common_padding"
+        android:background="@drawable/bg_button_ex"
+        android:text="@string/sign_up"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:id="@+id/go_to_sign_in_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/sign_up_button"
+        android:layout_marginLeft="@dimen/common_padding"
+        android:layout_marginRight="@dimen/common_padding"
+        android:layout_marginTop="@dimen/common_padding"
+        android:gravity="center"
+        android:hint="@string/already_sign_up"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+        android:textColor="@color/title_text_color" />
+
+
+</RelativeLayout>

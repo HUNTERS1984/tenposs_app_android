@@ -20,4 +20,9 @@
     <dimen name="sw_thumb_solid_size">20dp</dimen>
     <dimen name="sw_thumb_shadow_size">21dp</dimen>
     <dimen name="sw_thumb_shadow_offset">2dp</dimen>
+
+    <dimen name="default_stroke_width">7dp</dimen>
+    <dimen name="default_background_stroke_width">3dp</dimen>
+
+
 </resources>

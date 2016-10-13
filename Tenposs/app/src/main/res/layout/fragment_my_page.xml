@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/fragment_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:theme="@style/AppTheme.NoActionBar">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@android:color/transparent"
+            android:contentInsetLeft="0dp"
+            android:contentInsetStart="0dp"
+            android:subtitleTextColor="@color/colorNavSubTextColor"
+            android:textAlignment="center"
+            android:titleTextColor="@color/colorNavTextColor"
+            android:visibility="visible"
+            app:contentInsetLeft="0dp"
+            app:contentInsetStart="0dp"
+            app:popupTheme="@style/AppTheme.PopupOverlay">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/left_toolbar_button"
+                    android:layout_width="?attr/actionBarSize"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="@android:color/transparent"
+                    android:visibility="visible" />
+
+                <FrameLayout
+                    android:id="@+id/nav_center"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <jp.tenposs.view.AutoResizeTextView
+                        android:id="@+id/title_toolbar_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center_vertical"
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="5dp"
+                        android:text="MY PAGE"
+                        android:textAppearance="@android:style/TextAppearance.Medium"
+                        android:visibility="visible" />
+
+                </FrameLayout>
+
+                <ImageButton
+                    android:id="@+id/right_toolbar_button"
+                    android:layout_width="?attr/actionBarSize"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="@android:color/transparent"
+                    android:visibility="invisible" />
+
+            </LinearLayout>
+        </android.support.v7.widget.Toolbar>
+    </android.support.design.widget.AppBarLayout>
+
+    <jp.tenposs.view.AspectRatioLayout
+        android:id="@+id/first_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:aspect_ratio="1.86">
+
+        <ImageView
+            android:id="@+id/top_separate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/login_bg" />
+
+        <View
+            android:id="@+id/first_one_layout"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"></View>
+
+        <android.support.percent.PercentRelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/user_name_label"
+            android:layout_below="@+id/first_one_layout"
+            android:layout_centerHorizontal="true">
+
+            <jp.tenposs.view.CircleImageView
+                android:id="@+id/avatar_image"
+                android:layout_alignParentTop="true"
+                android:layout_centerInParent="true"
+                android:padding="10dp"
+                android:src="@drawable/no_avatar"
+                app:border_color="#d6dade"
+                app:border_width="2dip"
+                app:fill_color="@android:color/white"
+                app:layout_aspectRatio="100%"
+                app:layout_heightPercent="100%" />
+
+
+        </android.support.percent.PercentRelativeLayout>
+
+        <TextView
+            android:id="@+id/user_name_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text="@string/purchase"
+            android:textColor="@android:color/white" />
+
+
+    </jp.tenposs.view.AspectRatioLayout>
+
+    <RelativeLayout
+        android:id="@+id/second_layout"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_below="@+id/first_layout">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center_horizontal"
+            android:text="200 ポイント あと 4280 マイル" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/third_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/fourth_layout"
+        android:layout_below="@+id/second_layout"
+        android:background="#edeef0"
+        android:padding="30dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/miles_progress"
+            android:layout_alignLeft="@id/miles_progress"
+            android:layout_alignRight="@id/miles_progress"
+            android:layout_alignTop="@id/miles_progress"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2048 miles" />
+        </LinearLayout>
+
+        <jp.tenposs.view.CircularProgressBar
+            android:id="@+id/miles_progress"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            app:cpb_background_progressbar_color="#9ce4e6"
+            app:cpb_background_progressbar_width="13dp"
+            app:cpb_progress="75"
+            app:cpb_progressbar_color="#14c8c8"
+            app:cpb_progressbar_width="13dp">
+
+
+        </jp.tenposs.view.CircularProgressBar>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/fourth_layout"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_above="@+id/last_layout">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center_horizontal"
+            android:text="200 ポイント あと 4280 マイル" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/last_layout"
+        android:layout_width="match_parent"
+        android:layout_height="180px"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/bg_bar_code">
+
+    </RelativeLayout>
+
+</RelativeLayout>

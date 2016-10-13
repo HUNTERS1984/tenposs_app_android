@@ -5,21 +5,6 @@
     android:layout_height="wrap_content"
     android:background="@android:color/transparent">
 
-    <!--<jp.tenposs.view.ZoomableImageView-->
-    <!--android:id="@+id/item_thumbnail"-->
-    <!--android:layout_marginBottom="5dp"-->
-    <!--android:layout_marginLeft="5dp"-->
-    <!--android:layout_marginRight="5dp"-->
-    <!--android:layout_marginTop="5dp"-->
-    <!--android:background="@drawable/rectangle"-->
-    <!--android:paddingBottom="2dp"-->
-    <!--android:paddingLeft="2dp"-->
-    <!--android:paddingRight="2dp"-->
-    <!--android:paddingTop="2dp"-->
-    <!--android:scaleType="centerCrop"-->
-    <!--app:layout_aspectRatio="100%"-->
-    <!--app:layout_widthPercent="100%" />-->
-
     <LinearLayout
         android:id="@+id/pager_layout"
         android:background="@drawable/rectangle"
@@ -37,15 +22,9 @@
             android:scaleType="centerCrop"
             android:src="@drawable/login_bg" />
 
-        <!--<android.support.v4.view.ViewPager-->
-        <!--android:id="@+id/view_pager"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent" />-->
-
     </LinearLayout>
 
     <ImageButton
-
 
         android:id="@+id/close_button"
         android:layout_width="50dp"

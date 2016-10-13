@@ -25,7 +25,7 @@ public class AspectRatioLayout extends RelativeLayout {
      */
     private static final float MAX_ASPECT_RATIO_DEFORMATION_FRACTION = 0.01f;
 
-    private float videoAspectRatio;
+    private float aspectRatio;
 
     public AspectRatioLayout(Context context) {
         super(context);
@@ -34,18 +34,18 @@ public class AspectRatioLayout extends RelativeLayout {
     public AspectRatioLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.AspectRatioLayout);
-        videoAspectRatio = a.getFloat(R.styleable.AspectRatioLayout_aspect_ratio, MAX_ASPECT_RATIO_DEFORMATION_FRACTION);
+        aspectRatio = a.getFloat(R.styleable.AspectRatioLayout_aspect_ratio, MAX_ASPECT_RATIO_DEFORMATION_FRACTION);
 
         a.recycle();
-        setAspectRatio(videoAspectRatio);
+        setAspectRatio(aspectRatio);
     }
 
     public AspectRatioLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.AspectRatioLayout, defStyle, 0);
-        videoAspectRatio = a.getFloat(R.styleable.AspectRatioLayout_aspect_ratio, MAX_ASPECT_RATIO_DEFORMATION_FRACTION);
+        aspectRatio = a.getFloat(R.styleable.AspectRatioLayout_aspect_ratio, MAX_ASPECT_RATIO_DEFORMATION_FRACTION);
         a.recycle();
-        setAspectRatio(videoAspectRatio);
+        setAspectRatio(aspectRatio);
     }
 
 
@@ -55,8 +55,8 @@ public class AspectRatioLayout extends RelativeLayout {
      * @param widthHeightRatio The width to height ratio.
      */
     public void setAspectRatio(float widthHeightRatio) {
-        if (this.videoAspectRatio != widthHeightRatio) {
-            this.videoAspectRatio = widthHeightRatio;
+        if (this.aspectRatio != widthHeightRatio) {
+            this.aspectRatio = widthHeightRatio;
             requestLayout();
         }
     }
@@ -64,7 +64,7 @@ public class AspectRatioLayout extends RelativeLayout {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (videoAspectRatio == 0) {
+        if (aspectRatio == 0) {
             // Aspect ratio not set.
             return;
         }
@@ -72,16 +72,16 @@ public class AspectRatioLayout extends RelativeLayout {
         int width = getMeasuredWidth();
         int height = getMeasuredHeight();
         float viewAspectRatio = (float) width / height;
-        float aspectDeformation = videoAspectRatio / viewAspectRatio - 1;
+        float aspectDeformation = aspectRatio / viewAspectRatio - 1;
         if (Math.abs(aspectDeformation) <= MAX_ASPECT_RATIO_DEFORMATION_FRACTION) {
             // We're within the allowed tolerance.
             return;
         }
 
         if (aspectDeformation > 0) {
-            height = (int) (width / videoAspectRatio);
+            height = (int) (width / aspectRatio);
         } else {
-            width = (int) (height * videoAspectRatio);
+            width = (int) (height * aspectRatio);
         }
         super.onMeasure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
                 MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
