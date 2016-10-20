@@ -1,0 +1,195 @@
+<resources>
+    <string name="app_name" translatable="false">Tenposs Staff App</string>
+
+    <!--Text in design file-->
+    <string name="home">ホーム</string>
+    <string name="menu">メニュー</string>
+    <string name="reserve">予約</string>
+    <string name="news">ニュース</string>
+    <string name="photo_gallery">フォトギャラリー</string>
+    <string name="staff">スタッフ</string>
+    <string name="coupon">クーポン</string>
+    <string name="chat">チャット</string>
+    <string name="setting">設定</string>
+    <string name="username">ユーザー名</string>
+
+    <string name="more">もっと見る</string>
+    <string name="category_text">カテゴリー</string>
+
+    <!--Settings Screen-->
+    <string name="profile">プロフィール</string>
+    <string name="edit_profile">プロフィール編集</string>
+    <string name="receive_push">お知らせを受け取る</string>
+    <string name="receive_coupon_information">クーポン情報を受け取る</string>
+    <string name="issue_the_takeover_code_during_the_model_change">機種変更時引継ぎコード発行</string>
+    <string name="company_info">逼営会社</string>
+    <string name="user_privacy">採用情報</string>
+
+    <string name="sign_in">ログイン</string>
+    <string name="email_address">メールアドレス</string>
+    <string name="password">パスワード</string>
+    <string name="password_confirm">パスワード (確認)</string>
+
+    <string name="change_avatar">プロフィール写真を変更</string>
+    <string name="user_id">ユーザーID</string>
+    <string name="user_name">ユーザー名</string>
+
+    <string name="gender">性别</string>
+    <string name="province">都道府桌</string>
+
+    <string name="sign_in_with_facebook">Facebook ではじめる</string>
+    <string name="sign_in_with_twitter">Twitter ではじめる</string>
+    <string name="sign_in_with_email">メールアドレスではじめる</string>
+    <string name="skip">スキップ</string>
+
+
+    <string name="already_sign_up"><![CDATA[すでに会員の方は、<a href=\'about:blank\'>こちらへ。</a>]]></string>
+
+    <string name="reserve_by_phone">電話で予約する</string>
+    <string name="staff_description">自己韶介</string>
+    <string name="staff_profile">プロフィール</string>
+    <string name="product_details">商品詳細</string>
+    <string name="size">サイズ</string>
+    <string name="purchase">商品購入ペ一ジへ</string>
+
+    <string name="copy_one">コピ一</string>
+    <string name="coupon_type">クーポンタイプ</string>
+    <string name="validity">有効期間</string>
+    <string name="take_advantage_of_this_coupon">このクーボンを利用す\n(※ Instagramこ移動します。)</string>
+    <string name="this_coupon_cannot_use">このクーポンは使用できません</string>
+    <string name="staff_unknown_button">テキストが入ります</string>
+    <string name="hash_tag_copied">ハッシユタグをコピーしました</string>
+
+    <string name="link">連撈</string>
+
+    <!--Text need verify(transalated by Google-->
+    <string name="disconnect">非接続</string>
+    <string name="close">閉じる</string>
+    <string name="cancel">キャンセル</string>
+    <string name="yes">はい</string>
+    <string name="no">いいえ</string>
+    <string name="on">オン</string>
+    <string name="off">オフ</string>
+    <string name="exit">エグジット</string>
+    <string name="warning">警告</string>
+    <string name="error">エラー</string>
+    <string name="info">通知</string>
+
+    <string name="sign_up">新規会員</string>
+    <string name="sign_out">ログアウト</string>
+    <string name="undefined">未定義</string>
+    <string name="gender_male">男性</string>
+    <string name="gender_female">女性</string>
+
+    <string name="image_description">画像記述</string>
+    <string name="not_sign_up"><![CDATA[アカウントを持っていない、<a href=\'about:blank\'>こちらへ。</a>]]></string>
+    <string name="msg_input_a_valid_email_address">有効なメールアドレスを入力してください</string>
+    <string name="msg_input_name">ユーザ名を入力してください</string>
+    <string name="msg_input_password_confirm">確認パスワードを入力してください</string>
+    <string name="msg_input_correct_confirm_password">確認パスワードが正しくありません</string>
+    <string name="msg_input_password">パスワードを入力してください</string>
+    <string name="msg_exit_confirm">アプリを完了しますか？</string>
+    <string name="msg_sign_out_confirm">アプリをログアウトしますか？</string>
+    <string name="msg_unable_to_sign_out">ログアウトすることはできません</string>
+    <string name="msg_unable_to_sign_in">ログインできません</string>
+    <string name="msg_unable_to_sign_up">新規会員登録できません</string>
+    <string name="msg_not_sign_in">まだログインしていません！</string>
+
+    <string name="msg_enter_email_and_name">メールとユーザ名を入力してください</string>
+    <string name="msg_invalid_response_data">データエラー</string>
+
+    <!-- Hokkaidō -->
+    <string name="hokkaido">北海道</string>
+    <!-- Tōhoku -->
+    <string name="aomori">青森県</string>
+    <string name="iwate">岩手県</string>
+    <string name="miyagi">宮城県</string>
+    <string name="akita">秋田県</string>
+    <string name="yamagata">山形県</string>
+    <string name="fukushima">福島県</string>
+    <!-- Kantō -->
+    <string name="ibaraki">茨城県</string>
+    <string name="tochigi">栃木県</string>
+    <string name="gunma">群馬県</string>
+    <string name="saitama">埼玉県</string>
+    <string name="chiba">千葉県</string>
+    <string name="tokyo">東京都</string>
+    <string name="kanagawa">神奈川県</string>
+    <!-- Chūbu -->
+    <string name="niigata">新潟県</string>
+    <string name="toyama">富山県</string>
+    <string name="ishikawa">石川県</string>
+    <string name="fukui">福井県</string>
+    <string name="yamanashi">山梨県</string>
+    <string name="nagano">長野県</string>
+    <string name="gifi">岐阜県</string>
+    <string name="shizouka">静岡県</string>
+    <string name="aichi">愛知県</string>
+    <!-- Kansai -->
+    <string name="mie">三重県</string>
+    <string name="shiga">滋賀県</string>
+    <string name="kyoto">京都府</string>
+    <string name="osaka">大阪府</string>
+    <string name="hyogo">兵庫県</string>
+    <string name="nara">奈良県</string>
+    <string name="wakayama">和歌山県</string>
+    <!-- Chūgoku -->
+    <string name="tottori">鳥取県</string>
+    <string name="shimane">島根県</string>
+    <string name="okayama">岡山県</string>
+    <string name="hiroshima">広島県</string>
+    <string name="yamaguchi">山口県</string>
+    <!-- Shikoku -->
+    <string name="tokushima">徳島県</string>
+    <string name="kagawa">香川県</string>
+    <string name="ehime">愛媛県</string>
+    <string name="kochi">高知県</string>
+    <!-- Kyūshū -->
+    <string name="fukuoka">福岡県</string>
+    <string name="saga">佐賀県</string>
+    <string name="nagasaki">長崎県</string>
+    <string name="kumamoto">熊本県</string>
+    <string name="oita">大分県</string>
+    <string name="miyazaki">宮崎県</string>
+    <string name="kogoshima">鹿児島県</string>
+    <string name="okinawa">沖縄県</string>
+
+    <!--Text need translate-->
+    <string name="ok">OK</string>
+    <string name="retry">リトライ</string>
+    <string name="try_again">再度お試しください</string>
+
+    <string name="title_select_avatar_image">アバターを選択</string>
+    <string name="title_select_or_capture_picture">写真を撮るまたはギャラリーから選択</string>
+
+    <string name="msg_signing_in">ログイン中…</string>
+    <string name="msg_signing_up">登録中…</string>
+    <string name="msg_signing_out">ログアウト中…</string>
+    <string name="msg_updating_profile">プロフィールを更新中…</string>
+    <string name="msg_loading_profile">ちょっとお待ちください…</string>
+    <string name="msg_please_wait">ちょっとお待ちください…</string>
+    <string name="msg_saving">保存中…</string>
+    <string name="msg_connection_required">ネットワークに接続できません</string>
+    <string name="msg_connection_timedout_try_again">サーバーに接続できません。</string>
+    <string name="msg_starting_up">起動中…</string>
+    <string name="msg_loading">ちょっとお待ちください…</string>
+    <string name="msg_link_with_facebook">ちょっとお待ちください…</string>
+    <string name="msg_link_with_twitter">ちょっとお待ちください…</string>
+    <string name="msg_link_with_instagram">ちょっとお待ちください…</string>
+    <string name="msg_no_content">データがありません</string>
+    <string name="msg_save_profile_confirm">データが変更されています。保存しますか？</string>
+    <string name="msg_updating">Updating...</string>
+
+
+    <!--Newly added-->
+    <string name="my_page">MY PAGE</string>
+    <string name="coupon_detail">COUPON DETAIL</string>
+    <string name="coupon_request">COUPON REQUEST</string>
+    <string name="qr_reader">QR READER</string>
+    <string name="coupon_content">USE PROMOTION CODE</string>
+    <string name="coupon_off_detail">40% OFF</string>
+    <string name="use_coupon">USE COUPON</string>
+    <string name="accept">Accept</string>
+    <string name="reject">Reject</string>
+
+</resources>
