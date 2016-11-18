@@ -7,8 +7,7 @@ import java.io.OutputStream;
 
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
-import jp.tenposs.datamodel.ItemDetail;
-import jp.tenposs.datamodel.ItemsInfo;
+import jp.tenposs.datamodel.ItemDetailInfo;
 import jp.tenposs.datamodel.Key;
 
 /**
@@ -22,10 +21,9 @@ public class ItemDetailCommunicator extends TenpossCommunicator {
     @Override
     protected boolean request(Bundle bundle) {
         String strUrl;
-        ItemDetail.Request requestData = (ItemDetail.Request) bundle.getSerializable(Key.RequestObject);
+        ItemDetailInfo.Request requestData = (ItemDetailInfo.Request) bundle.getSerializable(Key.RequestObject);
         strUrl = API_ITEMS_DETAIL + requestData.makeParams();
         int result = TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal();
-        byte[] dataRequest = null;
         OutputStream output = null;
 
         try {
@@ -38,7 +36,7 @@ public class ItemDetailCommunicator extends TenpossCommunicator {
         result = request(strUrl, output, bundle);
         if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
             String strResponse = output.toString();
-            CommonResponse response = (ItemsInfo.Response) CommonObject.fromJSONString(strResponse, ItemDetail.Response.class, null);
+            CommonResponse response = (ItemDetailInfo.Response) CommonObject.fromJSONString(strResponse, ItemDetailInfo.Response.class, null);
             if (response == null) {
                 response = (CommonResponse) CommonObject.fromJSONString(strResponse, CommonResponse.class, null);
             }

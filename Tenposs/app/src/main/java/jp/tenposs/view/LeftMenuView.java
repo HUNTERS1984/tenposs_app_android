@@ -1,6 +1,7 @@
 package jp.tenposs.view;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,11 +24,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import jp.tenposs.datamodel.AppData;
 import jp.tenposs.datamodel.AppInfo;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.SignInInfo;
 import jp.tenposs.tenposs.AbstractFragment;
 import jp.tenposs.tenposs.R;
+import jp.tenposs.utils.FontIcon;
 import jp.tenposs.utils.Utils;
 
 
@@ -55,7 +58,11 @@ public class LeftMenuView extends FrameLayout {
         public View getView(int position, View convertView, ViewGroup parent) {
             View row;
             if (null == convertView) {
-                row = mInflater.inflate(R.layout.nav_content_item, null);
+                if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+                    row = mInflater.inflate(R.layout.nav_content_item, null);
+                } else {
+                    row = mInflater.inflate(R.layout.nav_content_item, null);
+                }
             } else {
                 row = convertView;
             }
@@ -74,14 +81,29 @@ public class LeftMenuView extends FrameLayout {
                     ex.printStackTrace();
                 }
             }
-            menuTitle.setTextColor(mSettings.getMenuItemTitleColor());
-//            menuIcon.setImageBitmap(ThemifyIcon.fromThemifyIcon(getContext().getAssets(),
-//                    item.icon,
-//                    60,
-//                    Color.argb(0, 0, 0, 0),
-//                    mSettings.getMenuIconColor()
-//            ));
-            menuIcon.setImageBitmap(MenuIcon.getInstance().getIconBitmapWithId(item.id));
+
+            if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+                menuTitle.setTextColor(Color.WHITE);
+            } else {
+                menuTitle.setTextColor(mSettings.getMenuItemTitleColor());
+            }
+
+            if (item.fontType != 0) {
+                menuIcon.setImageBitmap(FontIcon.imageForFontIdentifier(getContext().getAssets(),
+                        item.icon,
+                        Utils.NavIconSize,
+                        Color.argb(0, 0, 0, 0),
+                        Color.argb(200, 214, 218, 222),
+                        item.fontType
+                ));
+            } else {
+                if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+                    menuIcon.setImageDrawable(MenuIcon.getInstance().getIconDrawableWithId(mContext, item.id));
+                } else {
+                    menuIcon.setImageBitmap(MenuIcon.getInstance().getIconBitmapWithId(item.id));
+                }
+            }
+
             return row;
         }
     }
@@ -91,6 +113,7 @@ public class LeftMenuView extends FrameLayout {
     LinearLayout mMainLayout;
     CircleImageView mUserAvatarImage;
     TextView mUserNameLabel;
+    TextView mUserEmailLabel;
 
     Button mUserInfoButton;
     Button mSignInButton;
@@ -133,6 +156,7 @@ public class LeftMenuView extends FrameLayout {
         this.mSignInButton = (Button) rootView.findViewById(R.id.sign_in_button);
         this.mUserAvatarImage = (CircleImageView) rootView.findViewById(R.id.user_avatar_image);
         this.mUserNameLabel = (TextView) rootView.findViewById(R.id.user_name_label);
+        this.mUserEmailLabel = (TextView) rootView.findViewById(R.id.email_label);
         this.mListView = (ListView) rootView.findViewById(R.id.list_view);
 
         this.mSignInButton.setVisibility(View.VISIBLE);
@@ -152,7 +176,7 @@ public class LeftMenuView extends FrameLayout {
             public void onClick(View v) {
                 if (onItemClickListener != null) {
                     Bundle params = new Bundle();
-                    params.putInt(AbstractFragment.SCREEN_DATA, AbstractFragment.PROFILE_SCREEN);
+                    params.putInt(AbstractFragment.SCREEN_DATA, AbstractFragment.MY_PAGE_SCREEN);
                     onItemClickListener.onClick(-1, params);
                 }
             }
@@ -173,42 +197,71 @@ public class LeftMenuView extends FrameLayout {
         if (this.mUserProfile != null) {
             mUserNameLabel.setText(userProfile.profile.name);
 
+            if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && userProfile.getEmail().length() > 0) {
+                this.mUserEmailLabel.setVisibility(VISIBLE);
+                this.mUserEmailLabel.setText(userProfile.getEmail());
+            } else {
+                this.mUserEmailLabel.setVisibility(GONE);
+            }
             reloadUserInfo(mUserProfile);
 
             mUserInfoButton.setVisibility(View.VISIBLE);
             mSignInButton.setVisibility(View.GONE);
-            this.mScreenData.add(new AppInfo.SideMenu(AbstractFragment.SIGN_OUT_SCREEN, mContext.getString(R.string.sign_out), "ti-unlock"));
+
+
+            addSignOutMenu();
         } else {
             mUserNameLabel.setText(mContext.getString(R.string.sign_in));
             mUserInfoButton.setVisibility(View.GONE);
             mSignInButton.setVisibility(View.VISIBLE);
             mUserAvatarImage.setImageBitmap(null);
             mUserAvatarImage.setImageResource(R.drawable.no_avatar);
+            removeSignOutMenu();
         }
 
         this.mSignInButton.setTextColor(settings.getMenuItemTitleColor());
-        this.mMainLayout.setBackgroundColor(this.mSettings.getMenuBackgroundColor());
-        if (this.mAdapter == null) {
-            this.mAdapter = new LeftMenuAdapter(mContext, R.layout.nav_content_item, mScreenData);
-            this.mListView.setAdapter(mAdapter);
-            this.mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                    if (onItemClickListener != null) {
-                        final Handler handler = new Handler();
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                Bundle params = new Bundle();
-                                params.putSerializable(Key.RequestObject, mScreenData.get(position));
-                                onItemClickListener.onClick(position, params);
-                            }
-                        }, 200);
-                    }
-                }
-            });
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            this.mMainLayout.setBackgroundResource(R.drawable.restaurant_menu_bg);
         } else {
-            this.mAdapter.notifyDataSetChanged();
+            this.mMainLayout.setBackgroundColor(this.mSettings.getMenuBackgroundColor());
+        }
+//        if (this.mAdapter == null) {
+        this.mAdapter = new LeftMenuAdapter(mContext, R.layout.nav_content_item, mScreenData);
+        this.mListView.setAdapter(mAdapter);
+        this.mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                if (onItemClickListener != null) {
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Bundle params = new Bundle();
+                            params.putSerializable(Key.RequestObject, mScreenData.get(position));
+                            onItemClickListener.onClick(position, params);
+                        }
+                    }, 200);
+                }
+            }
+        });
+//        } else {
+//            this.mAdapter.setData(this.mScreenData);
+//            this.mAdapter.notifyDataSetChanged();
+    }
+
+
+    private void addSignOutMenu() {
+        AppInfo.SideMenu signOutMenu = new AppInfo.SideMenu(AbstractFragment.SIGN_OUT_SCREEN, mContext.getString(R.string.sign_out), "ti-unlock");
+        signOutMenu.fontType = FontIcon.THEMIFY;
+        this.mScreenData.add(signOutMenu);
+    }
+
+    private void removeSignOutMenu() {
+        for (AppInfo.SideMenu menu : this.mScreenData) {
+            if (menu.id == AbstractFragment.SIGN_OUT_SCREEN) {
+                this.mScreenData.remove(menu);
+                return;
+            }
         }
     }
 

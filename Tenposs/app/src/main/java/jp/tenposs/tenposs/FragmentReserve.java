@@ -8,6 +8,7 @@ import java.util.Locale;
 
 import jp.tenposs.communicator.ReserveInfoCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
+import jp.tenposs.datamodel.AppData;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.ReserveInfo;
@@ -40,8 +41,13 @@ public class FragmentReserve extends FragmentWebView {
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.reserve);
-        mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
-        mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+        } else {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        }
     }
 
     @Override
@@ -73,14 +79,26 @@ public class FragmentReserve extends FragmentWebView {
 
     @Override
     void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
-        if (savedInstanceState.containsKey(SCREEN_DATA)) {
-            //this.mScreenData = (TopInfo.Response.ResponseData) savedInstanceState.getSerializable(SCREEN_DATA);
+        super.loadSavedInstanceState(savedInstanceState);
+
+        if (savedInstanceState.containsKey(SCREEN_DATA) == true) {
+            this.mScreenData = (ReserveInfo.Reserve) savedInstanceState.getSerializable(SCREEN_DATA);
+        }
+        if (savedInstanceState.containsKey(STORE_INFO) == true) {
+            this.mStoreInfo = (TopInfo.Contact) savedInstanceState.getSerializable(STORE_INFO);
         }
     }
 
     @Override
     void customSaveInstanceState(Bundle outState) {
+        super.customSaveInstanceState(outState);
+        if (this.mScreenData != null) {
+            outState.putSerializable(SCREEN_DATA, this.mScreenData);
+        }
 
+        if (this.mStoreInfo != null) {
+            outState.putSerializable(STORE_INFO, this.mStoreInfo);
+        }
     }
 
     @Override
@@ -90,7 +108,11 @@ public class FragmentReserve extends FragmentWebView {
 
     @Override
     boolean canCloseByBackpressed() {
-        return false;
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     void loadReserveInfo() {
@@ -107,6 +129,9 @@ public class FragmentReserve extends FragmentWebView {
                 new TenpossCommunicator.TenpossCommunicatorListener() {
                     @Override
                     public void completed(TenpossCommunicator request, Bundle responseParams) {
+                        if(isAdded() == false){
+                            return;
+                        }
                         int result = responseParams.getInt(Key.ResponseResult);
                         if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
                             int resultApi = responseParams.getInt(Key.ResponseResultApi);
@@ -119,6 +144,8 @@ public class FragmentReserve extends FragmentWebView {
 
                                     if (strTemp.contains("http://") == false && strTemp.contains("https://") == false)
                                         mUrl = "http://" + strUrl;
+                                    else
+                                        mUrl = strUrl;
 
                                     previewScreenData();
                                 } else {

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/fragment_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/card_view_outer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="20dp"
+        card_view:cardBackgroundColor="@android:color/transparent"
+        card_view:cardCornerRadius="10dp">
+
+        <android.support.percent.PercentRelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/coupon_image"
+                android:contentDescription="@string/image_description"
+                android:scaleType="centerCrop"
+                app:layout_aspectRatio="200%"
+                app:layout_widthPercent="100%" />
+
+            <LinearLayout
+                android:id="@+id/coupon_info_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/coupon_image"
+                android:layout_margin="10dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:orientation="horizontal"
+                    android:padding="5dip">
+
+                    <TextView
+                        android:id="@+id/coupon_id_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ID123456"
+                        android:textAppearance="@android:style/TextAppearance.Small"
+                        android:textColor="@color/description_text_color" />
+
+                    <TextView
+                        android:id="@+id/coupon_separate_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:text="・"
+                        android:textAppearance="@android:style/TextAppearance.Small"
+                        android:textColor="@color/description_text_color" />
+
+                    <TextView
+                        android:id="@+id/coupon_type_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:text="@string/coupon_type"
+                        android:textAppearance="@android:style/TextAppearance.Small"
+                        android:textColor="@color/description_text_color" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/coupon_name_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="5dip"
+                    android:text="item_brand_label"
+                    android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+                    android:textColor="@android:color/black"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="5dip">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/validity"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+                        android:textColor="@color/restaurant_text_color" />
+
+                    <TextView
+                        android:id="@+id/validity_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:text="2016年7月7日まで"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+                        android:textColor="@color/restaurant_text_color" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/coupon_barcode_image"
+                android:layout_below="@+id/coupon_info_layout"
+                android:layout_centerHorizontal="true"
+                android:contentDescription="@string/image_description"
+                android:scaleType="centerCrop"
+                app:layout_aspectRatio="100%"
+                app:layout_widthPercent="50%" />
+
+            <Button
+                android:id="@+id/use_coupon_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/coupon_barcode_image"
+                android:layout_margin="10dp"
+                android:background="@drawable/restaurant_use_button"
+                android:text="@string/use"
+                android:textColor="@android:color/white" />
+        </android.support.percent.PercentRelativeLayout>
+    </android.support.v7.widget.CardView>
+</RelativeLayout>

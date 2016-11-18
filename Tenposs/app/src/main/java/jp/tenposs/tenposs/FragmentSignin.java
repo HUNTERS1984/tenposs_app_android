@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.text.style.ClickableSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +37,7 @@ import jp.tenposs.communicator.SetPushKeyCommunicator;
 import jp.tenposs.communicator.SocialSignInCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
 import jp.tenposs.communicator.UserInfoCommunicator;
+import jp.tenposs.datamodel.AppData;
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
@@ -44,7 +46,7 @@ import jp.tenposs.datamodel.SetPushKeyInfo;
 import jp.tenposs.datamodel.SignInInfo;
 import jp.tenposs.datamodel.SocialSigninInfo;
 import jp.tenposs.datamodel.UserInfo;
-import jp.tenposs.utils.FlatIcon;
+import jp.tenposs.utils.FontIcon;
 import jp.tenposs.utils.Utils;
 
 /**
@@ -75,6 +77,10 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
     ProfileTracker mProfileTracker;
     CallbackManager mCallbackManager;
 
+    private FragmentSignIn() {
+
+    }
+
     public static FragmentSignIn newInstance(boolean showToolbar, String appTitle) {
         FragmentSignIn instance = new FragmentSignIn();
         Bundle bundle = new Bundle();
@@ -88,7 +94,7 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        System.out.println("onActivityResult " + requestCode + " - " + System.currentTimeMillis());
+        Log.i(Tag, "onActivityResult " + requestCode + " - " + System.currentTimeMillis());
         this.mCallbackManager.onActivityResult(requestCode, resultCode, data);
         this.mTwitterLogin.onActivityResult(requestCode, resultCode, data);
     }
@@ -130,7 +136,12 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
 
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_signin, null);
+        View root;
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            root = inflater.inflate(R.layout.restaurant_fragment_signin, null);
+        } else {
+            root = inflater.inflate(R.layout.fragment_signin, null);
+        }
 
         this.mAppTitle = (TextView) root.findViewById(R.id.app_title);
         this.mSignInGroupLayout = (LinearLayout) root.findViewById(R.id.sign_in_group_layout);
@@ -176,7 +187,7 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
             public void onSuccess(LoginResult loginResult) {
                 // App code
 
-                System.out.println("onSuccess " + System.currentTimeMillis());
+                Log.i(Tag, "onSuccess " + System.currentTimeMillis());
                 //Save AccessToken
                 final String token = loginResult.getAccessToken().getToken();
                 setPref(Key.FacebookTokenKey, token);
@@ -244,25 +255,28 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
             }
         });
 
-        mFacebookIcon.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
+        mFacebookIcon.setImageBitmap(FontIcon.imageForFontIdentifier(getContext().getAssets(),
                 "flaticon-facebook",
-                40,
+                Utils.CatIconSize,
                 Color.argb(0, 0, 0, 0),
-                Color.argb(255, 255, 255, 255)
+                Color.argb(255, 255, 255, 255),
+                FontIcon.FLATICON
         ));
 
-        mTwitterIcon.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
+        mTwitterIcon.setImageBitmap(FontIcon.imageForFontIdentifier(getContext().getAssets(),
                 "flaticon-twitter",
-                40,
+                Utils.CatIconSize,
                 Color.argb(0, 0, 0, 0),
-                Color.argb(255, 255, 255, 255)
+                Color.argb(255, 255, 255, 255),
+                FontIcon.FLATICON
         ));
 
-        mEmailIcon.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
+        mEmailIcon.setImageBitmap(FontIcon.imageForFontIdentifier(getContext().getAssets(),
                 "flaticon-email",
-                40,
+                Utils.CatIconSize,
                 Color.argb(0, 0, 0, 0),
-                Color.argb(255, 255, 255, 255)
+                Color.argb(255, 255, 255, 255),
+                FontIcon.FLATICON
         ));
 
 
@@ -361,9 +375,12 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
                 new TenpossCommunicator.TenpossCommunicatorListener() {
                     @Override
                     public void completed(TenpossCommunicator request, Bundle responseParams) {
+                        if (isAdded() == false) {
+                            return;
+                        }
                         int result = responseParams.getInt(Key.ResponseResult);
                         if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                            hideProgress();
+                            Utils.hideProgress();
                             int resultApi = responseParams.getInt(Key.ResponseResultApi);
                             if (resultApi == CommonResponse.ResultSuccess) {
                                 SignInInfo.Response response = (SignInInfo.Response) responseParams.get(Key.ResponseObject);
@@ -395,7 +412,7 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
                         }
                     }
                 });
-        showProgress(getString(R.string.msg_signing_in));
+        Utils.showProgress(getContext(), getString(R.string.msg_signing_in));
         communicator.execute(params);
     }
 
@@ -425,7 +442,9 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
                     new TenpossCommunicator.TenpossCommunicatorListener() {
                         @Override
                         public void completed(TenpossCommunicator request, Bundle responseParams) {
-
+                            if (isAdded() == false) {
+                                return;
+                            }
                             int result = responseParams.getInt(Key.ResponseResult);
                             if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
                                 int resultApi = responseParams.getInt(Key.ResponseResultApi);
@@ -446,7 +465,7 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
                                     errorWithMessage(responseParams, strMessage);
                                 }
                             } else {
-                                hideProgress();
+                                Utils.hideProgress();
                                 //clear token
                                 setPref(Key.TokenKey, "");
                                 setPref(Key.UserProfile, "");
@@ -455,7 +474,7 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
                             }
                         }
                     });
-            showProgress(getString(R.string.msg_loading_profile));
+            Utils.showProgress(getContext(), getString(R.string.msg_loading_profile));
             communicator.execute(params);
         }
     }
@@ -473,7 +492,10 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
                     new TenpossCommunicator.TenpossCommunicatorListener() {
                         @Override
                         public void completed(TenpossCommunicator request, Bundle responseParams) {
-                            hideProgress();
+                            if (isAdded() == false) {
+                                return;
+                            }
+                            Utils.hideProgress();
                             int result = responseParams.getInt(Key.ResponseResult);
                             if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
                                 int resultApi = responseParams.getInt(Key.ResponseResultApi);
@@ -494,10 +516,10 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
                             }
                         }
                     });
-            showProgress(getString(R.string.msg_loading_profile));
+            Utils.showProgress(getContext(), getString(R.string.msg_loading_profile));
             communicator.execute(params);
         } else {
-            hideProgress();
+            Utils.hideProgress();
             close();
             mActivityListener.showScreen(HOME_SCREEN, null);
         }

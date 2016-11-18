@@ -13,6 +13,8 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.io.Serializable;
+
 import jp.tenposs.datamodel.CouponInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.view.AspectRatioImageView;
@@ -38,6 +40,19 @@ public class FragmentCouponDetail extends AbstractFragment {
     LinearLayout mCouponCannotUseLayout;
 
     CouponInfo.Coupon mScreenData;
+
+
+    private FragmentCouponDetail() {
+
+    }
+
+    public static FragmentCouponDetail newInstance(Serializable extras) {
+        FragmentCouponDetail fragment = new FragmentCouponDetail();
+        Bundle b = new Bundle();
+        b.putSerializable(AbstractFragment.SCREEN_DATA, extras);
+        fragment.setArguments(b);
+        return fragment;
+    }
 
     @Override
     protected boolean customClose() {
@@ -68,8 +83,8 @@ public class FragmentCouponDetail extends AbstractFragment {
 
         Picasso ps = Picasso.with(getContext());
         ps.load(mScreenData.getImageUrl())
-                .resize(mFullImageSize, mFullImageSize)
-                .centerCrop()
+//                .resize(mFullImageSize, mFullImageSize)
+//                .centerCrop()
                 .into(mCouponImage);
 
         this.mCouponIdLabel.setText(Integer.toString(mScreenData.id));
@@ -124,9 +139,9 @@ public class FragmentCouponDetail extends AbstractFragment {
                 //Use coupon
                 //generate barcode
                 //show Popup
-                PopupCouponQR qrPreview = new PopupCouponQR(getContext());
-                //photoPreview.setData(extras);
-                qrPreview.show();
+                PopupUseCoupon popupUseCoupon = new PopupUseCoupon(getContext());
+                popupUseCoupon.setData(mScreenData);
+                popupUseCoupon.show();
             }
         });
         return root;

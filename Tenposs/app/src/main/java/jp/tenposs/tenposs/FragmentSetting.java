@@ -11,6 +11,7 @@ import android.widget.Button;
 import jp.tenposs.communicator.GetPushSettingsCommunicator;
 import jp.tenposs.communicator.SetPushSettingsCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
+import jp.tenposs.datamodel.AppData;
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
@@ -36,6 +37,20 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
     PushInfo.Response mScreenData;
     PushInfo.Response mScreenDataTemp;
 
+    private FragmentSetting() {
+
+    }
+
+    public static FragmentSetting newInstance(String title, int storeId) {
+        FragmentSetting fragment = new FragmentSetting();
+        Bundle b = new Bundle();
+        b.putString(AbstractFragment.SCREEN_TITLE, title);
+        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
+        fragment.setArguments(b);
+        return fragment;
+    }
+
+
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
@@ -52,8 +67,13 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.setting);
-        mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
-        mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+        } else {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        }
     }
 
     @Override
@@ -118,7 +138,7 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
             if (this.mScreenData == null) {
                 Bundle params = new Bundle();
 
-                showProgress(getString(R.string.msg_loading));
+                Utils.showProgress(getContext(), getString(R.string.msg_loading));
                 PushInfo.RequestGet request = new PushInfo.RequestGet();
                 request.token = getPrefString(Key.TokenKey);
                 params.putSerializable(Key.RequestObject, request);
@@ -126,7 +146,10 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
                         new TenpossCommunicator.TenpossCommunicatorListener() {
                             @Override
                             public void completed(TenpossCommunicator request, Bundle responseParams) {
-                                hideProgress();
+                                if (isAdded() == false) {
+                                    return;
+                                }
+                                Utils.hideProgress();
                                 int result = responseParams.getInt(Key.ResponseResult);
                                 if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
                                     int resultApi = responseParams.getInt(Key.ResponseResultApi);
@@ -179,7 +202,11 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
 
     @Override
     boolean canCloseByBackpressed() {
-        return false;
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -203,7 +230,7 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
             }
 
         } else if (v == this.mIssueButton) {
-            this.mActivityListener.showScreen(AbstractFragment.ISSUE_INFO_SCREEN, null);
+            this.mActivityListener.showScreen(AbstractFragment.CHANGE_DEVICE_SCREEN, null);
 
         } else if (v == this.mCompanyInfoButton) {
             this.mActivityListener.showScreen(AbstractFragment.COMPANY_INFO_SCREEN, null);
@@ -222,7 +249,7 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
     }
 
     private void updatePushSettings() {
-        showProgress(getString(R.string.msg_updating));
+        Utils.showProgress(getContext(), getString(R.string.msg_updating));
 
         Bundle params = new Bundle();
         PushInfo.RequestSet request = new PushInfo.RequestSet();
@@ -237,7 +264,10 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
                 new TenpossCommunicator.TenpossCommunicatorListener() {
                     @Override
                     public void completed(TenpossCommunicator request, Bundle responseParams) {
-                        hideProgress();
+                        if (isAdded() == false) {
+                            return;
+                        }
+                        Utils.hideProgress();
                         int result = responseParams.getInt(Key.ResponseResult);
                         if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
                             int resultApi = responseParams.getInt(Key.ResponseResultApi);

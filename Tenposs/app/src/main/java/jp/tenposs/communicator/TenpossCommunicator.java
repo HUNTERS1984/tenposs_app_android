@@ -33,48 +33,38 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
 
     public final static String WEB_ADDRESS = "https://ten-po.com/";
     public final static String DOMAIN_ADDRESS = "https://api.ten-po.com/";
-    private final static String API_ADDRESS = DOMAIN_ADDRESS + "api/v1";
+    public final static String DOMAIN_POINT_ADDRESS = "https://apipoints.ten-po.com/";
+    public final static String DOMAIN_STAFF_ADDRESS = "https://apistaffs.ten-po.com/";
+    public final static String DOMAIN_AUTH_ADDRESS = "https://auth.ten-po.com/";
 
-    public final static String API_SIGN_IN = API_ADDRESS + "/signin?";
-    public final static String API_SOCIAL_SIGN_IN = API_ADDRESS + "/social_login?";
-    public final static String API_SIGN_UP = API_ADDRESS + "/signup?";
-    public final static String API_SIGN_OUT = API_ADDRESS + "/signout?";
-    public final static String API_PROFILE = API_ADDRESS + "/profile?";
-    public final static String API_UPDATE_PROFILE = API_ADDRESS + "/update_profile?";
 
-    public final static String API_TOP = API_ADDRESS + "/top?";
-    public final static String API_MENU = API_ADDRESS + "/menu?";
-    public final static String API_APPINFO = API_ADDRESS + "/appinfo?";
+    //POST API
+    public final static String API_SIGN_IN = DOMAIN_ADDRESS + "api/v1/signin";
+    public final static String API_SOCIAL_SIGN_IN = DOMAIN_ADDRESS + "api/v1/social_login";
+    public final static String API_SIGN_UP = DOMAIN_ADDRESS + "api/v1/signup";
+    public final static String API_UPDATE_PROFILE = DOMAIN_ADDRESS + "api/v1/update_profile";
+    public final static String API_SIGN_OUT = DOMAIN_ADDRESS + "api/v1/signout";
 
-    public final static String API_ITEMS = API_ADDRESS + "/items?";
-    public final static String API_ITEMS_DETAIL = API_ADDRESS + "/items/detail?";
-    public final static String API_ITEMS_RELATE = API_ADDRESS + "/items/related?";
-
-    public final static String API_PHOTO_CAT = API_ADDRESS + "/photo_cat?";
-    public final static String API_PHOTO = API_ADDRESS + "/photo?";
-
-    public final static String API_NEWS = API_ADDRESS + "/news?";
-    public final static String API_NEWS_CATEGORY = API_ADDRESS + "/news_cat?";
-
-    public final static String API_NEWS_DETAIL = API_ADDRESS + "/news/detail?";
-
-    public final static String API_RESERVE = API_ADDRESS + "/reserve?";
-
-    public final static String API_COUPON = API_ADDRESS + "/coupon?";
-    public final static String API_COUPON_DETAIL = API_ADDRESS + "/coupon/detail?";
-
-    public final static String API_APPUSER = API_ADDRESS + "/appuser?";
-
-    public final static String API_SETPUSHKEY = API_ADDRESS + "/set_push_key?";
-
-    public final static String API_STAFF_CATEGORY = API_ADDRESS + "/staff_categories?";
-    public final static String API_STAFFS = API_ADDRESS + "/staffs?";
-
-    public final static String API_SOCIAL_PROFILE = API_ADDRESS + "/social_profile?";
-
-    public final static String API_GET_PUSH_SETTINGS = API_ADDRESS + "/get_push_setting?";
-    public final static String API_SET_PUSH_SETTINGS = API_ADDRESS + "/set_push_setting?";
-
+    //GET API
+    public final static String API_PROFILE = DOMAIN_ADDRESS + "api/v1/profile?";
+    public final static String API_TOP = DOMAIN_ADDRESS + "api/v1/top?";
+    public final static String API_MENU = DOMAIN_ADDRESS + "api/v1/menu?";
+    public final static String API_APP_INFO = DOMAIN_ADDRESS + "api/v1/appinfo?";
+    public final static String API_ITEMS = DOMAIN_ADDRESS + "api/v1/items?";
+    public final static String API_ITEMS_DETAIL = DOMAIN_ADDRESS + "api/v1/item_detail?";
+    public final static String API_ITEMS_RELATED = DOMAIN_ADDRESS + "api/v1/item_related?";
+    public final static String API_PHOTO_CAT = DOMAIN_ADDRESS + "api/v1/photo_cat?";
+    public final static String API_PHOTO = DOMAIN_ADDRESS + "api/v1/photo?";
+    public final static String API_NEWS = DOMAIN_ADDRESS + "api/v1/news?";
+    public final static String API_NEWS_CATEGORY = DOMAIN_ADDRESS + "api/v1/news_cat?";
+    public final static String API_RESERVE = DOMAIN_ADDRESS + "api/v1/reserve?";
+    public final static String API_COUPON = DOMAIN_ADDRESS + "api/v1/coupon?";
+    public final static String API_SET_PUSH_KEY = DOMAIN_ADDRESS + "api/v1/set_push_key?";
+    public final static String API_STAFF_CATEGORY = DOMAIN_ADDRESS + "api/v1/staff_categories?";
+    public final static String API_STAFFS = DOMAIN_ADDRESS + "api/v1/staffs?";
+    public final static String API_SOCIAL_PROFILE = DOMAIN_ADDRESS + "api/v1/social_profile?";
+    public final static String API_GET_PUSH_SETTINGS = DOMAIN_ADDRESS + "api/v1/get_push_setting?";
+    public final static String API_SET_PUSH_SETTINGS = DOMAIN_ADDRESS + "api/v1/set_push_setting?";
 
     public enum CommunicationCode {
 

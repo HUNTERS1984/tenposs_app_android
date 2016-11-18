@@ -23,7 +23,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="60dip"
-            android:layout_marginLeft="10dip"
+            android:layout_marginLeft="@dimen/item_margin"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -51,14 +51,16 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dip"
-            android:layout_marginLeft="10dip"
-            android:layout_marginRight="10dip"
-            android:background="@android:color/darker_gray" />
+            android:layout_marginLeft="@dimen/item_margin"
+            android:layout_marginRight="@dimen/item_margin"
+            android:background="@android:color/darker_gray"
+            android:paddingLeft="@dimen/item_margin"
+            android:paddingRight="@dimen/item_margin" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="60dip"
-            android:layout_marginLeft="10dip"
+            android:layout_marginLeft="@dimen/item_margin"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -86,14 +88,16 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dip"
-            android:layout_marginLeft="10dip"
-            android:layout_marginRight="10dip"
-            android:background="@android:color/darker_gray" />
+            android:layout_marginLeft="@dimen/item_margin"
+            android:layout_marginRight="@dimen/item_margin"
+            android:background="@android:color/darker_gray"
+            android:paddingLeft="@dimen/item_margin"
+            android:paddingRight="@dimen/item_margin" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="60dip"
-            android:layout_marginLeft="10dip"
+            android:layout_marginLeft="@dimen/item_margin"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -117,6 +121,15 @@
                 android:textAppearance="@android:style/TextAppearance.DeviceDefault"
                 android:textColor="@color/phone_text_color" />
         </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dip"
+            android:layout_marginLeft="@dimen/item_margin"
+            android:layout_marginRight="@dimen/item_margin"
+            android:background="@android:color/darker_gray"
+            android:paddingLeft="@dimen/item_margin"
+            android:paddingRight="@dimen/item_margin" />
 
     </LinearLayout>
 

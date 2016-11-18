@@ -11,10 +11,13 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.io.Serializable;
+
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.datamodel.StaffInfo;
 import jp.tenposs.utils.Utils;
 import jp.tenposs.view.AspectRatioImageView;
+import okhttp3.internal.Util;
 
 /**
  * Created by ambient on 7/27/16.
@@ -29,11 +32,26 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
     Button mStaffProfileButton;
     TextView mStaffDescriptionLabel;
     LinearLayout mStaffProfileLayout;
+    TextView mGenderValueLabel;
+    TextView mBirthdayValueLabel;
+    TextView mPhoneValueLabel;
     Button mMoreButton;
 
     boolean mShowDescription = true;
 
     StaffInfo.Staff mScreenData;
+
+    private FragmentStaffDetail() {
+
+    }
+
+    public static FragmentStaffDetail newInstance(Serializable extras) {
+        FragmentStaffDetail fragment = new FragmentStaffDetail();
+        Bundle b = new Bundle();
+        b.putSerializable(AbstractFragment.SCREEN_DATA, extras);
+        fragment.setArguments(b);
+        return fragment;
+    }
 
     @Override
     protected boolean customClose() {
@@ -72,6 +90,19 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
 
         showDescriptionOrProfile();
 
+        try {
+            this.mGenderValueLabel.setText(this.mScreenData.gender);
+        } catch (Exception ignored) {
+        }
+        try {
+            this.mBirthdayValueLabel.setText(Utils.formatDate(this.mScreenData.birthday));
+        } catch (Exception ignored) {
+        }
+        try {
+            this.mPhoneValueLabel.setText(Utils.formatPhone(this.mScreenData.tel));
+        } catch (Exception ignored) {
+        }
+
         mToolbarSettings.toolbarTitle = mScreenData.name;
         updateToolbar();
     }
@@ -87,6 +118,9 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
         this.mStaffProfileButton = (Button) root.findViewById(R.id.staff_profile_button);
         this.mStaffDescriptionLabel = (TextView) root.findViewById(R.id.staff_description_label);
         this.mStaffProfileLayout = (LinearLayout) root.findViewById(R.id.staff_profile_layout);
+        this.mGenderValueLabel = (TextView) root.findViewById(R.id.gender_value_label);
+        this.mBirthdayValueLabel = (TextView) root.findViewById(R.id.birthday_value_label);
+        this.mPhoneValueLabel = (TextView) root.findViewById(R.id.phone_value_label);
         this.mMoreButton = (Button) root.findViewById(R.id.more_button);
 
         this.mStaffDescriptionButton.setOnClickListener(this);

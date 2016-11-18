@@ -5,9 +5,15 @@
     android:id="@+id/fragment_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F8FA"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="jp.tenposs.tenposs.FragmentSignUp">
+
+    <Button
+        android:id="@+id/mask_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/tab_color"
+        android:stateListAnimator="@null" />
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/app_bar"
@@ -36,12 +42,24 @@
                 android:baselineAligned="false"
                 android:orientation="horizontal">
 
-                <ImageButton
-                    android:id="@+id/left_toolbar_button"
+                <RelativeLayout
                     android:layout_width="?attr/actionBarSize"
-                    android:layout_height="?attr/actionBarSize"
-                    android:background="@android:color/transparent"
-                    android:visibility="visible" />
+                    android:layout_height="?attr/actionBarSize">
+
+                    <ImageView
+                        android:id="@+id/left_toolbar_image"
+                        android:layout_width="?attr/actionBarSize"
+                        android:layout_height="?attr/actionBarSize"
+                        android:layout_margin="@dimen/menu_icon_padding" />
+
+                    <ImageButton
+                        android:id="@+id/left_toolbar_button"
+                        android:layout_width="?attr/actionBarSize"
+                        android:layout_height="?attr/actionBarSize"
+                        android:background="@android:color/transparent"
+                        android:visibility="visible" />
+
+                </RelativeLayout>
 
                 <FrameLayout
                     android:id="@+id/nav_center"
@@ -49,7 +67,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1">
 
-                    <jp.tenposs.view.AutoResizeTextView
+                    <TextView
                         android:id="@+id/title_toolbar_label"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -59,18 +77,32 @@
                         android:maxLines="1"
                         android:paddingLeft="5dp"
                         android:paddingRight="5dp"
-                        android:text="@string/app_name"
+                        android:text="@string/sign_up_1"
                         android:textAppearance="@android:style/TextAppearance.Medium"
+                        android:textColor="@android:color/black"
+                        android:textStyle="bold"
                         android:visibility="visible" />
 
                 </FrameLayout>
 
-                <ImageButton
-                    android:id="@+id/right_toolbar_button"
+                <RelativeLayout
+                    android:id="@+id/right_toolbar_layout"
                     android:layout_width="?attr/actionBarSize"
                     android:layout_height="?attr/actionBarSize"
-                    android:background="@android:color/transparent"
-                    android:visibility="invisible" />
+                    android:visibility="invisible">
+
+                    <ImageButton
+                        android:id="@+id/right_toolbar_image"
+                        android:layout_width="?attr/actionBarSize"
+                        android:layout_height="?attr/actionBarSize"
+                        android:layout_margin="@dimen/menu_icon_padding" />
+
+                    <ImageButton
+                        android:id="@+id/right_toolbar_button"
+                        android:layout_width="?attr/actionBarSize"
+                        android:layout_height="?attr/actionBarSize"
+                        android:background="@android:color/transparent" />
+                </RelativeLayout>
 
             </LinearLayout>
         </android.support.v7.widget.Toolbar>
@@ -82,12 +114,6 @@
         android:layout_height="0.5dip"
         android:layout_below="@+id/app_bar"
         android:background="@color/colorSeparate" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/top_separate"
-        android:background="#F8F8FA" />
 
     <View
         android:id="@+id/center_separate"
@@ -113,6 +139,7 @@
             android:background="@android:color/transparent"
             android:hint="@string/email_address"
             android:inputType="textEmailAddress"
+            android:maxLines="1"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
 
         <View
@@ -130,6 +157,7 @@
             android:background="@android:color/transparent"
             android:hint="@string/user_name"
             android:inputType="textPersonName"
+            android:maxLines="1"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
 
         <View
@@ -147,6 +175,7 @@
             android:background="@android:color/transparent"
             android:hint="@string/password"
             android:inputType="textPassword"
+            android:maxLines="1"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
 
         <View
@@ -164,11 +193,12 @@
             android:background="@android:color/transparent"
             android:hint="@string/password_confirm"
             android:inputType="textPassword"
+            android:maxLines="1"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
     </LinearLayout>
 
     <Button
-        android:id="@+id/sign_up_button"
+        android:id="@+id/next_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/info_layout"
@@ -176,14 +206,14 @@
         android:layout_marginRight="@dimen/common_padding"
         android:layout_marginTop="@dimen/common_padding"
         android:background="@drawable/bg_button_ex"
-        android:text="@string/sign_up"
+        android:text="@string/next"
         android:textColor="@android:color/white" />
 
     <TextView
         android:id="@+id/go_to_sign_in_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/sign_up_button"
+        android:layout_below="@+id/next_button"
         android:layout_marginLeft="@dimen/common_padding"
         android:layout_marginRight="@dimen/common_padding"
         android:layout_marginTop="@dimen/common_padding"

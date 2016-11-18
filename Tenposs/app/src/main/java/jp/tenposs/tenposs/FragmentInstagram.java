@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 
+import java.io.Serializable;
+
 import jp.tenposs.datamodel.ScreenDataStatus;
 
 /**
@@ -26,6 +28,16 @@ public class FragmentInstagram extends AbstractFragment {
 // INSTAGRAM APP
     final static String redirectUri = "https://ten-po.com/";
     WebView mWebView;
+
+    private FragmentInstagram() {
+
+    }
+
+    public static FragmentInstagram newInstance(Serializable extras) {
+        FragmentInstagram fragment = new FragmentInstagram();
+        return fragment;
+    }
+
 
     @Override
     protected boolean customClose() {

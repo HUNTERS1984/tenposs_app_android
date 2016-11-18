@@ -5,21 +5,38 @@ package jp.tenposs.adapter;
  */
 public enum RecyclerItemType {
     RecyclerItemTypeNone,
-    RecyclerItemTypeTopImage,
-    RecyclerItemTypeTopItem,
+
+    //DECORATION_NONE
+    RecyclerItemTypeTop,
 
     RecyclerItemTypeHeader,
-    RecyclerItemTypeItemList,
-    RecyclerItemTypeItemStore,
-    RecyclerItemTypeItemGrid,
-    RecyclerItemTypeItemGridImageOnly,
+    RecyclerItemTypeFooter,
+
+    RecyclerItemTypeGrid,
+
+
+    RecyclerItemTypeList,
+    RecyclerItemTypeListDivider,
+
+    RecyclerItemTypeStore,
 
     ///Product
     RecyclerItemTypeProductImage,
     RecyclerItemTypeProductTitle,
     RecyclerItemTypeProductDescription,
 
-    RecyclerItemTypeFooter;
+    //Restaurant Template
+    RecyclerItemTypeProductInfo,
+    RecyclerItemTypeProductDetail,
+
+    RecyclerItemTypeGridImage,
+
+    //DECORATION_MULTI_COLUMN
+
+    RecyclerItemTypeNewsTop,
+
+    RecyclerItemTypeRecyclerHorizontal,
+    RecyclerItemTypeRecyclerVertical,;
 
 
     public static RecyclerItemType fromInt(int recyclerItemType) {

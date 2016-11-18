@@ -1,8 +1,11 @@
 package jp.tenposs.utils;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -12,6 +15,9 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
+import android.net.Uri;
 import android.os.Build;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
@@ -19,9 +25,17 @@ import android.text.SpannableStringBuilder;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 
 import junit.framework.Assert;
 
@@ -36,12 +50,20 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import jp.tenposs.tenposs.MainApplication;
 import jp.tenposs.tenposs.R;
 
 /**
  * Created by ambient on 8/19/16.
  */
 public class Utils {
+
+    public static int NavIconSize = 22;
+
+    public static int CatIconSize = 16;
+
+    private static String Tag = "Utils";
+
     public static long gmtMillis() {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         long time = cal.getTimeInMillis();
@@ -118,22 +140,6 @@ public class Utils {
                                  String positiveButton,
                                  String negativeButton,
                                  DialogInterface.OnClickListener listener) {
-        /*DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case DialogInterface.BUTTON_POSITIVE: {
-                        exitActivity();
-                    }
-                    break;
-
-                    case DialogInterface.BUTTON_NEGATIVE: {
-                    }
-                    break;
-                }
-            }
-        };*/
-
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         if (title != null) {
             builder.setTitle(title);
@@ -146,6 +152,36 @@ public class Utils {
             builder.setNegativeButton(negativeButton, listener);
         }
         builder.show();
+    }
+
+    protected static ProgressDialog mProgressDialog;
+
+    public static void showProgress(Context context, String message) {
+        if (mProgressDialog != null)
+            mProgressDialog.dismiss();
+        mProgressDialog = new ProgressDialog(context);
+        mProgressDialog.setMessage(message);
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgressDialog.setProgress(0);
+        mProgressDialog.setMax(20);
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.show();
+    }
+
+//    public static void changeProgress(String message) {
+//        if (mProgressDialog == null)
+//            showProgress(message);
+//        else
+//            mProgressDialog.setMessage(message);
+//    }
+
+    public static void hideProgress() {
+        try {
+            if (mProgressDialog != null)
+                mProgressDialog.dismiss();
+            mProgressDialog = null;
+        } catch (Exception ignored) {
+        }
     }
 
     public static int atoi(String input) {
@@ -312,5 +348,92 @@ public class Utils {
             return defaultUrl;
         }
     }
+
+    public static boolean isRealDevice(Context context) {
+        boolean emu = false;
+
+        SensorManager manager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+        if (manager.getSensorList(Sensor.TYPE_ALL).isEmpty()) {
+            Log.i(Tag, "running on an emulator");
+            emu = true;
+        } else {
+            Log.i(Tag, "running on a device");
+            emu = false;
+        }
+
+        String manu = Build.MANUFACTURER;
+
+        Log.i(Tag, "manu " + manu);
+
+        emu |= manu.equals("unknown") || manu.equals("Genymotion");
+
+//        return !emu;
+        //TODO: debug only
+        return true;
+    }
+
+    public static String getDeviceId(Context context) {
+        return "";
+    }
+
+
+    public static String getPrefString(Context context, String key) {
+        SharedPreferences mAppPreferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE);
+        return mAppPreferences.getString(key, "");
+    }
+
+    public static boolean setPrefString(Context context, String key, String value) {
+        SharedPreferences mAppPreferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE);
+        boolean ret;
+        SharedPreferences.Editor editor = mAppPreferences.edit();
+        editor.putString(key, value);
+        ret = editor.commit();
+        return ret;
+    }
+
+
+    public static String formatDate(String birthday) {
+        return birthday;
+    }
+
+    public static String formatPhone(String tel) {
+        return tel;
+    }
+
+    public static int convertDpToPixel(float dp) {
+        Resources resources = MainApplication.getContext().getResources();
+        DisplayMetrics metrics = resources.getDisplayMetrics();
+        float px = dp * ((float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+        return (int) px;
+    }
+
+    public static int getColor(Context context, int colorId) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return context.getResources().getColor(colorId, null);
+        } else {
+            return context.getResources().getColor(colorId);
+        }
+    }
+
+    public static void generateQRCode(String data, ImageView imageView, int size) throws WriterException {
+        com.google.zxing.Writer writer = new QRCodeWriter();
+        String finaldata = Uri.encode(data, "utf-8");
+
+        BitMatrix bm = writer.encode(finaldata, BarcodeFormat.QR_CODE, size, size);
+        Bitmap ImageBitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+
+        for (int i = 0; i < size; i++) {//width
+            for (int j = 0; j < size; j++) {//height
+                ImageBitmap.setPixel(i, j, bm.get(i, j) ? Color.BLACK : Color.WHITE);
+            }
+        }
+
+        if (ImageBitmap != null) {
+            imageView.setImageBitmap(ImageBitmap);
+        } else {
+            imageView.setImageBitmap(null);
+        }
+    }
+
 }
 

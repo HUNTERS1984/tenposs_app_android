@@ -22,7 +22,7 @@ public class SetPushKeyCommunicator extends TenpossCommunicator {
 
     @Override
     protected boolean request(Bundle bundle) {
-        String strUrl = API_SETPUSHKEY;
+        String strUrl = API_SET_PUSH_KEY;
         SetPushKeyInfo.Request requestData = (SetPushKeyInfo.Request) bundle.getSerializable(Key.RequestObject);
         bundle.putSerializable(Key.RequestFormData, requestData.getFormData());
         int result = CommunicationCode.ConnectionSuccess.ordinal();

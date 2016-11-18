@@ -48,7 +48,7 @@ public class FilmstripAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        View root = inflater.inflate(R.layout.film_strip_item, null);
+        View root = inflater.inflate(R.layout.common_film_strip_item, null);
 
         ImageView itemThumbnail;
 

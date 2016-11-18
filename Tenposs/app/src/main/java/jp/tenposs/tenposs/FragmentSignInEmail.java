@@ -11,8 +11,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.Serializable;
+
 import jp.tenposs.communicator.SignInCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
+import jp.tenposs.datamodel.AppData;
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
@@ -30,6 +33,15 @@ public class FragmentSignInEmail extends AbstractFragment implements View.OnClic
 
     TextView mGotoSignUpLabel;
     Button mSignInButton;
+
+    private FragmentSignInEmail() {
+
+    }
+
+    public static FragmentSignInEmail newInstance(Serializable extras) {
+        FragmentSignInEmail fragment = new FragmentSignInEmail();
+        return fragment;
+    }
 
     @Override
     protected boolean customClose() {
@@ -61,7 +73,12 @@ public class FragmentSignInEmail extends AbstractFragment implements View.OnClic
 
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View mRoot = inflater.inflate(R.layout.fragment_signin_email, null);
+        View mRoot;
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            mRoot = inflater.inflate(R.layout.restaurant_fragment_signin_email, null);
+        } else {
+            mRoot = inflater.inflate(R.layout.fragment_signin_email, null);
+        }
         mEmailEdit = (EditText) mRoot.findViewById(R.id.email_edit);
         mPasswordEdit = (EditText) mRoot.findViewById(R.id.password_edit);
         mGotoSignUpLabel = (TextView) mRoot.findViewById(R.id.go_to_sign_up_label);
@@ -122,7 +139,10 @@ public class FragmentSignInEmail extends AbstractFragment implements View.OnClic
                         new TenpossCommunicator.TenpossCommunicatorListener() {
                             @Override
                             public void completed(TenpossCommunicator request, Bundle responseParams) {
-                                hideProgress();
+                                if (isAdded() == false) {
+                                    return;
+                                }
+                                Utils.hideProgress();
                                 int result = responseParams.getInt(Key.ResponseResult);
                                 if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
                                     int resultApi = responseParams.getInt(Key.ResponseResultApi);
@@ -156,7 +176,7 @@ public class FragmentSignInEmail extends AbstractFragment implements View.OnClic
                                 }
                             }
                         });
-                showProgress(getString(R.string.msg_signing_in));
+                Utils.showProgress(getContext(), getString(R.string.msg_signing_in));
                 communicator.execute(params);
             }
         }

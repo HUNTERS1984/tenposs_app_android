@@ -29,6 +29,7 @@ public class ProductDescription
 
     Button mProductDetailButton;
     Button mProductSizeButton;
+    TextView mNoDataLabel;
     TextView mProductDescriptionLabel;
     TableView mProductSizeLayout;
     ItemsInfo.Item mViewData;
@@ -55,6 +56,8 @@ public class ProductDescription
         mProductSizeButton = (Button) findViewById(R.id.product_size_button);
         mProductDescriptionLabel = (TextView) findViewById(R.id.product_description_label);
         mProductSizeLayout = (TableView) findViewById(R.id.product_size_layout);
+
+        mNoDataLabel = (TextView) findViewById(R.id.no_data_label);
 
         mProductDetailButton.setOnClickListener(this);
         mProductSizeButton.setOnClickListener(this);
@@ -92,6 +95,14 @@ public class ProductDescription
 
             mProductDescriptionLabel.setVisibility(VISIBLE);
             mProductSizeLayout.setVisibility(GONE);
+
+            if (mViewData.description != null && mViewData.description.length() > 0) {
+                mProductDescriptionLabel.setVisibility(VISIBLE);
+                mNoDataLabel.setVisibility(GONE);
+            } else {
+                mProductDescriptionLabel.setVisibility(GONE);
+                mNoDataLabel.setVisibility(VISIBLE);
+            }
         } else {
             mProductSizeButton.setTextColor(Utils.getColorInt(getContext(), R.color.category_text_color));
             mProductSizeButton.setBackgroundResource(R.drawable.bg_tab_button);
@@ -100,7 +111,14 @@ public class ProductDescription
             mProductDetailButton.setBackgroundResource(R.drawable.bg_tab_button_inactive);
 
             mProductDescriptionLabel.setVisibility(GONE);
-            mProductSizeLayout.setVisibility(VISIBLE);
+
+            if (this.mViewData.hasSizes() == true) {
+                mProductSizeLayout.setVisibility(VISIBLE);
+                mNoDataLabel.setVisibility(GONE);
+            } else {
+                mProductSizeLayout.setVisibility(GONE);
+                mNoDataLabel.setVisibility(VISIBLE);
+            }
         }
     }
 
@@ -196,7 +214,8 @@ public class ProductDescription
             if (convertView == null) {
                 convertView = this.mInflater.inflate(R.layout.item_table_first, parent, false);
             }
-            convertView.setBackgroundResource(row % 2 == 0 ? R.drawable.bg_table_color1 : R.drawable.bg_table_color2);
+//            convertView.setBackgroundResource(row % 2 == 0 ? R.drawable.bg_table_color1 : R.drawable.bg_table_color2);
+            convertView.setBackgroundResource(R.drawable.bg_table_color1);
             ((TextView) convertView.findViewById(android.R.id.text1)).setText(getBodyText(row, column));
             return convertView;
         }
@@ -205,25 +224,26 @@ public class ProductDescription
             if (convertView == null) {
                 convertView = this.mInflater.inflate(R.layout.item_table, parent, false);
             }
-            convertView.setBackgroundResource(row % 2 == 0 ? R.drawable.bg_table_color1 : R.drawable.bg_table_color2);
+//            convertView.setBackgroundResource(row % 2 == 0 ? R.drawable.bg_table_color1 : R.drawable.bg_table_color2);
+            convertView.setBackgroundResource(R.drawable.bg_table_color1);
             ((TextView) convertView.findViewById(android.R.id.text1)).setText(getBodyText(row, column));
             return convertView;
         }
 
         public String getBodyText(int row, int column) {
             int index = 0;
-            int realColum = this.mDataSource.numberOfColumns() + 1;
+            int realColumn = this.mDataSource.numberOfColumns() + 1;
             if (column == -1) {
-                index = (row * realColum);
+                index = (row * realColumn);
             } else {
-                index = (row * realColum) + column + 1;
+                index = (row * realColumn) + column + 1;
             }
             return this.mDataSource.getTableItems().get(index);
         }
 
         @Override
         public int getWidth(int column) {
-            return Math.round(120 * mDensity);
+            return Math.round(100 * mDensity);
         }
 
         @Override

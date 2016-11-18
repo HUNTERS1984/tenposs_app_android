@@ -71,12 +71,21 @@ public class SignInInfo {
 
     public class User implements Serializable {
         public Integer id;
-        public String email;
+        String email;
         public Integer social_type;
         public String social_id;
         public Integer app_id;
         public String token;
+        public String promotion_code = "THIS IS MY CODE";
         public Profile profile;
+
+        public String getEmail() {
+            if (email != null) {
+                return email;
+            } else {
+                return "";
+            }
+        }
     }
 
     public class Profile extends UrlImageObject implements Serializable {

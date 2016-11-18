@@ -23,6 +23,10 @@
 
     <dimen name="default_stroke_width">7dp</dimen>
     <dimen name="default_background_stroke_width">3dp</dimen>
+    <dimen name="menu_icon_padding">15dp</dimen>
+
+    <dimen name="restaurant_item_margin">20dp</dimen>
+    <dimen name="coupon_fragment_margin">-50dp</dimen>
 
 
 </resources>

@@ -15,6 +15,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -133,6 +134,17 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
     String lastProvince;
     String selectedProvince = "";
 
+    private FragmentEditProfile() {
+
+    }
+
+    public static FragmentEditProfile newInstance(int storeId) {
+        FragmentEditProfile fragment = new FragmentEditProfile();
+        Bundle b = new Bundle();
+        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
+        fragment.setArguments(b);
+        return fragment;
+    }
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
@@ -213,7 +225,6 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.edit_profile);
         mToolbarSettings.toolbarLeftIcon = "flaticon-back";
-        mToolbarSettings.toolbarRightIcon = "flaticon-sign-out";
         mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
     }
 
@@ -268,7 +279,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
 
         this.mUserNameEdit.setText(this.mScreenData.profile.name);
 
-        this.mEmailEdit.setText(this.mScreenData.email);
+        this.mEmailEdit.setText(this.mScreenData.getEmail());
 
         if (this.mScreenData.profile.gender != null) {
             try {
@@ -548,7 +559,9 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
         mScreenData.profile.name = mUserNameEdit.getEditableText().toString();
 
 
-        outState.putSerializable(SCREEN_DATA, mScreenData);
+        if (this.mScreenData != null) {
+            outState.putSerializable(SCREEN_DATA, mScreenData);
+        }
     }
 
     @Override
@@ -588,7 +601,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
                                 strFilePath = cursor.getString(columnIndex);
 
                                 cursor.close();
-                                System.out.println("file Path +" + strFilePath);  //path of sdcard
+                                Log.i(Tag, "file Path +" + strFilePath);  //path of sdcard
                             } else {
                                 //showAlert("Not support file format.", "OK", null, AlertTag.AlertCommon.ordinal());
                                 return;
@@ -687,7 +700,10 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
                                         new TenpossCommunicator.TenpossCommunicatorListener() {
                                             @Override
                                             public void completed(TenpossCommunicator request, Bundle responseParams) {
-                                                hideProgress();
+                                                if (isAdded() == false) {
+                                                    return;
+                                                }
+                                                Utils.hideProgress();
                                                 int result = responseParams.getInt(Key.ResponseResult);
                                                 if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
                                                     int resultApi = responseParams.getInt(Key.ResponseResultApi);
@@ -712,7 +728,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
                                 SignOutInfo.Request request = new SignOutInfo.Request();
                                 request.token = getPrefString(Key.TokenKey);
                                 params.putSerializable(Key.RequestObject, request);
-                                showProgress(getString(R.string.msg_signing_out));
+                                Utils.showProgress(getContext(), getString(R.string.msg_signing_out));
                                 communicator.execute(params);
                             }
                             break;
@@ -800,7 +816,10 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
                 new TenpossCommunicator.TenpossCommunicatorListener() {
                     @Override
                     public void completed(TenpossCommunicator request, Bundle responseParams) {
-                        hideProgress();
+                        if (isAdded() == false) {
+                            return;
+                        }
+                        Utils.hideProgress();
                         int resultApi = responseParams.getInt(Key.ResponseResultApi);
                         if (resultApi == CommonResponse.ResultSuccess) {
                             //update user profile
@@ -825,7 +844,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
                 }
         );
 
-        showProgress(message);
+        Utils.showProgress(getContext(), message);
         communicator.execute(params);
     }
 
@@ -868,7 +887,10 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
                 new TenpossCommunicator.TenpossCommunicatorListener() {
                     @Override
                     public void completed(TenpossCommunicator request, Bundle responseParams) {
-                        hideProgress();
+                        if (isAdded() == false) {
+                            return;
+                        }
+                        Utils.hideProgress();
                         int resultApi = responseParams.getInt(Key.ResponseResultApi);
                         if (resultApi == CommonResponse.ResultSuccess) {
                             //clear all data
@@ -898,7 +920,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
                 }
         );
 
-        showProgress(getString(R.string.msg_updating_profile));
+        Utils.showProgress(getContext(), getString(R.string.msg_updating_profile));
         communicator.execute(params);
     }
 

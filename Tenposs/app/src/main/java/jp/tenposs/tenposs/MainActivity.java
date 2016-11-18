@@ -1,6 +1,5 @@
 package jp.tenposs.tenposs;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,7 +20,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.widget.FrameLayout;
@@ -31,10 +29,6 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginManager;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterCore;
@@ -43,12 +37,14 @@ import junit.framework.Assert;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Random;
 
 import io.fabric.sdk.android.Fabric;
 import jp.tenposs.communicator.AppInfoCommunicator;
 import jp.tenposs.communicator.SignOutCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
 import jp.tenposs.communicator.UserInfoCommunicator;
+import jp.tenposs.datamodel.AppData;
 import jp.tenposs.datamodel.AppInfo;
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
@@ -58,6 +54,8 @@ import jp.tenposs.datamodel.SignOutInfo;
 import jp.tenposs.datamodel.SocialSigninInfo;
 import jp.tenposs.datamodel.TopInfo;
 import jp.tenposs.datamodel.UserInfo;
+import jp.tenposs.utils.MyTimer;
+import jp.tenposs.utils.MyTimerFireListener;
 import jp.tenposs.utils.Utils;
 import jp.tenposs.view.LeftMenuView;
 
@@ -65,9 +63,6 @@ public class MainActivity extends AppCompatActivity
         implements
         AbstractFragment.MainActivityListener,
         LeftMenuView.OnLeftMenuItemClickListener {
-
-    AppInfo.Response mAppInfo;
-    int mStoreId;
 
     FragmentManager mFragmentManager;
     FragmentHome mFragmentHome;
@@ -81,8 +76,9 @@ public class MainActivity extends AppCompatActivity
     protected SharedPreferences mAppPreferences;
     protected HashMap<String, String> mSessionValues;
 
-    protected ProgressDialog mProgressDialog;
+
     private boolean serviceNotStart = true;
+    MyTimer mTimerShowShareApp = null;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -97,14 +93,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        if (!FirebaseApp.getApps(this).isEmpty())
-            FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-        FirebaseMessaging.getInstance().subscribeToTopic("DEMO");
+        setContentView(R.layout.app_main);
 
         MainApplication.setContext(this.getApplicationContext());
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         this.mAppPreferences = this.getSharedPreferences("settings", Context.MODE_PRIVATE);
 
@@ -122,9 +113,25 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+
+        MainApplication.setSupportFragmentManager(this.mFragmentManager);
         this.mLeftMenuView.setOnItemClickListener(this);
 
-        checkNetworkConnection();
+        if (Utils.isRealDevice(this) == false) {
+            Utils.showAlert(this,
+                    getString(R.string.warning),
+                    getString(R.string.msg_cannot_regist_on_this_device),
+                    getString(R.string.close),
+                    null,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            exitActivity();
+                        }
+                    });
+        } else {
+            checkNetworkConnection();
+        }
     }
 
     @Override
@@ -211,10 +218,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void updateAppInfo(AppInfo.Response appInfo, int storeId) {
-        this.mAppInfo = appInfo;
-        this.mStoreId = storeId;
+        AppData.sharedInstance().mAppInfo = appInfo;
+        AppData.sharedInstance().mStoreId = storeId;
 
-        String userProfileStr = getPrefString(Key.UserProfile);
+        String userProfileStr = Utils.getPrefString(getApplicationContext(), Key.UserProfile);
         SignInInfo.User userProfile = null;
         if (userProfileStr.length() > 0) {
             try {
@@ -222,13 +229,13 @@ public class MainActivity extends AppCompatActivity
             } catch (Exception ignored) {
             }
         }
-        mLeftMenuView.updateMenu(this.mAppInfo.data.app_setting, this.mAppInfo.data.side_menu, userProfile);
+        mLeftMenuView.updateMenu(AppData.sharedInstance().mAppInfo.data.app_setting, AppData.sharedInstance().mAppInfo.data.side_menu, userProfile);
     }
 
     @Override
     public void updateUserInfo(SignInInfo.User userProfile) {
         if (mLeftMenuView != null) {
-            mLeftMenuView.updateMenu(this.mAppInfo.data.app_setting, this.mAppInfo.data.side_menu, userProfile);
+            mLeftMenuView.updateMenu(AppData.sharedInstance().mAppInfo.data.app_setting, AppData.sharedInstance().mAppInfo.data.side_menu, userProfile);
         }
     }
 
@@ -239,7 +246,7 @@ public class MainActivity extends AppCompatActivity
 
             //2
             case AbstractFragment.MENU_SCREEN: {
-                showMenuScreen(this.mStoreId);
+                showMenuScreen(AppData.sharedInstance().mStoreId);
             }
             break;
 
@@ -255,7 +262,7 @@ public class MainActivity extends AppCompatActivity
 
             //3
             case AbstractFragment.NEWS_SCREEN: {
-                showNewsScreen(this.mStoreId);
+                showNewsScreen(AppData.sharedInstance().mStoreId);
             }
             break;
 
@@ -272,7 +279,7 @@ public class MainActivity extends AppCompatActivity
 
             //5
             case AbstractFragment.PHOTO_SCREEN: {
-                showPhotoScreen(this.mStoreId);
+                showPhotoScreen(AppData.sharedInstance().mStoreId);
             }
             break;
 
@@ -288,7 +295,7 @@ public class MainActivity extends AppCompatActivity
 
             case AbstractFragment.CHAT_SCREEN: {
                 if (isSignedIn() == true) {
-                    showChatScreen(this.mStoreId);
+                    showChatScreen(AppData.sharedInstance().mStoreId);
                 } else {
                     Utils.showAlert(this,
                             getString(R.string.info),
@@ -306,7 +313,7 @@ public class MainActivity extends AppCompatActivity
 
 
             case AbstractFragment.COUPON_SCREEN: {
-                showCouponScreen(this.mStoreId);
+                showCouponScreen(AppData.sharedInstance().mStoreId);
 
             }
             break;
@@ -317,12 +324,17 @@ public class MainActivity extends AppCompatActivity
             break;
 
             case AbstractFragment.SETTING_SCREEN: {
-                showSettingScreen(this.mStoreId);
+                showSettingScreen(AppData.sharedInstance().mStoreId);
             }
             break;
 
             case AbstractFragment.PROFILE_SCREEN: {
                 showProfileScreen();
+            }
+            break;
+
+            case AbstractFragment.CHANGE_DEVICE_SCREEN: {
+                showChangeDeviceScreen();
             }
             break;
 
@@ -352,6 +364,11 @@ public class MainActivity extends AppCompatActivity
             }
             break;
 
+            case AbstractFragment.SIGN_UP_NEXT_SCREEN: {
+                showSignUpNextScreen(extras);
+            }
+            break;
+
             case AbstractFragment.SIGN_OUT_SCREEN: {
                 performSignOut();
             }
@@ -359,12 +376,17 @@ public class MainActivity extends AppCompatActivity
 
 
             case AbstractFragment.STAFF_SCREEN: {
-                showStaffScreen(this.mStoreId);
+                showStaffScreen(AppData.sharedInstance().mStoreId);
             }
             break;
 
             case AbstractFragment.STAFF_DETAIL_SCREEN: {
                 showStaffDetailScreen(extras);
+            }
+            break;
+
+            case AbstractFragment.MY_PAGE_SCREEN: {
+                showMyPageScreen();
             }
             break;
 
@@ -378,7 +400,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public AppInfo.Response.ResponseData getAppInfo() {
-        return this.mAppInfo.data;
+        return AppData.sharedInstance().mAppInfo.data;
     }
 
     @Override
@@ -462,6 +484,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public String getSessionValue(String key, String valueDefault) {
+        if (this.mSessionValues == null) {
+            return valueDefault;
+        } else {
+            return this.mSessionValues.get(key);
+        }
+    }
+
+    @Override
     public void setSessionValue(String key, String value) {
         try {
 
@@ -478,15 +509,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public String getSessionValue(String key, String valueDefault) {
-        if (this.mSessionValues == null) {
-            return valueDefault;
-        } else {
-            return this.mSessionValues.get(key);
-        }
-    }
-
     void showHomeScreen() {
         if (isSignedIn() && serviceNotStart) {
             startService(new Intent(this, TenpossInstanceIDService.class));
@@ -496,9 +518,11 @@ public class MainActivity extends AppCompatActivity
         if (this.mFragmentHome == null) {
             this.mFragmentHome = new FragmentHome();
             Bundle b = new Bundle();
-            b.putSerializable(AbstractFragment.APP_DATA, this.mAppInfo);
-            b.putInt(AbstractFragment.APP_DATA_STORE_ID, this.mStoreId);
+            b.putSerializable(AbstractFragment.APP_DATA, AppData.sharedInstance().mAppInfo);
+            b.putInt(AbstractFragment.APP_DATA_STORE_ID, AppData.sharedInstance().mStoreId);
             mFragmentHome.setArguments(b);
+
+            startAlarmShareApp();
         }
         showFragment(this.mFragmentHome, FragmentHome.class.getCanonicalName(), false);
     }
@@ -507,15 +531,15 @@ public class MainActivity extends AppCompatActivity
         //clear token and user profile
 
         //Local
-        setPrefString(Key.TokenKey, "");
-        setPrefString(Key.UserProfile, "");
+        Utils.setPrefString(getApplicationContext(), Key.TokenKey, "");
+        Utils.setPrefString(getApplicationContext(), Key.UserProfile, "");
 
         //Facebook
         LoginManager.getInstance().logOut();
 
         FragmentSignIn fragmentSignIn = (FragmentSignIn) getFragmentForTag(FragmentSignIn.class.getCanonicalName());
         if (fragmentSignIn == null) {
-            fragmentSignIn = FragmentSignIn.newInstance(showToolbar, this.mAppInfo.data.name);
+            fragmentSignIn = FragmentSignIn.newInstance(showToolbar, AppData.sharedInstance().mAppInfo.data.name);
         }
         showFragment(fragmentSignIn, FragmentSignIn.class.getCanonicalName(), true);
     }
@@ -523,7 +547,7 @@ public class MainActivity extends AppCompatActivity
     void showSignInEmailScreen() {
         FragmentSignInEmail fragmentSignInEmail = (FragmentSignInEmail) getFragmentForTag(FragmentSignInEmail.class.getCanonicalName());
         if (fragmentSignInEmail == null) {
-            fragmentSignInEmail = new FragmentSignInEmail();
+            fragmentSignInEmail = FragmentSignInEmail.newInstance(null);
         }
         showFragment(fragmentSignInEmail, FragmentSignIn.class.getCanonicalName(), true);
     }
@@ -531,34 +555,54 @@ public class MainActivity extends AppCompatActivity
     void showSignUpScreen() {
         FragmentSignUp fragmentSignUp = (FragmentSignUp) getFragmentForTag(FragmentSignUp.class.getCanonicalName());
         if (fragmentSignUp == null) {
-            fragmentSignUp = new FragmentSignUp();
+            fragmentSignUp = FragmentSignUp.newInstance(null);
         }
         showFragment(fragmentSignUp, FragmentSignUp.class.getCanonicalName(), true);
     }
 
-    void showMenuScreen(int storeId) {
-        FragmentMenu fragmentMenu = (FragmentMenu) getFragmentForTag(FragmentMenu.class.getCanonicalName());
-        if (fragmentMenu == null) {
-            fragmentMenu = new FragmentMenu();
-            Bundle b = new Bundle();
-            AppInfo.SideMenu menu = mAppInfo.data.getSideMenu(AbstractFragment.MENU_SCREEN);
-            b.putString(AbstractFragment.SCREEN_TITLE, menu.name);
-            b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
-            fragmentMenu.setArguments(b);
+    void showSignUpNextScreen(Serializable extras) {
+        FragmentSignUpNext fragmentSignUpNext = (FragmentSignUpNext) getFragmentForTag(FragmentSignUpNext.class.getCanonicalName());
+        if (fragmentSignUpNext == null) {
+            fragmentSignUpNext = FragmentSignUpNext.newInstance(extras);
+
         }
-        showFragment(fragmentMenu, FragmentMenu.class.getCanonicalName(), true);
+        showFragment(fragmentSignUpNext, FragmentSignUpNext.class.getCanonicalName(), true);
+    }
+
+    void showMenuScreen(int storeId) {
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            RestaurantFragmentMenuContainer fragmentMenu = (RestaurantFragmentMenuContainer) getFragmentForTag(RestaurantFragmentMenuContainer.class.getCanonicalName());
+            if (fragmentMenu == null) {
+                AppInfo.SideMenu menu = AppData.sharedInstance().mAppInfo.data.getSideMenu(AbstractFragment.MENU_SCREEN);
+                fragmentMenu = RestaurantFragmentMenuContainer.newInstance(menu.name, storeId);
+            }
+            showFragment(fragmentMenu, RestaurantFragmentMenuContainer.class.getCanonicalName(), true);
+
+        } else {
+            FragmentMenu fragmentMenu = (FragmentMenu) getFragmentForTag(FragmentMenu.class.getCanonicalName());
+            if (fragmentMenu == null) {
+                AppInfo.SideMenu menu = AppData.sharedInstance().mAppInfo.data.getSideMenu(AbstractFragment.MENU_SCREEN);
+                fragmentMenu = FragmentMenu.newInstance(menu.name, storeId);
+            }
+            showFragment(fragmentMenu, FragmentMenu.class.getCanonicalName(), true);
+        }
     }
 
 
     void showItemDetailScreen(Serializable extras) {
-        FragmentProduct fragmentProduct = (FragmentProduct) getFragmentForTag(FragmentProduct.class.getCanonicalName());
-        if (fragmentProduct == null) {
-            fragmentProduct = new FragmentProduct();
-            Bundle b = new Bundle();
-            b.putSerializable(AbstractFragment.SCREEN_DATA, extras);
-            fragmentProduct.setArguments(b);
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            RestaurantFragmentItemDetail restaurantFragmentItemDetail = (RestaurantFragmentItemDetail) getFragmentForTag(RestaurantFragmentItemDetail.class.getCanonicalName());
+            if (restaurantFragmentItemDetail == null) {
+                restaurantFragmentItemDetail = RestaurantFragmentItemDetail.newInstance(extras);
+            }
+            showFragment(restaurantFragmentItemDetail, RestaurantFragmentItemDetail.class.getCanonicalName(), true);
+        } else {
+            FragmentProduct fragmentProduct = (FragmentProduct) getFragmentForTag(FragmentProduct.class.getCanonicalName());
+            if (fragmentProduct == null) {
+                fragmentProduct = FragmentProduct.newInstance(extras);
+            }
+            showFragment(fragmentProduct, FragmentProduct.class.getCanonicalName(), true);
         }
-        showFragment(fragmentProduct, FragmentProduct.class.getCanonicalName(), true);
     }
 
     void showItemPurchaseScreen(Serializable extras) {
@@ -586,16 +630,23 @@ public class MainActivity extends AppCompatActivity
     }
 
     void showNewsScreen(int storeId) {
-        FragmentNews fragmentNews = (FragmentNews) getFragmentForTag(FragmentNews.class.getCanonicalName());
-        if (fragmentNews == null) {
-            fragmentNews = new FragmentNews();
-            Bundle b = new Bundle();
-            AppInfo.SideMenu menu = mAppInfo.data.getSideMenu(AbstractFragment.NEWS_SCREEN);
-            b.putString(AbstractFragment.SCREEN_TITLE, menu.name);
-            b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
-            fragmentNews.setArguments(b);
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            RestaurantFragmentNews fragmentNews = (RestaurantFragmentNews) getFragmentForTag(RestaurantFragmentNews.class.getCanonicalName());
+            if (fragmentNews == null) {
+                AppInfo.SideMenu menu = AppData.sharedInstance().mAppInfo.data.getSideMenu(AbstractFragment.NEWS_SCREEN);
+                fragmentNews = RestaurantFragmentNews.newInstance(menu.name, storeId);
+
+            }
+            showFragment(fragmentNews, FragmentNews.class.getCanonicalName(), true);
+        } else {
+            FragmentNews fragmentNews = (FragmentNews) getFragmentForTag(FragmentNews.class.getCanonicalName());
+            if (fragmentNews == null) {
+                AppInfo.SideMenu menu = AppData.sharedInstance().mAppInfo.data.getSideMenu(AbstractFragment.NEWS_SCREEN);
+                fragmentNews = FragmentNews.newInstance(menu.name, storeId);
+
+            }
+            showFragment(fragmentNews, FragmentNews.class.getCanonicalName(), true);
         }
-        showFragment(fragmentNews, FragmentNews.class.getCanonicalName(), true);
     }
 
     void showNewsDetailScreen(Serializable extras) {
@@ -610,45 +661,60 @@ public class MainActivity extends AppCompatActivity
     }
 
     void showPhotoScreen(int storeId) {
-        FragmentPhotoGallery fragmentPhotoGallery = (FragmentPhotoGallery) getFragmentForTag(FragmentPhotoGallery.class.getCanonicalName());
-        if (fragmentPhotoGallery == null) {
-            fragmentPhotoGallery = new FragmentPhotoGallery();
-            Bundle b = new Bundle();
-            AppInfo.SideMenu menu = mAppInfo.data.getSideMenu(AbstractFragment.PHOTO_SCREEN);
-            b.putString(AbstractFragment.SCREEN_TITLE, menu.name);
-            b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
-            fragmentPhotoGallery.setArguments(b);
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            RestaurantFragmentPhotoGallery fragmentPhotoGallery = (RestaurantFragmentPhotoGallery) getFragmentForTag(RestaurantFragmentPhotoGallery.class.getCanonicalName());
+            if (fragmentPhotoGallery == null) {
+                AppInfo.SideMenu menu = AppData.sharedInstance().mAppInfo.data.getSideMenu(AbstractFragment.PHOTO_SCREEN);
+                fragmentPhotoGallery = RestaurantFragmentPhotoGallery.newInstance(menu.name, storeId);
+
+            }
+            showFragment(fragmentPhotoGallery, RestaurantFragmentPhotoGallery.class.getCanonicalName(), true);
+        } else {
+            FragmentPhotoGallery fragmentPhotoGallery = (FragmentPhotoGallery) getFragmentForTag(FragmentPhotoGallery.class.getCanonicalName());
+            if (fragmentPhotoGallery == null) {
+                AppInfo.SideMenu menu = AppData.sharedInstance().mAppInfo.data.getSideMenu(AbstractFragment.PHOTO_SCREEN);
+                fragmentPhotoGallery = FragmentPhotoGallery.newInstance(menu.name, storeId);
+
+            }
+            showFragment(fragmentPhotoGallery, FragmentPhotoGallery.class.getCanonicalName(), true);
         }
-        showFragment(fragmentPhotoGallery, FragmentPhotoGallery.class.getCanonicalName(), true);
     }
 
     void showPhotoPreviewScreen(Serializable extras) {
-        PopupPhotoPreview photoPreview = new PopupPhotoPreview(this);
-        photoPreview.setData(extras);
-        photoPreview.show();
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            RestaurantPopupPhotoPreview photoPreview = new RestaurantPopupPhotoPreview(this);
+            photoPreview.setData(extras);
+            photoPreview.show();
+        } else {
+            PopupPhotoPreview photoPreview = new PopupPhotoPreview(this);
+            photoPreview.setData(extras);
+            photoPreview.show();
+        }
     }
 
     void showCouponScreen(int storeId) {
-        FragmentCoupon fragmentCoupon = (FragmentCoupon) getFragmentForTag(FragmentCoupon.class.getCanonicalName());
-        if (fragmentCoupon == null) {
-            fragmentCoupon = new FragmentCoupon();
-            Bundle b = new Bundle();
-            AppInfo.SideMenu menu = mAppInfo.data.getSideMenu(AbstractFragment.COUPON_SCREEN);
-            b.putString(AbstractFragment.SCREEN_TITLE, menu.name);
-            b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
-            fragmentCoupon.setArguments(b);
-        }
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            RestaurantFragmentCoupon restaurantFragmentCoupon = (RestaurantFragmentCoupon) getFragmentForTag(RestaurantFragmentCoupon.class.getCanonicalName());
+            if (restaurantFragmentCoupon == null) {
+                AppInfo.SideMenu menu = AppData.sharedInstance().mAppInfo.data.getSideMenu(AbstractFragment.COUPON_SCREEN);
+                restaurantFragmentCoupon = RestaurantFragmentCoupon.newInstance(menu.name, storeId);
+            }
+            showFragment(restaurantFragmentCoupon, RestaurantFragmentCoupon.class.getCanonicalName(), true);
 
-        showFragment(fragmentCoupon, FragmentCoupon.class.getCanonicalName(), true);
+        } else {
+            FragmentCoupon fragmentCoupon = (FragmentCoupon) getFragmentForTag(FragmentCoupon.class.getCanonicalName());
+            if (fragmentCoupon == null) {
+                AppInfo.SideMenu menu = AppData.sharedInstance().mAppInfo.data.getSideMenu(AbstractFragment.COUPON_SCREEN);
+                fragmentCoupon = FragmentCoupon.newInstance(menu.name, storeId);
+            }
+            showFragment(fragmentCoupon, FragmentCoupon.class.getCanonicalName(), true);
+        }
     }
 
     void showCouponDetailScreen(Serializable extras) {
         FragmentCouponDetail fragmentCouponDetail = (FragmentCouponDetail) getFragmentForTag(FragmentCouponDetail.class.getCanonicalName());
         if (fragmentCouponDetail == null) {
-            fragmentCouponDetail = new FragmentCouponDetail();
-            Bundle b = new Bundle();
-            b.putSerializable(AbstractFragment.SCREEN_DATA, extras);
-            fragmentCouponDetail.setArguments(b);
+            fragmentCouponDetail = FragmentCouponDetail.newInstance(extras);
         }
         showFragment(fragmentCouponDetail, FragmentCouponDetail.class.getCanonicalName(), true);
     }
@@ -656,12 +722,8 @@ public class MainActivity extends AppCompatActivity
     void showChatScreen(int storeId) {
         FragmentChat fragmentChat = (FragmentChat) getFragmentForTag(FragmentChat.class.getCanonicalName());
         if (fragmentChat == null) {
-            fragmentChat = new FragmentChat();
-            Bundle b = new Bundle();
-            AppInfo.SideMenu menu = mAppInfo.data.getSideMenu(AbstractFragment.CHAT_SCREEN);
-            b.putString(AbstractFragment.SCREEN_TITLE, menu.name);
-            b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
-            fragmentChat.setArguments(b);
+            AppInfo.SideMenu menu = AppData.sharedInstance().mAppInfo.data.getSideMenu(AbstractFragment.CHAT_SCREEN);
+            fragmentChat = FragmentChat.newInstance(menu.name, storeId);
         }
         showFragment(fragmentChat, FragmentChat.class.getCanonicalName(), true);
     }
@@ -669,12 +731,8 @@ public class MainActivity extends AppCompatActivity
     void showSettingScreen(int storeId) {
         FragmentSetting fragmentSetting = (FragmentSetting) getFragmentForTag(FragmentSetting.class.getCanonicalName());
         if (fragmentSetting == null) {
-            fragmentSetting = new FragmentSetting();
-            Bundle b = new Bundle();
-            AppInfo.SideMenu menu = mAppInfo.data.getSideMenu(AbstractFragment.SETTING_SCREEN);
-            b.putString(AbstractFragment.SCREEN_TITLE, menu.name);
-            b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
-            fragmentSetting.setArguments(b);
+            AppInfo.SideMenu menu = AppData.sharedInstance().mAppInfo.data.getSideMenu(AbstractFragment.SETTING_SCREEN);
+            fragmentSetting = FragmentSetting.newInstance(menu.name, storeId);
         }
         showFragment(fragmentSetting, FragmentSetting.class.getCanonicalName(), true);
     }
@@ -682,12 +740,17 @@ public class MainActivity extends AppCompatActivity
     void showProfileScreen() {
         FragmentEditProfile fragmentEditProfile = (FragmentEditProfile) getFragmentForTag(FragmentEditProfile.class.getCanonicalName());
         if (fragmentEditProfile == null) {
-            fragmentEditProfile = new FragmentEditProfile();
-            Bundle b = new Bundle();
-            b.putInt(AbstractFragment.APP_DATA_STORE_ID, this.mStoreId);
-            fragmentEditProfile.setArguments(b);
+            fragmentEditProfile = FragmentEditProfile.newInstance(AppData.sharedInstance().mStoreId);
         }
         showFragment(fragmentEditProfile, FragmentEditProfile.class.getCanonicalName(), true);
+    }
+
+    void showChangeDeviceScreen() {
+        FragmentChangeDevice fragmentChangeDevice = (FragmentChangeDevice) getFragmentForTag(FragmentChangeDevice.class.getCanonicalName());
+        if (fragmentChangeDevice == null) {
+            fragmentChangeDevice = FragmentChangeDevice.newInstance(null);
+        }
+        showFragment(fragmentChangeDevice, FragmentChangeDevice.class.getCanonicalName(), true);
     }
 
     void showCompanyInfo() {
@@ -707,32 +770,41 @@ public class MainActivity extends AppCompatActivity
     }
 
     void showStaffScreen(int storeId) {
-        FragmentStaff fragmentStaff = (FragmentStaff) getFragmentForTag(FragmentStaff.class.getCanonicalName());
-        if (fragmentStaff == null) {
-            fragmentStaff = new FragmentStaff();
-            Bundle b = new Bundle();
-            AppInfo.SideMenu menu = mAppInfo.data.getSideMenu(AbstractFragment.STAFF_SCREEN);
-            b.putString(AbstractFragment.SCREEN_TITLE, menu.name);
-            b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
-            fragmentStaff.setArguments(b);
-        }
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            RestaurantFragmentStaff fragmentStaff = (RestaurantFragmentStaff) getFragmentForTag(RestaurantFragmentStaff.class.getCanonicalName());
+            if (fragmentStaff == null) {
+                AppInfo.SideMenu menu = AppData.sharedInstance().mAppInfo.data.getSideMenu(AbstractFragment.STAFF_SCREEN);
+                fragmentStaff = RestaurantFragmentStaff.newInstance(menu.name, storeId);
+            }
 
-        showFragment(fragmentStaff, FragmentStaff.class.getCanonicalName(), true);
+            showFragment(fragmentStaff, FragmentStaff.class.getCanonicalName(), true);
+        } else {
+            FragmentStaff fragmentStaff = (FragmentStaff) getFragmentForTag(FragmentStaff.class.getCanonicalName());
+            if (fragmentStaff == null) {
+                AppInfo.SideMenu menu = AppData.sharedInstance().mAppInfo.data.getSideMenu(AbstractFragment.STAFF_SCREEN);
+                fragmentStaff = FragmentStaff.newInstance(menu.name, storeId);
+            }
+
+            showFragment(fragmentStaff, FragmentStaff.class.getCanonicalName(), true);
+        }
     }
 
     void showStaffDetailScreen(Serializable extras) {
         FragmentStaffDetail fragmentStaffDetail = (FragmentStaffDetail) getFragmentForTag(FragmentStaffDetail.class.getCanonicalName());
         if (fragmentStaffDetail == null) {
-            fragmentStaffDetail = new FragmentStaffDetail();
-            Bundle b = new Bundle();
-//            AppInfo.SideMenu menu = mAppInfo.data.getSideMenu(AbstractFragment.STAFF_SCREEN);
-//            b.putString(AbstractFragment.SCREEN_TITLE, menu.name);
-//            b.putInt(AbstractFragment.APP_DATA_STORE_ID, mStoreId);
-            b.putSerializable(AbstractFragment.SCREEN_DATA, extras);
-            fragmentStaffDetail.setArguments(b);
+            fragmentStaffDetail = FragmentStaffDetail.newInstance(extras);
         }
 
         showFragment(fragmentStaffDetail, FragmentStaffDetail.class.getCanonicalName(), true);
+    }
+
+    void showMyPageScreen() {
+        FragmentMyPage fragmentMyPage = (FragmentMyPage) getFragmentForTag(FragmentMyPage.class.getCanonicalName());
+        if (fragmentMyPage == null) {
+            fragmentMyPage = FragmentMyPage.newInstance(null);
+        }
+
+        showFragment(fragmentMyPage, FragmentMyPage.class.getCanonicalName(), true);
     }
 
     int wifiEnable() {
@@ -803,7 +875,7 @@ public class MainActivity extends AppCompatActivity
             startup();
 
         } else {
-            hideProgress();
+            Utils.hideProgress();
             Utils.showAlert(this,
                     getString(R.string.info),
                     getString(R.string.msg_connection_required),
@@ -812,7 +884,7 @@ public class MainActivity extends AppCompatActivity
                         public void onClick(DialogInterface dialog, int which) {
                             switch (which) {
                                 case DialogInterface.BUTTON_POSITIVE: {
-//                                    showWifiSettings();
+                                    showWifiSettings();
                                 }
                                 break;
                                 case DialogInterface.BUTTON_NEGATIVE: {
@@ -843,14 +915,17 @@ public class MainActivity extends AppCompatActivity
         Fabric.with(this, new TwitterCore(authConfig));
 
         //Firebase initialize
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-        FirebaseMessaging.getInstance().subscribeToTopic("test");
-        String token = FirebaseInstanceId.getInstance().getToken();
-        if (token != null) {
-            setPrefString(Key.FireBaseTokenKey, token);
-        } else {
-            setPrefString(Key.FireBaseTokenKey, "");
-        }
+//        if (!FirebaseApp.getApps(this).isEmpty())
+//            FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+//        FirebaseMessaging.getInstance().subscribeToTopic("DEMO");
+//        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+//        FirebaseMessaging.getInstance().subscribeToTopic("test");
+//        String token = FirebaseInstanceId.getInstance().getToken();
+//        if (token != null) {
+//            Utils.setPrefString(getApplicationContext(), Key.FireBaseTokenKey, token);
+//        } else {
+//            Utils.setPrefString(getApplicationContext(), Key.FireBaseTokenKey, "");
+//        }
 
         this.mFragmentHome = (FragmentHome) getFragmentForTag(FragmentHome.class.getCanonicalName());
         if (this.mFragmentHome == null) {
@@ -887,26 +962,8 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    protected String getPrefString(String key) {
-        if (this.mAppPreferences == null) {
-            this.mAppPreferences = this.getSharedPreferences("settings", Context.MODE_PRIVATE);
-        }
-        return this.mAppPreferences.getString(key, "");
-    }
-
-    protected boolean setPrefString(String key, String value) {
-        if (this.mAppPreferences == null) {
-            this.mAppPreferences = this.getSharedPreferences("settings", Context.MODE_PRIVATE);
-        }
-        boolean ret;
-        SharedPreferences.Editor editor = this.mAppPreferences.edit();
-        editor.putString(key, value);
-        ret = editor.commit();
-        return ret;
-    }
-
     protected void errorWithMessage(Bundle response, String message) {
-        hideProgress();
+        Utils.hideProgress();
         if (response != null) {
             String msg = response.getString(Key.ResponseMessage);
             Toast.makeText(this.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
@@ -928,7 +985,7 @@ public class MainActivity extends AppCompatActivity
                                         new TenpossCommunicator.TenpossCommunicatorListener() {
                                             @Override
                                             public void completed(TenpossCommunicator request, Bundle responseParams) {
-                                                hideProgress();
+                                                Utils.hideProgress();
                                                 int result = responseParams.getInt(Key.ResponseResult);
                                                 if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
                                                     int resultApi = responseParams.getInt(Key.ResponseResultApi);
@@ -936,8 +993,8 @@ public class MainActivity extends AppCompatActivity
                                                             resultApi == CommonResponse.ResultErrorInvalidToken) {
                                                         //clear token and user profile
                                                         setSessionValue(Key.PushSettings, null);
-                                                        setPrefString(Key.TokenKey, "");
-                                                        setPrefString(Key.UserProfile, "");
+                                                        Utils.setPrefString(getApplicationContext(), Key.TokenKey, "");
+                                                        Utils.setPrefString(getApplicationContext(), Key.UserProfile, "");
 
                                                         serviceNotStart = true;
                                                         //TODO stop service
@@ -965,6 +1022,8 @@ public class MainActivity extends AppCompatActivity
                                                         }
 
                                                         updateUserInfo(null);
+
+                                                        showHomeScreen();
                                                     } else {
                                                         String strMessage = responseParams.getString(Key.ResponseMessage);
                                                         errorWithMessage(responseParams, strMessage);
@@ -977,9 +1036,9 @@ public class MainActivity extends AppCompatActivity
                                         });
                                 Bundle params = new Bundle();
                                 SignOutInfo.Request request = new SignOutInfo.Request();
-                                request.token = getPrefString(Key.TokenKey);
+                                request.token = Utils.getPrefString(getApplicationContext(), Key.TokenKey);
                                 params.putSerializable(Key.RequestObject, request);
-                                showProgress(getString(R.string.msg_signing_out));
+                                Utils.showProgress(MainActivity.this, getString(R.string.msg_signing_out));
                                 communicator.execute(params);
                             }
                             break;
@@ -994,7 +1053,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     void loadAppInfo() {
-        showProgress(getString(R.string.msg_starting_up));
+        Utils.showProgress(MainActivity.this, getString(R.string.msg_starting_up));
         Bundle params = new Bundle();
         AppInfo.Request requestParams = new AppInfo.Request();
 
@@ -1007,9 +1066,9 @@ public class MainActivity extends AppCompatActivity
                         if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
                             int resultApi = responseParams.getInt(Key.ResponseResultApi);
                             if (resultApi == CommonResponse.ResultSuccess) {
-                                MainActivity.this.mAppInfo = (AppInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                                if (MainActivity.this.mAppInfo.data != null && MainActivity.this.mAppInfo.data.stores.size() > 0) {
-                                    MainActivity.this.mStoreId = MainActivity.this.mAppInfo.data.stores.get(0).id;
+                                AppData.sharedInstance().mAppInfo = (AppInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                if (AppData.sharedInstance().mAppInfo.data != null && AppData.sharedInstance().mAppInfo.data.stores.size() > 0) {
+                                    AppData.sharedInstance().mStoreId = AppData.sharedInstance().mAppInfo.data.stores.get(0).id;
                                     getUserDetail();
                                 } else {
                                     String strMessage = "Invalid response data!";
@@ -1052,7 +1111,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void getUserDetail() {
-        String token = getPrefString(Key.TokenKey);
+        String token = Utils.getPrefString(getApplicationContext(), Key.TokenKey);
         if (token.length() > 0) {
             Bundle params = new Bundle();
             UserInfo.Request request = new UserInfo.Request();
@@ -1063,7 +1122,7 @@ public class MainActivity extends AppCompatActivity
                     new TenpossCommunicator.TenpossCommunicatorListener() {
                         @Override
                         public void completed(TenpossCommunicator request, Bundle responseParams) {
-                            hideProgress();
+                            Utils.hideProgress();
                             int result = responseParams.getInt(Key.ResponseResult);
                             if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
                                 int resultApi = responseParams.getInt(Key.ResponseResultApi);
@@ -1071,7 +1130,7 @@ public class MainActivity extends AppCompatActivity
                                     //Update User profile
 
                                     UserInfo.Response data = (UserInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                                    setPrefString(Key.UserProfile, CommonObject.toJSONString(data.data.user, SignInInfo.User.class));
+                                    Utils.setPrefString(getApplicationContext(), Key.UserProfile, CommonObject.toJSONString(data.data.user, SignInInfo.User.class));
 
                                     showHomeScreen();
 
@@ -1109,46 +1168,44 @@ public class MainActivity extends AppCompatActivity
                     });
             communicator.execute(params);
         } else {
-            hideProgress();
+            Utils.hideProgress();
             showSignInScreen(false);
         }
     }
 
-    protected void showProgress(String message) {
-        if (this.mProgressDialog != null)
-            this.mProgressDialog.dismiss();
-        this.mProgressDialog = new ProgressDialog(this);
-        this.mProgressDialog.setMessage(message);
-        this.mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        this.mProgressDialog.setProgress(0);
-        this.mProgressDialog.setMax(20);
-        this.mProgressDialog.setCancelable(false);
-        this.mProgressDialog.show();
-    }
-
-    protected void changeProgress(String message) {
-        if (this.mProgressDialog == null)
-            showProgress(message);
-        else
-            this.mProgressDialog.setMessage(message);
-    }
-
-    protected void hideProgress() {
-        try {
-            if (this.mProgressDialog != null)
-                this.mProgressDialog.dismiss();
-            this.mProgressDialog = null;
-        } catch (Exception ignored) {
-        }
-    }
 
     public boolean isSignedIn() {
-        String token = getPrefString(Key.TokenKey);
-        String userProfile = getPrefString(Key.UserProfile);
+        String token = Utils.getPrefString(getApplicationContext(), Key.TokenKey);
+        String userProfile = Utils.getPrefString(getApplicationContext(), Key.UserProfile);
         if (token.length() > 0 && userProfile.length() > 0) {
             return true;
         } else {
             return false;
+        }
+    }
+
+
+    void startAlarmShareApp() {
+        if (isSignedIn() == true) {
+            Random r = new Random();
+            int i1 = r.nextInt(80 - 65) + 10;
+
+            Log.i("MainActivity", "Will show Share popup after " + i1 + " secods");
+
+            mTimerShowShareApp = MyTimer.timerWithTimeInterval(i1, false, new MyTimerFireListener() {
+                @Override
+                protected void timerFire(MyTimer timer) {
+                    AbstractFragment topFragment = getTopFragment();
+                    if (topFragment != null) {
+                        mTimerShowShareApp.invalidate();
+                        mTimerShowShareApp = null;
+                        if (topFragment.showShareAppPopup() == false) {
+                            startAlarmShareApp();
+                        }
+                    }
+                }
+            });
+            mTimerShowShareApp.scheduleNow(i1 * 1000);
         }
     }
 }

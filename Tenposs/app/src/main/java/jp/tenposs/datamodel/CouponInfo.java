@@ -67,7 +67,7 @@ public class CouponInfo {
         public String code;
         public CouponType coupon_type;
 
-        public class CouponType {
+        public class CouponType implements Serializable {
             public int id;
             public String name;
             public String store_id;

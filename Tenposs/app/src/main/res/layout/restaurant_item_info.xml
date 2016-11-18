@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jp.tenposs.view.ProductInfo xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/product_info"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white"
+    android:orientation="vertical">
+
+    <android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/item_image"
+            android:background="@drawable/bg_image_grid"
+            app:layout_aspectRatio="160%"
+            app:layout_widthPercent="100%" />
+
+    </android.support.percent.PercentRelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/item_title_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PRODUCT NAME"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+                android:textColor="@color/title_text_color"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/item_brand_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/category_text"
+                android:textAppearance="@android:style/TextAppearance.Small"
+                android:textColor="@color/description_text_color" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/item_price_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dip"
+            android:text="¥ 1200"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+            android:textColor="@color/restaurant_text_color"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+</jp.tenposs.view.ProductInfo>

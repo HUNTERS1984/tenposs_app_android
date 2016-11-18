@@ -11,7 +11,7 @@ public class FragmentUserPrivacy extends FragmentWebView {
     public static FragmentUserPrivacy newInstance(@NonNull String url) {
         FragmentUserPrivacy gm = new FragmentUserPrivacy();
         Bundle b = new Bundle();
-        b.putString(SCREEN_DATA, url);
+        b.putString(SCREEN_URL, url);
         gm.setArguments(b);
         return gm;
     }
@@ -45,14 +45,12 @@ public class FragmentUserPrivacy extends FragmentWebView {
 
     @Override
     void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
-        if (savedInstanceState.containsKey(SCREEN_DATA)) {
-            this.mUrl = savedInstanceState.getString(SCREEN_DATA);
-        }
+        super.loadSavedInstanceState(savedInstanceState);
     }
 
     @Override
     void customSaveInstanceState(Bundle outState) {
-
+        super.customSaveInstanceState(outState);
     }
 
     @Override

@@ -36,16 +36,34 @@
                     circle:border_width="1.5dip"
                     circle:fill_color="@android:color/transparent" />
 
-                <TextView
-                    android:id="@+id/user_name_label"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginRight="@dimen/item_margin"
+                    android:layout_height="match_parent"
                     android:layout_toRightOf="@+id/user_avatar_image"
-                    android:text="@string/username"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="@android:color/white" />
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/user_name_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/item_margin"
+                        android:layout_marginRight="@dimen/item_margin"
+                        android:text="@string/username"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textColor="@android:color/white" />
+
+                    <TextView
+                        android:id="@+id/email_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/item_margin"
+                        android:layout_marginRight="@dimen/item_margin"
+                        android:text="abs@gmail.com"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textColor="@android:color/darker_gray"
+                        android:visibility="gone" />
+                </LinearLayout>
 
                 <Button
                     android:id="@+id/user_info_button"

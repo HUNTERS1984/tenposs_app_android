@@ -4,9 +4,12 @@ package jp.tenposs.view;
  * Created by ambient on 9/21/16.
  */
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
@@ -118,6 +121,114 @@ public class MenuIcon {
         }
 
         return getIconBitmapWithIdentifier(menuName);
+    }
+
+    public Drawable getIconDrawableWithId(Context context, int menuId) {
+        int iconId;
+        switch (menuId) {
+            case AbstractFragment.HOME_SCREEN: {
+                iconId = R.drawable.restaurant_ic_sm_home;
+            }
+            break;
+            case AbstractFragment.MENU_SCREEN: {
+                iconId = R.drawable.restaurant_ic_sm_menu;
+            }
+            break;
+            case AbstractFragment.NEWS_SCREEN: {
+                iconId = R.drawable.restaurant_ic_sm_news;
+            }
+            break;
+            case AbstractFragment.RESERVE_SCREEN: {
+                iconId = R.drawable.restaurant_ic_sm_reserve;
+            }
+            break;
+            case AbstractFragment.PHOTO_SCREEN: {
+                iconId = R.drawable.restaurant_ic_sm_photos;
+            }
+            break;
+            case AbstractFragment.CHAT_SCREEN: {
+                iconId = R.drawable.restaurant_ic_sm_chat;
+            }
+            break;
+            case AbstractFragment.STAFF_SCREEN: {
+                iconId = R.drawable.restaurant_ic_sm_staff;
+            }
+            break;
+            case AbstractFragment.COUPON_SCREEN: {
+                iconId = R.drawable.restaurant_ic_sm_coupon;
+            }
+            break;
+            case AbstractFragment.SETTING_SCREEN: {
+                iconId = R.drawable.restaurant_ic_sm_setting;
+            }
+            break;
+            //case AbstractFragment.SIGN_OUT_SCREEN: {
+            default:
+//                menuName = "icon-sign-out";
+                return null;
+        }
+
+        Drawable icon;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            icon = context.getResources().getDrawable(iconId, null);
+        } else {
+            icon = context.getResources().getDrawable(iconId);
+        }
+        return icon;
+    }
+
+    public Drawable getHomeIconDrawableWithId(Context context, int menuId) {
+        int iconId;
+        switch (menuId) {
+            case AbstractFragment.HOME_SCREEN: {
+                iconId = R.drawable.restaurant_ic_sm_home;
+            }
+            break;
+            case AbstractFragment.MENU_SCREEN: {
+                iconId = R.drawable.restaurant_ic_menu;
+            }
+            break;
+            case AbstractFragment.NEWS_SCREEN: {
+                iconId = R.drawable.restaurant_ic_news;
+            }
+            break;
+            case AbstractFragment.RESERVE_SCREEN: {
+                iconId = R.drawable.restaurant_ic_sm_reserve;
+            }
+            break;
+            case AbstractFragment.PHOTO_SCREEN: {
+                iconId = R.drawable.restaurant_ic_photos;
+            }
+            break;
+            case AbstractFragment.CHAT_SCREEN: {
+                iconId = R.drawable.restaurant_ic_sm_chat;
+            }
+            break;
+            case AbstractFragment.STAFF_SCREEN: {
+                iconId = R.drawable.restaurant_ic_sm_staff;
+            }
+            break;
+            case AbstractFragment.COUPON_SCREEN: {
+                iconId = R.drawable.restaurant_ic_coupon;
+            }
+            break;
+            case AbstractFragment.SETTING_SCREEN: {
+                iconId = R.drawable.restaurant_ic_sm_setting;
+            }
+            break;
+            default:
+                return null;
+        }
+
+        Drawable icon;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            icon = context.getResources().getDrawable(iconId, null);
+        } else {
+            icon = context.getResources().getDrawable(iconId);
+        }
+        return icon;
     }
 
     class IconRect {

@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.v4.app.FragmentManager;
 
 import java.io.Serializable;
 
@@ -12,6 +13,7 @@ import java.io.Serializable;
  */
 public class MainApplication extends Application {
     static Context mContext = null;
+    static FragmentManager mFragmentManager = null;
 
     private Bundle applicationBundle;
 
@@ -53,4 +55,12 @@ public class MainApplication extends Application {
         applicationBundle.remove(key);
     }
 
+
+    public static void setSupportFragmentManager(FragmentManager fragmentManager) {
+        mFragmentManager = fragmentManager;
+    }
+
+    public static FragmentManager getSupportFragmentManager() {
+        return mFragmentManager;
+    }
 }

@@ -7,42 +7,45 @@
     android:orientation="vertical">
 
 
+    <!--android:background="@drawable/bg_drop_shadow"-->
     <jp.tenposs.view.RoundCornerImageView
         android:id="@+id/item_image"
-        android:background="@drawable/bg_drop_shadow"
+        android:background="@drawable/bg_shadow"
         android:contentDescription="@string/image_description"
-        android:paddingBottom="3dp"
-        android:paddingLeft="0dp"
-        android:paddingRight="5dp"
-        android:paddingTop="0dp"
         android:scaleType="centerCrop"
-
         android:src="@drawable/drop"
         app:layout_aspectRatio="100%"
         app:layout_widthPercent="100%"
-        app:riv_corner_radius="2dp" />
+        app:riv_corner_radius="1.5dp" />
 
     <LinearLayout
         android:id="@+id/item_info_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/item_image"
-        android:orientation="vertical"
-        android:padding="5dp">
-
-        <TextView
-            android:id="@+id/item_title_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dip"
-            android:textAppearance="@android:style/TextAppearance.DeviceDefault"
-            android:textColor="@color/grid_text_color" />
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/item_description_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dip"
+            android:layout_marginTop="5dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:padding="5dip"
+            android:text="item_description_label"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+            android:textColor="@color/grid_text_color" />
+
+        <TextView
+            android:id="@+id/item_price_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:padding="5dip"
+            android:text="item_price_label"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault"
             android:textColor="@color/grid_text_color" />
 

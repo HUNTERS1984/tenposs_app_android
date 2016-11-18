@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import jp.tenposs.adapter.CommonAdapter;
+import jp.tenposs.adapter.RecyclerDataSource;
 import jp.tenposs.adapter.RecyclerItemWrapper;
 import jp.tenposs.datamodel.NewsInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
@@ -23,7 +23,7 @@ public class FragmentNewsDetail
         extends
         AbstractFragment
         implements
-        CommonAdapter.CommonDataSource,
+        RecyclerDataSource,
         OnCommonItemClickListener {
 
 
@@ -65,8 +65,6 @@ public class FragmentNewsDetail
         this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
         Picasso ps = Picasso.with(getContext());
         ps.load(mScreenData.getImageUrl())
-                .resize(mFullImageSize, mFullImageSize)
-                .centerCrop()
                 .into(this.mNewsImage);
 
         this.mNewsTitleLabel.setText(mScreenData.title);

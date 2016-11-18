@@ -34,4 +34,9 @@
     <color name="sw_solid_checked">#019285</color>
     <color name="sw_solid_disable">#FFFFFF</color>
     <color name="sw_solid_checked_disable">#aaaaaa</color>
+    <color name="green_dark">#008000</color>
+    <color name="green_light">#62B063</color>
+
+    <color name="restaurant_text_color">#3CB963</color>
+
 </resources>

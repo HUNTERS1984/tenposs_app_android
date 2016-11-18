@@ -10,6 +10,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:textAppearance="@android:style/TextAppearance.Medium"
-        android:textColor="@color/title_text_color" />
+        android:textColor="@color/title_text_color"
+        android:textStyle="bold" />
 
 </RelativeLayout>

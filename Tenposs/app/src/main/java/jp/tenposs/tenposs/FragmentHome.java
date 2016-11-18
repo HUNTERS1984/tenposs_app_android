@@ -1,5 +1,6 @@
 package jp.tenposs.tenposs;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -14,16 +15,24 @@ import junit.framework.Assert;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import jp.tenposs.adapter.AbstractRecyclerAdapter;
 import jp.tenposs.adapter.CommonAdapter;
+import jp.tenposs.adapter.GridSpanSizeLookup;
+import jp.tenposs.adapter.MarginDecoration;
+import jp.tenposs.adapter.RecyclerDataSource;
 import jp.tenposs.adapter.RecyclerItemType;
 import jp.tenposs.adapter.RecyclerItemWrapper;
+import jp.tenposs.adapter.RestaurantAdapter;
 import jp.tenposs.communicator.AppInfoCommunicator;
+import jp.tenposs.communicator.NewsCategoryCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
 import jp.tenposs.communicator.TopInfoCommunicator;
+import jp.tenposs.datamodel.AppData;
 import jp.tenposs.datamodel.AppInfo;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.ItemsInfo;
 import jp.tenposs.datamodel.Key;
+import jp.tenposs.datamodel.NewsCategoryInfo;
 import jp.tenposs.datamodel.NewsInfo;
 import jp.tenposs.datamodel.PhotoInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
@@ -35,20 +44,15 @@ import jp.tenposs.listener.OnCommonItemClickListener;
  * Created by ambient on 7/26/16.
  */
 public class FragmentHome
-        extends
-        AbstractFragment
-        implements
-        CommonAdapter.CommonDataSource,
-        OnCommonItemClickListener {
-
-
-    AppInfo.Response mAppInfo = null;
+        extends AbstractFragment
+        implements RecyclerDataSource, OnCommonItemClickListener {
 
     TopInfo.Response mScreenData = null;
 
+    NewsCategoryInfo.Response mNewsCategory;
 
     RecyclerView mRecyclerView;
-    CommonAdapter mRecyclerAdapter;
+    AbstractRecyclerAdapter mRecyclerAdapter;
     SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
@@ -58,14 +62,13 @@ public class FragmentHome
 
     @Override
     protected void customToolbarInit() {
-        mToolbarSettings.toolbarTitle = this.mAppInfo.data.name;
+        mToolbarSettings.toolbarTitle = AppData.sharedInstance().mAppInfo.data.name;
         mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
         mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
     }
 
     @Override
     protected void clearScreenData() {
-        this.mAppInfo = null;
         this.mScreenData = null;
         this.mScreenDataItems = new ArrayList<>();
         if (this.mRecyclerAdapter != null) {
@@ -87,7 +90,7 @@ public class FragmentHome
     protected void previewScreenData() {
         this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
         mScreenDataItems = new ArrayList<>();
-        for (AppInfo.TopComponent component : this.mAppInfo.data.top_components) {
+        for (AppInfo.TopComponent component : AppData.sharedInstance().mAppInfo.data.top_components) {
             buildItemForComponent(component);
         }
 
@@ -95,23 +98,28 @@ public class FragmentHome
 
         if (this.mRecyclerAdapter == null) {
             GridLayoutManager manager = new GridLayoutManager(getActivity(), mSpanCount);//);
-            this.mRecyclerAdapter = new CommonAdapter(getActivity(), this, this);
-            manager.setSpanSizeLookup(new CommonAdapter.GridSpanSizeLookup(mRecyclerAdapter));
+            if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+                this.mRecyclerAdapter = new RestaurantAdapter(getActivity(), this, this);
+            } else {
+                this.mRecyclerAdapter = new CommonAdapter(getActivity(), this, this);
+            }
+            manager.setSpanSizeLookup(new GridSpanSizeLookup(mRecyclerAdapter));
             this.mRecyclerView.setLayoutManager(manager);
-            this.mRecyclerView.addItemDecoration(new CommonAdapter.MarginDecoration(getActivity()));
+            this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.item_margin));
+
             this.mRecyclerView.setAdapter(mRecyclerAdapter);
         } else {
             this.mRecyclerAdapter.notifyDataSetChanged();
         }
-        this.mToolbarSettings.appSetting = this.mAppInfo.data.app_setting;
-        this.mActivityListener.updateAppInfo(this.mAppInfo, this.mStoreId);
+        this.mToolbarSettings.appSetting = AppData.sharedInstance().mAppInfo.data.app_setting;
+        this.mActivityListener.updateAppInfo(AppData.sharedInstance().mAppInfo, this.mStoreId);
 
         updateToolbar();
     }
 
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View mRoot = inflater.inflate(R.layout.fragment_recycler_view, null);
+        View mRoot = inflater.inflate(R.layout.fragment_recycler_view_refresh, null);
         this.mRecyclerView = (RecyclerView) mRoot.findViewById(R.id.recycler_view);
         this.mSwipeRefreshLayout = (SwipeRefreshLayout) mRoot.findViewById(R.id.swipe_refresh_layout);
         this.mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -122,6 +130,11 @@ public class FragmentHome
                 reloadScreenData();
             }
         });
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            this.mRecyclerView.setBackgroundColor(Color.rgb(243, 243, 243));
+        } else {
+            this.mRecyclerView.setBackgroundColor(Color.WHITE);
+        }
         return mRoot;
     }
 
@@ -152,9 +165,6 @@ public class FragmentHome
         if (savedInstanceState.containsKey(SCREEN_DATA)) {
             this.mScreenData = (TopInfo.Response) savedInstanceState.getSerializable(SCREEN_DATA);
         }
-        if (savedInstanceState.containsKey(APP_DATA)) {
-            this.mAppInfo = (AppInfo.Response) savedInstanceState.getSerializable(APP_DATA);
-        }
         if (savedInstanceState.containsKey(APP_DATA_STORE_ID)) {
             this.mStoreId = savedInstanceState.getInt(APP_DATA_STORE_ID);
         }
@@ -162,8 +172,9 @@ public class FragmentHome
 
     @Override
     void customSaveInstanceState(Bundle outState) {
-        outState.putSerializable(SCREEN_DATA, this.mScreenData);
-        outState.putSerializable(APP_DATA, this.mAppInfo);
+        if (this.mScreenData != null) {
+            outState.putSerializable(SCREEN_DATA, this.mScreenData);
+        }
         outState.putInt(APP_DATA_STORE_ID, this.mStoreId);
     }
 
@@ -192,8 +203,11 @@ public class FragmentHome
         RecyclerItemWrapper item = getItemData(position);
 
         switch (item.itemType) {
-            case RecyclerItemTypeTopItem: {
-                //Do nothing
+            case RecyclerItemTypeTop: {
+                if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+                    int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
+                    this.mActivityListener.showScreen(screenId, null);
+                }
             }
             break;
 
@@ -203,7 +217,7 @@ public class FragmentHome
             }
             break;
 
-            case RecyclerItemTypeItemList: {
+            case RecyclerItemTypeList: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
                 this.mActivityListener.showScreen(screenId, extras);
@@ -211,19 +225,12 @@ public class FragmentHome
             }
             break;
 
-            case RecyclerItemTypeItemStore: {
+            case RecyclerItemTypeStore: {
                 //Do nothing
             }
             break;
 
-            case RecyclerItemTypeItemGrid: {
-                int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
-                Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(screenId, extras);
-            }
-            break;
-
-            case RecyclerItemTypeItemGridImageOnly: {
+            case RecyclerItemTypeGrid: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
                 this.mActivityListener.showScreen(screenId, extras);
@@ -233,6 +240,14 @@ public class FragmentHome
             case RecyclerItemTypeFooter: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 this.mActivityListener.showScreen(screenId, null);
+            }
+            break;
+
+            case RecyclerItemTypeRecyclerHorizontal:
+            case RecyclerItemTypeRecyclerVertical: {
+                int screenId = extraData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
+                Serializable extras = extraData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
+                this.mActivityListener.showScreen(screenId, extras);
             }
             break;
 
@@ -253,14 +268,17 @@ public class FragmentHome
                 new TenpossCommunicator.TenpossCommunicatorListener() {
                     @Override
                     public void completed(TenpossCommunicator request, Bundle responseParams) {
+                        if (isAdded() == false) {
+                            return;
+                        }
                         int result = responseParams.getInt(Key.ResponseResult);
                         if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
                             int resultApi = responseParams.getInt(Key.ResponseResultApi);
                             if (resultApi == CommonResponse.ResultSuccess) {
-                                FragmentHome.this.mAppInfo = (AppInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                                if (FragmentHome.this.mAppInfo.data != null && FragmentHome.this.mAppInfo.data.stores.size() > 0) {
-                                    FragmentHome.this.mStoreId = FragmentHome.this.mAppInfo.data.stores.get(0).id;
-                                    mToolbarSettings.toolbarTitle = FragmentHome.this.mAppInfo.data.name;
+                                AppData.sharedInstance().mAppInfo = (AppInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                if (AppData.sharedInstance().mAppInfo.data != null && AppData.sharedInstance().mAppInfo.data.stores.size() > 0) {
+                                    FragmentHome.this.mStoreId = AppData.sharedInstance().mAppInfo.data.stores.get(0).id;
+                                    mToolbarSettings.toolbarTitle = AppData.sharedInstance().mAppInfo.data.name;
                                     loadTopInfo(FragmentHome.this.mStoreId);
                                 } else {
                                     String strMessage = "Invalid response data!";
@@ -287,11 +305,48 @@ public class FragmentHome
                 new TenpossCommunicator.TenpossCommunicatorListener() {
                     @Override
                     public void completed(TenpossCommunicator request, Bundle responseParams) {
+                        if (isAdded() == false) {
+                            return;
+                        }
                         int result = responseParams.getInt(Key.ResponseResult);
                         if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
                             int resultApi = responseParams.getInt(Key.ResponseResultApi);
                             if (resultApi == CommonResponse.ResultSuccess) {
                                 FragmentHome.this.mScreenData = (TopInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                loadNewsCategory();
+
+                            } else {
+                                String strMessage = responseParams.getString(Key.ResponseMessage);
+                                errorWithMessage(responseParams, strMessage);
+                            }
+                        } else {
+                            String strMessage = responseParams.getString(Key.ResponseMessage);
+                            errorWithMessage(responseParams, strMessage);
+                        }
+                    }
+                });
+        communicator.execute(params);
+    }
+
+    void loadNewsCategory() {
+        NewsCategoryInfo.Request requestParams = new NewsCategoryInfo.Request();
+        requestParams.store_id = this.mStoreId;
+
+        Bundle params = new Bundle();
+        params.putSerializable(Key.RequestObject, requestParams);
+        NewsCategoryCommunicator communicator = new NewsCategoryCommunicator(
+                new TenpossCommunicator.TenpossCommunicatorListener() {
+                    @Override
+                    public void completed(TenpossCommunicator request, Bundle responseParams) {
+                        if (isAdded() == false) {
+                            return;
+                        }
+                        mLoadingStatus = LOADING_STATUS_UNKNOWN;
+                        int result = responseParams.getInt(Key.ResponseResult);
+                        if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                            int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                            if (resultApi == CommonResponse.ResultSuccess) {
+                                mNewsCategory = (NewsCategoryInfo.Response) responseParams.getSerializable(Key.ResponseObject);
                                 previewScreenData();
                             } else {
                                 String strMessage = responseParams.getString(Key.ResponseMessage);
@@ -308,14 +363,12 @@ public class FragmentHome
 
     void buildItemForComponent(AppInfo.TopComponent component) {
         Bundle extras;
-
         if (component.id == mScreenData.data.images.top_id) {
             if (mScreenData.data.images != null && mScreenData.data.images.size() > 0) {
                 if (component != null) {
                     extras = new Bundle();
                     extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, mScreenData.data.images.data);
-
-                    mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeTopItem, mSpanCount, extras));
+                    mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeTop, mSpanCount, extras));
                 }
             }
         } else if (component.id == mScreenData.data.items.top_id) {
@@ -326,7 +379,7 @@ public class FragmentHome
                      * Header
                      */
                     extras = new Bundle();
-                    extras.putString(RecyclerItemWrapper.ITEM_TITLE, component.name);
+                    extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, component.name);
                     extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.MENU_SCREEN);
 
                     mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, mSpanCount, extras));
@@ -334,27 +387,46 @@ public class FragmentHome
                     /**
                      * Content
                      */
-                    for (ItemsInfo.Item item : mScreenData.data.items.data) {
+                    if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
                         extras = new Bundle();
-                        extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
                         extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.ITEM_SCREEN);
-                        extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.title);
-                        extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.getPrice());
-                        extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
-                        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
+                        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, mScreenData.data.items.data);
+                        extras.putSerializable(RecyclerItemWrapper.ITEM_CLASS, ItemsInfo.Item.class);
 
-                        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGrid, mSpanCount / mSpanLargeItems, extras));
-                    }
+                        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeRecyclerHorizontal, mSpanCount, extras));
 
-                    if (component.showViewMore() == true) {
-                        /**
-                         * Footer
-                         */
-                        extras = new Bundle();
-                        extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.MENU_SCREEN);
-                        extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
+                    } else {
+                        int rowIndex = 0;
+                        int itemSpanCount = 0;
+                        for (ItemsInfo.Item item : mScreenData.data.items.data) {
+                            extras = new Bundle();
+                            extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
+                            extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.ITEM_SCREEN);
+                            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.title);
+                            extras.putString(RecyclerItemWrapper.ITEM_PRICE, item.getPrice());
+                            extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
+                            extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
 
-                        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
+                            extras.putInt(RecyclerItemWrapper.ITEM_ROW, rowIndex);
+                            itemSpanCount += this.mSpanCount / this.mSpanLargeItems;
+                            if (itemSpanCount == this.mSpanCount) {
+                                rowIndex++;
+                                itemSpanCount = 0;
+                            }
+                            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeGrid, mSpanCount / mSpanLargeItems, extras));
+                        }
+
+
+                        if (component.showViewMore() == true) {
+                            /**
+                             * Footer
+                             */
+                            extras = new Bundle();
+                            extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.MENU_SCREEN);
+                            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, getString(R.string.more));
+
+                            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
+                        }
                     }
                 }
             }
@@ -366,32 +438,50 @@ public class FragmentHome
                      */
                     extras = new Bundle();
                     extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_SCREEN);
-                    extras.putString(RecyclerItemWrapper.ITEM_TITLE, component.name);
+                    extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, component.name);
 
                     mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, mSpanCount, extras));
 
                     /**
                      * Content
                      */
-                    for (PhotoInfo.Photo item : mScreenData.data.photos.data) {
+                    if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
                         extras = new Bundle();
-                        extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
                         extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_ITEM_SCREEN);
-                        extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
-                        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item.getImageUrl());
+                        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, mScreenData.data.photos.data);
+                        extras.putSerializable(RecyclerItemWrapper.ITEM_CLASS, PhotoInfo.Photo.class);
 
-                        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, mSpanCount / mSpanSmallItems, extras));
-                    }
+                        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeRecyclerHorizontal, mSpanCount, extras));
 
-                    if (component.showViewMore() == true) {
-                        /**
-                         * Footer
-                         */
-                        extras = new Bundle();
-                        extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_SCREEN);
-                        extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
+                    } else {
+                        int rowIndex = 0;
+                        int itemSpanCount = 0;
+                        for (PhotoInfo.Photo item : mScreenData.data.photos.data) {
+                            extras = new Bundle();
+                            extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
+                            extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_ITEM_SCREEN);
+                            extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
+                            extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item.getImageUrl());
 
-                        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
+                            extras.putInt(RecyclerItemWrapper.ITEM_ROW, rowIndex);
+                            itemSpanCount += this.mSpanCount / this.mSpanSmallItems;
+                            if (itemSpanCount == this.mSpanCount) {
+                                rowIndex++;
+                                itemSpanCount = 0;
+                            }
+                            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeGrid, mSpanCount / mSpanSmallItems, extras));
+                        }
+
+                        if (component.showViewMore() == true) {
+                            /**
+                             * Footer
+                             */
+                            extras = new Bundle();
+                            extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_SCREEN);
+                            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, getString(R.string.more));
+
+                            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
+                        }
                     }
                 }
             }
@@ -403,59 +493,78 @@ public class FragmentHome
                 if (component != null) {
                     extras = new Bundle();
                     extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_SCREEN);
-                    extras.putString(RecyclerItemWrapper.ITEM_TITLE, component.name);
+                    extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, component.name);
 
                     mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, mSpanCount, extras));
 
                     /**
                      * Content
                      */
-                    for (NewsInfo.News item : mScreenData.data.news.data) {
+                    if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+                        for (NewsInfo.News item : mScreenData.data.news.data) {
+                            item.setCategory(this.mNewsCategory.data.news_categories);
+                        }
+
                         extras = new Bundle();
-                        extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
                         extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_DETAILS_SCREEN);
-                        extras.putString(RecyclerItemWrapper.ITEM_CATEGORY, getString(R.string.category_text));
-                        extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.title);
-                        extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.description);
-                        extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
-                        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
+                        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, mScreenData.data.news.data);
+                        extras.putSerializable(RecyclerItemWrapper.ITEM_CLASS, NewsInfo.News.class);
 
-                        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemList, mSpanCount, extras));
-                    }
+                        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeRecyclerVertical, mSpanCount, extras));
 
-                    if (component.showViewMore() == true) {
-                        /**
-                         * Footer
-                         */
-                        extras = new Bundle();
-                        extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_SCREEN);
-                        extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
+                    } else {
+                        for (NewsInfo.News item : mScreenData.data.news.data) {
+                            extras = new Bundle();
+                            item.setCategory(this.mNewsCategory.data.news_categories);
+                            extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
+                            extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_DETAILS_SCREEN);
+                            extras.putString(RecyclerItemWrapper.ITEM_BRAND, item.getCategory());
+                            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.title);
+                            extras.putString(RecyclerItemWrapper.ITEM_BRAND, item.description);
+                            extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
+                            extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
 
-                        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
+                            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeList, mSpanCount, extras));
+                        }
+
+                        if (component.showViewMore() == true) {
+                            /**
+                             * Footer
+                             */
+                            extras = new Bundle();
+                            extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_SCREEN);
+                            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, getString(R.string.more));
+
+                            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
+                        }
                     }
                 }
             }
         } else if (component.id == mScreenData.data.contact.top_id) {
             if (mScreenData.data.contact != null && mScreenData.data.contact.size() > 0) {
                 if (component != null) {
-                    for (TopInfo.Contact contact : mScreenData.data.contact.data) {
-                        /**
-                         * Content
-                         */
-                        extras = new Bundle();
-                        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, contact);
+                    if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+                        //TODO:
 
-                        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemStore, mSpanCount, extras));
+                    } else {
+                        for (TopInfo.Contact contact : mScreenData.data.contact.data) {
+                            /**
+                             * Content
+                             */
+                            extras = new Bundle();
+                            extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, contact);
+                            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeStore, mSpanCount, extras));
 
-                        /**
-                         * Footer
-                         */
-                        extras = new Bundle();
-                        extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.RESERVE_SCREEN);
-                        extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.reserve));
-                        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, contact);
+                            /**
+                             * Footer
+                             */
+                            extras = new Bundle();
+                            extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.RESERVE_SCREEN);
+                            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, getString(R.string.reserve));
+                            extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, contact);
 
-                        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
+                            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
+                        }
                     }
                 }
             }

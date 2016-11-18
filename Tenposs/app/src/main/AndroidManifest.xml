@@ -27,16 +27,18 @@
             android:value="1526eb50ea21e90c2c38104b5aeb448380d6b026" />
 
         <!-- [START firebase_service] -->
-        <service android:name=".TenpossMessagingService"
-            android:label="TenpossMessagingService"
-            android:process=":messageservice">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
+        <!--<service-->
+            <!--android:name=".TenpossMessagingService"-->
+            <!--android:label="TenpossMessagingService"-->
+            <!--android:process=":messageservice">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="com.google.firebase.MESSAGING_EVENT" />-->
+            <!--</intent-filter>-->
+        <!--</service>-->
 
 
-        <service android:name=".TenpossInstanceIDService"
+        <service
+            android:name=".TenpossInstanceIDService"
             android:label="TenpossIDService"
             android:process=":idservice">
             <intent-filter>
@@ -77,6 +79,12 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:name="com.facebook.FacebookContentProvider"
+            android:authorities="com.facebook.app.FacebookContentProvider570059106506930"
+            android:exported="true" />
+
 
     </application>
 </manifest>

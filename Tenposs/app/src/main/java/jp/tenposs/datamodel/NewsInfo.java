@@ -51,6 +51,8 @@ public class NewsInfo {
         public String description;
         public String date;
         public int store_id;
+        public int new_category_id;
+
         String image_url;
         String category = "";
 
@@ -61,6 +63,15 @@ public class NewsInfo {
 
         public String getCreatedDate() {
             return date;
+        }
+
+        public void setCategory(ArrayList<NewsCategoryInfo.Category> categories) {
+            for (NewsCategoryInfo.Category category : categories) {
+                if (category.id == this.new_category_id) {
+                    this.category = category.name;
+                    break;
+                }
+            }
         }
 
         public void setCategory(String category) {

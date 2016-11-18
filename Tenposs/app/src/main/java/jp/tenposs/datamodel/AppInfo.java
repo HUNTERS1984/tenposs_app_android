@@ -5,6 +5,7 @@ import android.graphics.Color;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import jp.tenposs.utils.FontIcon;
 import jp.tenposs.utils.Utils;
 
 /**
@@ -76,6 +77,7 @@ public class AppInfo {
         public int id;
         public String name;
         public String icon = "";
+        public int fontType = 0;
 
         public SideMenu(int settingScreen, String settings, String icon) {
             id = settingScreen;

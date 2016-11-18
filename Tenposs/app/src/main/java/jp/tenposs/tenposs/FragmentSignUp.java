@@ -11,13 +11,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import jp.tenposs.communicator.SignUpCommunicator;
-import jp.tenposs.communicator.TenpossCommunicator;
-import jp.tenposs.datamodel.CommonObject;
-import jp.tenposs.datamodel.CommonResponse;
-import jp.tenposs.datamodel.Key;
+import java.io.Serializable;
+
+import jp.tenposs.datamodel.AppData;
 import jp.tenposs.datamodel.ScreenDataStatus;
-import jp.tenposs.datamodel.SignInInfo;
 import jp.tenposs.datamodel.SignUpInfo;
 import jp.tenposs.utils.Utils;
 
@@ -32,7 +29,19 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
     EditText mPasswordConfirmEdit;
 
     TextView mGotoSignInLabel;
-    Button mSignUpButton;
+    Button mNextButton;
+
+    private FragmentSignUp() {
+
+    }
+
+    public static FragmentSignUp newInstance(Serializable extras) {
+        FragmentSignUp fragment = new FragmentSignUp();
+        Bundle b = new Bundle();
+        b.putSerializable(AbstractFragment.SCREEN_DATA, extras);
+        fragment.setArguments(b);
+        return fragment;
+    }
 
     @Override
     protected boolean customClose() {
@@ -41,7 +50,7 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
 
     @Override
     protected void customToolbarInit() {
-        mToolbarSettings.toolbarTitle = getString(R.string.sign_up);
+        mToolbarSettings.toolbarTitle = getString(R.string.sign_up_1);
         mToolbarSettings.toolbarLeftIcon = "flaticon-close";
         mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
     }
@@ -64,14 +73,19 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
 
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View mRoot = inflater.inflate(R.layout.fragment_signup, null);
+        View mRoot;
+        if(AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            mRoot = inflater.inflate(R.layout.restaurant_fragment_signup, null);
+        }else {
+            mRoot = inflater.inflate(R.layout.fragment_signup, null);
+        }
         mEmailEdit = (EditText) mRoot.findViewById(R.id.email_edit);
         mNameEdit = (EditText) mRoot.findViewById(R.id.name_edit);
         mPasswordEdit = (EditText) mRoot.findViewById(R.id.password_edit);
         mPasswordConfirmEdit = (EditText) mRoot.findViewById(R.id.password_confirm_edit);
         mGotoSignInLabel = (TextView) mRoot.findViewById(R.id.go_to_sign_in_label);
-        mSignUpButton = (Button) mRoot.findViewById(R.id.sign_up_button);
-        mSignUpButton.setOnClickListener(this);
+        mNextButton = (Button) mRoot.findViewById(R.id.next_button);
+        mNextButton.setOnClickListener(this);
 
         Utils.setTextViewHTML(mGotoSignInLabel, getString(R.string.already_sign_up),
                 new ClickableSpan() {
@@ -112,53 +126,63 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
 
     @Override
     public void onClick(View v) {
-        if (v == mSignUpButton) {
+        if (v == mNextButton) {
             if (checkInput() == true) {
-                Bundle params = new Bundle();
                 SignUpInfo.Request request = new SignUpInfo.Request();
                 request.email = mEmailEdit.getEditableText().toString();
                 request.name = mNameEdit.getEditableText().toString();
                 request.setPassword(mPasswordEdit.getEditableText().toString());
-                params.putSerializable(Key.RequestObject, request);
-                SignUpCommunicator communicator = new SignUpCommunicator(
-                        new TenpossCommunicator.TenpossCommunicatorListener() {
-                            @Override
-                            public void completed(TenpossCommunicator request, Bundle responseParams) {
-                                hideProgress();
-                                int result = responseParams.getInt(Key.ResponseResult);
-                                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                                    if (resultApi == CommonResponse.ResultSuccess) {
-                                        SignUpInfo.Response response = (SignUpInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                                        String token = response.data.token;
-                                        SignInInfo.Profile profile = response.data.profile;
-                                        setPref(Key.TokenKey, token);
-                                        setPref(Key.UserProfile, CommonObject.toJSONString(response.data, response.data.getClass()));
-                                        mActivityListener.updateUserInfo(response.data);
-                                        close();
-                                    } else {
-                                        Utils.showAlert(getContext(),
-                                                getString(R.string.error),
-                                                getString(R.string.msg_unable_to_sign_up),
-                                                getString(R.string.close),
-                                                null,
-                                                new DialogInterface.OnClickListener() {
-                                                    @Override
-                                                    public void onClick(DialogInterface dialog, int which) {
 
-                                                    }
-                                                });
-                                    }
-                                } else {
-                                    String strMessage = responseParams.getString(Key.ResponseMessage);
-                                    errorWithMessage(responseParams, strMessage);
-                                }
-                            }
-                        });
-                showProgress(getString(R.string.msg_signing_up));
-                communicator.execute(params);
+                this.mActivityListener.showScreen(AbstractFragment.SIGN_UP_NEXT_SCREEN, request);
             }
         }
+//        if (v == mSignUpButton) {
+//            if (checkInput() == true) {
+//                Bundle params = new Bundle();
+//                SignUpInfo.Request request = new SignUpInfo.Request();
+//                request.email = mEmailEdit.getEditableText().toString();
+//                request.name = mNameEdit.getEditableText().toString();
+//                request.setPassword(mPasswordEdit.getEditableText().toString());
+//                params.putSerializable(Key.RequestObject, request);
+//                SignUpCommunicator communicator = new SignUpCommunicator(
+//                        new TenpossCommunicator.TenpossCommunicatorListener() {
+//                            @Override
+//                            public void completed(TenpossCommunicator request, Bundle responseParams) {
+//                                hideProgress();
+//                                int result = responseParams.getInt(Key.ResponseResult);
+//                                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+//                                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
+//                                    if (resultApi == CommonResponse.ResultSuccess) {
+//                                        SignUpInfo.Response response = (SignUpInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+//                                        String token = response.data.token;
+//                                        SignInInfo.Profile profile = response.data.profile;
+//                                        setPref(Key.TokenKey, token);
+//                                        setPref(Key.UserProfile, CommonObject.toJSONString(response.data, response.data.getClass()));
+//                                        mActivityListener.updateUserInfo(response.data);
+//                                        close();
+//                                    } else {
+//                                        Utils.showAlert(getContext(),
+//                                                getString(R.string.error),
+//                                                getString(R.string.msg_unable_to_sign_up),
+//                                                getString(R.string.close),
+//                                                null,
+//                                                new DialogInterface.OnClickListener() {
+//                                                    @Override
+//                                                    public void onClick(DialogInterface dialog, int which) {
+//
+//                                                    }
+//                                                });
+//                                    }
+//                                } else {
+//                                    String strMessage = responseParams.getString(Key.ResponseMessage);
+//                                    errorWithMessage(responseParams, strMessage);
+//                                }
+//                            }
+//                        });
+//                showProgress(getString(R.string.msg_signing_up));
+//                communicator.execute(params);
+//            }
+//        }
     }
 
     private boolean checkInput() {
@@ -262,6 +286,8 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
                     });
             return false;
         }
+
+
         return true;
     }
 }

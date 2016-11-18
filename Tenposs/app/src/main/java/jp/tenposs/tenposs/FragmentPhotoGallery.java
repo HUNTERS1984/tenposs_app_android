@@ -19,33 +19,40 @@ import junit.framework.Assert;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import jp.tenposs.adapter.AbstractRecyclerAdapter;
 import jp.tenposs.adapter.CommonAdapter;
+import jp.tenposs.adapter.GridSpanSizeLookup;
+import jp.tenposs.adapter.MarginDecoration;
+import jp.tenposs.adapter.RecyclerDataSource;
 import jp.tenposs.adapter.RecyclerItemType;
 import jp.tenposs.adapter.RecyclerItemWrapper;
 import jp.tenposs.communicator.PhotoCategoryInfoCommunicator;
 import jp.tenposs.communicator.PhotoInfoCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
+import jp.tenposs.datamodel.AppData;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.PhotoCategoryInfo;
 import jp.tenposs.datamodel.PhotoInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.listener.OnCommonItemClickListener;
-import jp.tenposs.utils.FlatIcon;
+import jp.tenposs.utils.FontIcon;
+import jp.tenposs.utils.Utils;
 
 
 /**
  * Created by ambient on 7/27/16.
  */
-public class FragmentPhotoGallery extends AbstractFragment implements View.OnClickListener, CommonAdapter.CommonDataSource, OnCommonItemClickListener {
+public class FragmentPhotoGallery extends AbstractFragment implements View.OnClickListener, RecyclerDataSource, OnCommonItemClickListener {
 
     ProgressBar mLoadingIndicator;
     LinearLayout mSubToolbar;
     ImageButton mPreviousButton;
     TextView mTitleLabel;
     ImageButton mNextButton;
+    TextView mNoDataLabel;
     RecyclerView mRecyclerView;
-    CommonAdapter mRecyclerAdapter;
+    AbstractRecyclerAdapter mRecyclerAdapter;
     SwipeRefreshLayout mSwipeRefreshLayout;
 
     PhotoCategoryInfo.Response mScreenData;
@@ -59,6 +66,19 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
      * Fragment Override
      */
 
+    private FragmentPhotoGallery() {
+
+    }
+
+    public static FragmentPhotoGallery newInstance(String title, int storeId) {
+        FragmentPhotoGallery fragment = new FragmentPhotoGallery();
+        Bundle b = new Bundle();
+        b.putString(AbstractFragment.SCREEN_TITLE, title);
+        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
+        fragment.setArguments(b);
+        return fragment;
+    }
+
     @Override
     protected boolean customClose() {
         return false;
@@ -67,8 +87,13 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.photo_gallery);
-        mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
-        mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+        } else {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        }
     }
 
     @Override
@@ -100,22 +125,30 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
         enableControls(true);
         mScreenDataItems = new ArrayList<>();
 
+        int rowIndex = 0;
+        int itemSpanCount = 0;
         for (PhotoInfo.Photo photo : mCurrentItem.data.photos) {
             Bundle extras = new Bundle();
             extras.putInt(RecyclerItemWrapper.ITEM_ID, photo.id);
             extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_ITEM_SCREEN);
             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, photo.getImageUrl());
             extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, photo.getImageUrl());
-            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeItemGridImageOnly, mSpanCount / mSpanSmallItems, extras));
+            extras.putInt(RecyclerItemWrapper.ITEM_ROW, rowIndex);
+            itemSpanCount += this.mSpanCount / this.mSpanSmallItems;
+            if (itemSpanCount == this.mSpanCount) {
+                rowIndex++;
+                itemSpanCount = 0;
+            }
+            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeGrid, mSpanCount / mSpanSmallItems, extras));
         }
 
         mTitleLabel.setText(mCurrentPhotoCat.name);
         if (this.mRecyclerAdapter == null) {
             GridLayoutManager manager = new GridLayoutManager(getActivity(), mSpanCount);//);
             this.mRecyclerAdapter = new CommonAdapter(getActivity(), this, this);
-            manager.setSpanSizeLookup(new CommonAdapter.GridSpanSizeLookup(mRecyclerAdapter));
+            manager.setSpanSizeLookup(new GridSpanSizeLookup(mRecyclerAdapter));
             this.mRecyclerView.setLayoutManager(manager);
-            this.mRecyclerView.addItemDecoration(new CommonAdapter.MarginDecoration(getActivity()));
+            this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.item_margin));
             this.mRecyclerView.setAdapter(mRecyclerAdapter);
 
             this.mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -139,18 +172,24 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
         } else {
             this.mRecyclerAdapter.notifyDataSetChanged();
         }
+        if (this.mScreenDataItems.size() == 0) {
+            this.mNoDataLabel.setVisibility(View.VISIBLE);
+        } else {
+            this.mNoDataLabel.setVisibility(View.GONE);
+        }
         updateToolbar();
     }
 
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_recycler_view_paging, null);
+        View root = inflater.inflate(R.layout.fragment_recycler_view_paging_refresh, null);
 
         this.mLoadingIndicator = (ProgressBar) root.findViewById(R.id.loading_indicator);
         this.mSubToolbar = (LinearLayout) root.findViewById(R.id.sub_toolbar);
         this.mPreviousButton = (ImageButton) root.findViewById(R.id.previous_button);
         this.mTitleLabel = (TextView) root.findViewById(R.id.title_label);
         this.mNextButton = (ImageButton) root.findViewById(R.id.next_button);
+        this.mNoDataLabel = (TextView) root.findViewById(R.id.no_data_label);
         this.mRecyclerView = (RecyclerView) root.findViewById(R.id.recycler_view);
         this.mSwipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_refresh_layout);
         this.mPreviousButton.setOnClickListener(this);
@@ -219,9 +258,15 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
     @Override
     void customSaveInstanceState(Bundle outState) {
         outState.putInt(APP_DATA_STORE_ID, this.mStoreId);
-        outState.putSerializable(SCREEN_DATA, this.mScreenData);
-        outState.putSerializable(SCREEN_PAGE_ITEMS, this.mAllItems);
-        outState.putSerializable(SCREEN_DATA_PAGE_DATA, this.mCurrentItem);
+        if (this.mScreenData != null) {
+            outState.putSerializable(SCREEN_DATA, this.mScreenData);
+        }
+        if (this.mAllItems != null) {
+            outState.putSerializable(SCREEN_PAGE_ITEMS, this.mAllItems);
+        }
+        if (this.mCurrentItem != null) {
+            outState.putSerializable(SCREEN_DATA_PAGE_DATA, this.mCurrentItem);
+        }
         outState.putInt(SCREEN_DATA_ITEM_INDEX, this.mCurrentPhotoCatIndex);
     }
 
@@ -232,7 +277,11 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
 
     @Override
     boolean canCloseByBackpressed() {
-        return false;
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     void loadPhotoCatData() {
@@ -246,6 +295,9 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
                 new TenpossCommunicator.TenpossCommunicatorListener() {
                     @Override
                     public void completed(TenpossCommunicator request, Bundle responseParams) {
+                        if (isAdded() == false) {
+                            return;
+                        }
                         mLoadingStatus = LOADING_STATUS_UNKNOWN;
                         int result = responseParams.getInt(Key.ResponseResult);
                         if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
@@ -298,6 +350,9 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
                         new TenpossCommunicator.TenpossCommunicatorListener() {
                             @Override
                             public void completed(TenpossCommunicator request, Bundle responseParams) {
+                                if (isAdded() == false) {
+                                    return;
+                                }
                                 mLoadingStatus = LOADING_STATUS_UNKNOWN;
                                 mLoadingIndicator.setVisibility(View.INVISIBLE);
                                 int result = responseParams.getInt(Key.ResponseResult);
@@ -385,26 +440,34 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
     void updateNavigation() {
         int previousButtonColor = Color.rgb(128, 128, 128);
         if (hasPrevious() == true) {
-            previousButtonColor = Color.parseColor("#00CECB");
+            previousButtonColor = this.mToolbarSettings.getToolbarIconColor();
+            if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+                previousButtonColor = Utils.getColor(getContext(), R.color.restaurant_text_color);
+            }
         }
 
         int nextButtonColor = Color.rgb(128, 128, 128);
         if (hasNext() == true) {
-            nextButtonColor = Color.parseColor("#00CECB");
+            nextButtonColor = this.mToolbarSettings.getToolbarIconColor();
+            if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+                nextButtonColor = Utils.getColor(getContext(), R.color.restaurant_text_color);
+            }
         }
 
-        mPreviousButton.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
+        mPreviousButton.setImageBitmap(FontIcon.imageForFontIdentifier(getContext().getAssets(),
                 "flaticon-back",
-                40,
+                Utils.CatIconSize,
                 Color.argb(0, 0, 0, 0),
-                previousButtonColor
+                previousButtonColor,
+                FontIcon.FLATICON
         ));
 
-        mNextButton.setImageBitmap(FlatIcon.fromFlatIcon(getContext().getAssets(),
+        mNextButton.setImageBitmap(FontIcon.imageForFontIdentifier(getContext().getAssets(),
                 "flaticon-next",
-                40,
+                Utils.CatIconSize,
                 Color.argb(0, 0, 0, 0),
-                nextButtonColor
+                nextButtonColor,
+                FontIcon.FLATICON
         ));
     }
 
@@ -432,7 +495,7 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
     public void onCommonItemClick(int position, Bundle extraData) {
         RecyclerItemWrapper item = getItemData(position);
         switch (item.itemType) {
-            case RecyclerItemTypeItemGridImageOnly: {
+            case RecyclerItemTypeGrid: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
                 this.mActivityListener.showScreen(screenId, extras);

@@ -1,6 +1,5 @@
 package jp.tenposs.tenposs;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -12,12 +11,12 @@ import jp.tenposs.communicator.TenpossCommunicator;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.SetPushKeyInfo;
+import jp.tenposs.utils.Utils;
 
 /**
  * Created by ambient on 9/15/16.
  */
 public class TenpossInstanceIDService extends FirebaseInstanceIdService {
-    protected SharedPreferences mAppPreferences;
 
     @Override
     public void onTokenRefresh() {
@@ -27,30 +26,12 @@ public class TenpossInstanceIDService extends FirebaseInstanceIdService {
         registerToken(token);
     }
 
-    protected String getPrefString(String key) {
-        if (this.mAppPreferences == null) {
-            this.mAppPreferences = this.getSharedPreferences("settings", Context.MODE_PRIVATE);
-        }
-        return this.mAppPreferences.getString(key, "");
-    }
-
-    protected boolean setPrefString(String key, String value) {
-        if (this.mAppPreferences == null) {
-            this.mAppPreferences = this.getSharedPreferences("settings", Context.MODE_PRIVATE);
-        }
-        boolean ret;
-        SharedPreferences.Editor editor = this.mAppPreferences.edit();
-        editor.putString(key, value);
-        ret = editor.commit();
-        return ret;
-    }
-
 
     private void registerToken(String firebaseToken) {
 
         Bundle params = new Bundle();
         SetPushKeyInfo.Request request = new SetPushKeyInfo.Request();
-        request.token = getPrefString(Key.TokenKey);
+        request.token = Utils.getPrefString(this.getApplicationContext(), Key.TokenKey);
         request.key = firebaseToken;
         params.putSerializable(Key.RequestObject, request);
 

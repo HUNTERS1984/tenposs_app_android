@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.View;
 import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
@@ -40,6 +41,7 @@ public class PopupInstagram implements DialogInterface.OnClickListener {
     }
 
     OAuthListener mOAuthListenner;
+    private static String TAG = "PopupInstagram";
 
     public interface PopupListener {
         void onPopupDismiss(int which, Serializable extras);
@@ -105,7 +107,7 @@ public class PopupInstagram implements DialogInterface.OnClickListener {
                 new WebChromeClient() {
                     @Override
                     public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-                        System.out.println(consoleMessage.message());
+                        Log.i(TAG, consoleMessage.message());
                         return super.onConsoleMessage(consoleMessage);
                     }
                 }
@@ -115,7 +117,7 @@ public class PopupInstagram implements DialogInterface.OnClickListener {
                     @Override
                     public boolean shouldOverrideUrlLoading(WebView view, String url) {
 
-                        System.out.println("Loading " + url);
+                        Log.i(TAG, "Loading " + url);
 
                         if (url.contains(TOKEN_TEMPLATE) == true) {
                             //TODO:get access_token here
@@ -265,6 +267,7 @@ public class PopupInstagram implements DialogInterface.OnClickListener {
 
         private static final String TAG = "InstagramAPI";
 
+
         public InstagramApp(Context context, String clientId, String clientSecret,
                             String callbackUrl) {
             mClientId = clientId;
@@ -341,6 +344,7 @@ public class PopupInstagram implements DialogInterface.OnClickListener {
         private void fetchUserName() {
 //            mProgress.setMessage("Finalizing ...");
             new Thread() {
+
                 @Override
                 public void run() {
 //                    Log.i(TAG, "Fetching user info");
@@ -354,7 +358,7 @@ public class PopupInstagram implements DialogInterface.OnClickListener {
                         urlConnection.setDoInput(true);
                         urlConnection.connect();
                         String response = streamToString(urlConnection.getInputStream());
-                        System.out.println(response);
+                        Log.i(TAG, response);
                         JSONObject jsonObj = (JSONObject) new JSONTokener(response).nextValue();
                         String name = jsonObj.getJSONObject("data").getString("full_name");
                         String bio = jsonObj.getJSONObject("data").getString("bio");
