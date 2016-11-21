@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -645,9 +644,9 @@ public abstract class AbstractFragment extends Fragment {
             if (this.mTitleToolbarLabel != null) {
                 this.mTitleToolbarLabel.setText(mToolbarSettings.toolbarTitle);
                 try {
-                    Utils.setTextApperance(getContext(), this.mTitleToolbarLabel, mToolbarSettings.getToolbarTitleFontSize());
-                    Typeface type = Utils.getTypeFaceForFont(getActivity(), mToolbarSettings.getToolBarTitleFont());
-                    this.mTitleToolbarLabel.setTypeface(type);
+                    Utils.setTextAppearanceTitle(getContext(), this.mTitleToolbarLabel, mToolbarSettings.getToolbarTitleFontSize());
+//                    Typeface type = Utils.getTypeFaceForFont(getActivity(), mToolbarSettings.getToolBarTitleFont());
+//                    this.mTitleToolbarLabel.setTypeface(type);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }

@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "621645406180",
+    "firebase_url": "https://tenposs-staff-app.firebaseio.com",
+    "project_id": "tenposs-staff-app",
+    "storage_bucket": "tenposs-staff-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:621645406180:android:829b10b57cb1b344",
+        "android_client_info": {
+          "package_name": "jp.tenposs.staffapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "621645406180-0rarpknupk9b8dejt3tddf934sa34eka.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiCwDUcO3P6LTiwFkQlZMqzLXpB2Swe9U"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

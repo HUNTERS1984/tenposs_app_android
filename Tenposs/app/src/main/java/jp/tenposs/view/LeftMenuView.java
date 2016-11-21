@@ -2,7 +2,6 @@ package jp.tenposs.view;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.AttributeSet;
@@ -74,9 +73,9 @@ public class LeftMenuView extends FrameLayout {
 
             if (menuTitle != null) {
                 try {
-                    Utils.setTextApperance(getContext(), menuTitle, mSettings.getMenuItemTitleFontSize());
-                    Typeface type = Utils.getTypeFaceForFont(mContext, mSettings.getMenuItemTitleFont());
-                    menuTitle.setTypeface(type);
+                    Utils.setTextAppearanceMenu(getContext(), menuTitle, mSettings.getMenuItemTitleFontSize());
+                    //Typeface type = Utils.getTypeFaceForFont(mContext, mSettings.getMenuItemTitleFont());
+                    //menuTitle.setTypeface(type);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }

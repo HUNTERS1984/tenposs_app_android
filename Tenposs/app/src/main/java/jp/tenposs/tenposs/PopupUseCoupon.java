@@ -1,6 +1,7 @@
 package jp.tenposs.tenposs;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -81,6 +82,19 @@ public class PopupUseCoupon implements BSSelectionListener {
     }
 
     private void getStaffsIfNeeded() {
+        if (Utils.isSignedIn(mContext) == false) {
+            Utils.showAlert(mContext,
+                    mContext.getString(R.string.info),
+                    mContext.getString(R.string.msg_not_sign_in),
+                    mContext.getString(R.string.close),
+                    null,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    });
+        }
         if (this.mStaffs == null) {
             Utils.showProgress(mContext, mContext.getString(R.string.msg_loading));
             StaffInfo.Request requestParams = new StaffInfo.Request();

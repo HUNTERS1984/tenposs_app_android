@@ -199,8 +199,6 @@
     <string name="change_device_label_2"><![CDATA[引き継ぎコードは、必ずメモして大切に保管して下さい。他端末へのデータの移行は、起動後画面の「引き継ぎ」から行 えます。]]></string>
     <string name="change_device_button_left"><![CDATA[閉じる]]></string>
     <string name="change_device_button_right"><![CDATA[新規で発行]]></string>
-    <string name="my_page_bottom"><![CDATA[tenpossポイント: 120ポイント]]></string>
-    <string name="my_page_top"><![CDATA[200ポイント獲得まであと、4,280マイル]]></string>
     <string name="share_title"><![CDATA[友達を招待して特典をGET!]]></string>
     <string name="share_top"><![CDATA[あなたの招待コード]]></string>
     <string name="next"><![CDATA[次へ]]></string>
@@ -223,5 +221,6 @@
     <string name="share_info">友人や知人にアプリを紹介すると1000マイルをプレゼント致します。\n方法は簡単、アプリの紹介コードを下のSNSから紹介するだけです。</string>
     <string name="direction">道順</string>
     <string name="choice">選択</string>
+    <string name="reference_code">紹介コード</string>
 
 </resources>

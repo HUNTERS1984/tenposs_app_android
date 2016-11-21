@@ -2,7 +2,6 @@ package jp.tenposs.tenposs;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
@@ -46,7 +45,6 @@ import jp.tenposs.datamodel.SetPushKeyInfo;
 import jp.tenposs.datamodel.SignInInfo;
 import jp.tenposs.datamodel.SocialSigninInfo;
 import jp.tenposs.datamodel.UserInfo;
-import jp.tenposs.utils.FontIcon;
 import jp.tenposs.utils.Utils;
 
 /**
@@ -255,37 +253,10 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
             }
         });
 
-        mFacebookIcon.setImageBitmap(FontIcon.imageForFontIdentifier(getContext().getAssets(),
-                "flaticon-facebook",
-                Utils.CatIconSize,
-                Color.argb(0, 0, 0, 0),
-                Color.argb(255, 255, 255, 255),
-                FontIcon.FLATICON
-        ));
-
-        mTwitterIcon.setImageBitmap(FontIcon.imageForFontIdentifier(getContext().getAssets(),
-                "flaticon-twitter",
-                Utils.CatIconSize,
-                Color.argb(0, 0, 0, 0),
-                Color.argb(255, 255, 255, 255),
-                FontIcon.FLATICON
-        ));
-
-        mEmailIcon.setImageBitmap(FontIcon.imageForFontIdentifier(getContext().getAssets(),
-                "flaticon-email",
-                Utils.CatIconSize,
-                Color.argb(0, 0, 0, 0),
-                Color.argb(255, 255, 255, 255),
-                FontIcon.FLATICON
-        ));
-
-
         mFacebookButton.setOnClickListener(this);
         mTwitterButton.setOnClickListener(this);
         mEmailButton.setOnClickListener(this);
         mSkipButton.setOnClickListener(this);
-//        backButton.setOnClickListener(this);
-        //mSignInButton.setOnClickListener(this);
         return root;
     }
 

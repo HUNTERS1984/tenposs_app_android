@@ -4,15 +4,23 @@
     android:id="@+id/fragment_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+
     android:background="@drawable/restaurant_bg_sign_in"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <Button
+        android:id="@+id/mask_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#33111111"
+        android:stateListAnimator="@null" />
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:layout_alignParentTop="true"
-        android:background="#33111111"
+        android:background="@android:color/transparent"
         android:theme="@style/AppTheme.NoActionBar">
 
         <android.support.v7.widget.Toolbar
@@ -72,8 +80,7 @@
                         android:paddingLeft="5dp"
                         android:paddingRight="5dp"
                         android:text="MY PAGE"
-                        android:textAppearance="@android:style/TextAppearance.Medium"
-                        android:textStyle="bold"
+                        android:textAppearance="@style/TextAppearance_Medium"
                         android:visibility="visible" />
 
                 </FrameLayout>
@@ -101,128 +108,131 @@
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/app_bar"
-        android:background="#33111111"
-        android:paddingBottom="@dimen/item_margin"
-        android:paddingLeft="@dimen/item_margin"
-        android:paddingRight="@dimen/item_margin">
+        android:orientation="vertical">
 
         <LinearLayout
+            android:id="@+id/avatar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <LinearLayout
-                android:id="@+id/avatar_layout"
+                android:id="@+id/first_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="150dp"
                 android:orientation="vertical">
 
-                <LinearLayout
-                    android:id="@+id/first_layout"
+                <android.support.percent.PercentRelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="150dp"
-                    android:orientation="vertical">
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent">
 
-                    <android.support.percent.PercentRelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_above="@+id/user_name_label"
-                        android:layout_centerHorizontal="true"
-                        android:layout_weight="1"
-                        android:background="@android:color/transparent">
+                    <jp.tenposs.view.CircleImageView
+                        android:id="@+id/user_avatar_image"
+                        android:layout_centerInParent="true"
+                        android:padding="10dp"
+                        android:src="@drawable/no_avatar"
+                        app:fill_color="@android:color/white"
+                        app:layout_aspectRatio="100%"
+                        app:layout_heightPercent="100%" />
 
-                        <jp.tenposs.view.CircleImageView
-                            android:id="@+id/user_avatar_image"
-                            android:layout_alignParentTop="true"
-                            android:layout_centerInParent="true"
-                            android:padding="10dp"
-                            android:src="@drawable/no_avatar"
-                            app:fill_color="@android:color/white"
-                            app:layout_aspectRatio="100%"
-                            app:layout_heightPercent="100%" />
+                    <ImageButton
+                        android:id="@+id/edit_profile_button"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_alignBottom="@+id/user_avatar_image"
+                        android:layout_alignRight="@+id/user_avatar_image"
+                        android:layout_marginBottom="-5dp"
+                        android:layout_marginRight="-5dp"
+                        android:background="@drawable/edit_profile" />
 
-                        <ImageButton
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:layout_alignBottom="@+id/user_avatar_image"
-                            android:layout_alignRight="@+id/user_avatar_image"
-                            android:layout_marginBottom="-5dp"
-                            android:layout_marginRight="-5dp"
-                            android:background="@drawable/edit_profile" />
+                </android.support.percent.PercentRelativeLayout>
 
-                    </android.support.percent.PercentRelativeLayout>
+                <TextView
+                    android:id="@+id/user_name_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center"
+                    android:text="Name"
+                    android:textColor="@android:color/white" />
 
-                    <TextView
-                        android:id="@+id/user_name_label"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
-                        android:layout_marginBottom="10dp"
-                        android:layout_marginTop="10dp"
-                        android:gravity="center"
-                        android:textColor="@android:color/white" />
-
-                    <TextView
-                        android:id="@+id/email_label"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:gravity="center"
-                        android:text="@string/purchase"
-                        android:textColor="@android:color/white" />
-                </LinearLayout>
+                <TextView
+                    android:id="@+id/email_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center"
+                    android:text="Email"
+                    android:textColor="@android:color/white" />
             </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/miles_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/item_margin"
+            android:background="@drawable/bg_round_corner"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/point_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/item_margin"
+                android:gravity="center"
+                android:text="Tenpossポイント" />
+
+            <TextView
+                android:id="@+id/total_point_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/item_margin"
+                android:gravity="center"
+                android:text="120ポイント"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+                android:textColor="@color/restaurant_text_color"
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_round_corner"
-                android:orientation="vertical">
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:gravity="center"
+                android:padding="@dimen/item_margin">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone">
-
-                    <TextView
-                        android:id="@+id/second_first_label"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:background="@android:color/white"
-                        android:gravity="center_horizontal"
-                        android:paddingBottom="10dp"
-                        android:paddingTop="10dp"
-                        android:text="@string/my_page_top" />
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_callout" />
-                </LinearLayout>
-
-                <RelativeLayout
-                    android:id="@+id/miles_layout"
-                    android:layout_width="match_parent"
+                <android.support.percent.PercentRelativeLayout
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@android:color/transparent"
-                    android:padding="30dp">
+                    android:padding="5dp">
+
+                    <ImageView
+                        android:layout_centerInParent="true"
+                        android:src="@drawable/miles_border"
+                        app:layout_aspectRatio="100%"
+                        app:layout_heightPercent="100%" />
 
                     <jp.tenposs.view.CircularProgressBar
                         android:id="@+id/miles_progress"
-                        android:layout_width="180dp"
-                        android:layout_height="180dp"
                         android:layout_centerInParent="true"
-                        app:cpb_background_progressbar_color="#9ce4e6"
-                        app:cpb_background_progressbar_width="13dp"
-                        app:cpb_progress="45"
-                        app:cpb_progressbar_color="#14c8c8"
-                        app:cpb_progressbar_width="13dp" />
+                        android:layout_margin="8dp"
+                        app:cpb_background_progressbar_color="#F3F3F3"
+                        app:cpb_background_progressbar_width="3dp"
+                        app:cpb_progress="50"
+                        app:cpb_progressbar_color="@color/restaurant_text_color"
+                        app:cpb_progressbar_width="5dp"
+                        app:layout_aspectRatio="100%"
+                        app:layout_heightPercent="100%" />
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -263,6 +273,7 @@
                             android:orientation="vertical">
 
                             <TextView
+                                android:id="@+id/total_miles_label"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="2,480"
@@ -272,44 +283,47 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginLeft="5dp"
-                                android:text="miles" />
+                                android:text="Miles" />
 
                         </LinearLayout>
                     </LinearLayout>
-                </RelativeLayout>
-
-                <LinearLayout
-                    android:id="@+id/bar_code_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:id="@+id/fourth_first_label"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:gravity="center_horizontal"
-                        android:paddingBottom="10dp"
-                        android:paddingTop="10dp"
-                        android:text="@string/my_page_bottom" />
-                </LinearLayout>
-
-                <RelativeLayout
-                    android:id="@+id/last_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="180px"
-                    android:layout_alignParentBottom="true"
-                    android:background="@drawable/bg_bar_code">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:layout_margin="20dp"
-                        android:background="@drawable/barcode" />
-                </RelativeLayout>
+                </android.support.percent.PercentRelativeLayout>
             </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/bar_code_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:gravity="center_horizontal"
+                    android:paddingBottom="10dp"
+                    android:paddingTop="10dp"
+                    android:text="200ポイント獲得まであと、4,280マイル" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:background="@drawable/dash_line" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="70dp">
+
+                <ImageView
+                    android:id="@+id/barcode_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerInParent="true"
+                    android:layout_margin="@dimen/item_margin"
+                    android:background="@drawable/barcode" />
+            </RelativeLayout>
         </LinearLayout>
-    </ScrollView>
+    </LinearLayout>
 </RelativeLayout>

@@ -50,6 +50,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import jp.tenposs.datamodel.Key;
 import jp.tenposs.tenposs.MainApplication;
 import jp.tenposs.tenposs.R;
 
@@ -281,37 +282,45 @@ public class Utils {
         }
     }
 
-    public static void setTextApperance(Context context, TextView view, String textStyle) {
-//        int textApperance = android.R.style.TextAppearance_DeviceDefault;
-//
-//        if (textStyle == "micro") {
-//
-//        } else if (textStyle == "small") {
-//            textApperance = android.R.style.TextAppearance_DeviceDefault_Small;
-//        } else if (textStyle == "medium") {
-//            textApperance = android.R.style.TextAppearance_DeviceDefault_Medium;
-//        } else if (textStyle == "large") {
-//            textApperance = android.R.style.TextAppearance_DeviceDefault_Large;
-//        } else if (textStyle == "extra-large") {
-//        }
-
-        int textApperance = R.style.TextAppearance_Medium;
-        if (textStyle == "micro") {
-            textApperance = R.style.TextAppearance_Micro;
-        } else if (textStyle == "small") {
-            textApperance = R.style.TextAppearance_Small;
-        } else if (textStyle == "medium") {
-            textApperance = R.style.TextAppearance_Medium;
-        } else if (textStyle == "large") {
-            textApperance = R.style.TextAppearance_Large;
-        } else if (textStyle == "extra-large") {
-            textApperance = R.style.TextAppearance_ExtraLarge;
+    public static void setTextAppearanceMenu(Context context, TextView view, String textStyle) {
+        int textAppearance = R.style.TextAppearance_Medium;
+        if (textStyle.compareToIgnoreCase("micro") == 0) {
+            textAppearance = R.style.TextAppearance_Micro;
+        } else if (textStyle.compareToIgnoreCase("small") == 0) {
+            textAppearance = R.style.TextAppearance_Small;
+        } else if (textStyle.compareToIgnoreCase("medium") == 0) {
+            textAppearance = R.style.TextAppearance_Medium;
+        } else if (textStyle.compareToIgnoreCase("large") == 0) {
+            textAppearance = R.style.TextAppearance_Large;
+        } else if (textStyle.compareToIgnoreCase("extra-large") == 0) {
+            textAppearance = R.style.TextAppearance_ExtraLarge;
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            view.setTextAppearance(textApperance);
+            view.setTextAppearance(textAppearance);
         } else {
-            view.setTextAppearance(context, textApperance);
+            view.setTextAppearance(context, textAppearance);
+        }
+    }
+
+    public static void setTextAppearanceTitle(Context context, TextView view, String textStyle) {
+        int textAppearance = R.style.TextAppearance_Medium_Bold;
+        if (textStyle.compareToIgnoreCase("micro") == 0) {
+            textAppearance = R.style.TextAppearance_Micro_Bold;
+        } else if (textStyle.compareToIgnoreCase("small") == 0) {
+            textAppearance = R.style.TextAppearance_Small_Bold;
+        } else if (textStyle.compareToIgnoreCase("medium") == 0) {
+            textAppearance = R.style.TextAppearance_Medium_Bold;
+        } else if (textStyle.compareToIgnoreCase("large") == 0) {
+            textAppearance = R.style.TextAppearance_Large_Bold;
+        } else if (textStyle.compareToIgnoreCase("extra-large") == 0) {
+            textAppearance = R.style.TextAppearance_ExtraLarge_Bold;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            view.setTextAppearance(textAppearance);
+        } else {
+            view.setTextAppearance(context, textAppearance);
         }
     }
 
@@ -391,6 +400,15 @@ public class Utils {
         return ret;
     }
 
+    public static boolean isSignedIn(Context context) {
+        String token = getPrefString(context, Key.TokenKey);
+        String userProfile = getPrefString(context, Key.UserProfile);
+        if (token.length() > 0 && userProfile.length() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     public static String formatDate(String birthday) {
         return birthday;
@@ -433,6 +451,29 @@ public class Utils {
         } else {
             imageView.setImageBitmap(null);
         }
+    }
+
+    public static Bitmap generateBarCode(String data) {
+        com.google.zxing.Writer writer = new QRCodeWriter();
+        String finaldata = Uri.encode(data, "utf-8");
+
+        int size = 200;
+        BitMatrix bm = null;
+        try {
+            bm = writer.encode(finaldata, BarcodeFormat.CODABAR, size, size);
+
+            Bitmap ImageBitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+
+            for (int i = 0; i < size; i++) {//width
+                for (int j = 0; j < size; j++) {//height
+                    ImageBitmap.setPixel(i, j, bm.get(i, j) ? Color.BLACK : Color.WHITE);
+                }
+            }
+            return ImageBitmap;
+        } catch (WriterException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

@@ -34,8 +34,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:textAppearance="@android:style/TextAppearance.DeviceDefault"
-            android:textColor="@android:color/white" />
+            android:text="Menu Item Title"
+            android:textAppearance="@style/TextAppearance_Micro"
+            android:textColor="@android:color/black" />
 
     </LinearLayout>
 </LinearLayout>

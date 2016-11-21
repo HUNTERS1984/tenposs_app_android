@@ -102,7 +102,7 @@
 
 
     <style name="TextAppearance_Micro">
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">11sp</item>
     </style>
 
     <style name="TextAppearance_Small">
@@ -110,6 +110,7 @@
     </style>
 
     <style name="TextAppearance_Medium">
+
         <item name="android:textSize">18sp</item>
     </style>
 
@@ -118,6 +119,32 @@
     </style>
 
     <style name="TextAppearance_ExtraLarge">
+        <item name="android:textSize">26sp</item>
+    </style>
+
+    <style name="TextAppearance_Micro_Bold">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">11sp</item>
+    </style>
+
+    <style name="TextAppearance_Small_Bold">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="TextAppearance_Medium_Bold">
+
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="TextAppearance_Large_Bold">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">22sp</item>
+    </style>
+
+    <style name="TextAppearance_ExtraLarge_Bold">
+        <item name="android:textStyle">bold</item>
         <item name="android:textSize">26sp</item>
     </style>
 
