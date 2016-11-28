@@ -65,10 +65,6 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
      * Fragment Override
      */
 
-    private FragmentMenu() {
-
-    }
-
     public static FragmentMenu newInstance(String title, int storeId) {
         FragmentMenu fragment = new FragmentMenu();
         Bundle b = new Bundle();
@@ -86,7 +82,7 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.menu);
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && this.mFirstScreen == false) {
             mToolbarSettings.toolbarLeftIcon = "flaticon-back";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
         } else {
@@ -126,9 +122,10 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
         int rowIndex = 0;
         int itemSpanCount = 0;
         for (ItemsInfo.Item item : mCurrentItem.data.items) {
+            item.menu = this.mCurrentMenu.name;
             Bundle extras = new Bundle();
             extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
-            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.title);
+            extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.getTitle());
             extras.putString(RecyclerItemWrapper.ITEM_PRICE, item.getPrice());
             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
             extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
@@ -139,7 +136,7 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
                 rowIndex++;
                 itemSpanCount = 0;
             }
-            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeGrid, mSpanCount / mSpanLargeItems, extras));
+            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeGridItem, mSpanCount / mSpanLargeItems, extras));
         }
 
         mTitleLabel.setText(mCurrentMenu.name);
@@ -149,7 +146,7 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
             this.mRecyclerAdapter = new CommonAdapter(getActivity(), this, this);
             manager.setSpanSizeLookup(new GridSpanSizeLookup(mRecyclerAdapter));
             this.mRecyclerView.setLayoutManager(manager);
-            this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.item_margin));
+            this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.common_item_spacing));
             this.mRecyclerView.setAdapter(mRecyclerAdapter);
 
             this.mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -496,10 +493,9 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
     public void onCommonItemClick(int position, Bundle extraData) {
         RecyclerItemWrapper item = getItemData(position);
         switch (item.itemType) {
-            case RecyclerItemTypeGrid: {
-                int id = item.itemData.getInt(RecyclerItemWrapper.ITEM_ID);
+            case RecyclerItemTypeGridItem: {
                 ItemsInfo.Item itemData = (ItemsInfo.Item) item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(AbstractFragment.ITEM_SCREEN, itemData);
+                this.mActivityListener.showScreen(AbstractFragment.ITEM_SCREEN, itemData, null);
             }
             break;
 

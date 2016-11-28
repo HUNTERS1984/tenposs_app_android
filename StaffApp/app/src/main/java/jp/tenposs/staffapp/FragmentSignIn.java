@@ -123,11 +123,11 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
             request.source = "mobile";
 
             params.putSerializable(Key.RequestObject, request);
-            showProgress("Signing in...");
+            Utils.showProgress(getContext(),"Signing in...");
             SignInCommunicator communicator = new SignInCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
                 @Override
                 public void completed(TenpossCommunicator request, Bundle responseParams) {
-                    hideProgress();
+                    Utils.hideProgress();
                     int result = responseParams.getInt(Key.ResponseResult);
                     if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
                         int resultApi = responseParams.getInt(Key.ResponseResultApi);

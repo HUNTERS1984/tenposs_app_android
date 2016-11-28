@@ -57,6 +57,7 @@ import jp.tenposs.communicator.SignOutCommunicator;
 import jp.tenposs.communicator.SocialProfileCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
 import jp.tenposs.communicator.UpdateProfileCommunicator;
+import jp.tenposs.datamodel.AppData;
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
@@ -224,7 +225,11 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.edit_profile);
-        mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-close";
+        } else {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+        }
         mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
     }
 
@@ -260,15 +265,6 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
                         } else {
                             showImageCapture();
                         }
-                    }
-                }
-        );
-        this.mRightToolbarButton.setVisibility(View.INVISIBLE);
-        this.mRightToolbarButton.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        performSignOut();
                     }
                 }
         );
@@ -650,7 +646,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
             if (data != null) {
                 Bundle extras = data.getExtras();
                 Uri selectedImage = extras.getParcelable(Key.UpdateProfileAvatar);
-                mApplication.putParceable(Key.UpdateProfileAvatar, selectedImage);
+                mApplication.putParcelable(Key.UpdateProfileAvatar, selectedImage);
                 mScreenData.profile.setImageFile(selectedImage.getPath());
                 mUserAvatarImage.post(new Runnable() {
                     @Override

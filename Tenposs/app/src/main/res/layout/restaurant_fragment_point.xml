@@ -111,7 +111,7 @@
         android:id="@+id/top_separate"
         android:layout_width="match_parent"
         android:layout_height="0.5dip"
-        android:layout_below="@+id/app_bar"
+        android:layout_below="@id/app_bar"
         android:background="@color/colorSeparate" />
 
 
@@ -119,7 +119,7 @@
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/top_separate">
+        android:layout_below="@id/top_separate">
 
         <LinearLayout
             android:layout_width="match_parent"

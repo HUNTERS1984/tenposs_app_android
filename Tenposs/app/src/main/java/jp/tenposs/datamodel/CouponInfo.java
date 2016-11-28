@@ -2,6 +2,7 @@ package jp.tenposs.datamodel;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 
 import jp.tenposs.communicator.TenpossCommunicator;
 import jp.tenposs.utils.Utils;
@@ -45,13 +46,13 @@ public class CouponInfo {
         }
     }
 
-    public class Coupon extends UrlImageObject implements Serializable {
+    public class Coupon extends CommonItem implements Serializable {
 
 
         public int id;
         public int type;
-        public String title;
-        public String description;
+        String title;
+        String description;
         public String start_date;
         public String end_date;
         public int status;
@@ -81,6 +82,44 @@ public class CouponInfo {
 
         }
 
+        @Override
+        public String getCategory() {
+            if (coupon_type != null) {
+                if (coupon_type.name != null) {
+                    return coupon_type.name;
+                } else {
+                    return "";
+                }
+            } else {
+                return "";
+            }
+        }
+
+        @Override
+        public String getTitle() {
+            if (title != null) {
+                return title;
+            } else {
+                return "";
+            }
+        }
+
+        @Override
+        public String getDescription() {
+            if (description != null) {
+                description = description.replaceAll("\r\n", "\n");
+                description = description.replaceAll("\n\r", "\n");
+                return description;
+            } else {
+                return "";
+            }
+        }
+
+        @Override
+        public String getPrice() {
+            return null;
+        }
+
         public String getHashTag() {
             String hashTag = "";
 
@@ -90,6 +129,14 @@ public class CouponInfo {
                 }
             }
             return hashTag;
+        }
+
+        public Date getEndDate() {
+            Date endDate = null;
+            if (this.end_date != null) {
+                endDate = Utils.dateFromString(this.end_date, "yyyy-MM-dd");
+            }
+            return endDate;
         }
     }
     //total_coupons

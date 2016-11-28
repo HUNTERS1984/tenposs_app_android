@@ -40,14 +40,19 @@ public class MarginDecoration extends RecyclerView.ItemDecoration {
             switch (parentHolder.itemType) {
 
                 case RecyclerItemTypeStore:
-                case RecyclerItemTypeNewsTop:
-                case RecyclerItemTypeRecyclerHorizontal:
-                case RecyclerItemTypeRecyclerVertical:
-                case RecyclerItemTypeProductDetail:
-                case RecyclerItemTypeProductInfo:
+                case RecyclerItemTypeRestaurantNewsTop:
+                case RecyclerItemTypeRestaurantRecyclerHorizontal:
+                case RecyclerItemTypeRestaurantRecyclerVertical:
+                case RecyclerItemTypeRestaurantProductDetail:
+                case RecyclerItemTypeRestaurantProductInfo:
                     return DECORATION_BOTTOM;
 
-                case RecyclerItemTypeGrid:
+                case RecyclerItemTypeGridImage:
+                case RecyclerItemTypeGridItem:
+                case RecyclerItemTypeGridStaff:
+                case RecyclerItemTypeRestaurantGridImage:
+                case RecyclerItemTypeRestaurantGridItem:
+                case RecyclerItemTypeRestaurantGridStaff:
                     return DECORATION_ALL_MULTI_COLUMN;
 
                 case RecyclerItemTypeList:

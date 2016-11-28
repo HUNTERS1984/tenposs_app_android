@@ -14,7 +14,7 @@
 
         <ImageView
             android:id="@+id/item_image"
-            android:background="@drawable/bg_image_grid"
+            android:scaleType="centerCrop"
             app:layout_aspectRatio="160%"
             app:layout_widthPercent="100%" />
 
@@ -42,10 +42,10 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/item_brand_label"
+                android:id="@+id/item_category_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/category_text"
+                android:text="item_category_label"
                 android:textAppearance="@android:style/TextAppearance.Small"
                 android:textColor="@color/description_text_color" />
         </LinearLayout>
@@ -55,7 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dip"
-            android:text="¥ 1200"
+            android:text="¥ 1,200"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
             android:textColor="@color/restaurant_text_color"
             android:textStyle="bold" />

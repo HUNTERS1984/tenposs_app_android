@@ -88,7 +88,7 @@ public class FragmentStaff extends AbstractFragment implements View.OnClickListe
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.staff);
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && this.mFirstScreen == false) {
             mToolbarSettings.toolbarLeftIcon = "flaticon-back";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
         } else {
@@ -127,12 +127,13 @@ public class FragmentStaff extends AbstractFragment implements View.OnClickListe
         mScreenDataItems = new ArrayList<>();
 
         for (StaffInfo.Staff staff : mCurrentItem.data.staffs) {
+            staff.staff_category = this.mCurrentStaffCat.name;
             Bundle extras = new Bundle();
             extras.putInt(RecyclerItemWrapper.ITEM_ID, staff.id);
             extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.STAFF_DETAIL_SCREEN);
             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, staff.getImageUrl());
             extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, staff);
-            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeGrid, mSpanCount / mSpanSmallItems, extras));
+            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeGridStaff, mSpanCount / mSpanSmallItems, extras));
         }
 
         mTitleLabel.setText(mCurrentStaffCat.name);
@@ -141,7 +142,7 @@ public class FragmentStaff extends AbstractFragment implements View.OnClickListe
             this.mRecyclerAdapter = new CommonAdapter(getActivity(), this, this);
             manager.setSpanSizeLookup(new GridSpanSizeLookup(mRecyclerAdapter));
             this.mRecyclerView.setLayoutManager(manager);
-            this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.item_margin));
+            this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.common_item_spacing));
             this.mRecyclerView.setAdapter(mRecyclerAdapter);
 
             this.mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -489,10 +490,10 @@ public class FragmentStaff extends AbstractFragment implements View.OnClickListe
     public void onCommonItemClick(int position, Bundle extraData) {
         RecyclerItemWrapper item = getItemData(position);
         switch (item.itemType) {
-            case RecyclerItemTypeGrid: {
+            case RecyclerItemTypeGridStaff: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(screenId, extras);
+                this.mActivityListener.showScreen(screenId, extras, null);
             }
             break;
 

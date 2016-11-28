@@ -88,7 +88,7 @@ public class SignInInfo {
         }
     }
 
-    public class Profile extends UrlImageObject implements Serializable {
+    public class Profile extends CommonItem implements Serializable {
         public Integer app_user_id;     //integer
         public String name;             //string
         public Integer gender;              //integer
@@ -109,6 +109,26 @@ public class SignInInfo {
                 return avatar_file;
             }
             return Utils.getImageUrl(TenpossCommunicator.DOMAIN_ADDRESS, avatar_url, "https://google.com");
+        }
+
+        @Override
+        public String getCategory() {
+            return null;
+        }
+
+        @Override
+        public String getTitle() {
+            return null;
+        }
+
+        @Override
+        public String getDescription() {
+            return null;
+        }
+
+        @Override
+        public String getPrice() {
+            return null;
         }
     }
 }

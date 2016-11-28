@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragment_content"
     android:layout_width="match_parent"
@@ -112,143 +113,155 @@
         android:id="@+id/top_separate"
         android:layout_width="match_parent"
         android:layout_height="0.5dip"
-        android:layout_below="@+id/app_bar"
+        android:layout_below="@id/app_bar"
         android:background="@color/colorSeparate" />
 
-    <LinearLayout
+
+    <android.support.v7.widget.CardView
         android:id="@+id/info_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/top_separate"
+        android:layout_below="@id/top_separate"
         android:layout_margin="@dimen/item_margin"
-        android:background="@drawable/bg_round_corner"
-        android:orientation="vertical"
-        android:padding="@dimen/item_margin">
+        card_view:cardBackgroundColor="@android:color/white"
+        card_view:cardCornerRadius="10dp">
+
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:layout_below="@id/top_separate"
+            android:layout_margin="5dp"
+            android:orientation="vertical"
+            android:padding="@dimen/item_margin">
 
-            <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/restaurant_ic_person" />
-
-            <EditText
-                android:id="@+id/email_edit"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/item_setting_height"
-                android:layout_marginLeft="@dimen/item_margin"
-                android:background="@android:color/transparent"
-                android:hint="@string/email_address"
-                android:inputType="textEmailAddress"
-                android:maxLines="1"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/restaurant_ic_person" />
+
+                <EditText
+                    android:id="@+id/name_edit"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/item_setting_height"
+                    android:layout_marginLeft="@dimen/item_margin"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/user_name"
+                    android:inputType="textPersonName"
+                    android:maxLines="1"
+                    android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dip"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@color/colorSeparate" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/restaurant_ic_mail" />
+
+                <EditText
+                    android:id="@+id/email_edit"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/item_setting_height"
+                    android:layout_marginLeft="@dimen/item_margin"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/email_address"
+                    android:inputType="textEmailAddress"
+                    android:maxLines="1"
+                    android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dip"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@color/colorSeparate" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/restaurant_ic_password" />
+
+                <EditText
+                    android:id="@+id/password_edit"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/item_setting_height"
+                    android:layout_marginLeft="@dimen/item_margin"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/password"
+                    android:inputType="textPassword"
+                    android:maxLines="1"
+                    android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dip"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@color/colorSeparate" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/restaurant_ic_password" />
+
+                <EditText
+                    android:id="@+id/password_confirm_edit"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/item_setting_height"
+                    android:layout_marginLeft="@dimen/item_margin"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/password_confirm"
+                    android:inputType="textPassword"
+                    android:maxLines="1"
+                    android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
+
+            </LinearLayout>
         </LinearLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.5dip"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:background="@color/colorSeparate" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/restaurant_ic_mail" />
-
-            <EditText
-                android:id="@+id/name_edit"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/item_setting_height"
-                android:layout_marginLeft="@dimen/item_margin"
-                android:background="@android:color/transparent"
-                android:hint="@string/user_name"
-                android:inputType="textPersonName"
-                android:maxLines="1"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.5dip"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:background="@color/colorSeparate" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/restaurant_ic_password" />
-
-            <EditText
-                android:id="@+id/password_edit"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/item_setting_height"
-                android:layout_marginLeft="@dimen/item_margin"
-                android:background="@android:color/transparent"
-                android:hint="@string/password"
-                android:inputType="textPassword"
-                android:maxLines="1"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.5dip"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:background="@color/colorSeparate" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/restaurant_ic_password" />
-
-            <EditText
-                android:id="@+id/password_confirm_edit"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/item_setting_height"
-                android:layout_marginLeft="@dimen/item_margin"
-                android:background="@android:color/transparent"
-                android:hint="@string/password_confirm"
-                android:inputType="textPassword"
-                android:maxLines="1"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
-
-        </LinearLayout>
-    </LinearLayout>
+    </android.support.v7.widget.CardView>
 
     <Button
         android:id="@+id/next_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/info_layout"
+        android:layout_below="@id/info_layout"
         android:layout_marginLeft="@dimen/common_padding"
         android:layout_marginRight="@dimen/common_padding"
         android:layout_marginTop="@dimen/common_padding"
@@ -260,7 +273,7 @@
         android:id="@+id/go_to_sign_in_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/next_button"
+        android:layout_below="@id/next_button"
         android:layout_marginLeft="@dimen/common_padding"
         android:layout_marginRight="@dimen/common_padding"
         android:layout_marginTop="@dimen/common_padding"

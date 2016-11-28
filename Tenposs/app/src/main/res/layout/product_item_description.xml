@@ -9,7 +9,7 @@
         android:id="@+id/top_separate"
         android:layout_width="match_parent"
         android:layout_height="0.5dip"
-        android:layout_below="@+id/app_bar"
+        android:layout_below="@id/app_bar"
         android:background="@color/colorSeparate" />
 
     <LinearLayout
@@ -58,24 +58,21 @@
 
     <TextView
         android:id="@+id/no_data_label"
-        android:visibility="gone"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/common_padding"
-        android:textAppearance="@android:style/TextAppearance.DeviceDefault"
-        android:gravity="center"
-        android:text="@string/no_data"
-        android:textColor="@android:color/black" />
-
-    <jp.tenposs.view.TableView
-        android:id="@+id/product_size_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/common_padding"
-        android:layout_marginLeft="@dimen/common_padding"
-        android:layout_marginRight="@dimen/common_padding"
         android:layout_marginTop="@dimen/common_padding"
-        android:visibility="visible">
+        android:gravity="center"
+        android:text="@string/no_data"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+        android:textColor="@android:color/black"
+        android:visibility="gone" />
 
-    </jp.tenposs.view.TableView>
+    <WebView
+        android:id="@+id/web_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/common_padding"
+        android:background="@android:color/white" />
+
 </jp.tenposs.view.ProductDescription>

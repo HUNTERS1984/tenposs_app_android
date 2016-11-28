@@ -11,9 +11,11 @@ import com.squareup.picasso.Picasso;
 
 import jp.tenposs.adapter.RecyclerDataSource;
 import jp.tenposs.adapter.RecyclerItemWrapper;
+import jp.tenposs.datamodel.AppData;
 import jp.tenposs.datamodel.NewsInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.listener.OnCommonItemClickListener;
+import jp.tenposs.utils.Utils;
 import jp.tenposs.view.AspectRatioImageView;
 
 /**
@@ -43,7 +45,12 @@ public class FragmentNewsDetail
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = "";
-        mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-close";
+        } else {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+        }
+
         mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
     }
 
@@ -67,12 +74,12 @@ public class FragmentNewsDetail
         ps.load(mScreenData.getImageUrl())
                 .into(this.mNewsImage);
 
-        this.mNewsTitleLabel.setText(mScreenData.title);
+        this.mNewsTitleLabel.setText(mScreenData.getTitle());
         this.mNewsCategoryLabel.setText(mScreenData.getCategory());
-        this.mNewsDateLabel.setText(this.mScreenData.getCreatedDate());
-        this.mNewsDescriptionLabel.setText(this.mScreenData.description);
+        this.mNewsDateLabel.setText(Utils.formatJapanDateTime(this.mScreenData.getLastModifyDate(), "yyyy-MM-dd hh:mm:ss", "yyyy.MM.dd"));
+        this.mNewsDescriptionLabel.setText(this.mScreenData.getDescription());
 
-        mToolbarSettings.toolbarTitle = mScreenData.title;
+        mToolbarSettings.toolbarTitle = mScreenData.getTitle();
 
         setRefreshing(false);
         updateToolbar();

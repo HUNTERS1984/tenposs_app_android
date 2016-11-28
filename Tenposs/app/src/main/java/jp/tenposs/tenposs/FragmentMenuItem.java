@@ -36,10 +36,11 @@ import jp.tenposs.utils.Utils;
 /**
  * Created by ambient on 7/27/16.
  */
-public class FragmentProduct extends AbstractFragment implements RecyclerDataSource, OnCommonItemClickListener {
+public class FragmentMenuItem extends AbstractFragment implements RecyclerDataSource, OnCommonItemClickListener {
 
     final static String RELATED_ITEMS = "RELATED_ITEMS";
     final static String TOTAL_RELATED_ITEMS = "TOTAL_RELATED_ITEMS";
+    private static final String ITEM_CATEGORY = "ITEM_CATEGORY";
 
     ItemsInfo.Item mScreenData;
     ArrayList<ItemsInfo.Item> mRelatedItems;
@@ -47,21 +48,23 @@ public class FragmentProduct extends AbstractFragment implements RecyclerDataSou
 
     int mScreenDataId;
     String mScreenTitle;
+    String mItemCategory = "";
 
     AbstractRecyclerAdapter mRecyclerAdapter;
     TextView mNoDataLabel;
     RecyclerView mRecyclerView;
 
-    private FragmentProduct() {
+    private FragmentMenuItem() {
 
     }
 
-    public static FragmentProduct newInstance(Serializable extras) {
-        FragmentProduct fragment = new FragmentProduct();
+    public static FragmentMenuItem newInstance(Serializable extras) {
+        FragmentMenuItem fragment = new FragmentMenuItem();
         Bundle b = new Bundle();
         ItemsInfo.Item item = (ItemsInfo.Item) extras;
         b.putInt(AbstractFragment.SCREEN_DATA_ID, item.id);
-        b.putString(AbstractFragment.SCREEN_TITLE, item.title);
+        b.putString(AbstractFragment.SCREEN_TITLE, item.getTitle());
+        b.putString(ITEM_CATEGORY, item.menu);
         fragment.setArguments(b);
         return fragment;
     }
@@ -80,8 +83,8 @@ public class FragmentProduct extends AbstractFragment implements RecyclerDataSou
 
     @Override
     protected void clearScreenData() {
-        FragmentProduct.this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusUnload;
-        FragmentProduct.this.mScreenData = null;
+        FragmentMenuItem.this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusUnload;
+        FragmentMenuItem.this.mScreenData = null;
     }
 
     @Override
@@ -130,7 +133,7 @@ public class FragmentProduct extends AbstractFragment implements RecyclerDataSou
                  * Header
                  */
                 extras = new Bundle();
-                extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, getString(R.string.related));
+                extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.related));
                 mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, mSpanCount, extras));
 
                 /**
@@ -140,16 +143,17 @@ public class FragmentProduct extends AbstractFragment implements RecyclerDataSou
                     extras = new Bundle();
                     extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
                     extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.ITEM_SCREEN);
-                    extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.title);
-                    extras.putString(RecyclerItemWrapper.ITEM_PRICE, item.getPrice());
+                    extras.putString(RecyclerItemWrapper.ITEM_CATEGORY, item.getCategory());
                     extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
+                    extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.getTitle());
+                    extras.putString(RecyclerItemWrapper.ITEM_PRICE, item.getPrice());
                     extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
-                    mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeGrid, mSpanCount / mSpanLargeItems, extras));
+                    mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeGridItem, mSpanCount / mSpanLargeItems, extras));
                 }
 
                 if (this.mTotalRelatedItems > this.mRelatedItems.size()) {
                     extras = new Bundle();
-                    extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, getString(R.string.more));
+                    extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
                     mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
                 }
             }
@@ -160,7 +164,7 @@ public class FragmentProduct extends AbstractFragment implements RecyclerDataSou
             this.mRecyclerAdapter = new CommonAdapter(getActivity(), this, this);
             manager.setSpanSizeLookup(new GridSpanSizeLookup(mRecyclerAdapter));
             this.mRecyclerView.setLayoutManager(manager);
-            this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.item_margin));
+            this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.common_item_spacing));
             this.mRecyclerView.setAdapter(mRecyclerAdapter);
         } else {
             this.mRecyclerAdapter.notifyDataSetChanged();
@@ -204,6 +208,7 @@ public class FragmentProduct extends AbstractFragment implements RecyclerDataSou
                     if (resultApi == CommonResponse.ResultSuccess) {
                         ItemDetailInfo.Response response = (ItemDetailInfo.Response) responseParams.getSerializable(Key.ResponseObject);
                         mScreenData = response.data.items;
+                        mScreenData.menu = mItemCategory;
                         mRelatedItems = response.data.items_related;
                         mTotalRelatedItems = response.data.total_items_related;
                         previewScreenData();
@@ -283,6 +288,10 @@ public class FragmentProduct extends AbstractFragment implements RecyclerDataSou
             this.mScreenTitle = savedInstanceState.getString(SCREEN_TITLE);
         }
 
+        if (savedInstanceState.containsKey(ITEM_CATEGORY)) {
+            this.mItemCategory = savedInstanceState.getString(ITEM_CATEGORY);
+        }
+
         if (savedInstanceState.containsKey(SCREEN_DATA)) {
             this.mScreenData = (ItemsInfo.Item) savedInstanceState.getSerializable(SCREEN_DATA);
         }
@@ -315,6 +324,7 @@ public class FragmentProduct extends AbstractFragment implements RecyclerDataSou
             outState.putSerializable(RELATED_ITEMS, this.mRelatedItems);
         }
         outState.putInt(TOTAL_RELATED_ITEMS, this.mTotalRelatedItems);
+        outState.putString(ITEM_CATEGORY, mItemCategory);
     }
 
     @Override
@@ -358,7 +368,7 @@ public class FragmentProduct extends AbstractFragment implements RecyclerDataSou
                 //showPurchase
                 int screenId = extraData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 Serializable extras = extraData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(screenId, extras);
+                this.mActivityListener.showScreen(screenId, extras, null);
             }
             break;
 
@@ -367,13 +377,13 @@ public class FragmentProduct extends AbstractFragment implements RecyclerDataSou
             }
             break;
 
-            case RecyclerItemTypeGrid: {
+            case RecyclerItemTypeGridItem: {
                 //TODO: Related items, need to load item detail then show info, api dang bi loi
                 //load relate item details?
                 ItemsInfo.Item relatedItem = (ItemsInfo.Item) item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
 
-                FragmentProduct fragmentProduct = FragmentProduct.newInstance(relatedItem);
-                mActivityListener.showFragment(fragmentProduct, FragmentProduct.class.getCanonicalName() + System.currentTimeMillis(), true);
+                FragmentMenuItem fragmentMenuItem = FragmentMenuItem.newInstance(relatedItem);
+                mActivityListener.showFragment(fragmentMenuItem, FragmentMenuItem.class.getCanonicalName() + System.currentTimeMillis(), true);
 
                 /*ItemDetailInfo.Request requestParams = new ItemDetailInfo.Request();
                 requestParams.token = getPrefString(Key.TokenKey);
@@ -420,7 +430,7 @@ public class FragmentProduct extends AbstractFragment implements RecyclerDataSou
             case RecyclerItemTypeFooter: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(screenId, extras);
+                this.mActivityListener.showScreen(screenId, extras, null);
             }
             break;
 
@@ -430,9 +440,4 @@ public class FragmentProduct extends AbstractFragment implements RecyclerDataSou
             break;
         }
     }
-
-//    void enableControls(boolean enable) {
-//        mPreviousButton.setEnabled(enable);
-//        mNextButton.setEnabled(enable);
-//    }
 }

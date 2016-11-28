@@ -67,7 +67,7 @@ public class PopupUseCoupon implements BSSelectionListener {
         alert = alertBuilder.show();
         alert.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         try {
-            generateQRCode_general(popupData.title);
+            generateQRCode_general(popupData.getTitle());
         } catch (WriterException e) {
             e.printStackTrace();
         }

@@ -10,6 +10,7 @@ import android.widget.Button;
 
 import jp.tenposs.communicator.GetPushSettingsCommunicator;
 import jp.tenposs.communicator.SetPushSettingsCommunicator;
+import jp.tenposs.communicator.SignOutCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
 import jp.tenposs.datamodel.AppData;
 import jp.tenposs.datamodel.CommonObject;
@@ -17,6 +18,7 @@ import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.PushInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
+import jp.tenposs.datamodel.SignOutInfo;
 import jp.tenposs.utils.Utils;
 import jp.tenposs.view.SwitchButton;
 
@@ -33,6 +35,7 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
     Button mIssueButton;
     Button mCompanyInfoButton;
     Button mUserPrivacyButton;
+    Button mSignOutButton;
 
     PushInfo.Response mScreenData;
     PushInfo.Response mScreenDataTemp;
@@ -113,6 +116,7 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
         this.mIssueButton = (Button) mRoot.findViewById(R.id.issue_button);
         this.mCompanyInfoButton = (Button) mRoot.findViewById(R.id.company_info_button);
         this.mUserPrivacyButton = (Button) mRoot.findViewById(R.id.user_privacy_button);
+        this.mSignOutButton = (Button) mRoot.findViewById(R.id.sign_out_button);
 
         this.mEditProfileButton.setOnClickListener(this);
 
@@ -122,7 +126,7 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
         this.mIssueButton.setOnClickListener(this);
         this.mCompanyInfoButton.setOnClickListener(this);
         this.mUserPrivacyButton.setOnClickListener(this);
-
+        this.mSignOutButton.setOnClickListener(this);
 
         return mRoot;
     }
@@ -212,31 +216,16 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
     @Override
     public void onClick(View v) {
         if (v == this.mEditProfileButton) {
-            // get to
-            if (isSignedIn() == true) {
-                this.mActivityListener.showScreen(AbstractFragment.PROFILE_SCREEN, null);
-            } else {
-                Utils.showAlert(this.getContext(),
-                        getString(R.string.info),
-                        getString(R.string.msg_not_sign_in),
-                        getString(R.string.close),
-                        null,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                            }
-                        });
-            }
+            this.mActivityListener.showScreen(AbstractFragment.PROFILE_SCREEN, null, null);
 
         } else if (v == this.mIssueButton) {
-            this.mActivityListener.showScreen(AbstractFragment.CHANGE_DEVICE_SCREEN, null);
+            this.mActivityListener.showScreen(AbstractFragment.CHANGE_DEVICE_SCREEN, null, null);
 
         } else if (v == this.mCompanyInfoButton) {
-            this.mActivityListener.showScreen(AbstractFragment.COMPANY_INFO_SCREEN, null);
+            this.mActivityListener.showScreen(AbstractFragment.COMPANY_INFO_SCREEN, null, null);
 
         } else if (v == this.mUserPrivacyButton) {
-            this.mActivityListener.showScreen(AbstractFragment.USER_PRIVACY_SCREEN, null);
+            this.mActivityListener.showScreen(AbstractFragment.USER_PRIVACY_SCREEN, null, null);
         } else if (v == this.mReceivePushSwitch) {
             this.mScreenDataTemp = this.mScreenData.copy();
             this.mScreenDataTemp.data.push_setting.enableAll(this.mReceivePushSwitch.isChecked());
@@ -245,6 +234,9 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
             this.mScreenDataTemp = this.mScreenData.copy();
             this.mScreenDataTemp.data.push_setting.enableCoupon(this.mReceiveCouponSwitch.isChecked());
             updatePushSettings();
+        } else if (v == this.mSignOutButton) {
+            //TODO:
+            performSignOut();
         }
     }
 
@@ -300,5 +292,58 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
             this.mReceivePushSwitch.setEnabled(false);
             this.mReceiveCouponSwitch.setEnabled(false);
         }
+    }
+
+    void performSignOut() {
+        Utils.showAlert(
+                getContext(),
+                getString(R.string.info),
+                getString(R.string.msg_sign_out_confirm),
+                getString(R.string.yes),
+                getString(R.string.no),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case DialogInterface.BUTTON_POSITIVE: {
+                                SignOutCommunicator communicator = new SignOutCommunicator(
+                                        new TenpossCommunicator.TenpossCommunicatorListener() {
+                                            @Override
+                                            public void completed(TenpossCommunicator request, Bundle responseParams) {
+                                                Utils.hideProgress();
+                                                int result = responseParams.getInt(Key.ResponseResult);
+                                                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                                                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                                                    if (resultApi == CommonResponse.ResultSuccess || resultApi == CommonResponse.ResultErrorInvalidToken) {
+                                                        mActivityListener.stopServices();
+                                                        //clear token and user profile
+                                                        mActivityListener.updateUserInfo(null);
+                                                        mActivityListener.showFirstFragment();
+                                                    } else {
+                                                        String strMessage = responseParams.getString(Key.ResponseMessage);
+                                                        errorWithMessage(responseParams, strMessage);
+                                                    }
+                                                } else {
+                                                    String strMessage = responseParams.getString(Key.ResponseMessage);
+                                                    errorWithMessage(responseParams, strMessage);
+                                                }
+                                            }
+                                        });
+                                Bundle params = new Bundle();
+                                SignOutInfo.Request request = new SignOutInfo.Request();
+                                request.token = Utils.getPrefString(MainApplication.getContext(), Key.TokenKey);
+                                params.putSerializable(Key.RequestObject, request);
+                                Utils.showProgress(getContext(), getString(R.string.msg_signing_out));
+                                communicator.execute(params);
+                            }
+                            break;
+
+                            case DialogInterface.BUTTON_NEGATIVE: {
+                                //Do nothing
+                            }
+                            break;
+                        }
+                    }
+                });
     }
 }

@@ -78,7 +78,7 @@ public class FragmentCoupon extends AbstractFragment implements RecyclerDataSour
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.coupon);
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && this.mFirstScreen == false) {
             mToolbarSettings.toolbarLeftIcon = "flaticon-back";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
         } else {
@@ -110,9 +110,10 @@ public class FragmentCoupon extends AbstractFragment implements RecyclerDataSour
         for (CouponInfo.Coupon item : mScreenData.data.coupons) {
             Bundle extras = new Bundle();
             extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
-            extras.putString(RecyclerItemWrapper.ITEM_BRAND, getString(R.string.category_text));
-            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.title);
-            extras.putString(RecyclerItemWrapper.ITEM_BRAND, item.description);
+            //TODO
+            extras.putString(RecyclerItemWrapper.ITEM_CATEGORY, item.getCategory());
+            extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.getTitle());
+            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.getDescription());
             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
             extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, COUPON_DETAIL_SCREEN);
             extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
@@ -126,7 +127,7 @@ public class FragmentCoupon extends AbstractFragment implements RecyclerDataSour
             this.mRecyclerAdapter = new CommonAdapter(getActivity(), this, this);
             manager.setSpanSizeLookup(new GridSpanSizeLookup(mRecyclerAdapter));
             this.mRecyclerView.setLayoutManager(manager);
-            this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.item_margin));
+            this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.common_item_spacing));
             this.mRecyclerView.setAdapter(mRecyclerAdapter);
 
             this.mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -236,7 +237,7 @@ public class FragmentCoupon extends AbstractFragment implements RecyclerDataSour
             case RecyclerItemTypeList: {
                 int id = item.itemData.getInt(RecyclerItemWrapper.ITEM_ID);
                 CouponInfo.Coupon coupon = this.mScreenData.getItemById(id);
-                this.mActivityListener.showScreen(AbstractFragment.COUPON_DETAIL_SCREEN, coupon);
+                this.mActivityListener.showScreen(AbstractFragment.COUPON_DETAIL_SCREEN, coupon, null);
             }
             break;
 

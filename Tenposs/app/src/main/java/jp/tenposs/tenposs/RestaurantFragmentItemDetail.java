@@ -63,7 +63,7 @@ public class RestaurantFragmentItemDetail extends AbstractFragment implements Re
         Bundle b = new Bundle();
         ItemsInfo.Item item = (ItemsInfo.Item) extras;
         b.putInt(AbstractFragment.SCREEN_DATA_ID, item.id);
-        b.putString(AbstractFragment.SCREEN_TITLE, item.title);
+        b.putString(AbstractFragment.SCREEN_TITLE, item.getTitle());
         fragment.setArguments(b);
         return fragment;
     }
@@ -76,7 +76,7 @@ public class RestaurantFragmentItemDetail extends AbstractFragment implements Re
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = "";
-        mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+        mToolbarSettings.toolbarLeftIcon = "flaticon-close";
         mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
     }
 
@@ -107,10 +107,10 @@ public class RestaurantFragmentItemDetail extends AbstractFragment implements Re
             //Image
             extras = new Bundle();
             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, mScreenData.getImageUrl());
-            extras.putString(RecyclerItemWrapper.ITEM_BRAND, mScreenData.item_brand);
-            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, mScreenData.title);
+            extras.putString(RecyclerItemWrapper.ITEM_CATEGORY, mScreenData.getCategory());
+            extras.putString(RecyclerItemWrapper.ITEM_TITLE, mScreenData.getTitle());
             extras.putString(RecyclerItemWrapper.ITEM_PRICE, mScreenData.getPrice());
-            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeProductInfo, mSpanCount, extras));
+            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeRestaurantProductInfo, mSpanCount, extras));
 
 
             //title TODO
@@ -120,18 +120,18 @@ public class RestaurantFragmentItemDetail extends AbstractFragment implements Re
 
             //Detail 1
             extras = new Bundle();
-            extras.putSerializable(RecyclerItemWrapper.ITEM_BRAND, "商品詳細");
-            extras.putSerializable(RecyclerItemWrapper.ITEM_DESCRIPTION, mScreenData.description);
-            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeProductDetail, mSpanCount, extras));
+            extras.putSerializable(RecyclerItemWrapper.ITEM_CATEGORY, "商品詳細");
+            extras.putSerializable(RecyclerItemWrapper.ITEM_DESCRIPTION, mScreenData.getDescription());
+            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeRestaurantProductDetail, mSpanCount, extras));
 
 
             //Detail 2
             extras = new Bundle();
-            extras.putSerializable(RecyclerItemWrapper.ITEM_BRAND, "サイズ");
+            extras.putSerializable(RecyclerItemWrapper.ITEM_CATEGORY, "サイズ");
             extras.putSerializable(RecyclerItemWrapper.ITEM_DESCRIPTION, "先付、お造り、焚き合わせ、お凌ぎ（松阪牛握り、松阪牛と鮪の裏巻寿司）、\n" +
                     "冷菜、揚げ物（松阪牛の天ぷら他）、\n" +
                     "焼き物（伊勢海老またはあわび(あわびは＋800円)");
-            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeProductDetail, mSpanCount, extras));
+            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeRestaurantProductDetail, mSpanCount, extras));
 
 
 //            //Description
@@ -145,7 +145,7 @@ public class RestaurantFragmentItemDetail extends AbstractFragment implements Re
                  * Header
                  */
                 extras = new Bundle();
-                extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, getString(R.string.related));
+                extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.related));
                 mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeHeader, mSpanCount, extras));
 
                 /**
@@ -155,16 +155,16 @@ public class RestaurantFragmentItemDetail extends AbstractFragment implements Re
                     extras = new Bundle();
                     extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
                     extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.ITEM_SCREEN);
-                    extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.title);
+                    extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.getTitle());
                     extras.putString(RecyclerItemWrapper.ITEM_PRICE, item.getPrice());
                     extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
                     extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
-                    mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeGrid, mSpanCount / mSpanLargeItems, extras));
+                    mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeRestaurantGridItem, mSpanCount / mSpanLargeItems, extras));
                 }
 
                 if (this.mTotalRelatedItems > this.mRelatedItems.size()) {
                     extras = new Bundle();
-                    extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, getString(R.string.more));
+                    extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
                     mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
                 }
             }
@@ -175,7 +175,7 @@ public class RestaurantFragmentItemDetail extends AbstractFragment implements Re
             this.mRecyclerAdapter = new RestaurantAdapter(getActivity(), this, this);
             manager.setSpanSizeLookup(new GridSpanSizeLookup(mRecyclerAdapter));
             this.mRecyclerView.setLayoutManager(manager);
-            this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.item_margin));
+            this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.restaurant_item_spacing));
             this.mRecyclerView.setAdapter(mRecyclerAdapter);
         } else {
             this.mRecyclerAdapter.notifyDataSetChanged();
@@ -379,7 +379,7 @@ public class RestaurantFragmentItemDetail extends AbstractFragment implements Re
                 //showPurchase
                 int screenId = extraData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 Serializable extras = extraData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(screenId, extras);
+                this.mActivityListener.showScreen(screenId, extras, null);
             }
             break;
 
@@ -388,72 +388,27 @@ public class RestaurantFragmentItemDetail extends AbstractFragment implements Re
             }
             break;
 
-            case RecyclerItemTypeGrid: {
+            case RecyclerItemTypeRestaurantGridItem: {
                 //TODO: Related items, need to load item detail then show info, api dang bi loi
                 //load relate item details?
                 ItemsInfo.Item relatedItem = (ItemsInfo.Item) item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
 
                 RestaurantFragmentItemDetail fragmentProduct = RestaurantFragmentItemDetail.newInstance(relatedItem);
                 mActivityListener.showFragment(fragmentProduct, RestaurantFragmentItemDetail.class.getCanonicalName() + System.currentTimeMillis(), true);
-
-                /*ItemDetailInfo.Request requestParams = new ItemDetailInfo.Request();
-                requestParams.token = getPrefString(Key.TokenKey);
-                requestParams.item_id = relatedItem.id;
-
-                Bundle params = new Bundle();
-                params.putSerializable(Key.RequestObject, requestParams);
-                showProgress(getString(R.string.msg_loading));
-                ItemDetailCommunicator communicatior = new ItemDetailCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-                    @Override
-                    public void completed(TenpossCommunicator request, Bundle responseParams) {
-                        hideProgress();
-                        int result = responseParams.getInt(Key.ResponseResult);
-                        if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                            int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                            if (resultApi == CommonResponse.ResultSuccess) {
-                                ItemDetailInfo.Response response = (ItemDetailInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-//                                mAllItems = new ArrayList<>();
-//                                if (mScreenData.data.photo_categories.size() > 0) {
-//                                    for (int i = 0; i < mScreenData.data.photo_categories.size(); i++) {
-//                                        Bundle photoCategory = new Bundle();
-//                                        photoCategory.putInt(SCREEN_DATA_PAGE_INDEX, 1);
-//                                        photoCategory.putInt(SCREEN_DATA_PAGE_SIZE, DEFAULT_RECORD_PER_PAGE);
-//                                        mAllItems.add(photoCategory);
-//                                    }
-//                                    loadPhotoCatItem(mCurrentPhotoCatIndex);
-//                                } else {
-//                                    mSubToolbar.setVisibility(View.GONE);
-//                                }
-                            } else {
-                                String strMessage = responseParams.getString(Key.ResponseMessage);
-                                errorWithMessage(responseParams, strMessage);
-                            }
-                        } else {
-                            String strMessage = responseParams.getString(Key.ResponseMessage);
-                            errorWithMessage(responseParams, strMessage);
-                        }
-                    }
-                });
-                communicatior.execute(params);*/
             }
             break;
 
             case RecyclerItemTypeFooter: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(screenId, extras);
+                this.mActivityListener.showScreen(screenId, extras, null);
             }
             break;
 
             default: {
-                Assert.assertFalse("" + item.itemType, false);
+                Assert.assertFalse("Should never be here " + item.itemType, false);
             }
             break;
         }
     }
-
-//    void enableControls(boolean enable) {
-//        mPreviousButton.setEnabled(enable);
-//        mNextButton.setEnabled(enable);
-//    }
 }

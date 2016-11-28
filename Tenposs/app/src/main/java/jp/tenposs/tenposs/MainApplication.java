@@ -35,7 +35,7 @@ public class MainApplication extends Application {
         applicationBundle.putSerializable(key, value);
     }
 
-    public void putParceable(String key, Parcelable value) {
+    public void putParcelable(String key, Parcelable value) {
         applicationBundle.putParcelable(key, value);
     }
 

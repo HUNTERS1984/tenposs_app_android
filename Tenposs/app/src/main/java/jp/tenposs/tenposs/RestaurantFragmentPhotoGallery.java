@@ -47,10 +47,6 @@ public class RestaurantFragmentPhotoGallery extends AbstractFragment
      * Fragment Override
      */
 
-    private RestaurantFragmentPhotoGallery() {
-
-    }
-
     public static RestaurantFragmentPhotoGallery newInstance(String title, int storeId) {
         RestaurantFragmentPhotoGallery fragment = new RestaurantFragmentPhotoGallery();
         Bundle b = new Bundle();
@@ -68,7 +64,7 @@ public class RestaurantFragmentPhotoGallery extends AbstractFragment
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.photo_gallery);
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && this.mFirstScreen == false) {
             mToolbarSettings.toolbarLeftIcon = "flaticon-back";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
         } else {
@@ -152,7 +148,7 @@ public class RestaurantFragmentPhotoGallery extends AbstractFragment
                 rowIndex++;
                 itemSpanCount = 0;
             }
-            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeGridImage, mSpanCount / mSpanSmallItems, extras));
+            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeRestaurantGridImage, mSpanCount / mSpanSmallItems, extras));
             count++;
         }
 
@@ -335,10 +331,10 @@ public class RestaurantFragmentPhotoGallery extends AbstractFragment
     public void onCommonItemClick(int position, Bundle extraData) {
         RecyclerItemWrapper item = getItemData(position);
         switch (item.itemType) {
-            case RecyclerItemTypeGridImage: {
+            case RecyclerItemTypeRestaurantGridImage: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(screenId, extras);
+                this.mActivityListener.showScreen(screenId, extras, null);
             }
             break;
 

@@ -1,7 +1,10 @@
 package jp.tenposs.tenposs;
 
+import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.widget.DrawerLayout;
 import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,17 +14,22 @@ import android.widget.TextView;
 
 import java.io.Serializable;
 
+import jp.tenposs.communicator.SignUpCommunicator;
+import jp.tenposs.communicator.TenpossCommunicator;
 import jp.tenposs.datamodel.AppData;
+import jp.tenposs.datamodel.CommonObject;
+import jp.tenposs.datamodel.CommonResponse;
+import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.ScreenDataStatus;
+import jp.tenposs.datamodel.SignInInfo;
 import jp.tenposs.datamodel.SignUpInfo;
+import jp.tenposs.utils.FontIcon;
 import jp.tenposs.utils.Utils;
 
 /**
  * Created by ambient on 8/15/16.
  */
 public class FragmentSignUpNext extends AbstractFragment implements View.OnClickListener {
-
-
     TextView mGotoSignInLabel;
     Button mSignUpButton;
 
@@ -33,6 +41,9 @@ public class FragmentSignUpNext extends AbstractFragment implements View.OnClick
 
     public static FragmentSignUpNext newInstance(Serializable extras) {
         FragmentSignUpNext fragment = new FragmentSignUpNext();
+        Bundle b = new Bundle();
+        b.putSerializable(AbstractFragment.SCREEN_DATA, extras);
+        fragment.setArguments(b);
         return fragment;
     }
 
@@ -81,7 +92,7 @@ public class FragmentSignUpNext extends AbstractFragment implements View.OnClick
                 new ClickableSpan() {
                     public void onClick(View view) {
                         close();
-                        mActivityListener.showScreen(AbstractFragment.SIGN_IN_EMAIL_SCREEN, null);
+                        mActivityListener.showScreen(AbstractFragment.SIGN_IN_EMAIL_SCREEN, null, null);
                     }
                 });
         return mRoot;
@@ -119,155 +130,99 @@ public class FragmentSignUpNext extends AbstractFragment implements View.OnClick
     @Override
     public void onClick(View v) {
         if (v == mSignUpButton) {
-//            TODO: if (checkInput() == true) {
-//                Bundle params = new Bundle();
-//                SignUpInfo.Request request = new SignUpInfo.Request();
-//                request.email = mEmailEdit.getEditableText().toString();
-//                request.name = mNameEdit.getEditableText().toString();
-//                request.setPassword(mPasswordEdit.getEditableText().toString());
-//                params.putSerializable(Key.RequestObject, request);
-//                SignUpCommunicator communicator = new SignUpCommunicator(
-//                        new TenpossCommunicator.TenpossCommunicatorListener() {
-//                            @Override
-//                            public void completed(TenpossCommunicator request, Bundle responseParams) {
-//                                hideProgress();
-//                                int result = responseParams.getInt(Key.ResponseResult);
-//                                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-//                                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
-//                                    if (resultApi == CommonResponse.ResultSuccess) {
-//                                        SignUpInfo.Response response = (SignUpInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-//                                        String token = response.data.token;
-//                                        SignInInfo.Profile profile = response.data.profile;
-//                                        setPref(Key.TokenKey, token);
-//                                        setPref(Key.UserProfile, CommonObject.toJSONString(response.data, response.data.getClass()));
-//                                        mActivityListener.updateUserInfo(response.data);
-//                                        close();
-//                                    } else {
-//                                        Utils.showAlert(getContext(),
-//                                                getString(R.string.error),
-//                                                getString(R.string.msg_unable_to_sign_up),
-//                                                getString(R.string.close),
-//                                                null,
-//                                                new DialogInterface.OnClickListener() {
-//                                                    @Override
-//                                                    public void onClick(DialogInterface dialog, int which) {
-//
-//                                                    }
-//                                                });
-//                                    }
-//                                } else {
-//                                    String strMessage = responseParams.getString(Key.ResponseMessage);
-//                                    errorWithMessage(responseParams, strMessage);
-//                                }
-//                            }
-//                        });
-//                showProgress(getString(R.string.msg_signing_up));
-//                communicator.execute(params);
-//            }
+            Bundle params = new Bundle();
+            params.putSerializable(Key.RequestObject, this.mScreenData);
+            SignUpCommunicator communicator = new SignUpCommunicator(
+                    new TenpossCommunicator.TenpossCommunicatorListener() {
+                        @Override
+                        public void completed(TenpossCommunicator request, Bundle responseParams) {
+                            Utils.hideProgress();
+                            int result = responseParams.getInt(Key.ResponseResult);
+                            if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                                int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                                if (resultApi == CommonResponse.ResultSuccess) {
+                                    SignUpInfo.Response response = (SignUpInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                    String token = response.data.token;
+                                    SignInInfo.Profile profile = response.data.profile;
+                                    setPref(Key.TokenKey, token);
+                                    setPref(Key.UserProfile, CommonObject.toJSONString(response.data, response.data.getClass()));
+                                    mActivityListener.updateUserInfo(response.data);
+                                    close();
+                                } else {
+                                    Utils.showAlert(getContext(),
+                                            getString(R.string.error),
+                                            getString(R.string.msg_unable_to_sign_up),
+                                            getString(R.string.close),
+                                            null,
+                                            new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+
+                                                }
+                                            });
+                                }
+                            } else {
+                                String strMessage = responseParams.getString(Key.ResponseMessage);
+                                errorWithMessage(responseParams, strMessage);
+                            }
+                        }
+                    });
+            Utils.showProgress(getContext(), getString(R.string.msg_signing_up));
+            communicator.execute(params);
         }
     }
 
-    private boolean checkInput() {
-//        Utils.hideKeyboard(this.getActivity(), null);
-//        String email = mEmailEdit.getEditableText().toString();
-//        String name = mNameEdit.getEditableText().toString();
-//        if (email.length() <= 0 || Utils.validateEmailAddress(email) == false) {
-//            Utils.showAlert(getContext(),
-//                    getString(R.string.warning),
-//                    getString(R.string.msg_input_a_valid_email_address),
-//                    getString(R.string.close),
-//                    null,
-//                    new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            switch (which) {
-//                                case DialogInterface.BUTTON_POSITIVE: {
-//                                    mEmailEdit.requestFocus();
-//                                }
-//                                break;
-//                            }
-//                        }
-//                    });
-//            return false;
-//        }
-//        if (name.length() <= 0) {
-//            Utils.showAlert(getContext(),
-//                    getString(R.string.warning),
-//                    getString(R.string.msg_input_name),
-//                    getString(R.string.close),
-//                    null,
-//                    new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            switch (which) {
-//                                case DialogInterface.BUTTON_POSITIVE: {
-//                                    mNameEdit.requestFocus();
-//                                }
-//                                break;
-//                            }
-//                        }
-//                    });
-//            return false;
-//        }
-//        String password = mPasswordEdit.getEditableText().toString();
-//        String passwordConfirm = mPasswordConfirmEdit.getEditableText().toString();
-//        if (password.length() <= 0) {
-//            Utils.showAlert(getContext(),
-//                    getString(R.string.warning),
-//                    getString(R.string.msg_input_password),
-//                    getString(R.string.close),
-//                    null,
-//                    new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            switch (which) {
-//                                case DialogInterface.BUTTON_POSITIVE: {
-//                                    mPasswordEdit.requestFocus();
-//                                }
-//                                break;
-//                            }
-//                        }
-//                    });
-//            return false;
-//        }
-//        if (passwordConfirm.length() <= 0) {
-//            Utils.showAlert(getContext(),
-//                    getString(R.string.warning),
-//                    getString(R.string.msg_input_password_confirm),
-//                    getString(R.string.close),
-//                    null,
-//                    new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            switch (which) {
-//                                case DialogInterface.BUTTON_POSITIVE: {
-//                                    mPasswordConfirmEdit.requestFocus();
-//                                }
-//                                break;
-//                            }
-//                        }
-//                    });
-//            return false;
-//        }
-//        if (password.compareTo(passwordConfirm) != 0) {
-//            Utils.showAlert(getContext(),
-//                    getString(R.string.warning),
-//                    getString(R.string.msg_input_correct_confirm_password),
-//                    getString(R.string.close),
-//                    null,
-//                    new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            switch (which) {
-//                                case DialogInterface.BUTTON_POSITIVE: {
-//                                    mPasswordConfirmEdit.requestFocus();
-//                                }
-//                                break;
-//                            }
-//                        }
-//                    });
-//            return false;
-//        }
-        return true;
+    @Override
+    protected void updateToolbar() {
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            try {
+                this.mToolbar.setBackgroundColor(Color.alpha(0));
+                if (this.mLeftToolbarButton != null) {
+                    this.mLeftToolbarButton.setImageBitmap(FontIcon.imageForFontIdentifier(getActivity().getAssets(),
+                            this.mToolbarSettings.toolbarLeftIcon,
+                            Utils.NavIconSize,
+                            Color.argb(0, 0, 0, 0),
+                            Color.WHITE,
+                            FontIcon.FLATICON
+                    ));
+                }
+
+                if (this.mTitleToolbarLabel != null) {
+                    this.mTitleToolbarLabel.setText(mToolbarSettings.toolbarTitle);
+                    try {
+                        Utils.setTextAppearanceTitle(getContext(), this.mTitleToolbarLabel, mToolbarSettings.getToolbarTitleFontSize());
+                        //Typeface type = Utils.getTypeFaceForFont(getActivity(), mToolbarSettings.getToolBarTitleFont());
+                        //this.mTitleToolbarLabel.setTypeface(type);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                    this.mTitleToolbarLabel.setTextColor(Color.WHITE);
+                }
+
+                if (this.mToolbarSettings.toolbarType == ToolbarSettings.LEFT_MENU_BUTTON) {
+                    if (this.mScreenDataStatus == ScreenDataStatus.ScreenDataStatusLoaded) {
+                        this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                    } else {
+                        this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                    }
+
+                } else {
+                    this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                }
+
+                if (this.mScreenToolBarHidden == true) {
+                    this.mToolbar.setVisibility(View.VISIBLE);
+                } else {
+                    this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                    this.mToolbar.setVisibility(View.GONE);
+                }
+
+            } catch (Exception ignored) {
+
+            }
+        } else {
+            super.updateToolbar();
+        }
     }
 }
+

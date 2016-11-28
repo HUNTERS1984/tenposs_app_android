@@ -19,9 +19,9 @@ import jp.tenposs.tenposs.R;
 public class ProductInfo extends LinearLayout {
 
     ImageView mItemImage;
-    TextView mTitleLabel;
-    TextView mBrandLabel;
-    TextView mPriceLabel;
+    TextView mItemTitleLabel;
+    TextView mItemCategoryLabel;
+    TextView mItemPriceLabel;
 
     Context mContext;
 
@@ -43,20 +43,20 @@ public class ProductInfo extends LinearLayout {
     public void reloadData(Bundle extras) {
         try {
             mItemImage = (ImageView) findViewById(R.id.item_image);
-            mTitleLabel = (TextView) findViewById(R.id.item_title_label);
-            mBrandLabel = (TextView) findViewById(R.id.item_brand_label);
-            mPriceLabel = (TextView) findViewById(R.id.item_price_label);
+            mItemTitleLabel = (TextView) findViewById(R.id.item_title_label);
+            mItemCategoryLabel = (TextView) findViewById(R.id.item_category_label);
+            mItemPriceLabel = (TextView) findViewById(R.id.item_price_label);
 
-            mBrandLabel.setText(extras.getString(RecyclerItemWrapper.ITEM_BRAND));
-            mTitleLabel.setText(extras.getString(RecyclerItemWrapper.ITEM_DESCRIPTION));
-            mPriceLabel.setText(extras.getString(RecyclerItemWrapper.ITEM_PRICE));
+            mItemCategoryLabel.setText(extras.getString(RecyclerItemWrapper.ITEM_CATEGORY));
+            mItemTitleLabel.setText(extras.getString(RecyclerItemWrapper.ITEM_TITLE));
+            mItemPriceLabel.setText(extras.getString(RecyclerItemWrapper.ITEM_PRICE));
 
             Picasso ps = Picasso.with(mContext);
             ps.load(extras.getString(RecyclerItemWrapper.ITEM_IMAGE))
                     .centerCrop()
                     .into(mItemImage);
         } catch (Exception ignored) {
-
+            ignored.printStackTrace();
         }
     }
 }

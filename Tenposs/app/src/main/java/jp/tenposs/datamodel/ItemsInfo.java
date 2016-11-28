@@ -35,37 +35,54 @@ public class ItemsInfo {
         public int total_items;
     }
 
-    public class Item extends UrlImageObject implements Serializable {
+    public class Item extends CommonItem implements Serializable {
         public int id;
-        public String item_brand = "";
-        public String title;
+        String title;
         String price;
         String image_url;
-        public String description;
+        String description;
         public String created_at;
         public String updated_at;
         public String deleted_at;
         public String item_link;
         public String coupon_id;
+        public String menu;
 
         ArrayList<ItemSize> size;
 
-        @Override
-        public String getImageUrl() {
-            return Utils.getImageUrl(TenpossCommunicator.DOMAIN_ADDRESS, image_url, "https://google.com");
-        }
-
-//        public ArrayList<Item> rel_items;
-
-        public String getPrice() {
-            int priceInt = Utils.atoi(this.price);
-
-            String itemPrice = Utils.iToCurrency(priceInt);
-            return "¥ " + itemPrice;
-        }
 
         public boolean hasSizes() {
             return (this.size != null && this.size.size() > 0);
+        }
+
+        String getSize(String typeId, String categoryId) {
+            for (ItemSize itemSize : size) {
+                if (itemSize.item_size_type_id.compareToIgnoreCase(typeId) == 0 &&
+                        itemSize.item_size_category_id.compareToIgnoreCase(categoryId) == 0) {
+                    return itemSize.value;
+                }
+            }
+            return "";
+        }
+
+        ArrayList<String> getTypeIds() {
+            ArrayList<String> Ids = new ArrayList<>();
+            for (ItemSize itemSize : size) {
+                if (Ids.contains(itemSize.item_size_type_id) == false) {
+                    Ids.add(itemSize.item_size_type_id);
+                }
+            }
+            return Ids;
+        }
+
+        ArrayList<String> getTypeNames() {
+            ArrayList<String> Names = new ArrayList<>();
+            for (ItemSize itemSize : size) {
+                if (Names.contains(itemSize.item_size_type_name) == false) {
+                    Names.add(itemSize.item_size_type_name);
+                }
+            }
+            return Names;
         }
 
         ArrayList<String> getCategoryIds() {
@@ -88,16 +105,6 @@ public class ItemsInfo {
             return Names;
         }
 
-        ArrayList<ItemSize> getItemSizeByCategoryId(String category_id) {
-            ArrayList<ItemSize> items = new ArrayList<>();
-            for (ItemSize itemSize : size) {
-                if (itemSize.item_size_category_id.equalsIgnoreCase(category_id)) {
-                    items.add(itemSize);
-                }
-            }
-            return items;
-        }
-
         public int numberOfRows() {
             ArrayList<String> rows = new ArrayList<>();
             for (ItemSize itemSize : size) {
@@ -113,52 +120,72 @@ public class ItemsInfo {
             return columns.size();
         }
 
-//        public int numberOfColumns() {
-//            ArrayList<String> colums = new ArrayList<>();
-//            for (ItemSize itemSize : size) {
-//                if (colums.contains(itemSize.item_size_type_id) == false) {
-//                    colums.add(itemSize.item_size_type_id);
-//                }
-//            }
-//            return colums.size();
-//        }
+        public ArrayList<ArrayList<String>> getTableData() {
+            ArrayList<ArrayList<String>> data = new ArrayList<>();
+            ArrayList<String> header = new ArrayList<>();
 
-//        public int numberOfRows() {
-//            ArrayList<String> rows = getCategoryIds();
-//            return rows.size();
-//        }
+            ArrayList<String> typeIds = getTypeIds();
+            ArrayList<String> typeNames = getTypeNames();
+            ArrayList<String> categoryIds = getCategoryIds();
+            ArrayList<String> categoryNames = getCategoryNames();
 
-        public ArrayList<String> getTableHeaders() {
-            ArrayList<String> headers = new ArrayList<>();
-            headers.add("#");
-            for (ItemSize itemSize : size) {
-                if (headers.contains(itemSize.item_size_category_name) == false) {
-                    headers.add(itemSize.item_size_category_name);
+            header.add("#");
+            header.addAll(categoryNames);
+            data.add(header);
+
+            String typeId;
+            String categoryId;
+
+            for (int row = 0; row < numberOfRows(); row++) {
+                ArrayList<String> line = new ArrayList<>();
+                line.add(typeNames.get(row));
+                for (int colum = 0; colum < numberOfColumns(); colum++) {
+                    typeId = typeIds.get(row);
+                    categoryId = categoryIds.get(colum);
+                    line.add(getSize(typeId, categoryId));
                 }
+                data.add(line);
             }
-//            for (ItemSize itemSize : size) {
-//                if (headers.contains(itemSize.item_size_type_name) == false) {
-//                    headers.add(itemSize.item_size_type_name);
-//                }
-//            }
-            return headers;
+            return data;
         }
 
-        public ArrayList<String> getTableItems() {
-            ArrayList<String> Ids = getCategoryIds();
-            ArrayList<String> Names = getCategoryNames();
-            ArrayList<String> items = new ArrayList<>();
-            int count = 0;
-            for (String category_id : Ids) {
-                items.add(Names.get(count));
-                ArrayList<ItemSize> categoryItems = getItemSizeByCategoryId(category_id);
-                for (ItemSize itemSize : categoryItems) {
-                    items.add(itemSize.value);
-                }
-                count++;
-            }
-            return items;
+
+        @Override
+        public String getImageUrl() {
+            return Utils.getImageUrl(TenpossCommunicator.DOMAIN_ADDRESS, image_url, "https://google.com");
         }
+
+        public String getCategory() {
+            if (menu != null)
+                return menu;
+            else
+                return "";
+        }
+
+        public String getTitle() {
+            if (title != null)
+                return title;
+            else
+                return "";
+        }
+
+        public String getDescription() {
+            if (description != null) {
+                description = description.replaceAll("\r\n", "\n");
+                description = description.replaceAll("\n\r", "\n");
+                return description;
+            } else {
+                return "";
+            }
+        }
+
+        public String getPrice() {
+            int priceInt = Utils.atoi(this.price);
+
+            String itemPrice = Utils.iToCurrency(priceInt);
+            return "¥ " + itemPrice;
+        }
+
     }
 
     public class ItemSize implements Serializable {

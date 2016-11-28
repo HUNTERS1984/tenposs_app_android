@@ -84,7 +84,7 @@ public class RestaurantFragmentCoupon
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.coupon);
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && this.mFirstScreen == false) {
             mToolbarSettings.toolbarLeftIcon = "flaticon-back";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
         } else {
@@ -182,7 +182,7 @@ public class RestaurantFragmentCoupon
 
     @Override
     boolean canCloseByBackpressed() {
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && this.mFirstScreen == false) {
             return true;
         } else {
             return false;

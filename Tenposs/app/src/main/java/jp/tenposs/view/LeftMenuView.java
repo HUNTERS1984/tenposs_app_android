@@ -202,20 +202,21 @@ public class LeftMenuView extends FrameLayout {
             } else {
                 this.mUserEmailLabel.setVisibility(GONE);
             }
-            reloadUserInfo(mUserProfile);
+            reloadUserInfo(this.mUserProfile);
 
-            mUserInfoButton.setVisibility(View.VISIBLE);
-            mSignInButton.setVisibility(View.GONE);
+            this.mUserInfoButton.setVisibility(View.VISIBLE);
+            this.mSignInButton.setVisibility(View.GONE);
 
-
-            addSignOutMenu();
+//            addSignOutMenu();
         } else {
-            mUserNameLabel.setText(mContext.getString(R.string.sign_in));
-            mUserInfoButton.setVisibility(View.GONE);
-            mSignInButton.setVisibility(View.VISIBLE);
-            mUserAvatarImage.setImageBitmap(null);
-            mUserAvatarImage.setImageResource(R.drawable.no_avatar);
-            removeSignOutMenu();
+            this.mUserNameLabel.setText(mContext.getString(R.string.sign_in));
+            this.mUserInfoButton.setVisibility(View.GONE);
+            this.mUserEmailLabel.setVisibility(GONE);
+            this.mSignInButton.setVisibility(View.VISIBLE);
+            this.mUserAvatarImage.setImageBitmap(null);
+            this.mUserAvatarImage.setImageResource(R.drawable.no_avatar);
+            removeSignedInItems();
+//            removeSignOutMenu();
         }
 
         this.mSignInButton.setTextColor(settings.getMenuItemTitleColor());
@@ -243,26 +244,46 @@ public class LeftMenuView extends FrameLayout {
                 }
             }
         });
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            this.mUserNameLabel.setTextColor(Color.WHITE);
+            this.mSignInButton.setTextColor(Color.WHITE);
+        } else {
+            this.mUserNameLabel.setTextColor(mSettings.getMenuItemTitleColor());
+            this.mSignInButton.setTextColor(mSettings.getMenuItemTitleColor());
+        }
 //        } else {
 //            this.mAdapter.setData(this.mScreenData);
 //            this.mAdapter.notifyDataSetChanged();
     }
 
-
-    private void addSignOutMenu() {
-        AppInfo.SideMenu signOutMenu = new AppInfo.SideMenu(AbstractFragment.SIGN_OUT_SCREEN, mContext.getString(R.string.sign_out), "ti-unlock");
-        signOutMenu.fontType = FontIcon.THEMIFY;
-        this.mScreenData.add(signOutMenu);
-    }
-
-    private void removeSignOutMenu() {
-        for (AppInfo.SideMenu menu : this.mScreenData) {
-            if (menu.id == AbstractFragment.SIGN_OUT_SCREEN) {
+    private void removeSignedInItems() {
+        //for (AppInfo.SideMenu menu : this.mScreenData) {
+        int index = 0;
+        while (index < this.mScreenData.size()) {
+            AppInfo.SideMenu menu = this.mScreenData.get(index);
+            if (menu.id == AbstractFragment.SETTING_SCREEN || menu.id == AbstractFragment.CHAT_SCREEN) {
                 this.mScreenData.remove(menu);
-                return;
+            } else {
+                index++;
             }
         }
     }
+
+
+//    private void addSignOutMenu() {
+//        AppInfo.SideMenu signOutMenu = new AppInfo.SideMenu(AbstractFragment.SIGN_OUT_SCREEN, mContext.getString(R.string.sign_out), "ti-unlock");
+//        signOutMenu.fontType = FontIcon.THEMIFY;
+//        this.mScreenData.add(signOutMenu);
+//    }
+
+//    private void removeSignOutMenu() {
+//        for (AppInfo.SideMenu menu : this.mScreenData) {
+//            if (menu.id == AbstractFragment.SIGN_OUT_SCREEN) {
+//                this.mScreenData.remove(menu);
+//                return;
+//            }
+//        }
+//    }
 
     public void reloadUserInfo(SignInInfo.User userProfile) {
         this.mUserProfile = userProfile;

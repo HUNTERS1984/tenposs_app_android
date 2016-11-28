@@ -111,7 +111,7 @@ public class RestaurantCouponAdapter extends PagerAdapter {
         mUseCouponButton = (Button) root.findViewById(R.id.use_coupon_button);
         mCouponIdLabel.setText(Integer.toString(mScreenData.id));
         mCouponTypeLabel.setText(Integer.toString(mScreenData.type));
-        mCouponNameLabel.setText(mScreenData.title);
+        mCouponNameLabel.setText(mScreenData.getTitle());
         mValidityLabel.setText(mScreenData.end_date);
 
         mUseCouponButton.setOnClickListener(new View.OnClickListener() {

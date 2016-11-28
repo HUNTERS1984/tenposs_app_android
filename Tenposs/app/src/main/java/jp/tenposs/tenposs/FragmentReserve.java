@@ -23,7 +23,7 @@ public class FragmentReserve extends FragmentWebView {
     ReserveInfo.Reserve mScreenData;
     TopInfo.Contact mStoreInfo;
 
-    public static String STORE_INFO = "STORE_INFO";
+
 
     public static FragmentReserve newInstance(@NonNull TopInfo.Contact storeInfo) {
         FragmentReserve gm = new FragmentReserve();
@@ -41,7 +41,7 @@ public class FragmentReserve extends FragmentWebView {
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.reserve);
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && this.mFirstScreen == false) {
             mToolbarSettings.toolbarLeftIcon = "flaticon-back";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
         } else {
@@ -129,7 +129,7 @@ public class FragmentReserve extends FragmentWebView {
                 new TenpossCommunicator.TenpossCommunicatorListener() {
                     @Override
                     public void completed(TenpossCommunicator request, Bundle responseParams) {
-                        if(isAdded() == false){
+                        if (isAdded() == false) {
                             return;
                         }
                         int result = responseParams.getInt(Key.ResponseResult);

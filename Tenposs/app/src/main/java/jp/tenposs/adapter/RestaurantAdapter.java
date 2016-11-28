@@ -72,7 +72,7 @@ public class RestaurantAdapter
             break;
 
             case RecyclerItemTypeList: {
-                mRow = mInflater.inflate(R.layout.common_item_list, parent, false);
+                mRow = mInflater.inflate(R.layout.restaurant_item_list_news, parent, false);
             }
             break;
 
@@ -81,12 +81,17 @@ public class RestaurantAdapter
             }
             break;
 
-            case RecyclerItemTypeGrid: {
-                mRow = mInflater.inflate(R.layout.restaurant_item_grid, parent, false);
+            case RecyclerItemTypeRestaurantGridItem: {
+                mRow = mInflater.inflate(R.layout.restaurant_item_grid_item, parent, false);
             }
             break;
 
-            case RecyclerItemTypeGridImage: {
+            case RecyclerItemTypeRestaurantGridStaff: {
+                mRow = mInflater.inflate(R.layout.restaurant_item_grid_staff, parent, false);
+            }
+            break;
+
+            case RecyclerItemTypeRestaurantGridImage: {
                 mRow = mInflater.inflate(R.layout.restaurant_item_grid_image, parent, false);
             }
             break;
@@ -108,24 +113,24 @@ public class RestaurantAdapter
             }
             break;
 
-            case RecyclerItemTypeProductInfo: {
+            case RecyclerItemTypeRestaurantProductInfo: {
                 mRow = mInflater.inflate(R.layout.restaurant_item_info, parent, false);
             }
             break;
 
-            case RecyclerItemTypeProductDetail: {
+            case RecyclerItemTypeRestaurantProductDetail: {
                 mRow = mInflater.inflate(R.layout.restaurant_item_detail, parent, false);
             }
             break;
 
             //Restaurant Template
-            case RecyclerItemTypeNewsTop: {
+            case RecyclerItemTypeRestaurantNewsTop: {
                 mRow = mInflater.inflate(R.layout.restaurant_news_pager, parent, false);
             }
             break;
 
-            case RecyclerItemTypeRecyclerHorizontal:
-            case RecyclerItemTypeRecyclerVertical: {
+            case RecyclerItemTypeRestaurantRecyclerHorizontal:
+            case RecyclerItemTypeRestaurantRecyclerVertical: {
                 mRow = mInflater.inflate(R.layout.common_item_recycler, parent, false);
             }
             break;
@@ -207,7 +212,8 @@ public class RestaurantAdapter
         ImageView itemImage;
 
         TextView itemDescriptionLabel;
-        TextView itemBrandLabel;
+        TextView itemCategoryLabel;
+        TextView itemTitleLabel;
         TextView itemPriceLabel;
 
         //Store
@@ -306,12 +312,14 @@ public class RestaurantAdapter
                 break;
 
                 case RecyclerItemTypeList:
-                case RecyclerItemTypeGrid:
-                case RecyclerItemTypeGridImage: {
+                case RecyclerItemTypeRestaurantGridItem:
+                case RecyclerItemTypeRestaurantGridStaff:
+                case RecyclerItemTypeRestaurantGridImage: {
                     this.itemImage = (ImageView) this.mRow.findViewById(R.id.item_image);
                     this.itemInfoLayout = (LinearLayout) this.mRow.findViewById(R.id.item_info_layout);
+                    this.itemCategoryLabel = (TextView) this.mRow.findViewById(R.id.item_category_label);
+                    this.itemTitleLabel = (TextView) this.mRow.findViewById(R.id.item_title_label);
                     this.itemDescriptionLabel = (TextView) this.mRow.findViewById(R.id.item_description_label);
-                    this.itemBrandLabel = (TextView) this.mRow.findViewById(R.id.item_brand_label);
                     this.itemPriceLabel = (TextView) this.mRow.findViewById(R.id.item_price_label);
                 }
                 break;
@@ -332,32 +340,33 @@ public class RestaurantAdapter
                 }
                 break;
 
-                case RecyclerItemTypeProductInfo: {
+                case RecyclerItemTypeRestaurantProductInfo: {
                     this.productInfo = (ProductInfo) this.mRow.findViewById(R.id.product_info);
                 }
                 break;
 
-                case RecyclerItemTypeProductDetail: {
+                case RecyclerItemTypeRestaurantProductDetail: {
                     this.productDetail = (ProductDetail) this.mRow.findViewById(R.id.product_detail);
                 }
                 break;
 
 
                 //Restaurant Template
-                case RecyclerItemTypeNewsTop: {
+                case RecyclerItemTypeRestaurantNewsTop: {
                     //TODO:
                     this.mViewPager = (ViewPager) this.mRow.findViewById(R.id.view_pager);
                     this.mViewPagerDotLayout = (LinearLayout) mRow.findViewById(R.id.view_pager_dots_layout);
 
                     this.itemInfoLayout = (LinearLayout) this.mRow.findViewById(R.id.item_info_layout);
+                    this.itemCategoryLabel = (TextView) this.mRow.findViewById(R.id.item_category_label);
+                    this.itemTitleLabel = (TextView) this.mRow.findViewById(R.id.item_title_label);
                     this.itemDescriptionLabel = (TextView) this.mRow.findViewById(R.id.item_description_label);
-                    this.itemBrandLabel = (TextView) this.mRow.findViewById(R.id.item_brand_label);
                     this.itemPriceLabel = (TextView) this.mRow.findViewById(R.id.item_price_label);
                 }
                 break;
 
-                case RecyclerItemTypeRecyclerHorizontal:
-                case RecyclerItemTypeRecyclerVertical: {
+                case RecyclerItemTypeRestaurantRecyclerHorizontal:
+                case RecyclerItemTypeRestaurantRecyclerVertical: {
                     this.mRecyclerView = (RecyclerView) this.mRow.findViewById(R.id.recycler_view);
                 }
                 break;
@@ -425,12 +434,12 @@ public class RestaurantAdapter
 
                 case RecyclerItemTypeHeader: {
                     headerImage.setImageDrawable(MenuIcon.getInstance().getHomeIconDrawableWithId(mContext, itemDataWrapper.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID)));
-                    headerTitle.setText(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_DESCRIPTION));
+                    headerTitle.setText(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_TITLE));
                 }
                 break;
 
                 case RecyclerItemTypeFooter: {
-                    footerButton.setText(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_DESCRIPTION));
+                    footerButton.setText(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_TITLE));
                     footerButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -476,7 +485,7 @@ public class RestaurantAdapter
                             FontIcon.FLATICON
                     ));
 
-                    locationLabel.setText(contact.title);
+                    locationLabel.setText(contact.getTitle());
 
                     String startTime = Utils.timeStringFromDate(Utils.dateFromString(contact.start_time));
                     String endTime = Utils.timeStringFromDate(Utils.dateFromString(contact.end_time));
@@ -508,8 +517,9 @@ public class RestaurantAdapter
                 break;
 
                 case RecyclerItemTypeList:
-                case RecyclerItemTypeGrid:
-                case RecyclerItemTypeGridImage: {
+                case RecyclerItemTypeRestaurantGridItem:
+                case RecyclerItemTypeRestaurantGridStaff:
+                case RecyclerItemTypeRestaurantGridImage: {
                     Picasso ps = Picasso.with(mContext);
                     ps.load(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_IMAGE))
                             .resize(thumbImageSize, thumbImageSize)
@@ -520,12 +530,21 @@ public class RestaurantAdapter
                     if (itemInfoLayout != null) {
                         itemInfoLayout.setVisibility(View.VISIBLE);
                     }
-                    if (itemBrandLabel != null) {
-                        String itemCategory = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_BRAND);
+                    if (itemCategoryLabel != null) {
+                        String itemCategory = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_CATEGORY);
                         if (itemCategory != null) {
-                            itemBrandLabel.setText(itemCategory);
+                            itemCategoryLabel.setText(itemCategory);
                         } else {
-                            itemBrandLabel.setVisibility(View.GONE);
+                            itemCategoryLabel.setVisibility(View.GONE);
+                        }
+                    }
+
+                    if (itemTitleLabel != null) {
+                        String itemTitle = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_TITLE);
+                        if (itemTitle != null) {
+                            itemTitleLabel.setText(itemTitle);
+                        } else {
+                            itemTitleLabel.setVisibility(View.GONE);
                         }
                     }
 
@@ -569,19 +588,19 @@ public class RestaurantAdapter
                 }
                 break;
 
-                case RecyclerItemTypeProductInfo: {
+                case RecyclerItemTypeRestaurantProductInfo: {
                     productInfo.reloadData(itemDataWrapper.itemData);
 
                 }
                 break;
 
-                case RecyclerItemTypeProductDetail: {
+                case RecyclerItemTypeRestaurantProductDetail: {
                     productDetail.reloadData(itemDataWrapper.itemData);
                 }
                 break;
 
                 //Restaurant Template
-                case RecyclerItemTypeNewsTop: {
+                case RecyclerItemTypeRestaurantNewsTop: {
                     if (this.mViewPagerAdapter == null) {
                         this.mViewPagerData = (ArrayList<?>) itemDataWrapper.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
                         this.mViewPagerAdapter = new RestaurantNewsAdapter(mContext, this.mViewPagerData);
@@ -592,8 +611,8 @@ public class RestaurantAdapter
 
                         try {
                             NewsInfo.News news = (NewsInfo.News) this.mViewPagerData.get(0);
-                            this.itemDescriptionLabel.setText(news.title);
-                            this.itemBrandLabel.setText(news.description);
+                            this.itemDescriptionLabel.setText(news.getTitle());
+                            this.itemCategoryLabel.setText(news.getDescription());
                             this.itemPriceLabel.setText(news.getCreatedDate());
                         } catch (Exception ignored) {
 
@@ -602,7 +621,7 @@ public class RestaurantAdapter
                 }
                 break;
 
-                case RecyclerItemTypeRecyclerHorizontal: {
+                case RecyclerItemTypeRestaurantRecyclerHorizontal: {
                     ArrayList data = (ArrayList) itemDataWrapper.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
                     final ArrayList<RecyclerItemWrapper> dataItems = new ArrayList<>();
 
@@ -615,13 +634,13 @@ public class RestaurantAdapter
                             extras = new Bundle();
                             extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
                             extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.ITEM_SCREEN);
-                            extras.putString(RecyclerItemWrapper.ITEM_BRAND, item.item_brand);
-                            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.title);
-                            extras.putString(RecyclerItemWrapper.ITEM_PRICE, item.getPrice());
                             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
+                            extras.putString(RecyclerItemWrapper.ITEM_CATEGORY, item.getCategory());
+                            extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.getTitle());
+                            extras.putString(RecyclerItemWrapper.ITEM_PRICE, item.getPrice());
                             extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
 
-                            dataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeGrid, 1, extras));
+                            dataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeRestaurantGridItem, 1, extras));
                         }
                     } else if (itemClass.equals(PhotoInfo.Photo.class)) {
                         for (Object obj : data) {
@@ -632,7 +651,7 @@ public class RestaurantAdapter
                             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
                             extras.putString(RecyclerItemWrapper.ITEM_OBJECT, item.getImageUrl());
 
-                            dataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeGrid, 1, extras));
+                            dataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeRestaurantGridImage, 1, extras));
                         }
                     }
                     RecyclerDataSource dataSource = new RecyclerDataSource() {
@@ -652,7 +671,7 @@ public class RestaurantAdapter
                 }
                 break;
 
-                case RecyclerItemTypeRecyclerVertical: {
+                case RecyclerItemTypeRestaurantRecyclerVertical: {
                     ArrayList data = (ArrayList) itemDataWrapper.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
                     final ArrayList<RecyclerItemWrapper> dataItems = new ArrayList<>();
 
@@ -666,9 +685,9 @@ public class RestaurantAdapter
                             extras = new Bundle();
                             extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
                             extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, screenId);
-                            extras.putString(RecyclerItemWrapper.ITEM_BRAND, item.getCategory());
-                            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.title);
                             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
+                            extras.putString(RecyclerItemWrapper.ITEM_CATEGORY, item.getCategory());
+                            extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.getTitle());
                             extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
 
                             dataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeList, 1, extras));
@@ -702,7 +721,7 @@ public class RestaurantAdapter
                     });
                     if (this.mRecyclerDecoration == null) {
 //                        mRecyclerDecoration = new DividerDecoration(mContext, R.dimen.restaurant_item_margin);
-                        mRecyclerDecoration = new MarginDecoration(mContext, R.dimen.restaurant_item_margin);
+                        mRecyclerDecoration = new MarginDecoration(mContext, R.dimen.restaurant_item_spacing);
                         this.mRecyclerView.addItemDecoration(this.mRecyclerDecoration);
 //                        this.mRecyclerView.addItemDecoration(new MarginDecoration(mContext, R.dimen.restaurant_item_margin));
                     }
@@ -767,11 +786,11 @@ public class RestaurantAdapter
 
             mViewPagerDotItems[position].setImageDrawable(selected);
 
-            if (this.itemType == RecyclerItemType.RecyclerItemTypeNewsTop) {
+            if (this.itemType == RecyclerItemType.RecyclerItemTypeRestaurantNewsTop) {
                 NewsInfo.News news = (NewsInfo.News) this.mViewPagerData.get(position);
 
-                this.itemDescriptionLabel.setText(news.title);
-                this.itemBrandLabel.setText(news.description);
+                this.itemDescriptionLabel.setText(news.getTitle());
+                this.itemCategoryLabel.setText(news.getDescription());
                 this.itemPriceLabel.setText(news.getCreatedDate());
             }
         }

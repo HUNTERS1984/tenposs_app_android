@@ -76,7 +76,7 @@ public class TopInfo {
         }
     }
 
-    public static class Image extends UrlImageObject implements Serializable {
+    public static class Image extends CommonItem implements Serializable {
 
         public Image(String image) {
             image_url = image;
@@ -88,19 +88,68 @@ public class TopInfo {
         public String getImageUrl() {
             return Utils.getImageUrl(TenpossCommunicator.DOMAIN_ADDRESS, image_url, "https://google.com");
         }
+
+        @Override
+        public String getCategory() {
+            return null;
+        }
+
+        @Override
+        public String getTitle() {
+            return null;
+        }
+
+        @Override
+        public String getDescription() {
+            return null;
+        }
+
+        @Override
+        public String getPrice() {
+            return null;
+        }
     }
 
-    public class Contact implements Serializable {
+    public class Contact extends CommonItem implements Serializable {
         public int id;
         String latitude;
         String longitude;
         public String tel;
-        public String title;
+        String title;
         public String start_time;
         public String end_time;
 
         public String getLocation() {
             return latitude + "," + longitude;
+        }
+
+        @Override
+        public String getImageUrl() {
+            return null;
+        }
+
+        @Override
+        public String getCategory() {
+            return null;
+        }
+
+        @Override
+        public String getTitle() {
+            if (title != null) {
+                return title;
+            } else {
+                return "";
+            }
+        }
+
+        @Override
+        public String getDescription() {
+            return null;
+        }
+
+        @Override
+        public String getPrice() {
+            return null;
         }
     }
 }

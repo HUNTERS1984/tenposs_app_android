@@ -72,7 +72,7 @@ public class RestaurantFragmentStaff
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.staff);
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && this.mFirstScreen == false) {
             mToolbarSettings.toolbarLeftIcon = "flaticon-back";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
         } else {
@@ -112,8 +112,8 @@ public class RestaurantFragmentStaff
             extras.putInt(RecyclerItemWrapper.ITEM_ID, staff.id);
             extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.STAFF_DETAIL_SCREEN);
             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, staff.getImageUrl());
-            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, staff.name);
-            extras.putString(RecyclerItemWrapper.ITEM_PRICE, staff.introduction);
+            extras.putString(RecyclerItemWrapper.ITEM_TITLE, staff.getTitle());
+            extras.putString(RecyclerItemWrapper.ITEM_PRICE, staff.getDescription());
             extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, staff);
 
             extras.putInt(RecyclerItemWrapper.ITEM_ROW, rowIndex);
@@ -123,7 +123,7 @@ public class RestaurantFragmentStaff
                 itemSpanCount = 0;
             }
 
-            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeGrid, mSpanCount / mSpanSmallItems, extras));
+            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeRestaurantGridStaff, mSpanCount / mSpanSmallItems, extras));
         }
 
         if (this.mRecyclerAdapter == null) {
@@ -131,7 +131,7 @@ public class RestaurantFragmentStaff
             this.mRecyclerAdapter = new RestaurantAdapter(getActivity(), this, this);
             manager.setSpanSizeLookup(new GridSpanSizeLookup(mRecyclerAdapter));
             this.mRecyclerView.setLayoutManager(manager);
-            this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.item_margin));
+            this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.restaurant_item_spacing));
             this.mRecyclerView.setAdapter(mRecyclerAdapter);
 
             this.mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -357,10 +357,10 @@ public class RestaurantFragmentStaff
     public void onCommonItemClick(int position, Bundle extraData) {
         RecyclerItemWrapper item = getItemData(position);
         switch (item.itemType) {
-            case RecyclerItemTypeGrid: {
+            case RecyclerItemTypeRestaurantGridStaff: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(screenId, extras);
+                this.mActivityListener.showScreen(screenId, extras, null);
             }
             break;
 

@@ -28,5 +28,7 @@
     <dimen name="restaurant_item_margin">20dp</dimen>
     <dimen name="coupon_fragment_margin">-50dp</dimen>
 
+    <dimen name="common_item_spacing">8dp</dimen>
+    <dimen name="restaurant_item_spacing">6dp</dimen>
 
 </resources>

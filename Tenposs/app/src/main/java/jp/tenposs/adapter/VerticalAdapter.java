@@ -32,7 +32,7 @@ public class VerticalAdapter extends AbstractRecyclerAdapter<VerticalAdapter.Ver
         RecyclerItemType itemType = RecyclerItemType.fromInt(viewType);
 
         if (itemType == RecyclerItemType.RecyclerItemTypeList) {
-            mRow = this.mInflater.inflate(R.layout.common_item_list, parent, false);
+            mRow = this.mInflater.inflate(R.layout.restaurant_item_list_news, parent, false);
         } else {
             mRow = this.mInflater.inflate(R.layout.common_item_list_divider, parent, false);
         }
@@ -75,8 +75,9 @@ public class VerticalAdapter extends AbstractRecyclerAdapter<VerticalAdapter.Ver
 
         private ImageView itemImage;
         private LinearLayout itemInfoLayout;
+        private TextView itemTitleLabel;
         private TextView itemDescriptionLabel;
-        private TextView itemBrandLabel;
+        private TextView itemCategoryLabel;
         private TextView itemPriceLabel;
 
         public VerticalViewHolder(View v, RecyclerItemType itemType, Context context, OnCommonItemClickListener l) {
@@ -89,8 +90,9 @@ public class VerticalAdapter extends AbstractRecyclerAdapter<VerticalAdapter.Ver
             if (this.itemType == RecyclerItemType.RecyclerItemTypeList) {
                 itemImage = (ImageView) this.mRow.findViewById(R.id.item_image);
                 itemInfoLayout = (LinearLayout) this.mRow.findViewById(R.id.item_info_layout);
+                itemCategoryLabel = (TextView) this.mRow.findViewById(R.id.item_category_label);
+                itemTitleLabel = (TextView) this.mRow.findViewById(R.id.item_title_label);
                 itemDescriptionLabel = (TextView) this.mRow.findViewById(R.id.item_description_label);
-                itemBrandLabel = (TextView) this.mRow.findViewById(R.id.item_brand_label);
                 itemPriceLabel = (TextView) this.mRow.findViewById(R.id.item_price_label);
             }
         }
@@ -105,12 +107,21 @@ public class VerticalAdapter extends AbstractRecyclerAdapter<VerticalAdapter.Ver
 
                 itemInfoLayout.setVisibility(View.VISIBLE);
 
-                if (itemBrandLabel != null) {
-                    String itemCategory = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_BRAND);
+                if (itemCategoryLabel != null) {
+                    String itemCategory = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_CATEGORY);
                     if (itemCategory != null) {
-                        itemBrandLabel.setText(itemCategory);
+                        itemCategoryLabel.setText(itemCategory);
                     } else {
-                        itemBrandLabel.setVisibility(View.GONE);
+                        itemCategoryLabel.setVisibility(View.GONE);
+                    }
+                }
+
+                if (itemTitleLabel != null) {
+                    String itemTitle = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_TITLE);
+                    if (itemTitle != null) {
+                        itemTitleLabel.setText(itemTitle);
+                    } else {
+                        itemTitleLabel.setVisibility(View.GONE);
                     }
                 }
 

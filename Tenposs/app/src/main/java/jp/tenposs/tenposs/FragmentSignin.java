@@ -169,7 +169,7 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
                 new ClickableSpan() {
                     @Override
                     public void onClick(View widget) {
-                        mActivityListener.showScreen(AbstractFragment.SIGN_UP_SCREEN, null);
+                        mActivityListener.showScreen(AbstractFragment.SIGN_UP_SCREEN, null, null);
                     }
                 });
         List<String> permission = new ArrayList<>();
@@ -312,7 +312,7 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
             this.mTwitterLogin.performClick();
 
         } else if (v == this.mEmailButton) {
-            mActivityListener.showScreen(AbstractFragment.SIGN_IN_EMAIL_SCREEN, null);
+            mActivityListener.showScreen(AbstractFragment.SIGN_IN_EMAIL_SCREEN, null, null);
             //mSignInGroupLayout.setVisibility(View.GONE);
             //signInEmailLayout.setVisibility(View.VISIBLE);
 
@@ -326,7 +326,7 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
             //}
         } else if (v == this.mSkipButton) {
             close();
-            mActivityListener.showScreen(HOME_SCREEN, null);
+            mActivityListener.showFirstFragment();
         }
     }
 
@@ -475,7 +475,7 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
                                     SetPushKeyInfo.Response response = (SetPushKeyInfo.Response) responseParams.getSerializable(Key.ResponseObject);
 
                                     close();
-                                    mActivityListener.showScreen(HOME_SCREEN, null);
+                                    mActivityListener.showScreen(TOP_SCREEN, null, null);
                                 } else {
 
                                     String strMessage = responseParams.getString(Key.ResponseMessage);
@@ -492,7 +492,7 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
         } else {
             Utils.hideProgress();
             close();
-            mActivityListener.showScreen(HOME_SCREEN, null);
+            mActivityListener.showFirstFragment();
         }
     }
 }

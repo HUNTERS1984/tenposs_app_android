@@ -12,8 +12,9 @@ public enum RecyclerItemType {
     RecyclerItemTypeHeader,
     RecyclerItemTypeFooter,
 
-    RecyclerItemTypeGrid,
-
+    RecyclerItemTypeGridImage,
+    RecyclerItemTypeGridItem,
+    RecyclerItemTypeGridStaff,
 
     RecyclerItemTypeList,
     RecyclerItemTypeListDivider,
@@ -25,18 +26,20 @@ public enum RecyclerItemType {
     RecyclerItemTypeProductTitle,
     RecyclerItemTypeProductDescription,
 
-    //Restaurant Template
-    RecyclerItemTypeProductInfo,
-    RecyclerItemTypeProductDetail,
+    /**
+     * Restaurant Template
+     */
+    RecyclerItemTypeRestaurantNewsTop,
 
-    RecyclerItemTypeGridImage,
+    RecyclerItemTypeRestaurantProductInfo,
+    RecyclerItemTypeRestaurantProductDetail,
 
-    //DECORATION_MULTI_COLUMN
+    RecyclerItemTypeRestaurantGridImage,
+    RecyclerItemTypeRestaurantGridItem,
+    RecyclerItemTypeRestaurantGridStaff,
 
-    RecyclerItemTypeNewsTop,
-
-    RecyclerItemTypeRecyclerHorizontal,
-    RecyclerItemTypeRecyclerVertical,;
+    RecyclerItemTypeRestaurantRecyclerHorizontal,
+    RecyclerItemTypeRestaurantRecyclerVertical,;
 
 
     public static RecyclerItemType fromInt(int recyclerItemType) {

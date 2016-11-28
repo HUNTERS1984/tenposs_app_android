@@ -80,11 +80,10 @@ public class PopupShareApp implements View.OnClickListener {
         if (v == facebookButton) {
             //Share FaceBook
             ShareLinkContent content = new ShareLinkContent.Builder()
-                    .setContentUrl(Uri.parse("http://videofly.vn"))
+                    .setContentUrl(Uri.parse("http://ten-po.com"))
                     .setContentDescription("Please install this app using my code ")
                     .build();
             fbShareButton.setShareContent(content);
-
             fbShareButton.performClick();
         } else if (v == twitterButton) {
             //Share Twitter
@@ -95,6 +94,7 @@ public class PopupShareApp implements View.OnClickListener {
 
         } else if (v == instagramButton) {
             //share Instagram
+
         } else if (v == closeButton) {
             alert.dismiss();
         }

@@ -3,49 +3,47 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="1dp">
+    android:background="@drawable/bg_recycler_item"
+    android:orientation="vertical">
 
+    <!--app:cardElevation="3dp"-->
+    <!--app:cardUseCompatPadding="true"-->
 
-    <!--android:background="@drawable/bg_drop_shadow"-->
-
-    <jp.tenposs.view.RoundCornerImageView
-        android:id="@+id/item_image"
-        android:background="#11000000"
-        android:contentDescription="@string/image_description"
-        android:scaleType="centerCrop"
+    <android.support.v7.widget.CardView
+        android:id="@+id/card_view_outer"
+        android:layout_marginBottom="1.5dp"
+        android:layout_marginLeft="0.5dp"
+        android:layout_marginRight="1.5dp"
+        android:layout_marginTop="0.5dp"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardCornerRadius="3dp"
         app:layout_aspectRatio="100%"
-        app:layout_widthPercent="100%"
-        app:riv_corner_radius="1.5dp" />
+        app:layout_widthPercent="100%">
+
+        <ImageView
+            android:id="@+id/item_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/image_description"
+            android:scaleType="centerCrop" />
+    </android.support.v7.widget.CardView>
 
     <LinearLayout
         android:id="@+id/item_info_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/item_image"
+        android:layout_below="@id/card_view_outer"
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/item_description_label"
+            android:id="@+id/item_title_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:padding="5dip"
-            android:text="item_description_label"
-            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
-            android:textColor="@android:color/black"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/item_brand_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:padding="5dip"
-            android:text="item_brand_label"
+            android:text="item_title_label"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault"
             android:textColor="@color/grid_text_color" />
 
@@ -59,8 +57,7 @@
             android:padding="5dip"
             android:text="item_price_label"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault"
-            android:textColor="@color/restaurant_text_color"
-            android:textStyle="bold" />
+            android:textColor="@color/grid_text_color" />
 
     </LinearLayout>
 </android.support.percent.PercentRelativeLayout>

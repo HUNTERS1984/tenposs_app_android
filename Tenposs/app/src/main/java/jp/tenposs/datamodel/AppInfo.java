@@ -5,7 +5,6 @@ import android.graphics.Color;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import jp.tenposs.utils.FontIcon;
 import jp.tenposs.utils.Utils;
 
 /**
@@ -45,7 +44,15 @@ public class AppInfo {
                 return null;
             }
 
-            public SideMenu getSideMenu(int id) {
+            public SideMenu getSideMenuAtIndex(int index) {
+                if (index >= 0 && side_menu.size() > index) {
+                    return side_menu.get(index);
+                } else {
+                    return null;
+                }
+            }
+
+            public SideMenu getSideMenuById(int id) {
                 for (SideMenu menu : side_menu) {
                     if (menu.id == id) {
                         return menu;

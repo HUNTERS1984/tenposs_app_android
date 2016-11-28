@@ -50,7 +50,8 @@ public class ProductTitle extends LinearLayout {
         this.mProductPriceLabel = (TextView) findViewById(R.id.product_price_label);
         this.mPurchaseButton = (Button) findViewById(R.id.purchase_button);
 
-        this.mProductNameLabel.setText(mItemData.title);
+        this.mProductCategoryLabel.setText(mItemData.menu);
+        this.mProductNameLabel.setText(mItemData.getTitle());
         this.mProductPriceLabel.setText(mItemData.getPrice());
         this.mPurchaseButton.setOnClickListener(new OnClickListener() {
             @Override

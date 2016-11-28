@@ -89,7 +89,7 @@ public class FragmentSignInEmail extends AbstractFragment implements View.OnClic
                 new ClickableSpan() {
                     public void onClick(View view) {
                         close();
-                        mActivityListener.showScreen(AbstractFragment.SIGN_UP_SCREEN, null);
+                        mActivityListener.showScreen(AbstractFragment.SIGN_UP_SCREEN, null, null);
                     }
                 });
         return mRoot;

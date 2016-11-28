@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import junit.framework.Assert;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import jp.tenposs.adapter.AbstractRecyclerAdapter;
@@ -51,10 +52,6 @@ public class RestaurantFragmentNews
      * Fragment Override
      */
 
-    private RestaurantFragmentNews() {
-
-    }
-
     public static RestaurantFragmentNews newInstance(String title, int storeId) {
         RestaurantFragmentNews fragment = new RestaurantFragmentNews();
         Bundle b = new Bundle();
@@ -72,7 +69,7 @@ public class RestaurantFragmentNews
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.news);
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && this.mFirstScreen == false) {
             mToolbarSettings.toolbarLeftIcon = "flaticon-back";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
         } else {
@@ -115,15 +112,15 @@ public class RestaurantFragmentNews
         if (datas.size() > 0) {
             Bundle extras = new Bundle();
             extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, datas);
-            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeNewsTop, mSpanCount, extras));
+            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeRestaurantNewsTop, mSpanCount, extras));
 
 
             if (mScreenData.data.news.size() > 3) {
                 extras = new Bundle();
                 extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_SCREEN);
                 try {
-                    AppInfo.SideMenu menu = AppData.sharedInstance().mAppInfo.data.getSideMenu(AbstractFragment.NEWS_SCREEN);
-                    extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, menu.name);
+                    AppInfo.SideMenu menu = AppData.sharedInstance().mAppInfo.data.getSideMenuById(AbstractFragment.NEWS_SCREEN);
+                    extras.putString(RecyclerItemWrapper.ITEM_TITLE, menu.name);
                 } catch (Exception ignored) {
 
                 }
@@ -142,7 +139,7 @@ public class RestaurantFragmentNews
                 extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, news);
                 extras.putSerializable(RecyclerItemWrapper.ITEM_CLASS, NewsInfo.News.class);
 
-                mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeRecyclerVertical, mSpanCount, extras));
+                mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeRestaurantRecyclerVertical, mSpanCount, extras));
             }
         } else {
             //TODO:
@@ -153,7 +150,7 @@ public class RestaurantFragmentNews
             this.mRecyclerAdapter = new RestaurantAdapter(getActivity(), this, this);
             manager.setSpanSizeLookup(new GridSpanSizeLookup(mRecyclerAdapter));
             this.mRecyclerView.setLayoutManager(manager);
-            this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.item_margin));
+            this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.restaurant_item_spacing));
             this.mRecyclerView.setAdapter(mRecyclerAdapter);
 
             this.mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -340,10 +337,15 @@ public class RestaurantFragmentNews
         RecyclerItemWrapper item = getItemData(position);
 
         switch (item.itemType) {
+            case RecyclerItemTypeRestaurantRecyclerVertical: {
+                int screenId = extraData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
+                Serializable extras = extraData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
+                this.mActivityListener.showScreen(screenId, extras, null);
+            }
+            break;
             case RecyclerItemTypeList: {
-                int id = item.itemData.getInt(RecyclerItemWrapper.ITEM_ID);
                 NewsInfo.News news = (NewsInfo.News) item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(AbstractFragment.NEWS_DETAILS_SCREEN, news);
+                this.mActivityListener.showScreen(AbstractFragment.NEWS_DETAILS_SCREEN, news, null);
             }
             break;
 

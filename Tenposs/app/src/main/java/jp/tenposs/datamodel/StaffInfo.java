@@ -34,7 +34,7 @@ public class StaffInfo {
         public ResponseData data;
     }
 
-    public class Staff extends UrlImageObject implements Serializable {
+    public class Staff extends CommonItem implements Serializable {
         public int id;
         public String name;
         public String price;
@@ -47,10 +47,42 @@ public class StaffInfo {
         public String updated_at;
         public String deleted_at;
         public String staff_category_id;
+        public String staff_category = "";
 
         @Override
         public String getImageUrl() {
             return Utils.getImageUrl(TenpossCommunicator.DOMAIN_ADDRESS, image_url, "https://google.com");
+        }
+
+        @Override
+        public String getCategory() {
+            return null;
+        }
+
+        @Override
+        public String getTitle() {
+            if (name != null) {
+                return name;
+            } else {
+                return "";
+            }
+        }
+
+        @Override
+        public String getDescription() {
+            if (introduction != null) {
+                introduction = introduction.replaceAll("\r\n", "\n");
+                introduction = introduction.replaceAll("\n\r", "\n");
+                return introduction;
+            } else {
+                return "";
+            }
+        }
+
+        @Override
+        public String getPrice() {
+            String itemPrice = Utils.aToCurrency(price);
+            return "¥ " + itemPrice;
         }
     }
 }

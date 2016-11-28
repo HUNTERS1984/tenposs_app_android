@@ -104,7 +104,7 @@ public class FragmentMyPage extends AbstractFragment {
                 ));
             }
             if (this.mRightToolbarButton != null && this.mToolbarSettings.toolbarRightIcon != null) {
-                this.mRightToolbarButton.setVisibility(View.VISIBLE);
+                this.mRightToolbarLayout.setVisibility(View.VISIBLE);
                 this.mRightToolbarButton.setImageBitmap(FontIcon.imageForFontIdentifier(getActivity().getAssets(),
                         this.mToolbarSettings.toolbarRightIcon,
                         Utils.NavIconSize,
@@ -112,6 +112,16 @@ public class FragmentMyPage extends AbstractFragment {
                         Color.WHITE,
                         FontIcon.THEMIFY
                 ));
+                this.mRightToolbarButton.setOnClickListener(
+                        new View.OnClickListener()
+
+                        {
+                            @Override
+                            public void onClick(View v) {
+                                openSetting();
+                            }
+                        }
+                );
             }
 
             if (this.mTitleToolbarLabel != null) {
@@ -147,6 +157,10 @@ public class FragmentMyPage extends AbstractFragment {
         } catch (Exception ignored) {
 
         }
+    }
+
+    private void openSetting() {
+        this.mActivityListener.showScreen(AbstractFragment.SETTING_SCREEN, null, null);
     }
 
     @Override
@@ -211,7 +225,7 @@ public class FragmentMyPage extends AbstractFragment {
                 @Override
                 public void onClick(View v) {
                     if (isSignedIn() == true) {
-                        FragmentMyPage.this.mActivityListener.showScreen(AbstractFragment.PROFILE_SCREEN, null);
+                        FragmentMyPage.this.mActivityListener.showScreen(AbstractFragment.PROFILE_SCREEN, null, null);
                     } else {
                         Utils.showAlert(FragmentMyPage.this.getContext(),
                                 getString(R.string.info),
@@ -268,7 +282,7 @@ public class FragmentMyPage extends AbstractFragment {
             ps.load(this.mScreenData.profile.getImageUrl())
                     .resize(mFullImageSize, 640)
                     .centerInside()
-                    .placeholder(R.drawable.no_avatar)
+                    .placeholder(R.drawable.mypage_no_avatar)
                     .into(mUserAvatarImage);
         } else {
             File f = new File(this.mScreenData.profile.getImageUrl());

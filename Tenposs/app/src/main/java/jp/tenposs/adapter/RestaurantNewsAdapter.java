@@ -6,13 +6,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-import jp.tenposs.datamodel.UrlImageObject;
+import jp.tenposs.datamodel.CommonItem;
 import jp.tenposs.tenposs.R;
 
 /**
@@ -41,7 +40,7 @@ public class RestaurantNewsAdapter extends PagerAdapter {
 
         itemThumbnail = (ImageView) root.findViewById(R.id.item_image);
 
-        UrlImageObject image = getItem(position);
+        CommonItem image = getItem(position);
         if (image.getImageUrl() != null) {
             Picasso ps = Picasso.with(mContext);
             ps.load(image.getImageUrl())
@@ -51,8 +50,8 @@ public class RestaurantNewsAdapter extends PagerAdapter {
         return root;
     }
 
-    public UrlImageObject getItem(int position) {
-        return (UrlImageObject) this.mainData.get(position);
+    public CommonItem getItem(int position) {
+        return (CommonItem) this.mainData.get(position);
     }
 
     @Override

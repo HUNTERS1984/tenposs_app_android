@@ -77,7 +77,7 @@ public class MenuIcon {
     public Bitmap getIconBitmapWithId(int menuId) {
         String menuName = "";
         switch (menuId) {
-            case AbstractFragment.HOME_SCREEN: {
+            case AbstractFragment.TOP_SCREEN: {
                 menuName = "icon-home";
             }
             break;
@@ -126,7 +126,7 @@ public class MenuIcon {
     public Drawable getIconDrawableWithId(Context context, int menuId) {
         int iconId;
         switch (menuId) {
-            case AbstractFragment.HOME_SCREEN: {
+            case AbstractFragment.TOP_SCREEN: {
                 iconId = R.drawable.restaurant_ic_sm_home;
             }
             break;
@@ -181,7 +181,7 @@ public class MenuIcon {
     public Drawable getHomeIconDrawableWithId(Context context, int menuId) {
         int iconId;
         switch (menuId) {
-            case AbstractFragment.HOME_SCREEN: {
+            case AbstractFragment.TOP_SCREEN: {
                 iconId = R.drawable.restaurant_ic_sm_home;
             }
             break;

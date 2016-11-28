@@ -13,11 +13,11 @@ import com.squareup.picasso.Picasso;
 
 import java.io.Serializable;
 
+import jp.tenposs.datamodel.AppData;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.datamodel.StaffInfo;
 import jp.tenposs.utils.Utils;
 import jp.tenposs.view.AspectRatioImageView;
-import okhttp3.internal.Util;
 
 /**
  * Created by ambient on 7/27/16.
@@ -33,6 +33,7 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
     TextView mStaffDescriptionLabel;
     LinearLayout mStaffProfileLayout;
     TextView mGenderValueLabel;
+    TextView mPriceValueLabel;
     TextView mBirthdayValueLabel;
     TextView mPhoneValueLabel;
     Button mMoreButton;
@@ -61,7 +62,11 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = "";
-        mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-close";
+        } else {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+        }
         mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
     }
 
@@ -85,17 +90,28 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
                 .into(this.mStaffImage);
 
         this.mStaffTitleLabel.setText(mScreenData.name);
-        //this.mStaffCategoryLabel.setText(mScreenData.category);
+        this.mStaffCategoryLabel.setText(mScreenData.staff_category);
         this.mStaffDescriptionLabel.setText(this.mScreenData.introduction);
 
         showDescriptionOrProfile();
 
         try {
-            this.mGenderValueLabel.setText(this.mScreenData.gender);
+            if (Utils.atoi(this.mScreenData.gender) == 0) {
+                this.mGenderValueLabel.setText(getString(R.string.gender_male));
+            } else if (Utils.atoi(this.mScreenData.gender) == 1) {
+                this.mGenderValueLabel.setText(getString(R.string.gender_female));
+            } else {
+                this.mGenderValueLabel.setText("");
+            }
         } catch (Exception ignored) {
         }
         try {
-            this.mBirthdayValueLabel.setText(Utils.formatDate(this.mScreenData.birthday));
+            this.mPriceValueLabel.setText(this.mScreenData.getPrice());
+        } catch (Exception ignored) {
+        }
+
+        try {
+            this.mBirthdayValueLabel.setText(Utils.formatJapanDateTime(this.mScreenData.birthday, "yyyy-MM-dd", ""));
         } catch (Exception ignored) {
         }
         try {
@@ -118,9 +134,12 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
         this.mStaffProfileButton = (Button) root.findViewById(R.id.staff_profile_button);
         this.mStaffDescriptionLabel = (TextView) root.findViewById(R.id.staff_description_label);
         this.mStaffProfileLayout = (LinearLayout) root.findViewById(R.id.staff_profile_layout);
+
         this.mGenderValueLabel = (TextView) root.findViewById(R.id.gender_value_label);
+        this.mPriceValueLabel = (TextView) root.findViewById(R.id.price_value_label);
         this.mBirthdayValueLabel = (TextView) root.findViewById(R.id.birthday_value_label);
         this.mPhoneValueLabel = (TextView) root.findViewById(R.id.phone_value_label);
+
         this.mMoreButton = (Button) root.findViewById(R.id.more_button);
 
         this.mStaffDescriptionButton.setOnClickListener(this);

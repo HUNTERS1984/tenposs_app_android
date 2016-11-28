@@ -14,9 +14,11 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import jp.tenposs.datamodel.CouponInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
+import jp.tenposs.utils.Utils;
 import jp.tenposs.view.AspectRatioImageView;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
@@ -79,23 +81,21 @@ public class FragmentCouponDetail extends AbstractFragment {
     @Override
     protected void previewScreenData() {
         this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
-        mToolbarSettings.toolbarTitle = mScreenData.title;
+        mToolbarSettings.toolbarTitle = mScreenData.getTitle();
 
         Picasso ps = Picasso.with(getContext());
-        ps.load(mScreenData.getImageUrl())
-//                .resize(mFullImageSize, mFullImageSize)
-//                .centerCrop()
-                .into(mCouponImage);
+        ps.load(mScreenData.getImageUrl()).into(mCouponImage);
 
-        this.mCouponIdLabel.setText(Integer.toString(mScreenData.id));
-        this.mCouponTypeLabel.setText(Integer.toString(mScreenData.type));
-        this.mCouponNameLabel.setText(mScreenData.title);
-        this.mValidityLabel.setText(mScreenData.end_date);
-        this.mCouponDescriptionLabel.setText(mScreenData.description);
+        this.mCouponIdLabel.setText("ID" + Integer.toString(mScreenData.id));
+        this.mCouponTypeLabel.setText(mScreenData.getCategory());
+        this.mCouponNameLabel.setText(mScreenData.getTitle());
+        this.mValidityLabel.setText(Utils.formatJapanDateTime(mScreenData.end_date, "yyyy-MM-dd", "yyyy年M月d日まで"));
+        this.mCouponDescriptionLabel.setText(mScreenData.getDescription());
         this.mHashTagLabel.setText(this.mScreenData.getHashTag());
 
-
-        if (this.mScreenData.status == 1) {
+        Date current = new Date();
+        Date endDate = this.mScreenData.getEndDate();
+        if (isSignedIn() == true && endDate != null && current.before(endDate)) {
             this.mTakeAdvantageOfCouponLayout.setVisibility(View.VISIBLE);
             this.mCouponCannotUseLayout.setVisibility(View.GONE);
         } else {
@@ -133,6 +133,7 @@ public class FragmentCouponDetail extends AbstractFragment {
                 popupHashTagCopied.show();
             }
         });
+
         this.mTakeAdvantageOfCouponButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

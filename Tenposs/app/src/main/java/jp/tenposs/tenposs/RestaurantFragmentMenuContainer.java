@@ -41,10 +41,6 @@ public class RestaurantFragmentMenuContainer extends AbstractFragment implements
      * Fragment Override
      */
 
-    private RestaurantFragmentMenuContainer() {
-
-    }
-
     public static RestaurantFragmentMenuContainer newInstance(String title, int storeId) {
         RestaurantFragmentMenuContainer fragment = new RestaurantFragmentMenuContainer();
         Bundle b = new Bundle();
@@ -61,9 +57,16 @@ public class RestaurantFragmentMenuContainer extends AbstractFragment implements
 
     @Override
     protected void customToolbarInit() {
-        mToolbarSettings.toolbarTitle = getString(R.string.menu);
-        mToolbarSettings.toolbarLeftIcon = "flaticon-back";
-        mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+
+        if (this.mFirstScreen == false) {
+            mToolbarSettings.toolbarTitle = getString(R.string.menu);
+            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+        } else {
+            mToolbarSettings.toolbarTitle = getString(R.string.menu);
+            mToolbarSettings.toolbarLeftIcon = "flaticon-menu";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        }
     }
 
     @Override

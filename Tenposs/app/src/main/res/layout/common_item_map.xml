@@ -17,7 +17,7 @@
         android:id="@+id/item_info_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/map_image"
+        android:layout_below="@id/map_image"
         android:orientation="vertical">
 
         <LinearLayout

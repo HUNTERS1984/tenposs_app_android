@@ -23,8 +23,6 @@ public class MenuInfo {
 
         public class ResponseData implements Serializable {
             public ArrayList<Menu> menus;
-
-
         }
     }
 

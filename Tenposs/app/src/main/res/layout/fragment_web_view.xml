@@ -111,7 +111,7 @@
         android:id="@+id/top_separate"
         android:layout_width="match_parent"
         android:layout_height="0.5dip"
-        android:layout_below="@+id/app_bar"
+        android:layout_below="@id/app_bar"
         android:background="@color/colorSeparate" />
 
     <ProgressBar
@@ -119,7 +119,7 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="1.5dp"
-        android:layout_below="@+id/top_separate"
+        android:layout_below="@id/top_separate"
         android:max="100"
         android:progressDrawable="@drawable/progress" />
 
@@ -128,7 +128,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/nav_control_layout"
-        android:layout_below="@+id/loading_progress" />
+        android:layout_below="@id/loading_progress" />
 
     <LinearLayout
 

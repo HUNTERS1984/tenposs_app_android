@@ -79,11 +79,11 @@ public class RestaurantFragmentCouponDetail extends AbstractFragment {
     @Override
     protected void previewScreenData() {
         this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
-        mToolbarSettings.toolbarTitle = mScreenData.title;
+        mToolbarSettings.toolbarTitle = mScreenData.getTitle();
 
         this.mCouponIdLabel.setText(Integer.toString(mScreenData.id));
         this.mCouponTypeLabel.setText(Integer.toString(mScreenData.type));
-        this.mCouponNameLabel.setText(mScreenData.title);
+        this.mCouponNameLabel.setText(mScreenData.getTitle());
         this.mValidityLabel.setText(mScreenData.end_date);
     }
 

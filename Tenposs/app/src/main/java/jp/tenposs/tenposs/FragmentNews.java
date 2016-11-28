@@ -66,9 +66,6 @@ public class FragmentNews extends AbstractFragment implements RecyclerDataSource
      * Fragment Override
      */
 
-    private FragmentNews() {
-
-    }
 
     public static FragmentNews newInstance(String title, int storeId) {
         FragmentNews fragment = new FragmentNews();
@@ -87,7 +84,7 @@ public class FragmentNews extends AbstractFragment implements RecyclerDataSource
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.news);
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && this.mFirstScreen == false) {
             mToolbarSettings.toolbarLeftIcon = "flaticon-back";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
         } else {
@@ -129,10 +126,10 @@ public class FragmentNews extends AbstractFragment implements RecyclerDataSource
             item.setCategory(this.mCurrentNewsCat.name);
             Bundle extras = new Bundle();
             extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
-            extras.putString(RecyclerItemWrapper.ITEM_BRAND, item.getCategory());
-            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.title);
-            extras.putString(RecyclerItemWrapper.ITEM_BRAND, item.description);
             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
+            extras.putString(RecyclerItemWrapper.ITEM_CATEGORY, item.getCategory());
+            extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.getTitle());
+            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.getDescription());
             extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
             mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeList, mSpanCount, extras));
         }
@@ -144,7 +141,7 @@ public class FragmentNews extends AbstractFragment implements RecyclerDataSource
             this.mRecyclerAdapter = new CommonAdapter(getActivity(), this, this);
             manager.setSpanSizeLookup(new GridSpanSizeLookup(mRecyclerAdapter));
             this.mRecyclerView.setLayoutManager(manager);
-            this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.item_margin));
+            this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.common_item_spacing));
             this.mRecyclerView.setAdapter(mRecyclerAdapter);
 
             this.mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -493,9 +490,8 @@ public class FragmentNews extends AbstractFragment implements RecyclerDataSource
 
         switch (item.itemType) {
             case RecyclerItemTypeList: {
-                int id = item.itemData.getInt(RecyclerItemWrapper.ITEM_ID);
                 NewsInfo.News news = (NewsInfo.News) item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(AbstractFragment.NEWS_DETAILS_SCREEN, news);
+                this.mActivityListener.showScreen(AbstractFragment.NEWS_DETAILS_SCREEN, news, null);
             }
             break;
 

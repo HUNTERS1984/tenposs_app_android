@@ -111,14 +111,14 @@
         android:id="@+id/top_separate"
         android:layout_width="match_parent"
         android:layout_height="0.5dip"
-        android:layout_below="@+id/app_bar"
+        android:layout_below="@id/app_bar"
         android:background="@color/colorSeparate" />
 
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/top_separate">
+        android:layout_below="@id/top_separate">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -406,6 +406,40 @@
                 android:layout_marginLeft="10dp"
                 android:background="@android:color/darker_gray" />
 
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/item_setting_height"
+                    android:layout_centerVertical="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="10dp"
+                        android:layout_weight="1"
+                        android:text="@string/sign_out"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+                        android:textColor="@color/title_text_color" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/sign_out_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_button_setting" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray" />
 
         </LinearLayout>
     </ScrollView>

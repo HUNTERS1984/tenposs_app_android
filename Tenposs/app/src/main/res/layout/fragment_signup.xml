@@ -111,14 +111,14 @@
         android:id="@+id/top_separate"
         android:layout_width="match_parent"
         android:layout_height="0.5dip"
-        android:layout_below="@+id/app_bar"
+        android:layout_below="@id/app_bar"
         android:background="@color/colorSeparate" />
 
     <View
         android:id="@+id/center_separate"
         android:layout_width="match_parent"
         android:layout_height="0.5dip"
-        android:layout_below="@+id/top_separate"
+        android:layout_below="@id/top_separate"
         android:layout_marginTop="?attr/actionBarSize"
         android:background="@color/colorSeparate" />
 
@@ -126,7 +126,7 @@
         android:id="@+id/info_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/center_separate"
+        android:layout_below="@id/center_separate"
         android:background="@android:color/white"
         android:orientation="vertical">
 
@@ -200,7 +200,7 @@
         android:id="@+id/next_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/info_layout"
+        android:layout_below="@id/info_layout"
         android:layout_marginLeft="@dimen/common_padding"
         android:layout_marginRight="@dimen/common_padding"
         android:layout_marginTop="@dimen/common_padding"
@@ -212,7 +212,7 @@
         android:id="@+id/go_to_sign_in_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/next_button"
+        android:layout_below="@id/next_button"
         android:layout_marginLeft="@dimen/common_padding"
         android:layout_marginRight="@dimen/common_padding"
         android:layout_marginTop="@dimen/common_padding"

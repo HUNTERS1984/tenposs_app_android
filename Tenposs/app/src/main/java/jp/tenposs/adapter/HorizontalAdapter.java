@@ -72,7 +72,8 @@ public class HorizontalAdapter
         private ImageView itemImage;
         private LinearLayout itemInfoLayout;
         private TextView itemDescriptionLabel;
-        private TextView itemBrandLabel;
+        private TextView itemCategoryLabel;
+        private TextView itemTitleLabel;
         private TextView itemPriceLabel;
 
         public HorizontalViewHolder(View v, RecyclerItemType itemType, Context context, OnCommonItemClickListener l) {
@@ -85,7 +86,8 @@ public class HorizontalAdapter
             itemImage = (ImageView) this.mRow.findViewById(R.id.item_image);
             itemInfoLayout = (LinearLayout) this.mRow.findViewById(R.id.item_info_layout);
             itemDescriptionLabel = (TextView) this.mRow.findViewById(R.id.item_description_label);
-            itemBrandLabel = (TextView) this.mRow.findViewById(R.id.item_brand_label);
+            itemCategoryLabel = (TextView) this.mRow.findViewById(R.id.item_category_label);
+            itemTitleLabel = (TextView) this.mRow.findViewById(R.id.item_title_label);
             itemPriceLabel = (TextView) this.mRow.findViewById(R.id.item_price_label);
         }
 
@@ -100,12 +102,21 @@ public class HorizontalAdapter
 
             itemInfoLayout.setVisibility(View.VISIBLE);
 
-            if (itemBrandLabel != null) {
-                String itemCategory = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_BRAND);
+            if (itemCategoryLabel != null) {
+                String itemCategory = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_CATEGORY);
                 if (itemCategory != null) {
-                    itemBrandLabel.setText(itemCategory);
+                    itemCategoryLabel.setText(itemCategory);
                 } else {
-                    itemBrandLabel.setVisibility(View.GONE);
+                    itemCategoryLabel.setVisibility(View.GONE);
+                }
+            }
+
+            if (itemTitleLabel != null) {
+                String itemTitle = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_TITLE);
+                if (itemTitle != null) {
+                    itemTitleLabel.setText(itemTitle);
+                } else {
+                    itemTitleLabel.setVisibility(View.GONE);
                 }
             }
 

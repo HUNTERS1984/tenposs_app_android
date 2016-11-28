@@ -214,8 +214,18 @@ public class Utils {
     public static Date dateFromString(String input) {
         Date output = null;
         try {
-            SimpleDateFormat curFormater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-            output = curFormater.parse(input);
+            SimpleDateFormat curFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+            output = curFormatter.parse(input);
+        } catch (Exception e) {
+        }
+        return output;
+    }
+
+    public static Date dateFromString(String input, String format) {
+        Date output = null;
+        try {
+            SimpleDateFormat curFormatter = new SimpleDateFormat(format, Locale.US);
+            output = curFormatter.parse(input);
         } catch (Exception e) {
         }
         return output;
@@ -265,6 +275,13 @@ public class Utils {
         canvas.drawBitmap(bitmap, rect, rect, paint);
 
         return output;
+    }
+
+    public static String aToCurrency(String value) {
+        int intValue = atoi(value);
+        NumberFormat format = NumberFormat.getInstance();
+        format.setCurrency(Currency.getInstance(Locale.JAPAN));
+        return format.format(intValue);
     }
 
     public static String iToCurrency(int value) {
@@ -476,5 +493,13 @@ public class Utils {
         return null;
     }
 
+
+    public static String formatJapanDateTime(String input, String inputFormat, String outputFormat) {
+        Date date = dateFromString(input, inputFormat);
+        String output;
+        SimpleDateFormat formatter = new SimpleDateFormat(outputFormat);
+        output = formatter.format(date);
+        return output;
+    }
 }
 

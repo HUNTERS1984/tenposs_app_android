@@ -30,7 +30,7 @@ public class PhotoInfo {
         }
     }
 
-    public class Photo extends UrlImageObject implements Serializable {
+    public class Photo extends CommonItem implements Serializable {
         public int id;
         public String image_url;
         public int photo_category_id;
@@ -40,6 +40,41 @@ public class PhotoInfo {
         @Override
         public String getImageUrl() {
             return Utils.getImageUrl(TenpossCommunicator.DOMAIN_ADDRESS, image_url, "https://google.com");
+        }
+
+        @Override
+        public String getCategory() {
+            return null;
+        }
+
+        @Override
+        public String getTitle() {
+//            if (title != null) {
+//                return title;
+//            } else {
+//                return "";
+//            }
+            return null;
+        }
+
+        @Override
+        public String getDescription() {
+//            if (description != null) {
+//                return description;
+//            } else {
+//                return "";
+//            }
+            return null;
+
+        }
+
+        @Override
+        public String getPrice() {
+//            int priceInt = Utils.atoi(this.price);
+//
+//            String itemPrice = Utils.iToCurrency(priceInt);
+//            return "¥ " + itemPrice;
+            return null;
         }
     }
 }

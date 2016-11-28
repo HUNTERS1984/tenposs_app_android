@@ -25,28 +25,28 @@
         android:layout_centerVertical="true"
         android:layout_marginLeft="10dip"
         android:layout_toLeftOf="@+id/choice_button"
-        android:layout_toRightOf="@+id/item_image"
+        android:layout_toRightOf="@id/item_image"
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/item_description_label"
+            android:id="@+id/item_title_label"
             android:layout_width="match_parent"
             android:layout_height="0dip"
             android:layout_weight="1"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="Description"
+            android:text="item_title_label"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
             android:textColor="@color/title_text_color" />
 
         <TextView
-            android:id="@+id/item_brand_label"
+            android:id="@+id/item_category_label"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="@string/category_text"
+            android:text="item_category_label"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault"
             android:textColor="@color/restaurant_text_color" />
     </LinearLayout>

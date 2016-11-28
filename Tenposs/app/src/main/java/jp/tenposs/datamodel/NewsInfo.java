@@ -45,16 +45,20 @@ public class NewsInfo {
         }
     }
 
-    public class News extends UrlImageObject implements Serializable {
+    public class News extends CommonItem implements Serializable {
         public int id;
-        public String title;
-        public String description;
+        String title;
+        String description;
         public String date;
         public int store_id;
         public int new_category_id;
 
         String image_url;
         String category = "";
+
+        String deleted_at;
+        String updated_at;
+        String created_at;
 
         @Override
         public String getImageUrl() {
@@ -63,6 +67,14 @@ public class NewsInfo {
 
         public String getCreatedDate() {
             return date;
+        }
+
+        public String getLastModifyDate() {
+            if (updated_at != null) {
+                return updated_at;
+            } else {
+                return created_at;
+            }
         }
 
         public void setCategory(ArrayList<NewsCategoryInfo.Category> categories) {
@@ -84,6 +96,31 @@ public class NewsInfo {
             } else {
                 return "カテゴリー";
             }
+        }
+
+        @Override
+        public String getTitle() {
+            if (title != null) {
+                return title;
+            } else {
+                return "";
+            }
+        }
+
+        @Override
+        public String getDescription() {
+            if (description != null) {
+                description = description.replaceAll("\r\n", "\n");
+                description = description.replaceAll("\n\r", "\n");
+                return description;
+            } else {
+                return "";
+            }
+        }
+
+        @Override
+        public String getPrice() {
+            return null;
         }
     }
 

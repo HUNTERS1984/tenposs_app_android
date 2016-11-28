@@ -15,7 +15,7 @@
         android:id="@+id/copied_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/close_button"
+        android:layout_below="@id/close_button"
         android:layout_marginTop="10dp"
         android:gravity="center"
         android:text="@string/hash_tag_copied"

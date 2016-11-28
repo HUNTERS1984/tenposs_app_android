@@ -49,11 +49,9 @@ public abstract class AbstractFragment extends Fragment {
     public static int iconSize = 25;
 
     public interface MainActivityListener {
-        void updateAppInfo(AppInfo.Response appInfo, int storeId);
-
         void updateUserInfo(SignInInfo.User userProfile);
 
-        void showScreen(int menuId, Serializable extras);
+        AbstractFragment showScreen(int menuId, Serializable extras, String fragmentTag);
 
         AppInfo.Response.ResponseData getAppInfo();
 
@@ -70,6 +68,10 @@ public abstract class AbstractFragment extends Fragment {
         void setSessionValue(String key, String value);
 
         String getSessionValue(String key, String valueDefault);
+
+        void showFirstFragment();
+
+        void stopServices();
     }
 
     public static final int WIFI_SETTINGS = 0xDAD0;
@@ -80,7 +82,7 @@ public abstract class AbstractFragment extends Fragment {
     public final static int PROFILE_SECTION = -2;
 
 
-    public final static int HOME_SCREEN = 6;
+    public final static int TOP_SCREEN = 6;
 
     public final static int MENU_SCREEN = 2;
     public final static int ITEM_SCREEN = 201;
@@ -229,6 +231,8 @@ public abstract class AbstractFragment extends Fragment {
     public static String APP_DATA = "APP_DATA";
     public static String APP_DATA_STORE_ID = "APP_DATA_STORE_ID";
     public static String SCREEN_DATA_STATUS = "SCREEN_DATA_STATUS";
+    public static String MAIN_SCREEN = "MAIN_SCREEN";
+    public static String STORE_INFO = "STORE_INFO";
 
 
     final static int LOADING_STATUS_UNKNOWN = -1;
@@ -257,6 +261,7 @@ public abstract class AbstractFragment extends Fragment {
     protected MainApplication mApplication;
     List<RecyclerItemWrapper> mScreenDataItems = new ArrayList<>();
     boolean mScreenToolBarHidden = true;
+    boolean mFirstScreen = false;
 
     protected ViewGroup mFragmentContent;
     Toolbar mToolbar;
@@ -311,7 +316,6 @@ public abstract class AbstractFragment extends Fragment {
         this.mSpanCount = getResources().getInteger(R.integer.span_count);
         this.mSpanLargeItems = getResources().getInteger(R.integer.span_large_items);
         this.mSpanSmallItems = getResources().getInteger(R.integer.span_small_items);
-
 
         setRetainInstance(true);
 
@@ -585,6 +589,10 @@ public abstract class AbstractFragment extends Fragment {
 
     private void restoreSavedInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
+
+            if (savedInstanceState.containsKey(MAIN_SCREEN)) {
+                this.mFirstScreen = savedInstanceState.getBoolean(MAIN_SCREEN);
+            }
             if (savedInstanceState.containsKey(SCREEN_DATA_STATUS)) {
                 this.mScreenDataStatus = ScreenDataStatus.fromInt(savedInstanceState.getInt(SCREEN_DATA_STATUS));
             }
@@ -691,7 +699,7 @@ public abstract class AbstractFragment extends Fragment {
     }
 
     public boolean showShareAppPopup() {
-        if (mBusy == false) {
+        if (mBusy == false && isSignedIn() == true) {
             PopupShareApp popupShareApp = new PopupShareApp(getContext());
             popupShareApp.show();
         }

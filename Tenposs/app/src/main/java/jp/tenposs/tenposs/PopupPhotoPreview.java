@@ -18,7 +18,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import jp.tenposs.datamodel.Key;
-import jp.tenposs.datamodel.UrlImageObject;
+import jp.tenposs.datamodel.CommonItem;
 import jp.tenposs.listener.OnCommonItemClickListener;
 import jp.tenposs.view.ZoomableImageView;
 
@@ -111,7 +111,7 @@ public class PopupPhotoPreview {
 
             itemThumbnail = (ImageView) root.findViewById(R.id.item_thumbnail);
 
-            UrlImageObject image = getItem(position);
+            CommonItem image = getItem(position);
             if (image.getImageUrl() != null) {
                 Picasso ps = Picasso.with(mContext);
                 ps.load(image.getImageUrl())
@@ -162,8 +162,8 @@ public class PopupPhotoPreview {
             return 0;
         }
 
-        public UrlImageObject getItem(int position) {
-            return (UrlImageObject) this.mainData.get(position);
+        public CommonItem getItem(int position) {
+            return (CommonItem) this.mainData.get(position);
         }
 
         @Override

@@ -70,8 +70,18 @@ public class CommonAdapter extends AbstractRecyclerAdapter<CommonAdapter.CommonV
             }
             break;
 
-            case RecyclerItemTypeGrid: {
-                mRow = mInflater.inflate(R.layout.common_item_grid, parent, false);
+            case RecyclerItemTypeGridImage: {
+                mRow = mInflater.inflate(R.layout.common_item_grid_image, parent, false);
+            }
+            break;
+
+            case RecyclerItemTypeGridItem: {
+                mRow = mInflater.inflate(R.layout.common_item_grid_item, parent, false);
+            }
+            break;
+
+            case RecyclerItemTypeGridStaff: {
+                mRow = mInflater.inflate(R.layout.common_item_grid_image, parent, false);
             }
             break;
 
@@ -142,7 +152,8 @@ public class CommonAdapter extends AbstractRecyclerAdapter<CommonAdapter.CommonV
         LinearLayout itemInfoLayout;
         ImageView itemImage;
 
-        TextView itemBrandLabel;
+        TextView itemCategoryLabel;
+        TextView itemTitleLabel;
         TextView itemDescriptionLabel;
         TextView itemPriceLabel;
 
@@ -211,11 +222,14 @@ public class CommonAdapter extends AbstractRecyclerAdapter<CommonAdapter.CommonV
                 break;
 
                 case RecyclerItemTypeList:
-                case RecyclerItemTypeGrid: {
+                case RecyclerItemTypeGridImage:
+                case RecyclerItemTypeGridItem:
+                case RecyclerItemTypeGridStaff: {
                     itemImage = (ImageView) this.mRow.findViewById(R.id.item_image);
                     itemInfoLayout = (LinearLayout) this.mRow.findViewById(R.id.item_info_layout);
+                    itemCategoryLabel = (TextView) this.mRow.findViewById(R.id.item_category_label);
+                    itemTitleLabel = (TextView) this.mRow.findViewById(R.id.item_title_label);
                     itemDescriptionLabel = (TextView) this.mRow.findViewById(R.id.item_description_label);
-                    itemBrandLabel = (TextView) this.mRow.findViewById(R.id.item_brand_label);
                     itemPriceLabel = (TextView) this.mRow.findViewById(R.id.item_price_label);
                 }
                 break;
@@ -268,7 +282,7 @@ public class CommonAdapter extends AbstractRecyclerAdapter<CommonAdapter.CommonV
                 break;
 
                 case RecyclerItemTypeHeader: {
-                    headerTitle.setText(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_DESCRIPTION));
+                    headerTitle.setText(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_TITLE));
                 }
                 break;
 
@@ -306,7 +320,7 @@ public class CommonAdapter extends AbstractRecyclerAdapter<CommonAdapter.CommonV
                             FontIcon.FLATICON
                     ));
 
-                    locationLabel.setText(contact.title);
+                    locationLabel.setText(contact.getTitle());
 
                     String startTime = Utils.timeStringFromDate(Utils.dateFromString(contact.start_time));
                     String endTime = Utils.timeStringFromDate(Utils.dateFromString(contact.end_time));
@@ -338,39 +352,52 @@ public class CommonAdapter extends AbstractRecyclerAdapter<CommonAdapter.CommonV
                 break;
 
                 case RecyclerItemTypeList:
-                case RecyclerItemTypeGrid: {
+                case RecyclerItemTypeGridImage:
+                case RecyclerItemTypeGridItem:
+                case RecyclerItemTypeGridStaff: {
 
                     Picasso ps = Picasso.with(mContext);
                     ps.load(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_IMAGE))
                             .placeholder(R.drawable.drop)
                             .into(itemImage);
 
-                    itemInfoLayout.setVisibility(View.VISIBLE);
+                    if (itemInfoLayout != null) {
+                        itemInfoLayout.setVisibility(View.VISIBLE);
 
-                    if (itemBrandLabel != null) {
-                        String itemCategory = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_BRAND);
-                        if (itemCategory != null) {
-                            itemBrandLabel.setText(itemCategory);
-                        } else {
-                            itemBrandLabel.setVisibility(View.GONE);
+                        if (itemCategoryLabel != null) {
+                            String itemCategory = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_CATEGORY);
+                            if (itemCategory != null) {
+                                itemCategoryLabel.setText(itemCategory);
+                            } else {
+                                itemCategoryLabel.setVisibility(View.GONE);
+                            }
                         }
-                    }
 
-                    if (itemDescriptionLabel != null) {
-                        String itemDescription = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_DESCRIPTION);
-                        if (itemDescription != null) {
-                            itemDescriptionLabel.setText(itemDescription);
-                        } else {
-                            itemDescriptionLabel.setVisibility(View.GONE);
+                        if (itemTitleLabel != null) {
+                            String itemTitle = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_TITLE);
+                            if (itemTitle != null) {
+                                itemTitleLabel.setText(itemTitle);
+                            } else {
+                                itemTitleLabel.setVisibility(View.GONE);
+                            }
                         }
-                    }
 
-                    if (itemPriceLabel != null) {
-                        String itemPrice = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_PRICE);
-                        if (itemPrice != null) {
-                            itemPriceLabel.setText(itemPrice);
-                        } else {
-                            itemPriceLabel.setVisibility(View.GONE);
+                        if (itemDescriptionLabel != null) {
+                            String itemDescription = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_DESCRIPTION);
+                            if (itemDescription != null) {
+                                itemDescriptionLabel.setText(itemDescription);
+                            } else {
+                                itemDescriptionLabel.setVisibility(View.GONE);
+                            }
+                        }
+
+                        if (itemPriceLabel != null) {
+                            String itemPrice = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_PRICE);
+                            if (itemPrice != null) {
+                                itemPriceLabel.setText(itemPrice);
+                            } else {
+                                itemPriceLabel.setVisibility(View.GONE);
+                            }
                         }
                     }
                 }
@@ -397,7 +424,7 @@ public class CommonAdapter extends AbstractRecyclerAdapter<CommonAdapter.CommonV
                 break;
 
                 case RecyclerItemTypeFooter: {
-                    footerButton.setText(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_DESCRIPTION));
+                    footerButton.setText(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_TITLE));
                     footerButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {

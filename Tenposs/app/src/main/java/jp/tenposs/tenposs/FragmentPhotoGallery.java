@@ -66,10 +66,6 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
      * Fragment Override
      */
 
-    private FragmentPhotoGallery() {
-
-    }
-
     public static FragmentPhotoGallery newInstance(String title, int storeId) {
         FragmentPhotoGallery fragment = new FragmentPhotoGallery();
         Bundle b = new Bundle();
@@ -87,7 +83,7 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.photo_gallery);
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && this.mFirstScreen == false) {
             mToolbarSettings.toolbarLeftIcon = "flaticon-back";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
         } else {
@@ -139,7 +135,7 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
                 rowIndex++;
                 itemSpanCount = 0;
             }
-            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeGrid, mSpanCount / mSpanSmallItems, extras));
+            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeGridImage, mSpanCount / mSpanSmallItems, extras));
         }
 
         mTitleLabel.setText(mCurrentPhotoCat.name);
@@ -148,7 +144,7 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
             this.mRecyclerAdapter = new CommonAdapter(getActivity(), this, this);
             manager.setSpanSizeLookup(new GridSpanSizeLookup(mRecyclerAdapter));
             this.mRecyclerView.setLayoutManager(manager);
-            this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.item_margin));
+            this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.common_item_spacing));
             this.mRecyclerView.setAdapter(mRecyclerAdapter);
 
             this.mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -495,10 +491,10 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
     public void onCommonItemClick(int position, Bundle extraData) {
         RecyclerItemWrapper item = getItemData(position);
         switch (item.itemType) {
-            case RecyclerItemTypeGrid: {
+            case RecyclerItemTypeGridImage: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(screenId, extras);
+                this.mActivityListener.showScreen(screenId, extras, null);
             }
             break;
 

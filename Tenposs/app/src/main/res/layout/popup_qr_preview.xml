@@ -29,7 +29,7 @@
         android:id="@+id/close_button"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_below="@+id/pager_layout"
+        android:layout_below="@id/pager_layout"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="30dp"
         android:background="@drawable/btn_close" />

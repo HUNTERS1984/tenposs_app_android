@@ -118,8 +118,8 @@ public class RestaurantBottomSheetStaffSelection extends BottomSheetDialogFragme
                 convertView = layoutInflater.inflate(R.layout.restaurant_item_list_staff, null);
                 holder = new ViewHolder();
                 holder.itemImage = (CircleImageView) convertView.findViewById(R.id.item_image);
-                holder.itemDescription = (TextView) convertView.findViewById(R.id.item_description_label);
-                holder.itemBrand = (TextView) convertView.findViewById(R.id.item_brand_label);
+                holder.itemTitleLabel = (TextView) convertView.findViewById(R.id.item_title_label);
+                holder.itemCategoryLabel = (TextView) convertView.findViewById(R.id.item_category_label);
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder) convertView.getTag();
@@ -132,16 +132,16 @@ public class RestaurantBottomSheetStaffSelection extends BottomSheetDialogFragme
                     .placeholder(R.drawable.drop)
                     .into(holder.itemImage);
 
-            holder.itemDescription.setText(staff.name);
-            holder.itemBrand.setText(staff.introduction);
+            holder.itemTitleLabel.setText(staff.name);
+            holder.itemCategoryLabel.setText(staff.introduction);
 
             return convertView;
         }
 
         class ViewHolder {
             CircleImageView itemImage;
-            TextView itemDescription;
-            TextView itemBrand;
+            TextView itemTitleLabel;
+            TextView itemCategoryLabel;
         }
     }
 }

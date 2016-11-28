@@ -47,8 +47,8 @@ public class ProductDetail
         mDetailLabel = (TextView) findViewById(R.id.detail_label);
         mMoreButton = (Button) findViewById(R.id.more_button);
 
-        mHeaderLabel.setText(extras.getString(RecyclerItemWrapper.ITEM_BRAND));
-        mDetailLabel.setText(extras.getString(RecyclerItemWrapper.ITEM_DESCRIPTION));
+        mHeaderLabel.setText(extras.getString(RecyclerItemWrapper.ITEM_CATEGORY));
+        mDetailLabel.setText(extras.getString(RecyclerItemWrapper.ITEM_TITLE));
 
 
         if (mShowMore == -1) {

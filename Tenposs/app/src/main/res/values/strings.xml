@@ -192,7 +192,6 @@
 
 
     <!--Newly added-->
-    <string name="my_page"><![CDATA[MY PAGE]]></string>
 
     <string name="change_device_title"><![CDATA[引き継ぎコード発行]]></string>
     <string name="change_device_label_1"><![CDATA[引き継ぎコードを発行しました。]]></string>
@@ -218,9 +217,11 @@
     <string name="birthday"><![CDATA[Birthday]]></string>
     <string name="phone"><![CDATA[電話]]></string>
     <string name="choose_staff"><![CDATA[スタッフを選ぶ]]></string>
-    <string name="share_info">友人や知人にアプリを紹介すると1000マイルをプレゼント致します。\n方法は簡単、アプリの紹介コードを下のSNSから紹介するだけです。</string>
-    <string name="direction">道順</string>
-    <string name="choice">選択</string>
-    <string name="reference_code">紹介コード</string>
+    <string name="share_info"><![CDATA[友人や知人にアプリを紹介すると1000マイルをプレゼント致します。\n方法は簡単、アプリの紹介コードを下のSNSから紹介するだけです。]]></string>
+    <string name="direction"><![CDATA[道順]]></string>
+    <string name="choice"><![CDATA[選択]]></string>
+    <string name="reference_code"><![CDATA[紹介コード]]></string>
+    <string name="my_page"><![CDATA[マイページ]]></string>
+    <string name="phone_number">電話番号</string>
 
 </resources>

@@ -1,8 +1,10 @@
 package jp.tenposs.tenposs;
 
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.widget.DrawerLayout;
 import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +18,7 @@ import java.io.Serializable;
 import jp.tenposs.datamodel.AppData;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.datamodel.SignUpInfo;
+import jp.tenposs.utils.FontIcon;
 import jp.tenposs.utils.Utils;
 
 /**
@@ -74,9 +77,9 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
     @Override
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View mRoot;
-        if(AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
             mRoot = inflater.inflate(R.layout.restaurant_fragment_signup, null);
-        }else {
+        } else {
             mRoot = inflater.inflate(R.layout.fragment_signup, null);
         }
         mEmailEdit = (EditText) mRoot.findViewById(R.id.email_edit);
@@ -91,7 +94,7 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
                 new ClickableSpan() {
                     public void onClick(View view) {
                         close();
-                        mActivityListener.showScreen(AbstractFragment.SIGN_IN_EMAIL_SCREEN, null);
+                        mActivityListener.showScreen(AbstractFragment.SIGN_IN_EMAIL_SCREEN, null, null);
                     }
                 });
         return mRoot;
@@ -125,6 +128,16 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
     }
 
     @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            if (isSignedIn() == true) {
+                close();
+            }
+        }
+    }
+
+    @Override
     public void onClick(View v) {
         if (v == mNextButton) {
             if (checkInput() == true) {
@@ -133,7 +146,7 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
                 request.name = mNameEdit.getEditableText().toString();
                 request.setPassword(mPasswordEdit.getEditableText().toString());
 
-                this.mActivityListener.showScreen(AbstractFragment.SIGN_UP_NEXT_SCREEN, request);
+                this.mActivityListener.showScreen(AbstractFragment.SIGN_UP_NEXT_SCREEN, request, null);
             }
         }
 //        if (v == mSignUpButton) {
@@ -248,6 +261,25 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
                     });
             return false;
         }
+        if (password.length() <= 6) {
+            Utils.showAlert(getContext(),
+                    getString(R.string.warning),
+                    getString(R.string.msg_password_at_least_6),
+                    getString(R.string.close),
+                    null,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which) {
+                                case DialogInterface.BUTTON_POSITIVE: {
+                                    mPasswordEdit.requestFocus();
+                                }
+                                break;
+                            }
+                        }
+                    });
+            return false;
+        }
         if (passwordConfirm.length() <= 0) {
             Utils.showAlert(getContext(),
                     getString(R.string.warning),
@@ -286,8 +318,59 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
                     });
             return false;
         }
-
-
         return true;
+    }
+
+    @Override
+    protected void updateToolbar() {
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            try {
+                this.mToolbar.setBackgroundColor(Color.alpha(0));
+                if (this.mLeftToolbarButton != null) {
+                    this.mLeftToolbarButton.setImageBitmap(FontIcon.imageForFontIdentifier(getActivity().getAssets(),
+                            this.mToolbarSettings.toolbarLeftIcon,
+                            Utils.NavIconSize,
+                            Color.argb(0, 0, 0, 0),
+                            Color.WHITE,
+                            FontIcon.FLATICON
+                    ));
+                }
+
+                if (this.mTitleToolbarLabel != null) {
+                    this.mTitleToolbarLabel.setText(mToolbarSettings.toolbarTitle);
+                    try {
+                        Utils.setTextAppearanceTitle(getContext(), this.mTitleToolbarLabel, mToolbarSettings.getToolbarTitleFontSize());
+                        //Typeface type = Utils.getTypeFaceForFont(getActivity(), mToolbarSettings.getToolBarTitleFont());
+                        //this.mTitleToolbarLabel.setTypeface(type);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                    this.mTitleToolbarLabel.setTextColor(Color.WHITE);
+                }
+
+                if (this.mToolbarSettings.toolbarType == ToolbarSettings.LEFT_MENU_BUTTON) {
+                    if (this.mScreenDataStatus == ScreenDataStatus.ScreenDataStatusLoaded) {
+                        this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                    } else {
+                        this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                    }
+
+                } else {
+                    this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                }
+
+                if (this.mScreenToolBarHidden == true) {
+                    this.mToolbar.setVisibility(View.VISIBLE);
+                } else {
+                    this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                    this.mToolbar.setVisibility(View.GONE);
+                }
+
+            } catch (Exception ignored) {
+
+            }
+        } else {
+            super.updateToolbar();
+        }
     }
 }
