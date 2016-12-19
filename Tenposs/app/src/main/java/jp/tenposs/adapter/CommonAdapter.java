@@ -435,7 +435,7 @@ public class CommonAdapter extends AbstractRecyclerAdapter<CommonAdapter.CommonV
 
                 case RecyclerItemTypeFooter: {
                     footerButton.setBackgroundResource(itemDataWrapper.itemData.getInt(RecyclerItemWrapper.ITEM_BACKGROUND));
-                    int color = 0;
+                    int color;
 
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                         color = mContext.getColor(itemDataWrapper.itemData.getInt(RecyclerItemWrapper.ITEM_TEXT_COLOR));
@@ -443,6 +443,7 @@ public class CommonAdapter extends AbstractRecyclerAdapter<CommonAdapter.CommonV
                         color = mContext.getResources().getColor(itemDataWrapper.itemData.getInt(RecyclerItemWrapper.ITEM_TEXT_COLOR));
                     }
                     footerButton.setText(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_TITLE));
+                    footerButton.setTextColor(color);
                     footerButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {

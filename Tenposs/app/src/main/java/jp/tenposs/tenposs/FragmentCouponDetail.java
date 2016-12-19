@@ -13,15 +13,12 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
 import jp.tenposs.communicator.TenpossCommunicator;
 import jp.tenposs.communicator.UseCouponCommunicator;
-import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.CouponInfo;
-import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.utils.Utils;
 import jp.tenposs.view.AspectRatioImageView;
@@ -94,7 +91,7 @@ public class FragmentCouponDetail extends AbstractFragment {
         this.mCouponIdLabel.setText("ID" + Integer.toString(mScreenData.id));
         this.mCouponTypeLabel.setText(mScreenData.getCategory());
         this.mCouponNameLabel.setText(mScreenData.getTitle());
-        this.mValidityLabel.setText(Utils.formatJapanDateTime(mScreenData.end_date, "yyyy-MM-dd", "yyyy年M月d日まで"));
+        this.mValidityLabel.setText(Utils.formatDateTime(mScreenData.end_date, "yyyy-MM-dd", "yyyy年M月d日まで"));
         this.mCouponDescriptionLabel.setText(mScreenData.getDescription());
         this.mHashTagLabel.setText(this.mScreenData.getHashTag());
 

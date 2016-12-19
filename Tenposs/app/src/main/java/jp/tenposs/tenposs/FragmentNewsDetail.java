@@ -76,7 +76,7 @@ public class FragmentNewsDetail
 
         this.mNewsTitleLabel.setText(mScreenData.getTitle());
         this.mNewsCategoryLabel.setText(mScreenData.getCategory());
-        this.mNewsDateLabel.setText(Utils.formatJapanDateTime(this.mScreenData.getLastModifyDate(), "yyyy-MM-dd hh:mm:ss", "yyyy.MM.dd"));
+        this.mNewsDateLabel.setText(Utils.formatDateTime(this.mScreenData.getLastModifyDate(), "yyyy-MM-dd", "yyyy.MM.dd"));
         this.mNewsDescriptionLabel.setText(this.mScreenData.getDescription());
 
         mToolbarSettings.toolbarTitle = mScreenData.getTitle();

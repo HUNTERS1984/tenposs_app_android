@@ -120,6 +120,7 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
     protected void previewScreenData() {
         this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
         this.mActivityListener.getFM().addOnBackStackChangedListener(this);
+        this.mScreenToolBarHidden = true;
 //        TODO: if (this.mScreenToolBarHidden == true) {
 //            this.mSkipButtonLayout.setVisibility(View.GONE);
 //        } else {

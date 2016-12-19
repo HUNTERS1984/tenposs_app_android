@@ -61,10 +61,14 @@ public class FragmentChat extends FragmentWebView {
     protected void previewScreenData() {
         this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
         updateToolbar();
-        String userProfile = Utils.getPrefString(getContext(), Key.UserProfile);
-        UserInfo.User user = (UserInfo.User) CommonObject.fromJSONString(userProfile, UserInfo.User.class, null);
-        String url = TenpossCommunicator.WEB_ADDRESS + "/chat/screen/" + user.id;
-        this.mWebView.loadUrl(url);
+        try {
+            String userProfile = Utils.getPrefString(getContext(), Key.UserProfile);
+            UserInfo.User user = (UserInfo.User) CommonObject.fromJSONString(userProfile, UserInfo.User.class, null);
+            String url = TenpossCommunicator.WEB_ADDRESS + "/chat/screen/" + user.id;
+            this.mWebView.loadUrl(url);
+        } catch (Exception ignored) {
+
+        }
     }
 
     @Override

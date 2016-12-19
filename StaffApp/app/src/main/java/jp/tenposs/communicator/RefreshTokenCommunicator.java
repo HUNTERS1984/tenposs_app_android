@@ -8,7 +8,6 @@ import java.io.OutputStream;
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
-import jp.tenposs.datamodel.RefreshTokenInfo;
 import jp.tenposs.datamodel.SignInInfo;
 
 /**
@@ -24,9 +23,9 @@ public class RefreshTokenCommunicator extends TenpossCommunicator {
 
     @Override
     protected boolean request(Bundle bundle) {
-        String strUrl;
-        RefreshTokenInfo.Request requestData = (RefreshTokenInfo.Request) bundle.getSerializable(Key.RequestObject);
-        strUrl = requestData.access_refresh_token_href;
+        String strUrl = "";
+//        RefreshTokenInfo.Request requestData = (RefreshTokenInfo.Request) bundle.getSerializable(Key.RequestObject);
+//        strUrl = requestData.access_refresh_token_href;
         int result;
         OutputStream output;
 

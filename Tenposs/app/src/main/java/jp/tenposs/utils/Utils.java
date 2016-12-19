@@ -494,7 +494,7 @@ public class Utils {
     }
 
 
-    public static String formatJapanDateTime(String input, String inputFormat, String outputFormat) {
+    public static String formatDateTime(String input, String inputFormat, String outputFormat) {
         Date date = dateFromString(input, inputFormat);
         String output;
         SimpleDateFormat formatter = new SimpleDateFormat(outputFormat);

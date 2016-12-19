@@ -379,7 +379,7 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
                 this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             }
 
-            if (this.mScreenToolBarHidden == true) {
+            if (this.mScreenToolBarHidden == false) {
                 this.mToolbar.setVisibility(View.VISIBLE);
             } else {
                 this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);

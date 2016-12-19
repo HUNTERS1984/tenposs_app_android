@@ -11,8 +11,6 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import java.io.Serializable;
-
 import jp.tenposs.datamodel.AppData;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.datamodel.StaffInfo;
@@ -111,7 +109,7 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
         }
 
         try {
-            this.mBirthdayValueLabel.setText(Utils.formatJapanDateTime(this.mScreenData.birthday, "yyyy-MM-dd", ""));
+            this.mBirthdayValueLabel.setText(Utils.formatDateTime(this.mScreenData.birthday, "yyyy-MM-dd", "yyyy.MM.dd"));
         } catch (Exception ignored) {
         }
         try {

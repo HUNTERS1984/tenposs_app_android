@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.DrawerLayout;
+import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -82,17 +83,23 @@ public class FragmentSignInEmail extends AbstractFragment implements View.OnClic
         this.mSignInButton = (Button) mRoot.findViewById(R.id.sign_in_button);
         this.mRegisterButton = (Button) mRoot.findViewById(R.id.register_button);
         this.mSignInButton.setOnClickListener(this);
-        this.mRegisterButton.setOnClickListener(this);
-        this.mRegisterButton.setTextColor(Color.WHITE);
 
-//        Utils.setTextViewHTML(mGotoSignUpLabel, getString(R.string.not_sign_up),
-//                new ClickableSpan() {
-//                    public void onClick(View view) {
-//                        close();
-//                        mActivityListener.showScreen(AbstractFragment.SIGN_UP_SCREEN, null, null, false);
-//                    }
-//                });
 
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            if (this.mRegisterButton != null) {
+                this.mRegisterButton.setOnClickListener(this);
+                this.mRegisterButton.setTextColor(Color.WHITE);
+            }
+            this.mGotoSignUpLabel.setVisibility(View.INVISIBLE);
+        } else {
+            Utils.setTextViewHTML(mGotoSignUpLabel, getString(R.string.not_sign_up),
+                    new ClickableSpan() {
+                        public void onClick(View view) {
+                            close();
+                            mActivityListener.showScreen(AbstractFragment.SIGN_UP_SCREEN, null, null, false);
+                        }
+                    });
+        }
         if (BuildConfig.DEBUG) {
             mEmailEdit.setText("quanlh218@gmail.com");
             mPasswordEdit.setText("123456");
@@ -371,7 +378,7 @@ public class FragmentSignInEmail extends AbstractFragment implements View.OnClic
                 this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             }
 
-            if (this.mScreenToolBarHidden == true) {
+            if (this.mScreenToolBarHidden == false) {
                 this.mToolbar.setVisibility(View.VISIBLE);
             } else {
                 this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);

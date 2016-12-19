@@ -441,7 +441,7 @@ public class RestaurantAdapter
 
                 case RecyclerItemTypeFooter: {
                     footerButton.setBackgroundResource(itemDataWrapper.itemData.getInt(RecyclerItemWrapper.ITEM_BACKGROUND));
-                    int color = 0;
+                    int color;
 
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                         color = mContext.getColor(itemDataWrapper.itemData.getInt(RecyclerItemWrapper.ITEM_TEXT_COLOR));
@@ -633,7 +633,7 @@ public class RestaurantAdapter
                             this.itemTitleLabel.setText(news.getTitle());
                             this.itemDescriptionLabel.setText(news.getDescription());
 
-                            this.itemPriceLabel.setText(Utils.formatJapanDateTime(news.getCreatedDate(), "", "10月20日 12時23分");
+                            this.itemPriceLabel.setText(Utils.formatDateTime(news.getCreatedDate(), "yyyy-MM-dd hh:mm", "M月d日 hh時mm分"));
                         } catch (Exception ignored) {
 
                         }

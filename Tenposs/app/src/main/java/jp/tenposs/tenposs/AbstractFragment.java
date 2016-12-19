@@ -266,7 +266,7 @@ public abstract class AbstractFragment extends Fragment {
     protected MainActivityListener mActivityListener;
     protected MainApplication mApplication;
     List<RecyclerItemWrapper> mScreenDataItems = new ArrayList<>();
-    boolean mScreenToolBarHidden = true;
+    boolean mScreenToolBarHidden = false;
 
     protected ViewGroup mFragmentContent;
     Toolbar mToolbar;
@@ -707,7 +707,7 @@ public abstract class AbstractFragment extends Fragment {
                 this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             }
 
-            if (this.mScreenToolBarHidden == true) {
+            if (this.mScreenToolBarHidden == false) {
                 this.mToolbar.setVisibility(View.VISIBLE);
             } else {
                 this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);

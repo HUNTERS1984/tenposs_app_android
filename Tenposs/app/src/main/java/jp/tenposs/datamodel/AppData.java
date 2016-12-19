@@ -32,9 +32,9 @@ public class AppData {
 
     public TemplateId getTemplate() {
         //TODO: return Restaurant
-        return TemplateId.RestaurantTemplate;
+//        return TemplateId.RestaurantTemplate;
 //        return TemplateId.CommonTemplate;
-        /*if (this.mAppInfo == null) {
+        if (this.mAppInfo == null) {
             return TemplateId.CommonTemplate;
         } else {
             if (this.mAppInfo.data.app_setting.template_id == 1) {
@@ -47,6 +47,6 @@ public class AppData {
                 return TemplateId.FashionTemplate;
             }
         }
-        return TemplateId.CommonTemplate;*/
+        return TemplateId.CommonTemplate;
     }
 }

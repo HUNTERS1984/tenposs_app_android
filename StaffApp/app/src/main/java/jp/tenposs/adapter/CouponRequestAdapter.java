@@ -38,7 +38,7 @@ public class CouponRequestAdapter extends ArrayAdapter<CouponRequestInfo.Request
 
         titleLabel.setText(coupon.name);
         descriptionLabel.setText(coupon.title);
-        timeLabel.setText(Utils.formatJapanDateTime(coupon.user_use_date));
+        timeLabel.setText(Utils.formatDateTime(coupon.user_use_date, "yyyy-MM-dd", "yyyy.MM.dd") );
 
         Picasso ps = Picasso.with(getContext());
         ps.load(coupon.getImageUrl())

@@ -15,6 +15,8 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.os.Build;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
@@ -373,7 +375,7 @@ public class Utils {
         }
     }
 
-    public static String formatJapanDateTime(String input, String inputFormat, String outputFormat) {
+    public static String formatDateTime(String input, String inputFormat, String outputFormat) {
         Date date = dateFromString(input, inputFormat);
         String output;
         SimpleDateFormat formatter = new SimpleDateFormat(outputFormat);
