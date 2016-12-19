@@ -27,20 +27,18 @@
             android:value="1526eb50ea21e90c2c38104b5aeb448380d6b026" />
 
         <!-- [START firebase_service] -->
-        <!--<service-->
-            <!--android:name=".TenpossMessagingService"-->
-            <!--android:label="TenpossMessagingService"-->
-            <!--android:process=":messageservice">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="com.google.firebase.MESSAGING_EVENT" />-->
-            <!--</intent-filter>-->
-        <!--</service>-->
+        <service
+            android:name=".UserMessagingService"
+            android:label="UserMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
 
 
         <service
-            android:name=".TenpossInstanceIDService"
-            android:label="TenpossIDService"
-            android:process=":idservice">
+            android:name=".UserInstanceIDService"
+            android:label="UserInstanceIDService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>

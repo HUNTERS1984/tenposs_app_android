@@ -1,5 +1,6 @@
 package jp.tenposs.datamodel;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -9,10 +10,15 @@ import java.util.HashMap;
 public class CouponAcceptInfo {
     public static class Request extends CommonRequest {
         public String action;
-        public int coupon_id;
+        public String coupon_id;
 
         @Override
         String sigInput() {
+            return null;
+        }
+
+        @Override
+        ArrayList<String> getAvailableParams() {
             return null;
         }
 
@@ -20,7 +26,7 @@ public class CouponAcceptInfo {
             HashMap<String, String> formData = new HashMap<>();
             try {
                 formData.put("action", action);
-                formData.put("coupon_id", Integer.toString(coupon_id));
+                formData.put("coupon_id", coupon_id);
             } catch (Exception ignored) {
 
             }

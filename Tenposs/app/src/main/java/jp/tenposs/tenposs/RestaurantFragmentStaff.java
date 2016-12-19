@@ -51,19 +51,18 @@ public class RestaurantFragmentStaff
      * Fragment Override
      */
 
-    private RestaurantFragmentStaff() {
-
-    }
-
-    public static RestaurantFragmentStaff newInstance(String title, int storeId) {
-        RestaurantFragmentStaff fragment = new RestaurantFragmentStaff();
-        Bundle b = new Bundle();
-        b.putString(AbstractFragment.SCREEN_TITLE, title);
-        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
-        fragment.setArguments(b);
-        return fragment;
-    }
-
+//    private RestaurantFragmentStaff() {
+//
+//    }
+//
+//    public static RestaurantFragmentStaff newInstance(String title, int storeId) {
+//        RestaurantFragmentStaff fragment = new RestaurantFragmentStaff();
+//        Bundle b = new Bundle();
+//        b.putString(AbstractFragment.SCREEN_TITLE, title);
+//        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
+//        fragment.setArguments(b);
+//        return fragment;
+//    }
     @Override
     protected boolean customClose() {
         return false;
@@ -72,12 +71,12 @@ public class RestaurantFragmentStaff
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.staff);
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && this.mFirstScreen == false) {
-            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
-            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
-        } else {
+        if (this.mShowFromSideMenu == true) {
             mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        } else {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
         }
     }
 
@@ -326,13 +325,26 @@ public class RestaurantFragmentStaff
                                         mScreenData.data.staffs.addAll(newPage.data.staffs);
                                     }
                                     previewScreenData();
+                                } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                                    refreshToken(new TenpossCallback() {
+                                        @Override
+                                        public void onSuccess(Bundle params) {
+                                            loadStaffCatItem();
+                                        }
+
+                                        @Override
+                                        public void onFailed(Bundle params) {
+                                            //Logout, then do something
+                                            mActivityListener.logoutBecauseExpired();
+                                        }
+                                    });
                                 } else {
                                     String strMessage = responseParams.getString(Key.ResponseMessage);
-                                    errorWithMessage(responseParams, strMessage);
+                                    errorWithMessage(responseParams, strMessage, null);
                                 }
                             } else {
                                 String strMessage = responseParams.getString(Key.ResponseMessage);
-                                errorWithMessage(responseParams, strMessage);
+                                errorWithMessage(responseParams, strMessage, null);
                             }
                         }
                     });
@@ -360,7 +372,7 @@ public class RestaurantFragmentStaff
             case RecyclerItemTypeRestaurantGridStaff: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(screenId, extras, null);
+                this.mActivityListener.showScreen(screenId, extras, null, false);
             }
             break;
 

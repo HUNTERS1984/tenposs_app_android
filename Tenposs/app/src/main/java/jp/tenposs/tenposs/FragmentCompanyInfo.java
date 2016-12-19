@@ -8,17 +8,17 @@ import android.support.annotation.NonNull;
  */
 public class FragmentCompanyInfo extends FragmentWebView {
 
-    private FragmentCompanyInfo() {
-
-    }
-
-    public static FragmentCompanyInfo newInstance(@NonNull String url) {
-        FragmentCompanyInfo gm = new FragmentCompanyInfo();
-        Bundle b = new Bundle();
-        b.putString(SCREEN_URL, url);
-        gm.setArguments(b);
-        return gm;
-    }
+//    private FragmentCompanyInfo() {
+//
+//    }
+//
+//    public static FragmentCompanyInfo newInstance(@NonNull String url) {
+//        FragmentCompanyInfo gm = new FragmentCompanyInfo();
+//        Bundle b = new Bundle();
+//        b.putString(SCREEN_URL, url);
+//        gm.setArguments(b);
+//        return gm;
+//    }
 
     @Override
     protected boolean customClose() {

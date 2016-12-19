@@ -10,11 +10,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import jp.tenposs.communicator.SetPushKeyCommunicator;
 import jp.tenposs.communicator.SignInCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.ScreenDataStatus;
+import jp.tenposs.datamodel.SetPushKeyInfo;
 import jp.tenposs.datamodel.SignInInfo;
 import jp.tenposs.utils.Utils;
 
@@ -119,11 +121,10 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
 
             SignInInfo.Request request = new SignInInfo.Request();
             request.email = mEmailEdit.getEditableText().toString();
-            request.password = mPasswordEdit.getEditableText().toString();
-            request.source = "mobile";
+            request.setPassword(mPasswordEdit.getEditableText().toString());
 
             params.putSerializable(Key.RequestObject, request);
-            Utils.showProgress(getContext(),"Signing in...");
+            Utils.showProgress(getContext(), getString(R.string.msg_signing_in));
             SignInCommunicator communicator = new SignInCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
                 @Override
                 public void completed(TenpossCommunicator request, Bundle responseParams) {
@@ -141,7 +142,7 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
                             Log.i(Tag, "API return error " + resultApi + " - " + message);
                             Utils.showAlert(getContext(),
                                     getString(R.string.error),
-                                    CommonResponse.getMessageByCode(getContext(), result),
+                                    CommonResponse.getErrorMessage(getContext(), result),
                                     getString(R.string.close),
                                     null,
                                     new DialogInterface.OnClickListener() {
@@ -166,6 +167,38 @@ public class FragmentSignIn extends AbstractFragment implements View.OnClickList
 
     private void processToken(String token) {
         Utils.setPrefString(this.getContext(), Key.TokenKey, token);
+
+        String firebaseToken = Utils.getPrefString(getContext(), Key.FireBaseTokenKey);
+
+        if (firebaseToken.length() > 0) {
+            Bundle params = new Bundle();
+            SetPushKeyInfo.Request request = new SetPushKeyInfo.Request();
+            request.key = firebaseToken;
+            params.putSerializable(Key.RequestObject, request);
+            params.putString(Key.TokenKey, Utils.getPrefString(getContext(), Key.TokenKey));
+
+            SetPushKeyCommunicator communicator = new SetPushKeyCommunicator(
+                    new TenpossCommunicator.TenpossCommunicatorListener() {
+                        @Override
+                        public void completed(TenpossCommunicator request, Bundle responseParams) {
+                            int result = responseParams.getInt(Key.ResponseResult);
+                            if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                                int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                                if (resultApi == CommonResponse.ResultSuccess) {
+                                    FragmentSignIn.this.mActivityListener.showScreen(AbstractFragment.COUPON_REQUEST_SCREEN, null);
+                                } else {
+                                    String strMessage = responseParams.getString(Key.ResponseMessage);
+                                    errorWithMessage(responseParams, strMessage);
+                                }
+                            } else {
+                                String strMessage = responseParams.getString(Key.ResponseMessage);
+                                errorWithMessage(responseParams, strMessage);
+                            }
+                        }
+                    });
+//        showProgress(getString(R.string.msg_loading_profile));
+            communicator.execute(params);
+        }
         this.mActivityListener.showScreen(AbstractFragment.COUPON_REQUEST_SCREEN, null);
     }
 }

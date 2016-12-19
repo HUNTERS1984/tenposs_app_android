@@ -26,9 +26,8 @@ public class TopInfoCommunicator extends TenpossCommunicator {
 //
         //        String strUrl = mBundle.getString(GammaKey.KeyRequestURL);
 //        String strUrl = "http://ec2-54-204-210-230.compute-1.amazonaws.com/tenposs/api/public/index.php/api/v1/top?store_id=1&token=7aef1eea1f967d7f8fbcb8cbe4639dd0&time=23423432423&sig=6a2383b4296f4b0c48883a3f8aae3522274d6237932f14f712aac12d057ce0qeqweq48";
-        int result = CommunicationCode.ConnectionSuccess.ordinal();
-        byte[] dataRequest = null;
-        OutputStream output = null;
+        int result;
+        OutputStream output;
 
         try {
             output = new ByteArrayOutputStream();

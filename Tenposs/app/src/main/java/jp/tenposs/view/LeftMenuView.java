@@ -27,6 +27,7 @@ import jp.tenposs.datamodel.AppData;
 import jp.tenposs.datamodel.AppInfo;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.SignInInfo;
+import jp.tenposs.datamodel.UserInfo;
 import jp.tenposs.tenposs.AbstractFragment;
 import jp.tenposs.tenposs.R;
 import jp.tenposs.utils.FontIcon;
@@ -122,7 +123,7 @@ public class LeftMenuView extends FrameLayout {
 
     ArrayList<AppInfo.SideMenu> mScreenData;
     AppInfo.AppSetting mSettings;
-    SignInInfo.User mUserProfile;
+    UserInfo.User mUserProfile;
 
     OnLeftMenuItemClickListener onItemClickListener;
 
@@ -188,13 +189,13 @@ public class LeftMenuView extends FrameLayout {
         super.onLayout(changed, left, top, right, bottom);
     }
 
-    public void updateMenu(AppInfo.AppSetting settings, ArrayList<AppInfo.SideMenu> sideMenus, SignInInfo.User userProfile) {
+    public void updateMenu(AppInfo.AppSetting settings, ArrayList<AppInfo.SideMenu> sideMenus, UserInfo.User userProfile) {
         this.mSettings = settings;
         this.mScreenData = (ArrayList<AppInfo.SideMenu>) sideMenus.clone();
         this.mUserProfile = userProfile;
 
         if (this.mUserProfile != null) {
-            mUserNameLabel.setText(userProfile.profile.name);
+            mUserNameLabel.setText(userProfile.getName());
 
             if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && userProfile.getEmail().length() > 0) {
                 this.mUserEmailLabel.setVisibility(VISIBLE);
@@ -214,7 +215,7 @@ public class LeftMenuView extends FrameLayout {
             this.mUserEmailLabel.setVisibility(GONE);
             this.mSignInButton.setVisibility(View.VISIBLE);
             this.mUserAvatarImage.setImageBitmap(null);
-            this.mUserAvatarImage.setImageResource(R.drawable.no_avatar);
+            this.mUserAvatarImage.setImageResource(R.drawable.no_avatar_gray);
             removeSignedInItems();
 //            removeSignOutMenu();
         }
@@ -285,23 +286,18 @@ public class LeftMenuView extends FrameLayout {
 //        }
 //    }
 
-    public void reloadUserInfo(SignInInfo.User userProfile) {
+    public void reloadUserInfo(UserInfo.User userProfile) {
         this.mUserProfile = userProfile;
         Picasso ps = Picasso.with(mContext);
         String url = this.mUserProfile.profile.getImageUrl().toLowerCase(Locale.US);
         if (url.contains("http://") == true || url.contains("https://") == true) {
-
             ps.load(this.mUserProfile.profile.getImageUrl())
-                    .resize(fullImageSize, 640)
-                    .centerInside()
-                    .placeholder(R.drawable.no_avatar)
+                    .placeholder(R.drawable.no_avatar_gray)
                     .into(mUserAvatarImage);
         } else {
             File f = new File(this.mUserProfile.profile.getImageUrl());
             ps.load(f)
-                    .resize(fullImageSize, 640)
-                    .centerInside()
-                    .placeholder(R.drawable.no_avatar)
+                    .placeholder(R.drawable.no_avatar_gray)
                     .into(mUserAvatarImage);
         }
     }

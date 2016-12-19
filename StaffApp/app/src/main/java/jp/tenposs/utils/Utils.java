@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -21,6 +22,8 @@ import android.text.SpannableStringBuilder;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
@@ -38,10 +41,15 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import jp.tenposs.staffapp.BuildConfig;
+import jp.tenposs.staffapp.MainApplication;
+
 /**
  * Created by ambient on 8/19/16.
  */
 public class Utils {
+    private static String Tag = "Utils";
+
     public static long gmtMillis() {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         long time = cal.getTimeInMillis();
@@ -118,22 +126,6 @@ public class Utils {
                                  String positiveButton,
                                  String negativeButton,
                                  DialogInterface.OnClickListener listener) {
-        /*DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case DialogInterface.BUTTON_POSITIVE: {
-                        exitActivity();
-                    }
-                    break;
-
-                    case DialogInterface.BUTTON_NEGATIVE: {
-                    }
-                    break;
-                }
-            }
-        };*/
-
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         if (title != null) {
             builder.setTitle(title);
@@ -146,6 +138,36 @@ public class Utils {
             builder.setNegativeButton(negativeButton, listener);
         }
         builder.show();
+    }
+
+    protected static ProgressDialog mProgressDialog;
+
+    public static void showProgress(Context context, String message) {
+        if (mProgressDialog != null)
+            mProgressDialog.dismiss();
+        mProgressDialog = new ProgressDialog(context);
+        mProgressDialog.setMessage(message);
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgressDialog.setProgress(0);
+        mProgressDialog.setMax(20);
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.show();
+    }
+
+//    public static void changeProgress(String message) {
+//        if (mProgressDialog == null)
+//            showProgress(message);
+//        else
+//            mProgressDialog.setMessage(message);
+//    }
+
+    public static void hideProgress() {
+        try {
+            if (mProgressDialog != null)
+                mProgressDialog.dismiss();
+            mProgressDialog = null;
+        } catch (Exception ignored) {
+        }
     }
 
     public static int atoi(String input) {
@@ -177,8 +199,18 @@ public class Utils {
     public static Date dateFromString(String input) {
         Date output = null;
         try {
-            SimpleDateFormat curFormater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-            output = curFormater.parse(input);
+            SimpleDateFormat curFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+            output = curFormatter.parse(input);
+        } catch (Exception e) {
+        }
+        return output;
+    }
+
+    public static Date dateFromString(String input, String format) {
+        Date output = null;
+        try {
+            SimpleDateFormat curFormatter = new SimpleDateFormat(format, Locale.US);
+            output = curFormatter.parse(input);
         } catch (Exception e) {
         }
         return output;
@@ -196,14 +228,13 @@ public class Utils {
         return output;
     }
 
-    public static String timeStringFromDate(Date date) {
+    public static String timeStringFromDate(Date date, String outFormat) {
         String output = "";
         try {
-            SimpleDateFormat curFormater = new SimpleDateFormat("hh:mm:ss a", Locale.US);
-            output = curFormater.format(date);
+            SimpleDateFormat curFormatter = new SimpleDateFormat(outFormat, Locale.US);
+            output = curFormatter.format(date);
         } catch (Exception ignored) {
-            SimpleDateFormat curFormater = new SimpleDateFormat("hh:mm:ss a", Locale.US);
-            output = curFormater.format(date);
+            Utils.log(ignored);
         }
         return output;
     }
@@ -230,6 +261,13 @@ public class Utils {
         return output;
     }
 
+    public static String aToCurrency(String value) {
+        int intValue = atoi(value);
+        NumberFormat format = NumberFormat.getInstance();
+        format.setCurrency(Currency.getInstance(Locale.JAPAN));
+        return format.format(intValue);
+    }
+
     public static String iToCurrency(int value) {
         NumberFormat format = NumberFormat.getInstance();
         format.setCurrency(Currency.getInstance(Locale.JAPAN));
@@ -245,39 +283,6 @@ public class Utils {
         }
     }
 
-//    public static void setTextApperance(Context context, TextView view, String textStyle) {
-////        int textApperance = android.R.style.TextAppearance_DeviceDefault;
-////
-////        if (textStyle == "micro") {
-////
-////        } else if (textStyle == "small") {
-////            textApperance = android.R.style.TextAppearance_DeviceDefault_Small;
-////        } else if (textStyle == "medium") {
-////            textApperance = android.R.style.TextAppearance_DeviceDefault_Medium;
-////        } else if (textStyle == "large") {
-////            textApperance = android.R.style.TextAppearance_DeviceDefault_Large;
-////        } else if (textStyle == "extra-large") {
-////        }
-//
-//        int textApperance = R.style.TextAppearance_Medium;
-//        if (textStyle == "micro") {
-//            textApperance = R.style.TextAppearance_Micro;
-//        } else if (textStyle == "small") {
-//            textApperance = R.style.TextAppearance_Small;
-//        } else if (textStyle == "medium") {
-//            textApperance = R.style.TextAppearance_Medium;
-//        } else if (textStyle == "large") {
-//            textApperance = R.style.TextAppearance_Large;
-//        } else if (textStyle == "extra-large") {
-//            textApperance = R.style.TextAppearance_ExtraLarge;
-//        }
-//
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            view.setTextAppearance(textApperance);
-//        } else {
-//            view.setTextAppearance(context, textApperance);
-//        }
-//    }
 
     public static int colorFromHex(String hexColor, int defaultColor) {
         try {
@@ -313,43 +318,84 @@ public class Utils {
         }
     }
 
+    public static boolean isRealDevice(Context context) {
+        boolean emu = false;
+
+        SensorManager manager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+        if (manager.getSensorList(Sensor.TYPE_ALL).isEmpty()) {
+            Log.i(Tag, "running on an emulator");
+            emu = true;
+        } else {
+            Log.i(Tag, "running on a device");
+            emu = false;
+        }
+
+        String manu = Build.MANUFACTURER;
+
+        Log.i(Tag, "manu " + manu);
+
+        emu |= manu.equals("unknown") || manu.equals("Genymotion");
+
+//        return !emu;
+        //TODO: debug only
+        return true;
+    }
+
+    public static String getDeviceId(Context context) {
+        return "";
+    }
+
+
     public static String getPrefString(Context context, String key) {
-        SharedPreferences mAppPreferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE);
-        return mAppPreferences.getString(key, "");
+        SharedPreferences preferences = SharedPreferencesHelper.getSharedPreferences(context);
+        return preferences.getString(key, "");
     }
 
     public static boolean setPrefString(Context context, String key, String value) {
-        SharedPreferences mAppPreferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE);
+        SharedPreferences preferences = SharedPreferencesHelper.getSharedPreferences(context);
         boolean ret;
-        SharedPreferences.Editor editor = mAppPreferences.edit();
+        SharedPreferences.Editor editor = preferences.edit();
         editor.putString(key, value);
         ret = editor.commit();
         return ret;
     }
-
-    static ProgressDialog mProgressDialog;
-
-    public static void showProgress(Context context, String message) {
-        if (mProgressDialog != null) {
-            mProgressDialog.dismiss();
-        }
-        mProgressDialog = new ProgressDialog(context);
-        mProgressDialog.setMessage(message);
-        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        mProgressDialog.setProgress(0);
-        mProgressDialog.setMax(20);
-        mProgressDialog.setCancelable(false);
-        mProgressDialog.show();
+    public static int convertDpToPixel(float dp) {
+        Resources resources = MainApplication.getContext().getResources();
+        DisplayMetrics metrics = resources.getDisplayMetrics();
+        float px = dp * ((float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+        return (int) px;
     }
-
-    public static void hideProgress() {
-        try {
-            if (mProgressDialog != null)
-                mProgressDialog.dismiss();
-            mProgressDialog = null;
-        } catch (Exception ignored) {
+    public static int getColor(Context context, int colorId) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return context.getResources().getColor(colorId, null);
+        } else {
+            return context.getResources().getColor(colorId);
         }
     }
 
+    public static String formatJapanDateTime(String input, String inputFormat, String outputFormat) {
+        Date date = dateFromString(input, inputFormat);
+        String output;
+        SimpleDateFormat formatter = new SimpleDateFormat(outputFormat);
+        output = formatter.format(date);
+        return output;
+    }
+
+    public static void log(Exception ignored) {
+        if (BuildConfig.BUILD_TYPE.compareTo("debug") == 0) {
+            Log.i("Exception", ignored.getMessage());
+            ignored.printStackTrace();
+        }
+    }
+
+    public static void log(String tag, String msg) {
+        if (BuildConfig.BUILD_TYPE.compareTo("debug") == 0) {
+            Log.i(tag, msg);
+        }
+    }
+
+    public static void Assert(String msg) {
+        Assert.assertFalse(msg, false);
+    }
 }
 

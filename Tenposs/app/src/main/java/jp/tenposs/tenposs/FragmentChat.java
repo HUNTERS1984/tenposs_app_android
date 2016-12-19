@@ -8,25 +8,26 @@ import jp.tenposs.datamodel.AppData;
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.ScreenDataStatus;
-import jp.tenposs.datamodel.SignInInfo;
+import jp.tenposs.datamodel.UserInfo;
+import jp.tenposs.utils.Utils;
 
 /**
  * Created by ambient on 8/4/16.
  */
 public class FragmentChat extends FragmentWebView {
 
-    private FragmentChat() {
-
-    }
-
-    public static FragmentChat newInstance(String title, int storeId) {
-        FragmentChat fragment = new FragmentChat();
-        Bundle b = new Bundle();
-        b.putString(AbstractFragment.SCREEN_TITLE, title);
-        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
-        fragment.setArguments(b);
-        return fragment;
-    }
+//    private FragmentChat() {
+//
+//    }
+//
+//    public static FragmentChat newInstance(String title, int storeId) {
+//        FragmentChat fragment = new FragmentChat();
+//        Bundle b = new Bundle();
+//        b.putString(AbstractFragment.SCREEN_TITLE, title);
+//        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
+//        fragment.setArguments(b);
+//        return fragment;
+//    }
 
     @Override
     protected boolean customClose() {
@@ -36,12 +37,13 @@ public class FragmentChat extends FragmentWebView {
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.chat);
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
-            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
-            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
-        } else {
+
+        if (this.mShowFromSideMenu == true) {
             mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        } else {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
         }
     }
 
@@ -59,9 +61,9 @@ public class FragmentChat extends FragmentWebView {
     protected void previewScreenData() {
         this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
         updateToolbar();
-        String userProfile = getPrefString(Key.UserProfile);
-        SignInInfo.User user = (SignInInfo.User) CommonObject.fromJSONString(userProfile, SignInInfo.User.class, null);
-        String url = TenpossCommunicator.WEB_ADDRESS + "/chat/screen/" + user.profile.app_user_id;
+        String userProfile = Utils.getPrefString(getContext(), Key.UserProfile);
+        UserInfo.User user = (UserInfo.User) CommonObject.fromJSONString(userProfile, UserInfo.User.class, null);
+        String url = TenpossCommunicator.WEB_ADDRESS + "/chat/screen/" + user.id;
         this.mWebView.loadUrl(url);
     }
 

@@ -16,6 +16,11 @@ public class NewsCategoryInfo {
         String sigInput() {
             return store_id + "" + privateKey + "" + time;
         }
+
+        @Override
+        ArrayList<String> getAvailableParams() {
+            return null;
+        }
     }
 
     public class Response extends CommonResponse {

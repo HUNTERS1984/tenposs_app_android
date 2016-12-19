@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import jp.tenposs.utils.Utils;
+
 /**
  * Created by ambient on 7/29/16.
  */
@@ -45,7 +47,7 @@ public class CommonObject implements Serializable {
 
             return gs.fromJson(json, cls);
         } catch (Exception ex) {
-            System.out.println(json);
+            Utils.log("CommonObject", json);
             ex.printStackTrace();
         }
         return null;

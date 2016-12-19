@@ -67,15 +67,14 @@ public class FragmentNews extends AbstractFragment implements RecyclerDataSource
      */
 
 
-    public static FragmentNews newInstance(String title, int storeId) {
-        FragmentNews fragment = new FragmentNews();
-        Bundle b = new Bundle();
-        b.putString(AbstractFragment.SCREEN_TITLE, title);
-        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
-        fragment.setArguments(b);
-        return fragment;
-    }
-
+//    public static FragmentNews newInstance(String title, int storeId) {
+//        FragmentNews fragment = new FragmentNews();
+//        Bundle b = new Bundle();
+//        b.putString(AbstractFragment.SCREEN_TITLE, title);
+//        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
+//        fragment.setArguments(b);
+//        return fragment;
+//    }
     @Override
     protected boolean customClose() {
         return false;
@@ -84,12 +83,12 @@ public class FragmentNews extends AbstractFragment implements RecyclerDataSource
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.news);
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && this.mFirstScreen == false) {
-            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
-            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
-        } else {
+        if (this.mShowFromSideMenu == true) {
             mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        } else {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
         }
     }
 
@@ -115,60 +114,66 @@ public class FragmentNews extends AbstractFragment implements RecyclerDataSource
     @Override
     protected void previewScreenData() {
         this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
-        this.mSubToolbar.setVisibility(View.VISIBLE);
         setRefreshing(false);
+        if (mScreenData != null && mScreenData.data != null && mScreenData.data.news_categories != null && mScreenData.data.news_categories.size() > 0) {
+            this.mSubToolbar.setVisibility(View.VISIBLE);
 
-        updateNavigation();
-        enableControls(true);
-        mScreenDataItems = new ArrayList<>();
 
-        for (NewsInfo.News item : mCurrentItem.data.news) {
-            item.setCategory(this.mCurrentNewsCat.name);
-            Bundle extras = new Bundle();
-            extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
-            extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
-            extras.putString(RecyclerItemWrapper.ITEM_CATEGORY, item.getCategory());
-            extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.getTitle());
-            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.getDescription());
-            extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
-            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeList, mSpanCount, extras));
-        }
+            updateNavigation();
+            enableControls(true);
+            mScreenDataItems = new ArrayList<>();
 
-        mTitleLabel.setText(mCurrentNewsCat.name);
+            for (NewsInfo.News item : mCurrentItem.data.news) {
+                item.setCategory(this.mCurrentNewsCat.name);
+                Bundle extras = new Bundle();
+                extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
+                extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
+                extras.putString(RecyclerItemWrapper.ITEM_CATEGORY, item.getCategory());
+                extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.getTitle());
+                extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.getDescription());
+                extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
+                mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeList, mSpanCount, extras));
+            }
 
-        if (this.mRecyclerAdapter == null) {
-            GridLayoutManager manager = new GridLayoutManager(getActivity(), mSpanCount);//);
-            this.mRecyclerAdapter = new CommonAdapter(getActivity(), this, this);
-            manager.setSpanSizeLookup(new GridSpanSizeLookup(mRecyclerAdapter));
-            this.mRecyclerView.setLayoutManager(manager);
-            this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.common_item_spacing));
-            this.mRecyclerView.setAdapter(mRecyclerAdapter);
+            mTitleLabel.setText(mCurrentNewsCat.name);
 
-            this.mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                    super.onScrollStateChanged(recyclerView, newState);
-                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        int lastPos = ((GridLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
-                        if (lastPos != -1) {
-                            if (lastPos == getItemCount() - 1 && getItemCount() < mCurrentItem.totalnew) {
-                                if (mLoadingStatus == LOADING_STATUS_UNKNOWN) {
-                                    mLoadingIndicator.setVisibility(View.VISIBLE);
-                                    mLoadingStatus = LOADING_STATUS_MORE;
-                                    loadNewsInfo(mCurrentNewsCatIndex);
+            if (this.mRecyclerAdapter == null) {
+                GridLayoutManager manager = new GridLayoutManager(getActivity(), mSpanCount);//);
+                this.mRecyclerAdapter = new CommonAdapter(getActivity(), this, this);
+                manager.setSpanSizeLookup(new GridSpanSizeLookup(mRecyclerAdapter));
+                this.mRecyclerView.setLayoutManager(manager);
+                this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.common_item_spacing));
+                this.mRecyclerView.setAdapter(mRecyclerAdapter);
+
+                this.mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                    @Override
+                    public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                        super.onScrollStateChanged(recyclerView, newState);
+                        if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                            int lastPos = ((GridLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
+                            if (lastPos != -1) {
+                                if (lastPos == getItemCount() - 1 && getItemCount() < mCurrentItem.totalnew) {
+                                    if (mLoadingStatus == LOADING_STATUS_UNKNOWN) {
+                                        mLoadingIndicator.setVisibility(View.VISIBLE);
+                                        mLoadingStatus = LOADING_STATUS_MORE;
+                                        loadNewsInfo(mCurrentNewsCatIndex);
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            });
+                });
+            } else {
+                this.mRecyclerAdapter.notifyDataSetChanged();
+            }
+            if (this.mScreenDataItems.size() == 0) {
+                this.mNoDataLabel.setVisibility(View.VISIBLE);
+            } else {
+                this.mNoDataLabel.setVisibility(View.GONE);
+            }
         } else {
-            this.mRecyclerAdapter.notifyDataSetChanged();
-        }
-        if (this.mScreenDataItems.size() == 0) {
+            this.mSubToolbar.setVisibility(View.GONE);
             this.mNoDataLabel.setVisibility(View.VISIBLE);
-        } else {
-            this.mNoDataLabel.setVisibility(View.GONE);
         }
         updateToolbar();
     }
@@ -307,22 +312,35 @@ public class FragmentNews extends AbstractFragment implements RecyclerDataSource
                                     }
                                     loadNewsInfo(mCurrentNewsCatIndex);
                                 } else {
-                                    mSubToolbar.setVisibility(View.GONE);
+                                    previewScreenData();
                                 }
+                            } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                                refreshToken(new TenpossCallback() {
+                                    @Override
+                                    public void onSuccess(Bundle params) {
+                                        loadNewsCategory();
+                                    }
+
+                                    @Override
+                                    public void onFailed(Bundle params) {
+                                        //Logout, then do something
+                                        mActivityListener.logoutBecauseExpired();
+                                    }
+                                });
                             } else {
                                 String strMessage = responseParams.getString(Key.ResponseMessage);
-                                errorWithMessage(responseParams, strMessage);
+                                errorWithMessage(responseParams, strMessage, null);
                             }
                         } else {
                             String strMessage = responseParams.getString(Key.ResponseMessage);
-                            errorWithMessage(responseParams, strMessage);
+                            errorWithMessage(responseParams, strMessage, null);
                         }
                     }
                 });
         communicator.execute(params);
     }
 
-    void loadNewsInfo(int newsCatIndex) {
+    void loadNewsInfo(final int newsCatIndex) {
         try {
             this.mCurrentNewsCat = this.mScreenData.data.news_categories.get(newsCatIndex);
             Bundle menuData = this.mAllItems.get(newsCatIndex);
@@ -371,13 +389,26 @@ public class FragmentNews extends AbstractFragment implements RecyclerDataSource
                                         menuData.putSerializable(SCREEN_DATA_PAGE_DATA, mCurrentItem);
 
                                         previewScreenData();
+                                    } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                                        refreshToken(new TenpossCallback() {
+                                            @Override
+                                            public void onSuccess(Bundle params) {
+                                                loadNewsInfo(newsCatIndex);
+                                            }
+
+                                            @Override
+                                            public void onFailed(Bundle params) {
+                                                //Logout, then do something
+                                                mActivityListener.logoutBecauseExpired();
+                                            }
+                                        });
                                     } else {
                                         String strMessage = responseParams.getString(Key.ResponseMessage);
-                                        errorWithMessage(responseParams, strMessage);
+                                        errorWithMessage(responseParams, strMessage, null);
                                     }
                                 } else {
                                     String strMessage = responseParams.getString(Key.ResponseMessage);
-                                    errorWithMessage(responseParams, strMessage);
+                                    errorWithMessage(responseParams, strMessage, null);
                                 }
                             }
                         });
@@ -435,7 +466,7 @@ public class FragmentNews extends AbstractFragment implements RecyclerDataSource
         if (hasPrevious() == true) {
             previousButtonColor = this.mToolbarSettings.getToolbarIconColor();
             if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
-                previousButtonColor = Utils.getColor(getContext(), R.color.restaurant_text_color);
+                previousButtonColor = Utils.getColor(getContext(), R.color.restaurant_toolbar_icon_color);
             }
         }
 
@@ -443,7 +474,7 @@ public class FragmentNews extends AbstractFragment implements RecyclerDataSource
         if (hasNext() == true) {
             nextButtonColor = this.mToolbarSettings.getToolbarIconColor();
             if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
-                nextButtonColor = Utils.getColor(getContext(), R.color.restaurant_text_color);
+                nextButtonColor = Utils.getColor(getContext(), R.color.restaurant_toolbar_icon_color);
             }
         }
 
@@ -491,7 +522,7 @@ public class FragmentNews extends AbstractFragment implements RecyclerDataSource
         switch (item.itemType) {
             case RecyclerItemTypeList: {
                 NewsInfo.News news = (NewsInfo.News) item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(AbstractFragment.NEWS_DETAILS_SCREEN, news, null);
+                this.mActivityListener.showScreen(AbstractFragment.NEWS_DETAILS_SCREEN, news, null, false);
             }
             break;
 

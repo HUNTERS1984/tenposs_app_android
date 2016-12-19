@@ -65,15 +65,14 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
      * Fragment Override
      */
 
-    public static FragmentMenu newInstance(String title, int storeId) {
-        FragmentMenu fragment = new FragmentMenu();
-        Bundle b = new Bundle();
-        b.putString(AbstractFragment.SCREEN_TITLE, title);
-        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
-        fragment.setArguments(b);
-        return fragment;
-    }
-
+//    public static FragmentMenu newInstance(String title, int storeId) {
+//        FragmentMenu fragment = new FragmentMenu();
+//        Bundle b = new Bundle();
+//        b.putString(AbstractFragment.SCREEN_TITLE, title);
+//        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
+//        fragment.setArguments(b);
+//        return fragment;
+//    }
     @Override
     protected boolean customClose() {
         return false;
@@ -82,12 +81,12 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.menu);
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && this.mFirstScreen == false) {
-            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
-            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
-        } else {
+        if (this.mShowFromSideMenu == true) {
             mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        } else {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
         }
     }
 
@@ -112,68 +111,77 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
     @Override
     protected void previewScreenData() {
         this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
-        this.mSubToolbar.setVisibility(View.VISIBLE);
+
         setRefreshing(false);
 
-        updateNavigation();
-        enableControls(true);
-        mScreenDataItems = new ArrayList<>();
+        if (mScreenData != null &&
+                mScreenData.data != null &&
+                mScreenData.data.menus != null &&
+                mScreenData.data.menus.size() > 0) {
+            this.mSubToolbar.setVisibility(View.VISIBLE);
+            updateNavigation();
+            enableControls(true);
+            mScreenDataItems = new ArrayList<>();
 
-        int rowIndex = 0;
-        int itemSpanCount = 0;
-        for (ItemsInfo.Item item : mCurrentItem.data.items) {
-            item.menu = this.mCurrentMenu.name;
-            Bundle extras = new Bundle();
-            extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
-            extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.getTitle());
-            extras.putString(RecyclerItemWrapper.ITEM_PRICE, item.getPrice());
-            extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
-            extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
+            int rowIndex = 0;
+            int itemSpanCount = 0;
+            for (ItemsInfo.Item item : mCurrentItem.data.items) {
+                item.menu = this.mCurrentMenu.name;
+                Bundle extras = new Bundle();
+                extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
+                extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.getTitle());
+                extras.putString(RecyclerItemWrapper.ITEM_PRICE, item.getPrice());
+                extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
+                extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
 
-            extras.putInt(RecyclerItemWrapper.ITEM_ROW, rowIndex);
-            itemSpanCount += this.mSpanCount / this.mSpanLargeItems;
-            if (itemSpanCount == this.mSpanCount) {
-                rowIndex++;
-                itemSpanCount = 0;
+                extras.putInt(RecyclerItemWrapper.ITEM_ROW, rowIndex);
+                itemSpanCount += this.mSpanCount / this.mSpanLargeItems;
+                if (itemSpanCount == this.mSpanCount) {
+                    rowIndex++;
+                    itemSpanCount = 0;
+                }
+                mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeGridItem, mSpanCount / mSpanLargeItems, extras));
             }
-            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeGridItem, mSpanCount / mSpanLargeItems, extras));
-        }
 
-        mTitleLabel.setText(mCurrentMenu.name);
+            mTitleLabel.setText(mCurrentMenu.name);
 
-        if (this.mRecyclerAdapter == null) {
-            GridLayoutManager manager = new GridLayoutManager(getActivity(), mSpanCount);//);
-            this.mRecyclerAdapter = new CommonAdapter(getActivity(), this, this);
-            manager.setSpanSizeLookup(new GridSpanSizeLookup(mRecyclerAdapter));
-            this.mRecyclerView.setLayoutManager(manager);
-            this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.common_item_spacing));
-            this.mRecyclerView.setAdapter(mRecyclerAdapter);
+            if (this.mRecyclerAdapter == null) {
+                GridLayoutManager manager = new GridLayoutManager(getActivity(), mSpanCount);//);
+                this.mRecyclerAdapter = new CommonAdapter(getActivity(), this, this);
+                manager.setSpanSizeLookup(new GridSpanSizeLookup(mRecyclerAdapter));
+                this.mRecyclerView.setLayoutManager(manager);
+                this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.common_item_spacing));
+                this.mRecyclerView.setAdapter(mRecyclerAdapter);
 
-            this.mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                    super.onScrollStateChanged(recyclerView, newState);
-                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        int lastPos = ((GridLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
-                        if (lastPos != -1) {
-                            if (lastPos == getItemCount() - 1 && getItemCount() < mCurrentItem.total_items) {
-                                if (mLoadingStatus == LOADING_STATUS_UNKNOWN) {
-                                    mLoadingIndicator.setVisibility(View.VISIBLE);
-                                    mLoadingStatus = LOADING_STATUS_MORE;
-                                    loadMenuItem(mCurrentMenuIndex);
+                this.mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                    @Override
+                    public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                        super.onScrollStateChanged(recyclerView, newState);
+                        if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                            int lastPos = ((GridLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
+                            if (lastPos != -1) {
+                                if (lastPos == getItemCount() - 1 && getItemCount() < mCurrentItem.total_items) {
+                                    if (mLoadingStatus == LOADING_STATUS_UNKNOWN) {
+                                        mLoadingIndicator.setVisibility(View.VISIBLE);
+                                        mLoadingStatus = LOADING_STATUS_MORE;
+                                        loadMenuItem(mCurrentMenuIndex);
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            });
+                });
+            } else {
+                this.mRecyclerAdapter.notifyDataSetChanged();
+            }
+            if (this.mScreenDataItems.size() == 0) {
+                this.mNoDataLabel.setVisibility(View.VISIBLE);
+            } else {
+                this.mNoDataLabel.setVisibility(View.GONE);
+            }
         } else {
-            this.mRecyclerAdapter.notifyDataSetChanged();
-        }
-        if (this.mScreenDataItems.size() == 0) {
+            this.mSubToolbar.setVisibility(View.GONE);
             this.mNoDataLabel.setVisibility(View.VISIBLE);
-        } else {
-            this.mNoDataLabel.setVisibility(View.GONE);
         }
         updateToolbar();
     }
@@ -303,7 +311,10 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
                             if (resultApi == CommonResponse.ResultSuccess) {
                                 mScreenData = (MenuInfo.Response) responseParams.getSerializable(Key.ResponseObject);
                                 mAllItems = new ArrayList<>();
-                                if (mScreenData.data.menus.size() > 0) {
+                                if (mScreenData != null &&
+                                        mScreenData.data != null &&
+                                        mScreenData.data.menus != null &&
+                                        mScreenData.data.menus.size() > 0) {
                                     for (int i = 0; i < mScreenData.data.menus.size(); i++) {
                                         Bundle menuData = new Bundle();
                                         menuData.putInt(SCREEN_DATA_PAGE_INDEX, 1);
@@ -312,22 +323,35 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
                                     }
                                     loadMenuItem(mCurrentMenuIndex);
                                 } else {
-                                    mSubToolbar.setVisibility(View.GONE);
+                                    previewScreenData();
                                 }
+                            } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                                refreshToken(new TenpossCallback() {
+                                    @Override
+                                    public void onSuccess(Bundle params) {
+                                        loadMenuData();
+                                    }
+
+                                    @Override
+                                    public void onFailed(Bundle params) {
+                                        //Logout, then do something
+                                        mActivityListener.logoutBecauseExpired();
+                                    }
+                                });
                             } else {
                                 String strMessage = responseParams.getString(Key.ResponseMessage);
-                                errorWithMessage(responseParams, strMessage);
+                                errorWithMessage(responseParams, strMessage, null);
                             }
                         } else {
                             String strMessage = responseParams.getString(Key.ResponseMessage);
-                            errorWithMessage(responseParams, strMessage);
+                            errorWithMessage(responseParams, strMessage, null);
                         }
                     }
                 });
         communicator.execute(params);
     }
 
-    void loadMenuItem(int menuIndex) {
+    void loadMenuItem(final int menuIndex) {
         try {
             this.mCurrentMenu = this.mScreenData.data.menus.get(menuIndex);
             Bundle menuData = this.mAllItems.get(menuIndex);
@@ -376,13 +400,26 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
                                         menuData.putSerializable(SCREEN_DATA_PAGE_DATA, mCurrentItem);
 
                                         previewScreenData();
+                                    } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                                        refreshToken(new TenpossCallback() {
+                                            @Override
+                                            public void onSuccess(Bundle params) {
+                                                loadMenuItem(menuIndex);
+                                            }
+
+                                            @Override
+                                            public void onFailed(Bundle params) {
+                                                //Logout, then do something
+                                                mActivityListener.logoutBecauseExpired();
+                                            }
+                                        });
                                     } else {
                                         String strMessage = responseParams.getString(Key.ResponseMessage);
-                                        errorWithMessage(responseParams, strMessage);
+                                        errorWithMessage(responseParams, strMessage, null);
                                     }
                                 } else {
                                     String strMessage = responseParams.getString(Key.ResponseMessage);
-                                    errorWithMessage(responseParams, strMessage);
+                                    errorWithMessage(responseParams, strMessage, null);
                                 }
                             }
                         });
@@ -440,7 +477,7 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
         if (hasPrevious() == true) {
             previousButtonColor = this.mToolbarSettings.getToolbarIconColor();
             if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
-                previousButtonColor = Utils.getColor(getContext(), R.color.restaurant_text_color);
+                previousButtonColor = Utils.getColor(getContext(), R.color.restaurant_toolbar_icon_color);
             }
         }
 
@@ -448,7 +485,7 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
         if (hasNext() == true) {
             nextButtonColor = this.mToolbarSettings.getToolbarIconColor();
             if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
-                nextButtonColor = Utils.getColor(getContext(), R.color.restaurant_text_color);
+                nextButtonColor = Utils.getColor(getContext(), R.color.restaurant_toolbar_icon_color);
             }
         }
 
@@ -495,7 +532,7 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
         switch (item.itemType) {
             case RecyclerItemTypeGridItem: {
                 ItemsInfo.Item itemData = (ItemsInfo.Item) item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(AbstractFragment.ITEM_SCREEN, itemData, null);
+                this.mActivityListener.showScreen(AbstractFragment.ITEM_SCREEN, itemData, null, false);
             }
             break;
 

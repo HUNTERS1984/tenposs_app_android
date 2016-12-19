@@ -163,20 +163,13 @@ public class PopupUseCoupon implements BSSelectionListener {
 
     @Override
     public void onItemSelect(int position, Serializable extras) {
-        //TODO
-        //show waiting popup
-
-        //PopupCouponAccepted popupCouponAccepted = new PopupCouponAccepted(this.mContext);
-        //popupCouponAccepted.show();
-
+        //TODO:
         this.alert.dismiss();
     }
 
     @Override
     public void onCancel() {
         //DO nothing
-        //PopupCouponRejected popupCouponRejected = new PopupCouponRejected(this.mContext);
-        //popupCouponRejected.show();
         this.alert.dismiss();
     }
 }

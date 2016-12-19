@@ -1,6 +1,7 @@
 <resources>
-    <!--Untranslatable-->
     <string name="app_name" translatable="false">Tenposs</string>
+
+    <!--Untranslatable-->
     <string name="facebook_app_id" translatable="false">570059106506930</string>
     <string name="fb_login_protocol_scheme" translatable="false">fb570059106506930</string>
     <string name="facebook" translatable="false">Facebook</string>
@@ -108,6 +109,11 @@
     <string name="msg_enter_email_and_name"><![CDATA[メールとユーザ名を入力してください]]></string>
     <string name="msg_invalid_response_data"><![CDATA[データエラー]]></string>
 
+    <string name="msg_select_gender"><![CDATA[Please select gender]]></string>
+    <string name="msg_select_age"><![CDATA[Please select age]]></string>
+
+    <string name="msg_requesting">Requesting...</string>
+
     <!-- Hokkaidō -->
     <string name="hokkaido"><![CDATA[北海道]]></string>
     <!-- Tōhoku -->
@@ -190,7 +196,27 @@
     <string name="msg_save_profile_confirm"><![CDATA[データが変更されています。保存しますか？]]></string>
     <string name="msg_updating"><![CDATA[Updating…]]></string>
 
+    <string name="msg_operation_succesfully">Operation completed succesfully!</string>
+    <string name="msg_error_not_registered_on_server">No character is registered on server</string>
+    <string name="msg_error_point_is_not_enough">Point is not enough</string>
+    <string name="msg_error_user_is_not_validated">User is not validated.</string>
+    <string name="msg_error_user_already_exist">User already exist.</string>
+    <string name="msg_error_method_is_not_valid">Method is not valid.</string>
+    <string name="msg_error_invalid_token">Invalid token</string>
+    <string name="msg_error_exception">Exception catch</string>
+    <string name="msg_error_db">DB connection/execute error</string>
+    <string name="msg_error_parameters_count">Parameters is not enough</string>
+    <string name="msg_error_parameters_type">Parameter is not correct</string>
+    <string name="msg_error_parameter_value">Parameter\'s value is not correct</string>
+    <string name="msg_error_unknown">Unknown error</string>
 
+    <string name="msg_error_email_is_not_correct">Email not correct</string>
+    <string name="msg_error_address_is_not_exist">Address is not exits</string>
+    <string name="msg_error_cannot_send_email">Can not send email</string>
+    <string name="msg_error_account_is_not_active">Account is not active</string>
+    <string name="msg_error_time_expire">Time expire</string>
+    <string name="msg_error_signature_missing">Parameter sig not exist</string>
+    <string name="msg_error_signature_invalid">Parameter sig is not valid</string>
     <!--Newly added-->
 
     <string name="change_device_title"><![CDATA[引き継ぎコード発行]]></string>
@@ -203,11 +229,14 @@
     <string name="next"><![CDATA[次へ]]></string>
     <string name="attribute"><![CDATA[属性]]></string>
     <string name="age"><![CDATA[年代]]></string>
+    <string name="register"><![CDATA[登録]]></string>
+    <string name="registration"><![CDATA[登録する]]></string>
+    <string name="register_here"><![CDATA[こちらの内容で登録]]></string>
 
     <!--Newly added (unchecked)-->
     <string name="msg_cannot_regist_on_this_device"><![CDATA[ごめんなさい！あなたは、このデバイスに登録することはできません。]]></string>
     <string name="msg_password_at_least_6"><![CDATA[パスワードは少なくとも6文字でなければなりません。]]></string>
-
+    <string name="msg_processing">Processing...</string>
 
     <string name="use"><![CDATA[使う]]></string>
     <string name="use_coupon"><![CDATA[Use Coupon]]></string>
@@ -223,5 +252,14 @@
     <string name="reference_code"><![CDATA[紹介コード]]></string>
     <string name="my_page"><![CDATA[マイページ]]></string>
     <string name="phone_number">電話番号</string>
+    <string name="OK">OK</string>
+
+    <string name="coupon_detail">COUPON DETAIL</string>
+    <string name="coupon_request">COUPON REQUEST</string>
+    <string name="qr_reader">QR READER</string>
+    <string name="coupon_content">USE PROMOTION CODE</string>
+    <string name="coupon_off_detail">40% OFF</string>
+    <string name="accept">Accept</string>
+    <string name="reject">Reject</string>
 
 </resources>

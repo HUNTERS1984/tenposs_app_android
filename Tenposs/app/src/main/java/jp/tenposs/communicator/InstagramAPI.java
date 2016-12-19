@@ -31,14 +31,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import jp.tenposs.tenposs.R;
+import jp.tenposs.utils.SharedPreferencesHelper;
 
 /**
  * Created by ambient on 9/26/16.
  */
 
 public class InstagramAPI {
-
-
     public interface OAuthDialogListener {
         void onComplete(String accessToken);
 
@@ -238,14 +237,13 @@ public class InstagramAPI {
         private SharedPreferences sharedPref;
         private SharedPreferences.Editor editor;
 
-        private static final String SHARED = "Instagram_Preferences";
-        private static final String API_USERNAME = "username";
-        private static final String API_ID = "id";
-        private static final String API_NAME = "name";
-        private static final String API_ACCESS_TOKEN = "access_token";
+        private static final String API_USERNAME = "instagram_username";
+        private static final String API_ID = "instagram_id";
+        private static final String API_NAME = "instagram_name";
+        private static final String API_ACCESS_TOKEN = "instagram_access_token";
 
         public InstagramSession(Context context) {
-            sharedPref = context.getSharedPreferences(SHARED, Context.MODE_PRIVATE);
+            sharedPref = SharedPreferencesHelper.getSharedPreferences(context);
             editor = sharedPref.edit();
         }
 

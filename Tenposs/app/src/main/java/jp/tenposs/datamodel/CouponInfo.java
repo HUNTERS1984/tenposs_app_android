@@ -22,6 +22,11 @@ public class CouponInfo {
         String sigInput() {
             return app_id + "" + time + "" + store_id + "" + privateKey;
         }
+
+        @Override
+        ArrayList<String> getAvailableParams() {
+            return null;
+        }
     }
 
     public class Response extends CommonResponse {

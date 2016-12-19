@@ -57,7 +57,7 @@
             android:layout_marginLeft="20dip"
             android:text="¥ 1,200"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
-            android:textColor="@color/restaurant_text_color"
+            android:textColor="@color/restaurant_toolbar_icon_color"
             android:textStyle="bold" />
 
     </LinearLayout>

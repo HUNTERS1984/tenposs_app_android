@@ -42,17 +42,17 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
 
     StaffInfo.Staff mScreenData;
 
-    private FragmentStaffDetail() {
-
-    }
-
-    public static FragmentStaffDetail newInstance(Serializable extras) {
-        FragmentStaffDetail fragment = new FragmentStaffDetail();
-        Bundle b = new Bundle();
-        b.putSerializable(AbstractFragment.SCREEN_DATA, extras);
-        fragment.setArguments(b);
-        return fragment;
-    }
+//    private FragmentStaffDetail() {
+//
+//    }
+//
+//    public static FragmentStaffDetail newInstance(Serializable extras) {
+//        FragmentStaffDetail fragment = new FragmentStaffDetail();
+//        Bundle b = new Bundle();
+//        b.putSerializable(AbstractFragment.SCREEN_DATA, extras);
+//        fragment.setArguments(b);
+//        return fragment;
+//    }
 
     @Override
     protected boolean customClose() {

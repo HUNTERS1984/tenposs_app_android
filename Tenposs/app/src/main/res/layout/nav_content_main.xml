@@ -31,7 +31,7 @@
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="@dimen/item_margin"
                     android:layout_marginRight="@dimen/item_margin"
-                    android:src="@drawable/no_avatar"
+                    android:src="@drawable/no_avatar_gray"
                     circle:border_color="#d6dade"
                     circle:border_width="1.5dip"
                     circle:fill_color="@android:color/transparent" />

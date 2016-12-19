@@ -16,6 +16,7 @@ import jp.tenposs.datamodel.UserInfo;
 public class UserInfoCommunicator extends TenpossCommunicator {
     public UserInfoCommunicator(TenpossCommunicatorListener listener) {
         super(listener);
+        this.mAuthorizationMode = AUTH_TOKEN;
     }
 
     @Override
@@ -23,9 +24,8 @@ public class UserInfoCommunicator extends TenpossCommunicator {
         String strUrl;
         UserInfo.Request requestData = (UserInfo.Request) bundle.getSerializable(Key.RequestObject);
         strUrl = API_PROFILE + requestData.makeParams();
-        int result = CommunicationCode.ConnectionSuccess.ordinal();
-        byte[] dataRequest = null;
-        OutputStream output = null;
+        int result;
+        OutputStream output;
 
         try {
             output = new ByteArrayOutputStream();

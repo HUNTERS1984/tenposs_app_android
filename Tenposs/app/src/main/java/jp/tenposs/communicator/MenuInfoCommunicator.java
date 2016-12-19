@@ -23,9 +23,8 @@ public class MenuInfoCommunicator extends TenpossCommunicator {
         String strUrl;
         MenuInfo.Request requestData = (MenuInfo.Request) bundle.getSerializable(Key.RequestObject);
         strUrl = API_MENU + requestData.makeParams();
-        int result = TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal();
-        byte[] dataRequest = null;
-        OutputStream output = null;
+        int result;
+        OutputStream output;
 
         try {
             output = new ByteArrayOutputStream();

@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2013 Andreas Stuetz <andreas.stuetz@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package jp.tenposs.view;
 
 import android.annotation.SuppressLint;
@@ -5,18 +21,20 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Paint.Style;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewTreeObserver;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -26,9 +44,6 @@ import java.util.Locale;
 
 import jp.tenposs.tenposs.R;
 
-/**
- * Created by ambient on 11/9/16.
- */
 
 public class PagerSlidingTabStrip extends HorizontalScrollView {
 
@@ -47,7 +62,7 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
     private LinearLayout.LayoutParams expandedTabLayoutParams;
 
     private final PageListener pageListener = new PageListener();
-    public ViewPager.OnPageChangeListener delegatePageListener;
+    public OnPageChangeListener delegatePageListener;
 
     private LinearLayout tabsContainer;
     private ViewPager pager;
@@ -60,7 +75,7 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
     private Paint rectPaint;
     private Paint dividerPaint;
 
-    private int indicatorColor = ContextCompat.getColor(this.getContext(), R.color.restaurant_text_color);
+    private int indicatorColor = ContextCompat.getColor(this.getContext(), R.color.restaurant_toolbar_icon_color);
     private int underlineColor = 0x1A000000;
     private int dividerColor = 0x1A000000;
 
@@ -76,7 +91,7 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
 
     private int tabTextSize = 12;
     private int tabTextColor = ContextCompat.getColor(this.getContext(), android.R.color.darker_gray);
-    private int tabSelectedTextColor = ContextCompat.getColor(this.getContext(), R.color.restaurant_text_color);
+    private int tabSelectedTextColor = ContextCompat.getColor(this.getContext(), R.color.restaurant_toolbar_icon_color);
     private Typeface tabTypeface = null;
     private int tabTypefaceStyle = Typeface.BOLD;
     private int tabTextAppearance = android.R.style.TextAppearance_Small;
@@ -145,7 +160,7 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
 
         rectPaint = new Paint();
         rectPaint.setAntiAlias(true);
-        rectPaint.setStyle(Paint.Style.FILL);
+        rectPaint.setStyle(Style.FILL);
 
         dividerPaint = new Paint();
         dividerPaint.setAntiAlias(true);
@@ -166,13 +181,12 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
             throw new IllegalStateException("ViewPager does not have adapter instance.");
         }
 
-        pager.addOnPageChangeListener(pageListener);
-//        pager.setOnPageChangeListener(pageListener);
+        pager.setOnPageChangeListener(pageListener);
 
         notifyDataSetChanged();
     }
 
-    public void setOnPageChangeListener(ViewPager.OnPageChangeListener listener) {
+    public void setOnPageChangeListener(OnPageChangeListener listener) {
         this.delegatePageListener = listener;
     }
 
@@ -194,7 +208,7 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
 
         updateTabStyles();
 
-        getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
 
             @SuppressWarnings("deprecation")
             @SuppressLint("NewApi")
@@ -363,7 +377,7 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
 //		}
     }
 
-    private class PageListener implements ViewPager.OnPageChangeListener {
+    private class PageListener implements OnPageChangeListener {
 
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {

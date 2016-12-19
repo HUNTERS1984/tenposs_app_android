@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
+import jp.tenposs.datamodel.SignInInfo;
 import jp.tenposs.datamodel.SignUpInfo;
 
 /**
@@ -18,16 +19,16 @@ public class SignUpCommunicator extends TenpossCommunicator {
     public SignUpCommunicator(TenpossCommunicatorListener listener) {
         super(listener);
         mMethod = METHOD_POST;
+        mAuthorizationMode = AUTH_BASIC;
     }
 
     @Override
     protected boolean request(Bundle bundle) {
         String strUrl;
         SignUpInfo.Request requestData = (SignUpInfo.Request) bundle.getSerializable(Key.RequestObject);
-        //strUrl = API_SIGNUP + requestData.makeParams("METHOD_POST");
         strUrl = API_SIGN_UP;
         bundle.putSerializable(Key.RequestFormData, requestData.getFormData());
-        int result = CommunicationCode.ConnectionSuccess.ordinal();
+        int result;
         OutputStream output;
 
         try {
@@ -40,7 +41,7 @@ public class SignUpCommunicator extends TenpossCommunicator {
         result = request(strUrl, output, bundle);
         if (result == CommunicationCode.ConnectionSuccess.ordinal()) {
             String strResponse = output.toString();
-            CommonResponse response = (SignUpInfo.Response) CommonObject.fromJSONString(strResponse, SignUpInfo.Response.class, null);
+            CommonResponse response = (SignInInfo.Response) CommonObject.fromJSONString(strResponse, SignInInfo.Response.class, null);
             if (response == null) {
                 response = (CommonResponse) CommonObject.fromJSONString(strResponse, CommonResponse.class, null);
             }

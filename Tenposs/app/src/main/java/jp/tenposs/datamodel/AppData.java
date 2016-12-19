@@ -5,6 +5,7 @@ package jp.tenposs.datamodel;
  */
 
 public class AppData {
+    public UserInfo.User mUserInfo;
     public AppInfo.Response mAppInfo;
     public int mStoreId;
 
@@ -31,8 +32,8 @@ public class AppData {
 
     public TemplateId getTemplate() {
         //TODO: return Restaurant
-//        return TemplateId.RestaurantTemplate;
-        return TemplateId.CommonTemplate;
+        return TemplateId.RestaurantTemplate;
+//        return TemplateId.CommonTemplate;
         /*if (this.mAppInfo == null) {
             return TemplateId.CommonTemplate;
         } else {

@@ -41,9 +41,8 @@ public class StaffCategoryCommunicator extends TenpossCommunicator {
         String strUrl;
         StaffCategoryInfo.Request requestData = (StaffCategoryInfo.Request) bundle.getSerializable(Key.RequestObject);
         strUrl = API_STAFF_CATEGORY + requestData.makeParams();
-        int result = TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal();
-        byte[] dataRequest = null;
-        OutputStream output = null;
+        int result;
+        OutputStream output;
 
         try {
             output = new ByteArrayOutputStream();

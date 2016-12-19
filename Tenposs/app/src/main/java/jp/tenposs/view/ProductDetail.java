@@ -2,6 +2,7 @@ package jp.tenposs.view;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Layout;
 import android.util.AttributeSet;
 import android.view.View;
@@ -48,26 +49,14 @@ public class ProductDetail
         mMoreButton = (Button) findViewById(R.id.more_button);
 
         mHeaderLabel.setText(extras.getString(RecyclerItemWrapper.ITEM_CATEGORY));
-        mDetailLabel.setText(extras.getString(RecyclerItemWrapper.ITEM_TITLE));
+        mDetailLabel.setText(extras.getString(RecyclerItemWrapper.ITEM_DESCRIPTION));
 
 
         if (mShowMore == -1) {
-            //Moi init, chua xac dinh
-            Layout l = mDetailLabel.getLayout();
-            if (l != null) {
-                int lines = l.getLineCount();
-                if (lines > 0) {
-                    if (l.getEllipsisCount(lines - 1) > 0) {
-                        System.out.println("Text is ellipsized");
-                        mMoreButton.setText(R.string.more);
-                        mMoreButton.setVisibility(VISIBLE);
-                        mShowMore = 0;
-                    } else {
-                        System.out.println("Text is not ellipsized");
-                        mMoreButton.setVisibility(GONE);
-                    }
-                }
-            }
+            //Moi init, chua xac
+            mMoreButton.setVisibility(GONE);
+            showOrHideMoreButton(100);
+
         } else {
             mMoreButton.setVisibility(VISIBLE);
             if (mShowMore == 1) {
@@ -82,6 +71,31 @@ public class ProductDetail
             }
         }
         mMoreButton.setOnClickListener(this);
+    }
+
+    private void showOrHideMoreButton(final long delays) {
+        Handler mainHandler = new Handler(getContext().getMainLooper());
+
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                Layout l = mDetailLabel.getLayout();
+                if (l != null) {
+                    int lines = l.getLineCount();
+                    if (lines > 0) {
+                        if (l.getEllipsisCount(lines - 1) > 0) {
+                            mMoreButton.setText(R.string.more);
+                            mMoreButton.setVisibility(VISIBLE);
+                            mShowMore = 0;
+                        } else {
+                            mMoreButton.setVisibility(GONE);
+                        }
+                    }
+                } else {
+                    showOrHideMoreButton(delays);
+                }
+            }
+        });
     }
 
     @Override

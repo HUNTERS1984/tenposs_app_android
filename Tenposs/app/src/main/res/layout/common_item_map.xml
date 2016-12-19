@@ -13,6 +13,12 @@
         app:layout_aspectRatio="250%"
         app:layout_widthPercent="100%" />
 
+    <Button
+        android:id="@+id/map_button"
+        android:background="@android:color/transparent"
+        app:layout_aspectRatio="250%"
+        app:layout_widthPercent="100%" />
+
     <LinearLayout
         android:id="@+id/item_info_layout"
         android:layout_width="match_parent"

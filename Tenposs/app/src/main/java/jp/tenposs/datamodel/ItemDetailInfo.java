@@ -14,6 +14,11 @@ public class ItemDetailInfo {
         String sigInput() {
             return token + "" + item_id + privateKey + "" + time;
         }
+
+        @Override
+        ArrayList<String> getAvailableParams() {
+            return null;
+        }
     }
 
     public class Response extends CommonResponse {

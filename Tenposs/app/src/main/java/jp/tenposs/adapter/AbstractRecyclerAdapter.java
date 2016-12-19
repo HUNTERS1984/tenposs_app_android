@@ -45,7 +45,7 @@ public abstract class AbstractRecyclerAdapter<VH extends RecyclerView.ViewHolder
         if (itemData != null) {
             return itemData.itemType.ordinal();
         } else {
-            return RecyclerItemType.RecyclerItemTypeNone.ordinal();
+            return RecyclerItemType.RecyclerItemTypeStart.ordinal();
         }
     }
 }

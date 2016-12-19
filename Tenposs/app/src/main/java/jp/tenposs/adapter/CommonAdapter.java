@@ -159,6 +159,7 @@ public class CommonAdapter extends AbstractRecyclerAdapter<CommonAdapter.CommonV
 
         //Store
         ImageView mapImage;
+        Button mapButton;
         ImageView locationIcon;
         TextView locationLabel;
 
@@ -209,7 +210,7 @@ public class CommonAdapter extends AbstractRecyclerAdapter<CommonAdapter.CommonV
 
                 case RecyclerItemTypeStore: {
                     mapImage = (ImageView) this.mRow.findViewById(R.id.map_image);
-
+                    mapButton = (Button) this.mRow.findViewById(R.id.map_button);
                     locationIcon = (ImageView) this.mRow.findViewById(R.id.location_icon);
                     locationLabel = (TextView) this.mRow.findViewById(R.id.location_label);
 
@@ -218,6 +219,7 @@ public class CommonAdapter extends AbstractRecyclerAdapter<CommonAdapter.CommonV
 
                     phoneIcon = (ImageView) this.mRow.findViewById(R.id.phone_icon);
                     phoneLabel = (TextView) this.mRow.findViewById(R.id.phone_label);
+
                 }
                 break;
 
@@ -300,10 +302,17 @@ public class CommonAdapter extends AbstractRecyclerAdapter<CommonAdapter.CommonV
                             "&markers=size:mid%7Ccolor:0xff0000%7Clabel:%7C" + contact.getLocation();
 
                     ps.load(url)
-                            .resize(fullImageSize, fullImageSize)
-                            .centerInside()
                             .placeholder(R.drawable.drop)
                             .into(mapImage);
+
+                    mapButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Bundle extra = new Bundle();
+                            extra.putString(RecyclerItemWrapper.ITEM_TYPE, "show_map");
+                            mClickListener.onCommonItemClick(itemPosition, extra);
+                        }
+                    });
                     locationIcon.setImageBitmap(FontIcon.imageForFontIdentifier(mContext.getAssets(),
                             "flaticon-placeholder",
                             Utils.NavIconSize,
@@ -322,8 +331,8 @@ public class CommonAdapter extends AbstractRecyclerAdapter<CommonAdapter.CommonV
 
                     locationLabel.setText(contact.getTitle());
 
-                    String startTime = Utils.timeStringFromDate(Utils.dateFromString(contact.start_time));
-                    String endTime = Utils.timeStringFromDate(Utils.dateFromString(contact.end_time));
+                    String startTime = Utils.timeStringFromDate(Utils.dateFromString(contact.start_time), "a hh:mm");
+                    String endTime = Utils.timeStringFromDate(Utils.dateFromString(contact.end_time), "a hh:mm");
                     String time = startTime + " - " + endTime;
                     timeLabel.setText(time);
 
@@ -338,8 +347,9 @@ public class CommonAdapter extends AbstractRecyclerAdapter<CommonAdapter.CommonV
                             new ClickableSpan() {
                                 @Override
                                 public void onClick(View widget) {
-                                    //mActivityListener.showScreen(AbstractFragment.SIGNUP_SCREEN, null);
-                                    mClickListener.onCommonItemClick(itemPosition, itemDataWrapper.itemData);
+                                    Bundle extra = new Bundle();
+                                    extra.putString(RecyclerItemWrapper.ITEM_TYPE, "call_phone");
+                                    mClickListener.onCommonItemClick(itemPosition, extra);
                                 }
 
                                 @Override
@@ -424,6 +434,14 @@ public class CommonAdapter extends AbstractRecyclerAdapter<CommonAdapter.CommonV
                 break;
 
                 case RecyclerItemTypeFooter: {
+                    footerButton.setBackgroundResource(itemDataWrapper.itemData.getInt(RecyclerItemWrapper.ITEM_BACKGROUND));
+                    int color = 0;
+
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                        color = mContext.getColor(itemDataWrapper.itemData.getInt(RecyclerItemWrapper.ITEM_TEXT_COLOR));
+                    } else {
+                        color = mContext.getResources().getColor(itemDataWrapper.itemData.getInt(RecyclerItemWrapper.ITEM_TEXT_COLOR));
+                    }
                     footerButton.setText(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_TITLE));
                     footerButton.setOnClickListener(new View.OnClickListener() {
                         @Override

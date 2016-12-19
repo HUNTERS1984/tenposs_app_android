@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -15,6 +16,7 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,10 +26,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.CountDownLatch;
 
+import jp.tenposs.datamodel.AppData;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.utils.Crop;
 import jp.tenposs.utils.CropUtil;
+import jp.tenposs.utils.FontIcon;
+import jp.tenposs.utils.Utils;
 import jp.tenposs.view.CropImageView;
 import jp.tenposs.view.HighlightView;
 import jp.tenposs.view.RotateBitmap;
@@ -133,27 +138,96 @@ public class FragmentSelectAvatar extends AbstractFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        this.mRightToolbarButton.setVisibility(View.INVISIBLE);
-        this.mLeftToolbarButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mSaveUri = null;
-                close();
-            }
-        });
-        this.mRightToolbarButton.setOnClickListener(
-                new View.OnClickListener()
-
-                {
-                    @Override
-                    public void onClick(View v) {
-                        onSaveClicked();
-                    }
-                }
-        );
-
         loadInput(null, mSourceUri);
         startCrop();
+    }
+
+    @Override
+    protected void updateToolbar() {
+        try {
+            int toolbarIconColor;
+            int toolbarTitleColor;
+
+            if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+                this.mToolbar.setBackgroundColor(Color.WHITE);
+                toolbarIconColor = Utils.getColor(getContext(), R.color.restaurant_toolbar_icon_color);
+                toolbarTitleColor = Utils.getColor(getContext(), R.color.restaurant_toolbar_text_color);
+            } else {
+                this.mToolbar.setBackgroundColor(this.mToolbarSettings.getToolbarBackgroundColor());
+                toolbarIconColor = this.mToolbarSettings.getToolbarIconColor();
+                toolbarTitleColor = this.mToolbarSettings.getToolbarTitleColor();
+            }
+
+            if (this.mLeftToolbarButton != null) {
+                this.mLeftToolbarButton.setImageBitmap(FontIcon.imageForFontIdentifier(getActivity().getAssets(),
+                        this.mToolbarSettings.toolbarLeftIcon,
+                        Utils.NavIconSize,
+                        Color.argb(0, 0, 0, 0),
+                        toolbarIconColor,
+                        FontIcon.FLATICON
+                ));
+                this.mLeftToolbarButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mSaveUri = null;
+                        close();
+                    }
+                });
+            }
+            if (this.mRightToolbarButton != null && this.mToolbarSettings.toolbarRightIcon != null) {
+                this.mRightToolbarLayout.setVisibility(View.VISIBLE);
+                this.mRightToolbarButton.setImageBitmap(FontIcon.imageForFontIdentifier(getActivity().getAssets(),
+                        this.mToolbarSettings.toolbarRightIcon,
+                        Utils.NavIconSize,
+                        Color.argb(0, 0, 0, 0),
+                        toolbarIconColor,
+                        FontIcon.FLATICON
+                ));
+                this.mRightToolbarButton.setOnClickListener(
+                        new View.OnClickListener()
+
+                        {
+                            @Override
+                            public void onClick(View v) {
+                                onSaveClicked();
+                            }
+                        }
+                );
+            }
+
+            if (this.mTitleToolbarLabel != null) {
+                this.mTitleToolbarLabel.setText(mToolbarSettings.toolbarTitle);
+                try {
+                    Utils.setTextAppearanceTitle(getContext(), this.mTitleToolbarLabel, mToolbarSettings.getToolbarTitleFontSize());
+//                    Typeface type = Utils.getTypeFaceForFont(getActivity(), mToolbarSettings.getToolBarTitleFont());
+//                    this.mTitleToolbarLabel.setTypeface(type);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                this.mTitleToolbarLabel.setTextColor(toolbarTitleColor);
+            }
+
+            if (this.mToolbarSettings.toolbarType == ToolbarSettings.LEFT_MENU_BUTTON) {
+                if (this.mScreenDataStatus == ScreenDataStatus.ScreenDataStatusLoaded) {
+                    this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                } else {
+                    this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                }
+
+            } else {
+                this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            }
+
+            if (this.mScreenToolBarHidden == true) {
+                this.mToolbar.setVisibility(View.VISIBLE);
+            } else {
+                this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                this.mToolbar.setVisibility(View.GONE);
+            }
+
+        } catch (Exception ignored) {
+
+        }
     }
 
     private void loadInput(Bundle extras, Uri data) {

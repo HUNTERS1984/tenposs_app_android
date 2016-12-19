@@ -17,12 +17,70 @@ public class AppInfo {
         String sigInput() {
             return app_id + "" + time + "" + privateKey;
         }
+
+        @Override
+        ArrayList<String> getAvailableParams() {
+            return null;
+        }
     }
 
     public class Response extends CommonResponse {
-        public ResponseData data;
+        ApplicationInfo data;
 
-        public class ResponseData implements Serializable {
+        public String getAppName() {
+            if (data != null && data.name != null)
+                return data.name;
+            else return "";
+        }
+
+        public ArrayList<TopComponent> getTopComponents() {
+            if (data != null && data.top_components != null) {
+                return data.top_components;
+            } else {
+                return new ArrayList<>();
+            }
+        }
+
+        public AppSetting getAppSetting() {
+            if (data != null && data.app_setting != null) {
+                return data.app_setting;
+            } else {
+                return new AppSetting();
+            }
+        }
+
+        public ArrayList<SideMenu> getSideMenu() {
+            if (data != null && data.side_menu != null) {
+                return data.side_menu;
+            } else {
+                return new ArrayList<>();
+            }
+        }
+
+        public ApplicationInfo getAppInfo() {
+            return data;
+        }
+
+        public SideMenu getSideMenuById(int id) {
+            if (data != null && data.side_menu != null) {
+                for (SideMenu menu : data.side_menu) {
+                    if (menu.id == id) {
+                        return menu;
+                    }
+                }
+                return null;
+            }
+            return null;
+        }
+
+        public ArrayList<Store> getStores() {
+            if (data != null && data.stores != null)
+                return data.stores;
+            else
+                return new ArrayList<>();
+        }
+
+        public class ApplicationInfo implements Serializable {
             public int id;
             public String name;
             public String description;
@@ -50,15 +108,6 @@ public class AppInfo {
                 } else {
                     return null;
                 }
-            }
-
-            public SideMenu getSideMenuById(int id) {
-                for (SideMenu menu : side_menu) {
-                    if (menu.id == id) {
-                        return menu;
-                    }
-                }
-                return null;
             }
 
             public ArrayList<TopComponent> top_components;
@@ -119,6 +168,23 @@ public class AppInfo {
         public String company_info;
         public String user_privacy;
 
+        public AppSetting() {
+            id = 1;
+            app_id = 1;
+            title = "Application Title";
+            title_color = "000000";
+            font_size = "small";
+            font_family = "roboto light";
+            header_color = "FFFFFF";
+            menu_icon_color = "FFFFFF";
+            menu_background_color = "000000";
+            menu_font_color = "FFFFFF";
+            menu_font_size = "medium";
+            menu_font_family = "Arial";
+            template_id = 1;
+            company_info = "";
+            user_privacy = "";
+        }
 
         public int getToolbarIconColor() {
             return Utils.colorFromHex(this.menu_icon_color, Color.WHITE);
@@ -131,10 +197,6 @@ public class AppInfo {
         public int getToolbarBackgroundColor() {
             return Utils.colorFromHex(this.header_color, Color.WHITE);
         }
-
-//        public int getMenuIconColor() {
-//            return Utils.colorFromHex(this.menu_icon_color, Color.WHITE);
-//        }
 
         public int getMenuBackgroundColor() {
             return Utils.colorFromHex(this.menu_background_color, Color.GRAY);

@@ -24,14 +24,13 @@ public class FragmentReserve extends FragmentWebView {
     TopInfo.Contact mStoreInfo;
 
 
-
-    public static FragmentReserve newInstance(@NonNull TopInfo.Contact storeInfo) {
-        FragmentReserve gm = new FragmentReserve();
-        Bundle b = new Bundle();
-        b.putSerializable(STORE_INFO, storeInfo);
-        gm.setArguments(b);
-        return gm;
-    }
+//    public static FragmentReserve newInstance(@NonNull TopInfo.Contact storeInfo) {
+//        FragmentReserve gm = new FragmentReserve();
+//        Bundle b = new Bundle();
+//        b.putSerializable(STORE_INFO, storeInfo);
+//        gm.setArguments(b);
+//        return gm;
+//    }
 
     @Override
     protected boolean customClose() {
@@ -41,12 +40,12 @@ public class FragmentReserve extends FragmentWebView {
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.reserve);
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && this.mFirstScreen == false) {
-            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
-            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
-        } else {
+        if (this.mShowFromSideMenu == true) {
             mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        } else {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
         }
     }
 
@@ -148,6 +147,19 @@ public class FragmentReserve extends FragmentWebView {
                                         mUrl = strUrl;
 
                                     previewScreenData();
+                                } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                                    refreshToken(new TenpossCallback() {
+                                        @Override
+                                        public void onSuccess(Bundle params) {
+                                            loadReserveInfo();
+                                        }
+
+                                        @Override
+                                        public void onFailed(Bundle params) {
+                                            //Logout, then do something
+                                            mActivityListener.logoutBecauseExpired();
+                                        }
+                                    });
                                 } else {
                                     Utils.showAlert(getContext(),
                                             getString(R.string.error),
@@ -163,11 +175,11 @@ public class FragmentReserve extends FragmentWebView {
                                 }
                             } else {
                                 String strMessage = responseParams.getString(Key.ResponseMessage);
-                                errorWithMessage(responseParams, strMessage);
+                                errorWithMessage(responseParams, strMessage, null);
                             }
                         } else {
                             String strMessage = responseParams.getString(Key.ResponseMessage);
-                            errorWithMessage(responseParams, strMessage);
+                            errorWithMessage(responseParams, strMessage, null);
                         }
                     }
                 });

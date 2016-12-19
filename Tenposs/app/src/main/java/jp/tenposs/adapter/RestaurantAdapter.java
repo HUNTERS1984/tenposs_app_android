@@ -218,6 +218,7 @@ public class RestaurantAdapter
 
         //Store
         ImageView mapImage;
+        Button mapButton;
         ImageView locationIcon;
         TextView locationLabel;
 
@@ -271,7 +272,7 @@ public class RestaurantAdapter
         @Override
         public void setUpView() {
             switch (this.itemType) {
-                case RecyclerItemTypeNone:
+                case RecyclerItemTypeStart:
                     break;
                 case RecyclerItemTypeTop: {
                     this.mViewPager = (ViewPager) this.mRow.findViewById(R.id.view_pager);
@@ -299,7 +300,7 @@ public class RestaurantAdapter
                     break;
                 case RecyclerItemTypeStore: {
                     this.mapImage = (ImageView) this.mRow.findViewById(R.id.map_image);
-
+                    this.mapButton = (Button) this.mRow.findViewById(R.id.map_button);
                     this.locationIcon = (ImageView) this.mRow.findViewById(R.id.location_icon);
                     this.locationLabel = (TextView) this.mRow.findViewById(R.id.location_label);
 
@@ -361,7 +362,7 @@ public class RestaurantAdapter
                     this.itemCategoryLabel = (TextView) this.mRow.findViewById(R.id.item_category_label);
                     this.itemTitleLabel = (TextView) this.mRow.findViewById(R.id.item_title_label);
                     this.itemDescriptionLabel = (TextView) this.mRow.findViewById(R.id.item_description_label);
-                    this.itemPriceLabel = (TextView) this.mRow.findViewById(R.id.item_price_label);
+                    this.itemPriceLabel = (TextView) this.mRow.findViewById(R.id.item_create_date_label);
                 }
                 break;
 
@@ -439,6 +440,15 @@ public class RestaurantAdapter
                 break;
 
                 case RecyclerItemTypeFooter: {
+                    footerButton.setBackgroundResource(itemDataWrapper.itemData.getInt(RecyclerItemWrapper.ITEM_BACKGROUND));
+                    int color = 0;
+
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                        color = mContext.getColor(itemDataWrapper.itemData.getInt(RecyclerItemWrapper.ITEM_TEXT_COLOR));
+                    } else {
+                        color = mContext.getResources().getColor(itemDataWrapper.itemData.getInt(RecyclerItemWrapper.ITEM_TEXT_COLOR));
+                    }
+                    footerButton.setTextColor(color);
                     footerButton.setText(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_TITLE));
                     footerButton.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -465,10 +475,17 @@ public class RestaurantAdapter
                             "&markers=size:mid%7Ccolor:0xff0000%7Clabel:%7C" + contact.getLocation();
 
                     ps.load(url)
-                            .resize(fullImageSize, fullImageSize)
-                            .centerInside()
                             .placeholder(R.drawable.drop)
                             .into(mapImage);
+
+                    mapButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Bundle extra = new Bundle();
+                            extra.putString(RecyclerItemWrapper.ITEM_TYPE, "show_map");
+                            mClickListener.onCommonItemClick(itemPosition, extra);
+                        }
+                    });
                     locationIcon.setImageBitmap(FontIcon.imageForFontIdentifier(mContext.getAssets(),
                             "flaticon-placeholder",
                             Utils.NavIconSize,
@@ -487,8 +504,8 @@ public class RestaurantAdapter
 
                     locationLabel.setText(contact.getTitle());
 
-                    String startTime = Utils.timeStringFromDate(Utils.dateFromString(contact.start_time));
-                    String endTime = Utils.timeStringFromDate(Utils.dateFromString(contact.end_time));
+                    String startTime = Utils.timeStringFromDate(Utils.dateFromString(contact.start_time), "a hh:mm");
+                    String endTime = Utils.timeStringFromDate(Utils.dateFromString(contact.end_time), "a hh:mm");
                     String time = startTime + " - " + endTime;
                     timeLabel.setText(time);
 
@@ -504,7 +521,9 @@ public class RestaurantAdapter
                                 @Override
                                 public void onClick(View widget) {
                                     //mActivityListener.showScreen(AbstractFragment.SIGNUP_SCREEN, null);
-                                    mClickListener.onCommonItemClick(itemPosition, itemDataWrapper.itemData);
+                                    Bundle extra = new Bundle();
+                                    extra.putString(RecyclerItemWrapper.ITEM_TYPE, "call_phone");
+                                    mClickListener.onCommonItemClick(itemPosition, extra);
                                 }
 
                                 @Override
@@ -611,9 +630,10 @@ public class RestaurantAdapter
 
                         try {
                             NewsInfo.News news = (NewsInfo.News) this.mViewPagerData.get(0);
-                            this.itemDescriptionLabel.setText(news.getTitle());
-                            this.itemCategoryLabel.setText(news.getDescription());
-                            this.itemPriceLabel.setText(news.getCreatedDate());
+                            this.itemTitleLabel.setText(news.getTitle());
+                            this.itemDescriptionLabel.setText(news.getDescription());
+
+                            this.itemPriceLabel.setText(Utils.formatJapanDateTime(news.getCreatedDate(), "", "10月20日 12時23分");
                         } catch (Exception ignored) {
 
                         }
@@ -789,8 +809,8 @@ public class RestaurantAdapter
             if (this.itemType == RecyclerItemType.RecyclerItemTypeRestaurantNewsTop) {
                 NewsInfo.News news = (NewsInfo.News) this.mViewPagerData.get(position);
 
-                this.itemDescriptionLabel.setText(news.getTitle());
-                this.itemCategoryLabel.setText(news.getDescription());
+                this.itemTitleLabel.setText(news.getTitle());
+                this.itemDescriptionLabel.setText(news.getDescription());
                 this.itemPriceLabel.setText(news.getCreatedDate());
             }
         }

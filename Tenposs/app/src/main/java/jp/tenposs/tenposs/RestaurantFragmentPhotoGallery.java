@@ -47,15 +47,14 @@ public class RestaurantFragmentPhotoGallery extends AbstractFragment
      * Fragment Override
      */
 
-    public static RestaurantFragmentPhotoGallery newInstance(String title, int storeId) {
-        RestaurantFragmentPhotoGallery fragment = new RestaurantFragmentPhotoGallery();
-        Bundle b = new Bundle();
-        b.putString(AbstractFragment.SCREEN_TITLE, title);
-        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
-        fragment.setArguments(b);
-        return fragment;
-    }
-
+//    public static RestaurantFragmentPhotoGallery newInstance(String title, int storeId) {
+//        RestaurantFragmentPhotoGallery fragment = new RestaurantFragmentPhotoGallery();
+//        Bundle b = new Bundle();
+//        b.putString(AbstractFragment.SCREEN_TITLE, title);
+//        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
+//        fragment.setArguments(b);
+//        return fragment;
+//    }
     @Override
     protected boolean customClose() {
         return false;
@@ -64,12 +63,12 @@ public class RestaurantFragmentPhotoGallery extends AbstractFragment
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.photo_gallery);
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && this.mFirstScreen == false) {
-            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
-            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
-        } else {
+        if (this.mShowFromSideMenu == true) {
             mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        } else {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
         }
     }
 
@@ -301,13 +300,26 @@ public class RestaurantFragmentPhotoGallery extends AbstractFragment
                                     }
 
                                     previewScreenData();
+                                } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                                    refreshToken(new TenpossCallback() {
+                                        @Override
+                                        public void onSuccess(Bundle params) {
+                                            loadPhotoCatItem();
+                                        }
+
+                                        @Override
+                                        public void onFailed(Bundle params) {
+                                            //Logout, then do something
+                                            mActivityListener.logoutBecauseExpired();
+                                        }
+                                    });
                                 } else {
                                     String strMessage = responseParams.getString(Key.ResponseMessage);
-                                    errorWithMessage(responseParams, strMessage);
+                                    errorWithMessage(responseParams, strMessage, null);
                                 }
                             } else {
                                 String strMessage = responseParams.getString(Key.ResponseMessage);
-                                errorWithMessage(responseParams, strMessage);
+                                errorWithMessage(responseParams, strMessage, null);
                             }
                         }
                     });
@@ -334,7 +346,7 @@ public class RestaurantFragmentPhotoGallery extends AbstractFragment
             case RecyclerItemTypeRestaurantGridImage: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(screenId, extras, null);
+                this.mActivityListener.showScreen(screenId, extras, null, false);
             }
             break;
 

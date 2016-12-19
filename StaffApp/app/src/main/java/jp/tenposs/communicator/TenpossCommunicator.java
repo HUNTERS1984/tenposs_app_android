@@ -3,6 +3,8 @@ package jp.tenposs.communicator;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -13,41 +15,94 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import jp.tenposs.datamodel.Key;
+import jp.tenposs.staffapp.BuildConfig;
+import jp.tenposs.utils.Utils;
+import okhttp3.Authenticator;
 import okhttp3.Call;
-import okhttp3.FormBody;
+import okhttp3.Credentials;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.Route;
 
 /**
  * Created by ambient on 7/25/16.
  */
 public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bundle> {
 
+    public final static int AUTH_NONE = 0;
+    public final static int AUTH_BASIC = 1;
+    public final static int AUTH_TOKEN = 2;
+
     public final static String METHOD_GET = "METHOD_GET";
     public final static String METHOD_POST = "METHOD_POST";
     public final static String METHOD_POST_MULTIPART = "METHOD_POST_MULTIPART";
 
     public final static String WEB_ADDRESS = "https://ten-po.com/";
+
     public final static String DOMAIN_ADDRESS = "https://api.ten-po.com/";
     public final static String DOMAIN_POINT_ADDRESS = "https://apipoints.ten-po.com/";
     public final static String DOMAIN_STAFF_ADDRESS = "https://apistaffs.ten-po.com/";
     public final static String DOMAIN_AUTH_ADDRESS = "https://auth.ten-po.com/";
+    public final static String DOMAIN_NOTIFICATION_ADDRESS = "https://apinotification.ten-po.com/";
 
+    //Authentication
+    public final static String API_SIGN_UP = DOMAIN_ADDRESS + "api/v2/signup?";//POST_AUTH_TOKEN
+    public final static String API_SIGN_IN = DOMAIN_AUTH_ADDRESS + "v1/auth/login?";//POST_AUTH_BASIC
+    public final static String API_SIGN_OUT = DOMAIN_AUTH_ADDRESS + "v1/auth/signout";//POST_AUTH_TOKEN
 
-    //POST API
-    public final static String API_SIGN_IN = DOMAIN_AUTH_ADDRESS + "v1/auth/login";
-    public final static String API_SETPUSHKEY = DOMAIN_STAFF_ADDRESS + "set_push_key";
-    public final static String API_COUPON_ACCEPT = DOMAIN_STAFF_ADDRESS + "coupon_accept";
+    public final static String API_SOCIAL_SIGN_IN = DOMAIN_ADDRESS + "api/v2/signup_social";//POST_AUTH_BASIC
+//    public final static String API_ACCESS_TOKEN = DOMAIN_AUTH_ADDRESS + "v1/auth/access_token?";
 
-    //GET API
-    public final static String API_PROFILE = DOMAIN_AUTH_ADDRESS + "v1/profile?";
-    public final static String API_ACCESS_TOKEN = DOMAIN_AUTH_ADDRESS + "v1/auth/access_token?";
-    public final static String API_COUPON = DOMAIN_ADDRESS + "/coupon?";
-    public final static String API_COUPON_REQUEST = DOMAIN_STAFF_ADDRESS + "list_user_request?";
+    //User App
+    public final static String API_PROFILE = DOMAIN_ADDRESS + "api/v2/profile?";
+    public final static String API_UPDATE_PROFILE = DOMAIN_ADDRESS + "api/v2/update_profile";
+    public final static String API_SOCIAL_PROFILE = DOMAIN_ADDRESS + "api/v2/social_profile";
+    public final static String API_SOCIAL_PROFILE_CANCEL = DOMAIN_ADDRESS + "api/v2/social_profile_cancel";
+
+    public final static String API_COMPLETE_PROFILE = DOMAIN_ADDRESS + "api/v2/update_profile_social_signup";
+
+    public final static String API_TOP = DOMAIN_ADDRESS + "api/v1/top?";
+    public final static String API_MENU = DOMAIN_ADDRESS + "api/v1/menu?";
+    public final static String API_APP_INFO = DOMAIN_ADDRESS + "api/v1/appinfo?";
+    public final static String API_ITEMS = DOMAIN_ADDRESS + "api/v1/items?";
+    public final static String API_ITEMS_DETAIL = DOMAIN_ADDRESS + "api/v1/item_detail?";
+    public final static String API_ITEMS_RELATED = DOMAIN_ADDRESS + "api/v1/item_related?";
+    public final static String API_PHOTO_CAT = DOMAIN_ADDRESS + "api/v1/photo_cat?";
+    public final static String API_PHOTO = DOMAIN_ADDRESS + "api/v1/photo?";
+    public final static String API_NEWS = DOMAIN_ADDRESS + "api/v1/news?";
+    public final static String API_NEWS_CATEGORY = DOMAIN_ADDRESS + "api/v1/news_cat?";
+    public final static String API_RESERVE = DOMAIN_ADDRESS + "api/v1/reserve?";
+    public final static String API_COUPON = DOMAIN_ADDRESS + "api/v1/coupon?";
+    public final static String API_COUPON_DETAIL_ANOMYMOUS = DOMAIN_ADDRESS + "api/v2/coupon_detail";
+    public final static String API_COUPON_DETAIL = DOMAIN_ADDRESS + "api/v2/coupon_detail_login";
+    public final static String API_STAFF_CATEGORY = DOMAIN_ADDRESS + "api/v1/staff_categories?";
+    public final static String API_STAFFS = DOMAIN_ADDRESS + "api/v1/staffs?";
+
+    //Staff App
+    public final static String API_STAFF_COUPON_ACCEPT = DOMAIN_STAFF_ADDRESS + "coupon_accept?";
+    public final static String API_STAFF_COUPON_REQUEST = DOMAIN_STAFF_ADDRESS + "list_user_request?";
+
+    //Points
+    public final static String API_GET_POINTS_OF_USER = DOMAIN_POINT_ADDRESS + "point?";
+    public final static String API_SET_REQUEST_POINT_OF_USER = DOMAIN_POINT_ADDRESS + "point/request/user?";
+    public final static String API_REQUEST_POIT_OF_CLIENT = DOMAIN_POINT_ADDRESS + "point/request/client?";
+    public final static String API_APPROVE_REQUEST_POINT_OF_USER = DOMAIN_POINT_ADDRESS + "point/approve/request/user?";
+    public final static String API_GET_LIST_REQUEST_POINT_OF_USER = DOMAIN_POINT_ADDRESS + "point/request/list?";
+    public final static String API_GET_LIST_USE_POINT_OF_USER = DOMAIN_POINT_ADDRESS + "point/use/list?";
+    public final static String API_SET_REQUEST_USE_POINT_OF_USER = DOMAIN_POINT_ADDRESS + "point/use/user?";
+    public final static String API_APPROVE_REQUEST_USE_POINT_OF_USER = DOMAIN_POINT_ADDRESS + "point/approve/use/user?";
+
+    //Notifications
+    public final static String API_SET_PUSH_KEY_FOR_USER = DOMAIN_NOTIFICATION_ADDRESS + "v1/user/set_push_key?";//POST_AUTH_TOKEN
+    public final static String API_SET_PUSH_KEY_FOR_STAFF = DOMAIN_NOTIFICATION_ADDRESS + "v1/staff/set_push_key?";
+    public final static String API_GET_PUSH_SETTING_FOR_USER = DOMAIN_NOTIFICATION_ADDRESS + "v1/user/get_push_setting?";// /{app_id}";
+    public final static String API_SET_PUSH_SETTING_FOR_USER = DOMAIN_NOTIFICATION_ADDRESS + "v1/user/set_push_setting?";
+    public final static String API_SET_CONFIGURE_FOR_APP = DOMAIN_NOTIFICATION_ADDRESS + "v1/configure_notification?";
+    public final static String API_NOTIFICATION_TO_USER = DOMAIN_NOTIFICATION_ADDRESS + "v1/user/notification?";
 
     public enum CommunicationCode {
 
@@ -71,11 +126,13 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
     }
 
     private TenpossCommunicatorListener mListener;
-    protected Bundle mBundle;
+    private Bundle mBundle;
     protected String mMethod = METHOD_GET;
-    protected boolean mIncludeTokenHeader = true;
-    protected OkHttpClient mClient;
-    protected Call mCall;
+    protected int mAuthorizationMode = AUTH_NONE;
+    private OkHttpClient mClient;
+    private Call mCall;
+
+    protected String Tag = "TenpossCommunicator : " + this.getClass().getSimpleName();
 
     protected abstract boolean request(Bundle bundle);
 
@@ -106,12 +163,13 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
     protected int request(String url, OutputStream output, Bundle bundle) {
         this.mBundle = bundle;
 
-        if (this.mIncludeTokenHeader == true) {
-            HashMap<String, String> header = new HashMap<>();
-            String token = bundle.getString(Key.TokenKey);
-            header.put("Authorization", "Bearer " + token);
-            bundle.putSerializable(Key.RequestHeader, header);
-        }
+//        if (this.mAuthorizationMode == AUTH_TOKEN) {
+//            HashMap<String, String> header = new HashMap<>();
+//            String token = bundle.getString(Key.TokenKey);
+//            header.put("Authorization", "Bearer " + token);
+//            bundle.putSerializable(Key.RequestHeader, header);
+//        }
+
 
         int connectionTimeout = mBundle.getInt(Key.RequestConnectionTimeout);
         int readTimeout = mBundle.getInt(Key.RequestConnectionTimeout);
@@ -131,43 +189,46 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
         if (strTemp.contains("http://") == false && strTemp.contains("https://") == false)
             url = "http://" + url;
 
-        System.out.println(url);
+        Utils.log(Tag, url);
         try {
 
-            Request request = null;
-            Request.Builder requestBuilder = null;
-            RequestBody requestBody = null;
-            Response response = null;
+            Request request;
+            Request.Builder requestBuilder;
+            RequestBody requestBody;
+            Response response;
 
             requestBuilder = new Request.Builder().url(url);
-            if (this.mBundle.containsKey(Key.RequestHeader)) {
-                HashMap<String, String> params = (HashMap<String, String>) this.mBundle.get(Key.RequestFormData);
-                Set<String> keys = params.keySet();
-                for (String key : keys) {
-                    requestBuilder.header(key, params.get(key));
-                }
-            }
+//            if (this.mBundle.containsKey(Key.RequestHeader)) {
+//                HashMap<String, String> params = (HashMap<String, String>) this.mBundle.get(Key.RequestHeader);
+//                Set<String> keys = params.keySet();
+//                for (String key : keys) {
+//                    requestBuilder.header(key, params.get(key));
+//                }
+//            }
 
             if (this.mMethod == METHOD_POST) {
-                FormBody.Builder builder = new FormBody.Builder();
-                HashMap<String, String> params = (HashMap<String, String>) this.mBundle.get(Key.RequestFormData);
-                Set<String> keys = params.keySet();
-                for (String key : keys) {
-                    builder.add(key, params.get(key));
+                MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+                String jsonContent = "";
+                try {
+                    HashMap<String, String> params = (HashMap<String, String>) this.mBundle.getSerializable(Key.RequestFormData);
+                    if (params != null) {
+                        jsonContent = new JSONObject(params).toString();
+                        Utils.log(Tag, jsonContent);
+                    }
+                } catch (Exception ignored) {
+                    Utils.log(ignored);
                 }
-                requestBody = builder.build();
+                requestBody = RequestBody.create(JSON, jsonContent);
                 requestBuilder.post(requestBody);
             } else if (this.mMethod == METHOD_POST_MULTIPART) {
                 MultipartBody.Builder builder = new MultipartBody.Builder()
                         .setType(MultipartBody.FORM);
-                HashMap<String, String> params = (HashMap<String, String>) this.mBundle.get(Key.RequestFormData);
+                HashMap<String, String> params = (HashMap<String, String>) this.mBundle.getSerializable(Key.RequestFormData);
                 Set<String> keys = params.keySet();
                 for (String key : keys) {
                     String value = params.get(key);
                     if (key.compareTo("avatar") == 0) {
-                        //File
                         File file = new File(value);
-//                        String fileName = file.getName();
                         String fileName = "avatar.png";
                         builder.addFormDataPart(key, fileName,
                                 RequestBody.create(MediaType.parse("image/png"),
@@ -180,18 +241,40 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
                 requestBuilder.post(requestBody);
             }
 
-            this.mClient = new OkHttpClient().newBuilder()
-                    .connectTimeout(connectionTimeout, TimeUnit.SECONDS)
-                    .writeTimeout(writeTimeout, TimeUnit.SECONDS)
-                    .readTimeout(readTimeout, TimeUnit.SECONDS).build();
+            OkHttpClient.Builder builder = new OkHttpClient().newBuilder();
+            builder.connectTimeout(connectionTimeout, TimeUnit.SECONDS);
+            builder.writeTimeout(writeTimeout, TimeUnit.SECONDS);
+            builder.readTimeout(readTimeout, TimeUnit.SECONDS);
+            if (this.mAuthorizationMode == AUTH_BASIC) {
+                builder.authenticator(new Authenticator() {
+                    @Override
+                    public Request authenticate(Route route, Response response) throws IOException {
+                        String credential = Credentials.basic("tenposs", "Tenposs@123");
+                        return response.request().newBuilder().header("Authorization", credential).build();
+                    }
+                });
+            } else if (this.mAuthorizationMode == AUTH_TOKEN) {
+                String token = mBundle.getString(Key.TokenKey);
+                requestBuilder.header("Authorization", "Bearer " + token);
+            }
+
+            this.mClient = builder.build();
 
             request = requestBuilder.build();
             try {
                 mCall = this.mClient.newCall(request);
                 response = this.mCall.execute();
-                String str = response.body().string();
-                byte[] data = str.getBytes();
-                output.write(data, 0, data.length);
+                byte[] data;
+                if (BuildConfig.DEBUG) {
+                    String str = response.body().string();
+                    Utils.log(Tag, str);
+                    data = str.getBytes();
+                } else {
+                    data = response.body().bytes();
+                }
+                if (data != null) {
+                    output.write(data, 0, data.length);
+                }
                 return CommunicationCode.ConnectionSuccess.ordinal();
 
             } catch (SocketTimeoutException timeout) {

@@ -93,7 +93,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/validity"
                         android:textAppearance="@android:style/TextAppearance.DeviceDefault"
-                        android:textColor="@color/restaurant_text_color" />
+                        android:textColor="@color/restaurant_toolbar_icon_color" />
 
                     <TextView
                         android:id="@+id/validity_label"
@@ -102,7 +102,7 @@
                         android:layout_marginLeft="5dp"
                         android:text="2016年7月7日まで"
                         android:textAppearance="@android:style/TextAppearance.DeviceDefault"
-                        android:textColor="@color/restaurant_text_color" />
+                        android:textColor="@color/restaurant_toolbar_icon_color" />
 
                 </LinearLayout>
 

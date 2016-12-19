@@ -60,7 +60,7 @@
                 android:maxLines="1"
                 android:text="item_price_label"
                 android:textAppearance="@android:style/TextAppearance.DeviceDefault"
-                android:textColor="@color/restaurant_text_color"
+                android:textColor="@color/restaurant_toolbar_icon_color"
                 android:textStyle="bold" />
 
         </LinearLayout>

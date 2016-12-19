@@ -2,7 +2,7 @@
 <android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/restaurant_text_color">
+    android:background="@color/restaurant_toolbar_icon_color">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -49,5 +49,5 @@
         android:layout_margin="20dp"
         android:background="@drawable/restaurant_coupon_shadow"
         android:text="取消"
-        android:textColor="@color/restaurant_text_color" />
+        android:textColor="@color/restaurant_toolbar_icon_color" />
 </android.support.percent.PercentRelativeLayout>

@@ -46,16 +46,11 @@
                     android:layout_width="?attr/actionBarSize"
                     android:layout_height="?attr/actionBarSize">
 
-                    <ImageView
-                        android:id="@+id/left_toolbar_image"
-                        android:layout_width="?attr/actionBarSize"
-                        android:layout_height="?attr/actionBarSize"
-                        android:layout_margin="@dimen/menu_icon_padding" />
-
                     <ImageButton
                         android:id="@+id/left_toolbar_button"
-                        android:layout_width="?attr/actionBarSize"
-                        android:layout_height="?attr/actionBarSize"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="8dp"
                         android:background="@android:color/transparent"
                         android:visibility="visible" />
 
@@ -91,15 +86,10 @@
                     android:visibility="invisible">
 
                     <ImageButton
-                        android:id="@+id/right_toolbar_image"
-                        android:layout_width="?attr/actionBarSize"
-                        android:layout_height="?attr/actionBarSize"
-                        android:layout_margin="@dimen/menu_icon_padding" />
-
-                    <ImageButton
                         android:id="@+id/right_toolbar_button"
-                        android:layout_width="?attr/actionBarSize"
-                        android:layout_height="?attr/actionBarSize"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="8dp"
                         android:background="@android:color/transparent" />
                 </RelativeLayout>
 
@@ -144,7 +134,7 @@
                         android:layout_centerVertical="true"
                         android:layout_marginLeft="@dimen/item_margin"
                         android:layout_marginRight="@dimen/item_margin"
-                        android:src="@drawable/no_avatar"
+                        android:src="@drawable/no_avatar_gray"
                         app:border_color="#d6dade"
                         app:border_width="2dip"
                         app:fill_color="@android:color/transparent" />

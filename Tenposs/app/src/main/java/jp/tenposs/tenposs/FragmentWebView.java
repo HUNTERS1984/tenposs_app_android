@@ -1,6 +1,8 @@
 package jp.tenposs.tenposs;
 
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,8 +15,10 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
+import jp.tenposs.datamodel.AppData;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.utils.FontIcon;
 import jp.tenposs.utils.Utils;
@@ -28,6 +32,7 @@ public abstract class FragmentWebView extends AbstractFragment implements View.O
     ProgressBar mLoadingProgress;
     WebView mWebView;
 
+    LinearLayout mNavControlLayout;
     ImageButton mBackButton;//ti-arrow-left
     ImageButton mForwardButton;//ti-arrow-right
     ImageButton mRefreshButton;//ti-reload
@@ -52,6 +57,7 @@ public abstract class FragmentWebView extends AbstractFragment implements View.O
         View root = inflater.inflate(R.layout.fragment_web_view, null);
         this.mLoadingProgress = (ProgressBar) root.findViewById(R.id.loading_progress);
         this.mWebView = (WebView) root.findViewById(R.id.web_view);
+        this.mNavControlLayout = (LinearLayout) root.findViewById(R.id.nav_control_layout);
         this.mBackButton = (ImageButton) root.findViewById(R.id.back_button);
         this.mForwardButton = (ImageButton) root.findViewById(R.id.forward_button);
         this.mRefreshButton = (ImageButton) root.findViewById(R.id.refresh_button);
@@ -62,6 +68,9 @@ public abstract class FragmentWebView extends AbstractFragment implements View.O
         this.mRefreshButton.setOnClickListener(this);
         this.mStopButton.setOnClickListener(this);
 
+        if (AppData.sharedInstance().getTemplate() != AppData.TemplateId.RestaurantTemplate) {
+            this.mNavControlLayout.setBackgroundColor(this.mToolbarSettings.getToolbarBackgroundColor());
+        }
         enableBack(false);
         enableForward(false);
         enableRefresh(false);
@@ -76,8 +85,22 @@ public abstract class FragmentWebView extends AbstractFragment implements View.O
         this.mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(final WebView view, final String url) {
-                Log.i(Tag, "shouldOverrideUrlLoading " + url);
-                return false;
+
+                if (url != null && url.startsWith("intent://")) {
+                    try {
+//                        view.getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                        view.getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("intent://#Intent;scheme=videoflyvn://play/video?vid=395668228757622224&amp;pos=0;package=vn.com.videofly.videofly;end")));
+
+
+                        return true;
+                    } catch (Exception ignored) {
+                        return false;
+                    }
+
+                } else {
+                    Log.i(Tag, "shouldOverrideUrlLoading " + url);
+                    return false;
+                }
             }
         });
         this.mWebView.setWebChromeClient(
@@ -112,9 +135,13 @@ public abstract class FragmentWebView extends AbstractFragment implements View.O
             return;
         }
         this.mBackButton.setEnabled(enable);
-        int color = Color.argb(255, 240, 240, 240);
+        int color = Color.argb(255, 128, 128, 128);
         if (enable == true) {
-            color = this.mToolbarSettings.getToolbarIconColor();
+            if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+                color = Utils.getColor(getContext(), R.color.restaurant_toolbar_icon_color);
+            } else {
+                color = this.mToolbarSettings.getToolbarIconColor();
+            }
         }
         this.mBackButton.setImageBitmap(FontIcon.imageForFontIdentifier(getActivity().getAssets(),
                 "flaticon-back",
@@ -130,9 +157,14 @@ public abstract class FragmentWebView extends AbstractFragment implements View.O
             return;
         }
         this.mForwardButton.setEnabled(enable);
-        int color = Color.argb(255, 240, 240, 240);
+        int color = Color.argb(255, 128, 128, 128);
+
         if (enable == true) {
-            color = this.mToolbarSettings.getToolbarIconColor();
+            if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+                color = Utils.getColor(getContext(), R.color.restaurant_toolbar_icon_color);
+            } else {
+                color = this.mToolbarSettings.getToolbarIconColor();
+            }
         }
         this.mForwardButton.setImageBitmap(FontIcon.imageForFontIdentifier(getActivity().getAssets(),
                 "flaticon-next",
@@ -148,9 +180,13 @@ public abstract class FragmentWebView extends AbstractFragment implements View.O
             return;
         }
         this.mRefreshButton.setEnabled(enable);
-        int color = Color.argb(255, 240, 240, 240);
+        int color = Color.argb(255, 128, 128, 128);
         if (enable == true) {
-            color = this.mToolbarSettings.getToolbarIconColor();
+            if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+                color = Utils.getColor(getContext(), R.color.restaurant_toolbar_icon_color);
+            } else {
+                color = this.mToolbarSettings.getToolbarIconColor();
+            }
         }
         this.mRefreshButton.setImageBitmap(FontIcon.imageForFontIdentifier(getActivity().getAssets(),
                 "flaticon-reload",
@@ -166,9 +202,13 @@ public abstract class FragmentWebView extends AbstractFragment implements View.O
             return;
         }
         this.mStopButton.setEnabled(enable);
-        int color = Color.argb(255, 240, 240, 240);
+        int color = Color.argb(255, 128, 128, 128);
         if (enable == true) {
-            color = this.mToolbarSettings.getToolbarIconColor();
+            if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+                color = Utils.getColor(getContext(), R.color.restaurant_toolbar_icon_color);
+            } else {
+                color = this.mToolbarSettings.getToolbarIconColor();
+            }
         }
         this.mStopButton.setImageBitmap(FontIcon.imageForFontIdentifier(getActivity().getAssets(),
                 "flaticon-close",

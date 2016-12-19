@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import jp.tenposs.utils.CryptoUtils;
@@ -18,7 +19,6 @@ public abstract class CommonRequest implements Serializable {
     final static String privateKey = "002861062a0a2a5bb5c8a069d8ad1a66";
 
     //name: "Coffee App",
-
 
     //public String app_id = "bdb372395c03020340a3c863b27ffeef";
     //final static String privateKey = "a2ed29ec2df944c704e2dddcaace5332";
@@ -55,12 +55,13 @@ public abstract class CommonRequest implements Serializable {
     //public String app_id = "76daaa944a6ac16160352c7ed55959ae";
     //final static String privateKey = "8cc8cdefb227a1df930d6b44b2871a29";
 
-
     public String token = null;
     public String sig = null;
     public long time;
 
     abstract String sigInput();
+
+    abstract ArrayList<String> getAvailableParams();
 
     protected void generateSig() {
         time = Utils.gmtMillis();
@@ -69,6 +70,7 @@ public abstract class CommonRequest implements Serializable {
     }
 
     public String makeParams() {
+        ArrayList<String> arrParams = getAvailableParams();
         try {
             generateSig();
             String params = "";
@@ -80,6 +82,9 @@ public abstract class CommonRequest implements Serializable {
                         continue;
                     }
                     String name = URLEncoder.encode(field.getName(), "UTF-8");
+                    if (arrParams != null && arrParams.contains(name) == false) {
+                        continue;
+                    }
                     Object value = field.get(this);
                     if (value != null) {
                         if (value instanceof Double || value instanceof Integer || value instanceof String || value instanceof Boolean || value instanceof Long || value instanceof Float || value instanceof Short) {

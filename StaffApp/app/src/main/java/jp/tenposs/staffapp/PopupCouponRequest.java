@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
@@ -30,12 +31,14 @@ public class PopupCouponRequest implements View.OnClickListener {
     protected AlertDialog.Builder alertBuilder;
     protected View contentView;
 
-    ImageView imageView;
-    //ArrayList<?> popupData;
-    Context mContext;
     CouponRequestInfo.RequestInfo popupData;
-    Button acceptButton;
-    Button rejectButton;
+
+    ImageView mCouponImage;
+    Context mContext;
+    TextView mTitleLabel;
+    TextView mContentLabel;
+    Button mAcceptButton;
+    Button mRejectButton;
 
     public int fullImageSize = 640;
 
@@ -52,9 +55,12 @@ public class PopupCouponRequest implements View.OnClickListener {
         alertBuilder = new AlertDialog.Builder(this.mContext, R.style.CustomDialog);
 
         contentView = LayoutInflater.from(this.mContext).inflate(R.layout.popup_coupon_request, null);
-        imageView = (ImageView) contentView.findViewById(R.id.coupon_image);
-        acceptButton = (Button) contentView.findViewById(R.id.accept_button);
-        rejectButton = (Button) contentView.findViewById(R.id.reject_button);
+        mCouponImage = (ImageView) contentView.findViewById(R.id.coupon_image);
+
+        mTitleLabel = (TextView) contentView.findViewById(R.id.title_label);
+        mContentLabel = (TextView) contentView.findViewById(R.id.content_label);
+        mAcceptButton = (Button) contentView.findViewById(R.id.accept_button);
+        mRejectButton = (Button) contentView.findViewById(R.id.reject_button);
 
         alertBuilder.setView(contentView);
         alertBuilder.setCancelable(false);
@@ -63,21 +69,22 @@ public class PopupCouponRequest implements View.OnClickListener {
         alert = alertBuilder.show();
         alert.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        acceptButton.setOnClickListener(this);
-        rejectButton.setOnClickListener(this);
+        mContentLabel.setText(popupData.name + " " + mContext.getString(R.string.msg_use_request_use_coupon) + " " + popupData.title);
+        mAcceptButton.setOnClickListener(this);
+        mRejectButton.setOnClickListener(this);
 
         Picasso ps = Picasso.with(mContext);
         ps.load(popupData.getImageUrl())
                 .resize(fullImageSize, fullImageSize)
                 .centerInside()
-                .into(imageView);
+                .into(mCouponImage);
     }
 
     @Override
     public void onClick(View v) {
-        if (v == acceptButton) {
+        if (v == mAcceptButton) {
             processCoupon("approve");
-        } else if (v == rejectButton) {
+        } else if (v == mRejectButton) {
             processCoupon("reject");
         }
 
@@ -92,10 +99,12 @@ public class PopupCouponRequest implements View.OnClickListener {
         params.putSerializable(Key.RequestObject, request);
         params.putString(Key.TokenKey, Utils.getPrefString(this.mContext, Key.TokenKey));
 
+        Utils.showProgress(mContext, mContext.getString(R.string.msg_processing));
         CouponAcceptCommunicator communicator = new CouponAcceptCommunicator(
                 new TenpossCommunicator.TenpossCommunicatorListener() {
                     @Override
                     public void completed(TenpossCommunicator request, Bundle responseParams) {
+                        Utils.hideProgress();
                         alert.dismiss();
                     }
                 });

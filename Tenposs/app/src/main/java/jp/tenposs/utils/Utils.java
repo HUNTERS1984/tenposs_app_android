@@ -51,6 +51,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import jp.tenposs.datamodel.Key;
+import jp.tenposs.tenposs.BuildConfig;
 import jp.tenposs.tenposs.MainApplication;
 import jp.tenposs.tenposs.R;
 
@@ -243,14 +244,13 @@ public class Utils {
         return output;
     }
 
-    public static String timeStringFromDate(Date date) {
+    public static String timeStringFromDate(Date date, String outFormat) {
         String output = "";
         try {
-            SimpleDateFormat curFormater = new SimpleDateFormat("hh:mm:ss a", Locale.US);
-            output = curFormater.format(date);
+            SimpleDateFormat curFormatter = new SimpleDateFormat(outFormat, Locale.US);
+            output = curFormatter.format(date);
         } catch (Exception ignored) {
-            SimpleDateFormat curFormater = new SimpleDateFormat("hh:mm:ss a", Locale.US);
-            output = curFormater.format(date);
+            Utils.log(ignored);
         }
         return output;
     }
@@ -404,14 +404,14 @@ public class Utils {
 
 
     public static String getPrefString(Context context, String key) {
-        SharedPreferences mAppPreferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE);
-        return mAppPreferences.getString(key, "");
+        SharedPreferences preferences = SharedPreferencesHelper.getSharedPreferences(context);
+        return preferences.getString(key, "");
     }
 
     public static boolean setPrefString(Context context, String key, String value) {
-        SharedPreferences mAppPreferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE);
+        SharedPreferences preferences = SharedPreferencesHelper.getSharedPreferences(context);
         boolean ret;
-        SharedPreferences.Editor editor = mAppPreferences.edit();
+        SharedPreferences.Editor editor = preferences.edit();
         editor.putString(key, value);
         ret = editor.commit();
         return ret;
@@ -500,6 +500,23 @@ public class Utils {
         SimpleDateFormat formatter = new SimpleDateFormat(outputFormat);
         output = formatter.format(date);
         return output;
+    }
+
+    public static void log(Exception ignored) {
+        if (BuildConfig.BUILD_TYPE.compareTo("debug") == 0) {
+            Log.i("Exception", ignored.getMessage());
+            ignored.printStackTrace();
+        }
+    }
+
+    public static void log(String tag, String msg) {
+        if (BuildConfig.BUILD_TYPE.compareTo("debug") == 0) {
+            Log.i(tag, msg);
+        }
+    }
+
+    public static void Assert(String msg) {
+        Assert.assertFalse(msg, false);
     }
 }
 

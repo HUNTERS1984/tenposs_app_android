@@ -47,16 +47,11 @@
                     android:layout_width="?attr/actionBarSize"
                     android:layout_height="?attr/actionBarSize">
 
-                    <ImageView
-                        android:id="@+id/left_toolbar_image"
-                        android:layout_width="?attr/actionBarSize"
-                        android:layout_height="?attr/actionBarSize"
-                        android:layout_margin="@dimen/menu_icon_padding" />
-
                     <ImageButton
                         android:id="@+id/left_toolbar_button"
-                        android:layout_width="?attr/actionBarSize"
-                        android:layout_height="?attr/actionBarSize"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="8dp"
                         android:background="@android:color/transparent"
                         android:visibility="visible" />
 
@@ -92,15 +87,10 @@
                     android:visibility="invisible">
 
                     <ImageButton
-                        android:id="@+id/right_toolbar_image"
-                        android:layout_width="?attr/actionBarSize"
-                        android:layout_height="?attr/actionBarSize"
-                        android:layout_margin="@dimen/menu_icon_padding" />
-
-                    <ImageButton
                         android:id="@+id/right_toolbar_button"
-                        android:layout_width="?attr/actionBarSize"
-                        android:layout_height="?attr/actionBarSize"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="8dp"
                         android:background="@android:color/transparent" />
                 </RelativeLayout>
 
@@ -160,8 +150,8 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="45dp"
-                android:layout_marginBottom="10dip">
+                android:layout_height="44dp"
+                android:layout_marginBottom="12dp">
 
                 <com.facebook.login.widget.LoginButton
                     android:id="@+id/facebook_login"
@@ -197,8 +187,8 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="45dip"
-                android:layout_marginBottom="10dip">
+                android:layout_height="44dp"
+                android:layout_marginBottom="12dp">
 
 
                 <com.twitter.sdk.android.core.identity.TwitterLoginButton
@@ -233,8 +223,8 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="45dip"
-                android:layout_marginBottom="10dip">
+                android:layout_height="44dp"
+                android:layout_marginBottom="12dp">
 
 
                 <Button
@@ -258,8 +248,8 @@
             <RelativeLayout
                 android:id="@+id/skip_button_layout"
                 android:layout_width="match_parent"
-                android:layout_height="45dip"
-                android:layout_marginBottom="10dip">
+                android:layout_height="44dp"
+                android:layout_marginBottom="12dp">
 
                 <Button
                     android:id="@+id/skip_button"
@@ -270,16 +260,6 @@
                     android:textColor="@android:color/white" />
 
             </RelativeLayout>
-
-            <TextView
-                android:id="@+id/go_to_sign_up_label"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dip"
-                android:gravity="center"
-                android:text="@string/not_sign_up"
-                android:textColor="@android:color/white"
-                android:visibility="visible" />
         </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

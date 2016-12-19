@@ -1,23 +1,31 @@
 package jp.tenposs.datamodel;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
-
-import jp.tenposs.communicator.TenpossCommunicator;
-import jp.tenposs.utils.CryptoUtils;
-import jp.tenposs.utils.Utils;
 
 /**
  * Created by ambient on 7/26/16.
  */
 public class SignInInfo {
+
+    public final static String admin = "admin";
+    public final static String client = "client";
+    public final static String staff = "staff";
+    public final static String user = "user";
+
+    public final static String ios = "ios";
+    public final static String android = "android";
+    public final static String web = "web";
+
     public static class Request extends CommonRequest {
         public String email;
         String password;
-
+        public String role;
+        public String platform = android;
 
         public void setPassword(String password) {
-            this.password = CryptoUtils.sha256(password);
+            this.password = password;
         }
 
         @Override
@@ -25,15 +33,19 @@ public class SignInInfo {
             return app_id + "" + time + "" + email + "" + password + "" + privateKey;
         }
 
+        @Override
+        ArrayList<String> getAvailableParams() {
+            return null;
+        }
+
         public HashMap<String, String> getFormData() {
             generateSig();
             HashMap<String, String> formData = new HashMap<>();
             try {
-                formData.put("app_id", app_id);
-                formData.put("time", Long.toString(time));
                 formData.put("email", email);
                 formData.put("password", password);
-                formData.put("sig", sig);
+                formData.put("role", role);
+                formData.put("platform", platform);
             } catch (Exception ignored) {
 
             }
@@ -42,9 +54,17 @@ public class SignInInfo {
     }
 
     public static class Response extends CommonResponse {
-        public User data;
+        public Token data;
     }
 
+
+    public class Token implements Serializable {
+        public String token;
+        public String refresh_token;
+        public String access_refresh_token_href;
+        public boolean first_login;
+
+    }
 
     /*{
         "code": "1000"
@@ -67,68 +87,4 @@ public class SignInInfo {
         }
     }
     }*/
-
-
-    public class User implements Serializable {
-        public Integer id;
-        String email;
-        public Integer social_type;
-        public String social_id;
-        public Integer app_id;
-        public String token;
-        public String promotion_code = "THIS IS MY CODE";
-        public Profile profile;
-
-        public String getEmail() {
-            if (email != null) {
-                return email;
-            } else {
-                return "";
-            }
-        }
-    }
-
-    public class Profile extends CommonItem implements Serializable {
-        public Integer app_user_id;     //integer
-        public String name;             //string
-        public Integer gender;              //integer
-        public String address;
-        String avatar_url;       //string
-        String avatar_file;       //string
-        public Integer facebook_status;
-        public Integer twitter_status;
-        public Integer instagram_status;
-
-        public void setImageFile(String filePath) {
-            avatar_file = filePath;
-        }
-
-        @Override
-        public String getImageUrl() {
-            if (avatar_file != null) {
-                return avatar_file;
-            }
-            return Utils.getImageUrl(TenpossCommunicator.DOMAIN_ADDRESS, avatar_url, "https://google.com");
-        }
-
-        @Override
-        public String getCategory() {
-            return null;
-        }
-
-        @Override
-        public String getTitle() {
-            return null;
-        }
-
-        @Override
-        public String getDescription() {
-            return null;
-        }
-
-        @Override
-        public String getPrice() {
-            return null;
-        }
-    }
 }

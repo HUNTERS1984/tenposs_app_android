@@ -52,15 +52,14 @@ public class RestaurantFragmentNews
      * Fragment Override
      */
 
-    public static RestaurantFragmentNews newInstance(String title, int storeId) {
-        RestaurantFragmentNews fragment = new RestaurantFragmentNews();
-        Bundle b = new Bundle();
-        b.putString(AbstractFragment.SCREEN_TITLE, title);
-        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
-        fragment.setArguments(b);
-        return fragment;
-    }
-
+//    public static RestaurantFragmentNews newInstance(String title, int storeId) {
+//        RestaurantFragmentNews fragment = new RestaurantFragmentNews();
+//        Bundle b = new Bundle();
+//        b.putString(AbstractFragment.SCREEN_TITLE, title);
+//        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
+//        fragment.setArguments(b);
+//        return fragment;
+//    }
     @Override
     protected boolean customClose() {
         return false;
@@ -69,12 +68,12 @@ public class RestaurantFragmentNews
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.news);
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && this.mFirstScreen == false) {
-            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
-            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
-        } else {
+        if (this.mShowFromSideMenu == true) {
             mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        } else {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
         }
     }
 
@@ -119,7 +118,7 @@ public class RestaurantFragmentNews
                 extras = new Bundle();
                 extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_SCREEN);
                 try {
-                    AppInfo.SideMenu menu = AppData.sharedInstance().mAppInfo.data.getSideMenuById(AbstractFragment.NEWS_SCREEN);
+                    AppInfo.SideMenu menu = AppData.sharedInstance().mAppInfo.getSideMenuById(AbstractFragment.NEWS_SCREEN);
                     extras.putString(RecyclerItemWrapper.ITEM_TITLE, menu.name);
                 } catch (Exception ignored) {
 
@@ -301,13 +300,26 @@ public class RestaurantFragmentNews
                                         mScreenData.data.news.addAll(newPage.data.news);
                                     }
                                     previewScreenData();
+                                } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                                    refreshToken(new TenpossCallback() {
+                                        @Override
+                                        public void onSuccess(Bundle params) {
+                                            loadNewsInfo();
+                                        }
+
+                                        @Override
+                                        public void onFailed(Bundle params) {
+                                            //Logout, then do something
+                                            mActivityListener.logoutBecauseExpired();
+                                        }
+                                    });
                                 } else {
                                     String strMessage = responseParams.getString(Key.ResponseMessage);
-                                    errorWithMessage(responseParams, strMessage);
+                                    errorWithMessage(responseParams, strMessage, null);
                                 }
                             } else {
                                 String strMessage = responseParams.getString(Key.ResponseMessage);
-                                errorWithMessage(responseParams, strMessage);
+                                errorWithMessage(responseParams, strMessage, null);
                             }
                         }
                     });
@@ -340,12 +352,12 @@ public class RestaurantFragmentNews
             case RecyclerItemTypeRestaurantRecyclerVertical: {
                 int screenId = extraData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 Serializable extras = extraData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(screenId, extras, null);
+                this.mActivityListener.showScreen(screenId, extras, null, false);
             }
             break;
             case RecyclerItemTypeList: {
                 NewsInfo.News news = (NewsInfo.News) item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(AbstractFragment.NEWS_DETAILS_SCREEN, news, null);
+                this.mActivityListener.showScreen(AbstractFragment.NEWS_DETAILS_SCREEN, news, null, false);
             }
             break;
 

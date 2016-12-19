@@ -1,6 +1,7 @@
 package jp.tenposs.datamodel;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -13,6 +14,11 @@ public class SignOutInfo {
         @Override
         String sigInput() {
             return token + "" + time + "" + privateKey;
+        }
+
+        @Override
+        ArrayList<String> getAvailableParams() {
+            return null;
         }
 
         public HashMap<String, String> getFormData() {

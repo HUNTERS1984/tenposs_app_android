@@ -35,7 +35,7 @@
         <android.support.percent.PercentRelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_above="@+id/name_label"
+            android:layout_above="@+id/user_name_label"
             android:layout_below="@id/app_bar"
             android:layout_centerHorizontal="true"
             android:background="@android:color/transparent">
@@ -54,14 +54,13 @@
         </android.support.percent.PercentRelativeLayout>
 
         <TextView
-            android:id="@+id/name_label"
+            android:id="@+id/user_name_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"
             android:gravity="center"
-            android:text="Name"
             android:textColor="@android:color/white" />
 
         <android.support.design.widget.AppBarLayout
@@ -97,16 +96,11 @@
                         android:layout_width="?attr/actionBarSize"
                         android:layout_height="?attr/actionBarSize">
 
-                        <ImageView
-                            android:id="@+id/left_toolbar_image"
-                            android:layout_width="?attr/actionBarSize"
-                            android:layout_height="?attr/actionBarSize"
-                            android:layout_margin="@dimen/menu_icon_padding" />
-
                         <ImageButton
                             android:id="@+id/left_toolbar_button"
-                            android:layout_width="?attr/actionBarSize"
-                            android:layout_height="?attr/actionBarSize"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_margin="8dp"
                             android:background="@android:color/transparent"
                             android:visibility="visible" />
 
@@ -130,6 +124,7 @@
                             android:paddingRight="5dp"
                             android:text="MY PAGE"
                             android:textAppearance="@style/TextAppearance_Medium"
+                            android:textColor="@android:color/white"
                             android:visibility="visible" />
 
                     </FrameLayout>
@@ -141,15 +136,10 @@
                         android:visibility="invisible">
 
                         <ImageButton
-                            android:id="@+id/right_toolbar_image"
-                            android:layout_width="?attr/actionBarSize"
-                            android:layout_height="?attr/actionBarSize"
-                            android:layout_margin="@dimen/menu_icon_padding" />
-
-                        <ImageButton
                             android:id="@+id/right_toolbar_button"
-                            android:layout_width="?attr/actionBarSize"
-                            android:layout_height="?attr/actionBarSize"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_margin="8dp"
                             android:background="@android:color/transparent" />
                     </RelativeLayout>
 
@@ -166,14 +156,14 @@
         android:orientation="vertical">
 
         <TextView
+            android:id="@+id/next_status_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:background="@android:color/white"
             android:gravity="center_horizontal"
             android:paddingBottom="10dp"
-            android:paddingTop="10dp"
-            android:text="200ポイント獲得まであと、4,280マイル" />
+            android:paddingTop="10dp" />
 
         <ImageView
             android:layout_width="match_parent"
@@ -238,7 +228,7 @@
                         android:id="@+id/total_miles_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="2,480"
+                        android:text="0"
                         android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
                         android:textColor="#14c8c8" />
 
@@ -280,8 +270,7 @@
                 android:layout_weight="1"
                 android:gravity="left"
                 android:paddingBottom="10dp"
-                android:paddingTop="10dp"
-                android:text="120ポイント" />
+                android:paddingTop="10dp" />
         </LinearLayout>
 
         <View

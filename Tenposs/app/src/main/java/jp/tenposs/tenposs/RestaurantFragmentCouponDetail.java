@@ -40,19 +40,19 @@ public class RestaurantFragmentCouponDetail extends AbstractFragment {
     CouponInfo.Coupon mScreenData;
 
 
-    public RestaurantFragmentCouponDetail() {
-
-    }
-
-    public static RestaurantFragmentCouponDetail newInstance(Context context, Serializable extras) {
-
-        Bundle b = new Bundle();
-        b.putSerializable(AbstractFragment.SCREEN_DATA, extras);
-        //fragment.setArguments(b);
-        //RestaurantFragmentCouponDetail fragment = new RestaurantFragmentCouponDetail();
-        RestaurantFragmentCouponDetail fragment = (RestaurantFragmentCouponDetail) Fragment.instantiate(context, RestaurantFragmentCouponDetail.class.getName(), b);
-        return fragment;
-    }
+//    public RestaurantFragmentCouponDetail() {
+//
+//    }
+//
+//    public static RestaurantFragmentCouponDetail newInstance(Context context, Serializable extras) {
+//
+//        Bundle b = new Bundle();
+//        b.putSerializable(AbstractFragment.SCREEN_DATA, extras);
+//        //fragment.setArguments(b);
+//        //RestaurantFragmentCouponDetail fragment = new RestaurantFragmentCouponDetail();
+//        RestaurantFragmentCouponDetail fragment = (RestaurantFragmentCouponDetail) Fragment.instantiate(context, RestaurantFragmentCouponDetail.class.getName(), b);
+//        return fragment;
+//    }
 
     @Override
     protected boolean customClose() {

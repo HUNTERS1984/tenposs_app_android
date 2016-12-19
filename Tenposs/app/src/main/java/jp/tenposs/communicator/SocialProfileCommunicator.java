@@ -18,6 +18,7 @@ public class SocialProfileCommunicator extends TenpossCommunicator {
     public SocialProfileCommunicator(TenpossCommunicatorListener listener) {
         super(listener);
         mMethod = METHOD_POST;
+        mAuthorizationMode = AUTH_TOKEN;
     }
 
     @Override

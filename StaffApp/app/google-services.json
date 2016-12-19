@@ -1,27 +1,58 @@
 {
   "project_info": {
-    "project_number": "621645406180",
-    "firebase_url": "https://tenposs-staff-app.firebaseio.com",
-    "project_id": "tenposs-staff-app",
-    "storage_bucket": "tenposs-staff-app.appspot.com"
+    "project_number": "304835640002",
+    "firebase_url": "https://fir-tenposs.firebaseio.com",
+    "project_id": "fir-tenposs",
+    "storage_bucket": "fir-tenposs.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:621645406180:android:829b10b57cb1b344",
+        "mobilesdk_app_id": "1:304835640002:android:829b10b57cb1b344",
         "android_client_info": {
           "package_name": "jp.tenposs.staffapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "621645406180-0rarpknupk9b8dejt3tddf934sa34eka.apps.googleusercontent.com",
+          "client_id": "304835640002-7udb1joskprjfmn7b0nrdpg3l98sa1gh.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAiCwDUcO3P6LTiwFkQlZMqzLXpB2Swe9U"
+          "current_key": "AIzaSyAKA0RArYIb01Dyf-pJ9tm3z7oAO5yEd7U"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:304835640002:android:65350a3e5107282e",
+        "android_client_info": {
+          "package_name": "jp.tenposs.tenposs"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "304835640002-7udb1joskprjfmn7b0nrdpg3l98sa1gh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKA0RArYIb01Dyf-pJ9tm3z7oAO5yEd7U"
         }
       ],
       "services": {

@@ -46,16 +46,11 @@
                     android:layout_width="?attr/actionBarSize"
                     android:layout_height="?attr/actionBarSize">
 
-                    <ImageView
-                        android:id="@+id/left_toolbar_image"
-                        android:layout_width="?attr/actionBarSize"
-                        android:layout_height="?attr/actionBarSize"
-                        android:layout_margin="@dimen/menu_icon_padding" />
-
                     <ImageButton
                         android:id="@+id/left_toolbar_button"
-                        android:layout_width="?attr/actionBarSize"
-                        android:layout_height="?attr/actionBarSize"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="8dp"
                         android:background="@android:color/transparent"
                         android:visibility="visible" />
 
@@ -91,15 +86,10 @@
                     android:visibility="invisible">
 
                     <ImageButton
-                        android:id="@+id/right_toolbar_image"
-                        android:layout_width="?attr/actionBarSize"
-                        android:layout_height="?attr/actionBarSize"
-                        android:layout_margin="@dimen/menu_icon_padding" />
-
-                    <ImageButton
                         android:id="@+id/right_toolbar_button"
-                        android:layout_width="?attr/actionBarSize"
-                        android:layout_height="?attr/actionBarSize"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="8dp"
                         android:background="@android:color/transparent" />
                 </RelativeLayout>
 
@@ -189,7 +179,7 @@
                         android:textColor="@color/title_text_color" />
 
                     <jp.tenposs.view.SwitchButton
-                        android:id="@+id/receive_push_switch"
+                        android:id="@+id/receive_news_switch"
                         style="@style/SwitchButtonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -408,6 +398,7 @@
 
 
             <RelativeLayout
+                android:id="@+id/sign_out_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -427,6 +418,12 @@
                         android:text="@string/sign_out"
                         android:textAppearance="@android:style/TextAppearance.DeviceDefault"
                         android:textColor="@color/title_text_color" />
+
+                    <ImageView
+                        android:id="@+id/sign_out_image"
+                        android:layout_width="@dimen/item_setting_height"
+                        android:layout_height="@dimen/item_setting_height"
+                        android:src="@drawable/right_arrow" />
                 </LinearLayout>
 
                 <Button

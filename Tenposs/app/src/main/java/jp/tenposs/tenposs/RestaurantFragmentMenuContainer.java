@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -36,20 +37,20 @@ public class RestaurantFragmentMenuContainer extends AbstractFragment implements
     TabPageAdapter mTabPageAdapter;
     NonSwipeableViewPager mViewPager;
     PagerSlidingTabStrip mTabLayout;
+    TextView mNoDataLabel;
 
     /**
      * Fragment Override
      */
 
-    public static RestaurantFragmentMenuContainer newInstance(String title, int storeId) {
-        RestaurantFragmentMenuContainer fragment = new RestaurantFragmentMenuContainer();
-        Bundle b = new Bundle();
-        b.putString(AbstractFragment.SCREEN_TITLE, title);
-        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
-        fragment.setArguments(b);
-        return fragment;
-    }
-
+//    public static RestaurantFragmentMenuContainer newInstance(String title, int storeId) {
+//        RestaurantFragmentMenuContainer fragment = new RestaurantFragmentMenuContainer();
+//        Bundle b = new Bundle();
+//        b.putString(AbstractFragment.SCREEN_TITLE, title);
+//        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
+//        fragment.setArguments(b);
+//        return fragment;
+//    }
     @Override
     protected boolean customClose() {
         return false;
@@ -57,15 +58,13 @@ public class RestaurantFragmentMenuContainer extends AbstractFragment implements
 
     @Override
     protected void customToolbarInit() {
-
-        if (this.mFirstScreen == false) {
-            mToolbarSettings.toolbarTitle = getString(R.string.menu);
+        mToolbarSettings.toolbarTitle = getString(R.string.menu);
+        if (this.mShowFromSideMenu == true) {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        } else {
             mToolbarSettings.toolbarLeftIcon = "flaticon-back";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
-        } else {
-            mToolbarSettings.toolbarTitle = getString(R.string.menu);
-            mToolbarSettings.toolbarLeftIcon = "flaticon-menu";
-            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
         }
     }
 
@@ -89,15 +88,28 @@ public class RestaurantFragmentMenuContainer extends AbstractFragment implements
         this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
         setRefreshing(false);
 
-        if (mTabPageAdapter == null) {
-            mTabPageAdapter = new TabPageAdapter(getChildFragmentManager(), this);
-            this.mViewPager.setAdapter(mTabPageAdapter);
-            this.mTabLayout.setBackgroundColor(Color.WHITE);
-            this.mTabLayout.shouldExpand = false;
-            this.mTabLayout.setViewPager(this.mViewPager);
+        setRefreshing(false);
+
+        if (mScreenData != null &&
+                mScreenData.data != null &&
+                mScreenData.data.menus != null &&
+                mScreenData.data.menus.size() > 0) {
+            if (mTabPageAdapter == null) {
+                mTabPageAdapter = new TabPageAdapter(getChildFragmentManager(), this);
+                this.mViewPager.setAdapter(mTabPageAdapter);
+                this.mTabLayout.setBackgroundColor(Color.WHITE);
+                this.mTabLayout.shouldExpand = false;
+                this.mTabLayout.setViewPager(this.mViewPager);
+            } else {
+                mTabPageAdapter.notifyDataSetChanged();
+            }
         } else {
-            mTabPageAdapter.notifyDataSetChanged();
+//No data
+            this.mNoDataLabel.setVisibility(View.VISIBLE);
+            this.mTabLayout.setVisibility(View.GONE);
+            this.mViewPager.setVisibility(View.GONE);
         }
+
         updateToolbar();
     }
 
@@ -107,6 +119,7 @@ public class RestaurantFragmentMenuContainer extends AbstractFragment implements
 
         this.mLoadingIndicator = (ProgressBar) root.findViewById(R.id.loading_indicator);
         this.mViewPager = (NonSwipeableViewPager) root.findViewById(R.id.tab_page_container);
+        this.mNoDataLabel = (TextView) root.findViewById(R.id.no_data_label);
         this.mTabLayout = (PagerSlidingTabStrip) root.findViewById(R.id.tabs);
         return root;
     }
@@ -172,14 +185,26 @@ public class RestaurantFragmentMenuContainer extends AbstractFragment implements
                             if (resultApi == CommonResponse.ResultSuccess) {
                                 mScreenData = (MenuInfo.Response) responseParams.getSerializable(Key.ResponseObject);
                                 previewScreenData();
+                            } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                                refreshToken(new TenpossCallback() {
+                                    @Override
+                                    public void onSuccess(Bundle params) {
+                                        loadMenuData();
+                                    }
 
+                                    @Override
+                                    public void onFailed(Bundle params) {
+                                        //Logout, then do something
+                                        mActivityListener.logoutBecauseExpired();
+                                    }
+                                });
                             } else {
                                 String strMessage = responseParams.getString(Key.ResponseMessage);
-                                errorWithMessage(responseParams, strMessage);
+                                errorWithMessage(responseParams, strMessage, null);
                             }
                         } else {
                             String strMessage = responseParams.getString(Key.ResponseMessage);
-                            errorWithMessage(responseParams, strMessage);
+                            errorWithMessage(responseParams, strMessage, null);
                         }
                     }
                 });
@@ -188,19 +213,40 @@ public class RestaurantFragmentMenuContainer extends AbstractFragment implements
 
     @Override
     public int getCount() {
-        return this.mScreenData.data.menus.size();
+        if (mScreenData != null &&
+                mScreenData.data != null &&
+                mScreenData.data.menus != null &&
+                mScreenData.data.menus.size() > 0) {
+            return this.mScreenData.data.menus.size();
+        } else {
+            return 0;
+        }
     }
 
 
     @Override
     public Fragment getItem(int position) {
-        MenuInfo.Menu menu = this.mScreenData.data.menus.get(position);
-        return RestaurantFragmentMenu.newInstance(menu);
+        if (mScreenData != null &&
+                mScreenData.data != null &&
+                mScreenData.data.menus != null &&
+                mScreenData.data.menus.size() > 0) {
+            MenuInfo.Menu menu = this.mScreenData.data.menus.get(position);
+            return RestaurantFragmentMenu.newInstance(menu);
+        } else {
+            return null;
+        }
     }
 
     @Override
     public String getItemTitle(int position) {
-        MenuInfo.Menu menu = this.mScreenData.data.menus.get(position);
-        return menu.name;
+        if (mScreenData != null &&
+                mScreenData.data != null &&
+                mScreenData.data.menus != null &&
+                mScreenData.data.menus.size() > 0) {
+            MenuInfo.Menu menu = this.mScreenData.data.menus.get(position);
+            return menu.name;
+        } else {
+            return "";
+        }
     }
 }

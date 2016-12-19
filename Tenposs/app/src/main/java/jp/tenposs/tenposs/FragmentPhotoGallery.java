@@ -66,15 +66,14 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
      * Fragment Override
      */
 
-    public static FragmentPhotoGallery newInstance(String title, int storeId) {
-        FragmentPhotoGallery fragment = new FragmentPhotoGallery();
-        Bundle b = new Bundle();
-        b.putString(AbstractFragment.SCREEN_TITLE, title);
-        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
-        fragment.setArguments(b);
-        return fragment;
-    }
-
+//    public static FragmentPhotoGallery newInstance(String title, int storeId) {
+//        FragmentPhotoGallery fragment = new FragmentPhotoGallery();
+//        Bundle b = new Bundle();
+//        b.putString(AbstractFragment.SCREEN_TITLE, title);
+//        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
+//        fragment.setArguments(b);
+//        return fragment;
+//    }
     @Override
     protected boolean customClose() {
         return false;
@@ -83,12 +82,12 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.photo_gallery);
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && this.mFirstScreen == false) {
-            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
-            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
-        } else {
+        if (this.mShowFromSideMenu == true) {
             mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        } else {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
         }
     }
 
@@ -114,64 +113,73 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
     @Override
     protected void previewScreenData() {
         this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
-        mSubToolbar.setVisibility(View.VISIBLE);
+
         setRefreshing(false);
 
-        updateNavigation();
-        enableControls(true);
-        mScreenDataItems = new ArrayList<>();
+        if (mScreenData != null &&
+                mScreenData.data != null &&
+                mScreenData.data.photo_categories != null &&
+                mScreenData.data.photo_categories.size() > 0) {
+            mSubToolbar.setVisibility(View.VISIBLE);
+            updateNavigation();
+            enableControls(true);
+            mScreenDataItems = new ArrayList<>();
 
-        int rowIndex = 0;
-        int itemSpanCount = 0;
-        for (PhotoInfo.Photo photo : mCurrentItem.data.photos) {
-            Bundle extras = new Bundle();
-            extras.putInt(RecyclerItemWrapper.ITEM_ID, photo.id);
-            extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_ITEM_SCREEN);
-            extras.putString(RecyclerItemWrapper.ITEM_IMAGE, photo.getImageUrl());
-            extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, photo.getImageUrl());
-            extras.putInt(RecyclerItemWrapper.ITEM_ROW, rowIndex);
-            itemSpanCount += this.mSpanCount / this.mSpanSmallItems;
-            if (itemSpanCount == this.mSpanCount) {
-                rowIndex++;
-                itemSpanCount = 0;
+            int rowIndex = 0;
+            int itemSpanCount = 0;
+            for (PhotoInfo.Photo photo : mCurrentItem.data.photos) {
+                Bundle extras = new Bundle();
+                extras.putInt(RecyclerItemWrapper.ITEM_ID, photo.id);
+                extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_ITEM_SCREEN);
+                extras.putString(RecyclerItemWrapper.ITEM_IMAGE, photo.getImageUrl());
+                extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, photo.getImageUrl());
+                extras.putInt(RecyclerItemWrapper.ITEM_ROW, rowIndex);
+                itemSpanCount += this.mSpanCount / this.mSpanSmallItems;
+                if (itemSpanCount == this.mSpanCount) {
+                    rowIndex++;
+                    itemSpanCount = 0;
+                }
+                mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeGridImage, mSpanCount / mSpanSmallItems, extras));
             }
-            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeGridImage, mSpanCount / mSpanSmallItems, extras));
-        }
 
-        mTitleLabel.setText(mCurrentPhotoCat.name);
-        if (this.mRecyclerAdapter == null) {
-            GridLayoutManager manager = new GridLayoutManager(getActivity(), mSpanCount);//);
-            this.mRecyclerAdapter = new CommonAdapter(getActivity(), this, this);
-            manager.setSpanSizeLookup(new GridSpanSizeLookup(mRecyclerAdapter));
-            this.mRecyclerView.setLayoutManager(manager);
-            this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.common_item_spacing));
-            this.mRecyclerView.setAdapter(mRecyclerAdapter);
+            mTitleLabel.setText(mCurrentPhotoCat.name);
+            if (this.mRecyclerAdapter == null) {
+                GridLayoutManager manager = new GridLayoutManager(getActivity(), mSpanCount);//);
+                this.mRecyclerAdapter = new CommonAdapter(getActivity(), this, this);
+                manager.setSpanSizeLookup(new GridSpanSizeLookup(mRecyclerAdapter));
+                this.mRecyclerView.setLayoutManager(manager);
+                this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.common_item_spacing));
+                this.mRecyclerView.setAdapter(mRecyclerAdapter);
 
-            this.mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                    super.onScrollStateChanged(recyclerView, newState);
-                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        int lastPos = ((GridLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
-                        if (lastPos != -1) {
-                            if (lastPos == getItemCount() - 1 && getItemCount() < mCurrentItem.data.total_photos) {
-                                if (mLoadingStatus == LOADING_STATUS_UNKNOWN) {
-                                    mLoadingIndicator.setVisibility(View.VISIBLE);
-                                    mLoadingStatus = LOADING_STATUS_MORE;
-                                    loadPhotoCatItem(mCurrentPhotoCatIndex);
+                this.mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                    @Override
+                    public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                        super.onScrollStateChanged(recyclerView, newState);
+                        if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                            int lastPos = ((GridLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
+                            if (lastPos != -1) {
+                                if (lastPos == getItemCount() - 1 && getItemCount() < mCurrentItem.data.total_photos) {
+                                    if (mLoadingStatus == LOADING_STATUS_UNKNOWN) {
+                                        mLoadingIndicator.setVisibility(View.VISIBLE);
+                                        mLoadingStatus = LOADING_STATUS_MORE;
+                                        loadPhotoCatItem(mCurrentPhotoCatIndex);
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            });
+                });
+            } else {
+                this.mRecyclerAdapter.notifyDataSetChanged();
+            }
+            if (this.mScreenDataItems.size() == 0) {
+                this.mNoDataLabel.setVisibility(View.VISIBLE);
+            } else {
+                this.mNoDataLabel.setVisibility(View.GONE);
+            }
         } else {
-            this.mRecyclerAdapter.notifyDataSetChanged();
-        }
-        if (this.mScreenDataItems.size() == 0) {
+            mSubToolbar.setVisibility(View.GONE);
             this.mNoDataLabel.setVisibility(View.VISIBLE);
-        } else {
-            this.mNoDataLabel.setVisibility(View.GONE);
         }
         updateToolbar();
     }
@@ -301,7 +309,10 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
                             if (resultApi == CommonResponse.ResultSuccess) {
                                 mScreenData = (PhotoCategoryInfo.Response) responseParams.getSerializable(Key.ResponseObject);
                                 mAllItems = new ArrayList<>();
-                                if (mScreenData.data.photo_categories.size() > 0) {
+                                if (mScreenData != null &&
+                                        mScreenData.data != null &&
+                                        mScreenData.data.photo_categories != null &&
+                                        mScreenData.data.photo_categories.size() > 0) {
                                     for (int i = 0; i < mScreenData.data.photo_categories.size(); i++) {
                                         Bundle photoCategory = new Bundle();
                                         photoCategory.putInt(SCREEN_DATA_PAGE_INDEX, 1);
@@ -310,22 +321,35 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
                                     }
                                     loadPhotoCatItem(mCurrentPhotoCatIndex);
                                 } else {
-                                    mSubToolbar.setVisibility(View.GONE);
+                                    previewScreenData();
                                 }
+                            } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                                refreshToken(new TenpossCallback() {
+                                    @Override
+                                    public void onSuccess(Bundle params) {
+                                        loadPhotoCatData();
+                                    }
+
+                                    @Override
+                                    public void onFailed(Bundle params) {
+                                        //Logout, then do something
+                                        mActivityListener.logoutBecauseExpired();
+                                    }
+                                });
                             } else {
                                 String strMessage = responseParams.getString(Key.ResponseMessage);
-                                errorWithMessage(responseParams, strMessage);
+                                errorWithMessage(responseParams, strMessage, null);
                             }
                         } else {
                             String strMessage = responseParams.getString(Key.ResponseMessage);
-                            errorWithMessage(responseParams, strMessage);
+                            errorWithMessage(responseParams, strMessage, null);
                         }
                     }
                 });
         communicator.execute(params);
     }
 
-    void loadPhotoCatItem(int photoCatIndex) {
+    void loadPhotoCatItem(final int photoCatIndex) {
         try {
             this.mCurrentPhotoCat = this.mScreenData.data.photo_categories.get(photoCatIndex);
             Bundle photoCategory = this.mAllItems.get(photoCatIndex);
@@ -374,13 +398,26 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
                                         photoCategory.putSerializable(SCREEN_DATA_PAGE_DATA, mCurrentItem);
 
                                         previewScreenData();
+                                    } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                                        refreshToken(new TenpossCallback() {
+                                            @Override
+                                            public void onSuccess(Bundle params) {
+                                                loadPhotoCatItem(photoCatIndex);
+                                            }
+
+                                            @Override
+                                            public void onFailed(Bundle params) {
+                                                //Logout, then do something
+                                                mActivityListener.logoutBecauseExpired();
+                                            }
+                                        });
                                     } else {
                                         String strMessage = responseParams.getString(Key.ResponseMessage);
-                                        errorWithMessage(responseParams, strMessage);
+                                        errorWithMessage(responseParams, strMessage, null);
                                     }
                                 } else {
                                     String strMessage = responseParams.getString(Key.ResponseMessage);
-                                    errorWithMessage(responseParams, strMessage);
+                                    errorWithMessage(responseParams, strMessage, null);
                                 }
                             }
                         });
@@ -438,7 +475,7 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
         if (hasPrevious() == true) {
             previousButtonColor = this.mToolbarSettings.getToolbarIconColor();
             if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
-                previousButtonColor = Utils.getColor(getContext(), R.color.restaurant_text_color);
+                previousButtonColor = Utils.getColor(getContext(), R.color.restaurant_toolbar_icon_color);
             }
         }
 
@@ -446,7 +483,7 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
         if (hasNext() == true) {
             nextButtonColor = this.mToolbarSettings.getToolbarIconColor();
             if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
-                nextButtonColor = Utils.getColor(getContext(), R.color.restaurant_text_color);
+                nextButtonColor = Utils.getColor(getContext(), R.color.restaurant_toolbar_icon_color);
             }
         }
 
@@ -494,7 +531,7 @@ public class FragmentPhotoGallery extends AbstractFragment implements View.OnCli
             case RecyclerItemTypeGridImage: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(screenId, extras, null);
+                this.mActivityListener.showScreen(screenId, extras, null, false);
             }
             break;
 

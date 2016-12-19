@@ -30,7 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/item_image"
-            android:layout_margin="10dp"
+            android:layout_margin="5dp"
             android:orientation="vertical">
 
             <TextView
@@ -41,9 +41,9 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="item_title_label"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+                android:textAppearance="@android:style/TextAppearance"
                 android:textColor="@android:color/black"
-                android:textStyle="bold" />
+                />
 
             <TextView
                 android:id="@+id/item_category_label"
@@ -52,8 +52,8 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="item_category_label"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault"
-                android:textColor="@color/restaurant_text_color" />
+                android:textAppearance="@android:style/TextAppearance.Small"
+                android:textColor="@color/restaurant_toolbar_icon_color" />
 
         </LinearLayout>
     </android.support.percent.PercentRelativeLayout>

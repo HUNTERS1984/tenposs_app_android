@@ -34,17 +34,13 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
     TextView mGotoSignInLabel;
     Button mNextButton;
 
-    private FragmentSignUp() {
-
-    }
-
-    public static FragmentSignUp newInstance(Serializable extras) {
-        FragmentSignUp fragment = new FragmentSignUp();
-        Bundle b = new Bundle();
-        b.putSerializable(AbstractFragment.SCREEN_DATA, extras);
-        fragment.setArguments(b);
-        return fragment;
-    }
+//    public static FragmentSignUp newInstance(Serializable extras) {
+//        FragmentSignUp fragment = new FragmentSignUp();
+//        Bundle b = new Bundle();
+//        b.putSerializable(AbstractFragment.SCREEN_DATA, extras);
+//        fragment.setArguments(b);
+//        return fragment;
+//    }
 
     @Override
     protected boolean customClose() {
@@ -54,7 +50,11 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.sign_up_1);
-        mToolbarSettings.toolbarLeftIcon = "flaticon-close";
+        if(AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate){
+            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+        }else {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-close";
+        }
         mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
     }
 
@@ -94,7 +94,7 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
                 new ClickableSpan() {
                     public void onClick(View view) {
                         close();
-                        mActivityListener.showScreen(AbstractFragment.SIGN_IN_EMAIL_SCREEN, null, null);
+                        mActivityListener.showScreen(AbstractFragment.SIGN_IN_EMAIL_SCREEN, null, null, false);
                     }
                 });
         return mRoot;
@@ -108,7 +108,7 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
     @Override
     void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
         if (savedInstanceState.containsKey(SCREEN_DATA)) {
-            //this.mScreenData = (TopInfo.Response.ResponseData) savedInstanceState.getSerializable(SCREEN_DATA);
+            //this.mScreenData = (TopInfo.Response.ApplicationInfo) savedInstanceState.getSerializable(SCREEN_DATA);
         }
     }
 
@@ -146,7 +146,7 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
                 request.name = mNameEdit.getEditableText().toString();
                 request.setPassword(mPasswordEdit.getEditableText().toString());
 
-                this.mActivityListener.showScreen(AbstractFragment.SIGN_UP_NEXT_SCREEN, request, null);
+                this.mActivityListener.showScreen(AbstractFragment.SIGN_UP_NEXT_SCREEN, request, null, false);
             }
         }
 //        if (v == mSignUpButton) {
@@ -261,7 +261,7 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
                     });
             return false;
         }
-        if (password.length() <= 6) {
+        if (password.length() < 6) {
             Utils.showAlert(getContext(),
                     getString(R.string.warning),
                     getString(R.string.msg_password_at_least_6),
@@ -323,54 +323,71 @@ public class FragmentSignUp extends AbstractFragment implements View.OnClickList
 
     @Override
     protected void updateToolbar() {
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
-            try {
-                this.mToolbar.setBackgroundColor(Color.alpha(0));
-                if (this.mLeftToolbarButton != null) {
-                    this.mLeftToolbarButton.setImageBitmap(FontIcon.imageForFontIdentifier(getActivity().getAssets(),
-                            this.mToolbarSettings.toolbarLeftIcon,
-                            Utils.NavIconSize,
-                            Color.argb(0, 0, 0, 0),
-                            Color.WHITE,
-                            FontIcon.FLATICON
-                    ));
-                }
-
-                if (this.mTitleToolbarLabel != null) {
-                    this.mTitleToolbarLabel.setText(mToolbarSettings.toolbarTitle);
-                    try {
-                        Utils.setTextAppearanceTitle(getContext(), this.mTitleToolbarLabel, mToolbarSettings.getToolbarTitleFontSize());
-                        //Typeface type = Utils.getTypeFaceForFont(getActivity(), mToolbarSettings.getToolBarTitleFont());
-                        //this.mTitleToolbarLabel.setTypeface(type);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                    this.mTitleToolbarLabel.setTextColor(Color.WHITE);
-                }
-
-                if (this.mToolbarSettings.toolbarType == ToolbarSettings.LEFT_MENU_BUTTON) {
-                    if (this.mScreenDataStatus == ScreenDataStatus.ScreenDataStatusLoaded) {
-                        this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                    } else {
-                        this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-                    }
-
-                } else {
-                    this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-                }
-
-                if (this.mScreenToolBarHidden == true) {
-                    this.mToolbar.setVisibility(View.VISIBLE);
-                } else {
-                    this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-                    this.mToolbar.setVisibility(View.GONE);
-                }
-
-            } catch (Exception ignored) {
-
+        try {
+            int toolbarIconColor;
+            int toolbarTitleColor;
+            this.mToolbar.setBackgroundColor(Color.alpha(0));
+            if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+                toolbarIconColor = Color.WHITE;//Utils.getColor(getContext(), R.color.restaurant_toolbar_icon_color);
+                toolbarTitleColor = Color.WHITE;//Utils.getColor(getContext(), R.color.restaurant_toolbar_text_color);
+            } else {
+                this.mToolbar.setBackgroundColor(this.mToolbarSettings.getToolbarBackgroundColor());
+                toolbarIconColor = this.mToolbarSettings.getToolbarIconColor();
+                toolbarTitleColor = this.mToolbarSettings.getToolbarTitleColor();
             }
-        } else {
-            super.updateToolbar();
+
+            if (this.mLeftToolbarButton != null) {
+                this.mLeftToolbarButton.setImageBitmap(FontIcon.imageForFontIdentifier(getActivity().getAssets(),
+                        this.mToolbarSettings.toolbarLeftIcon,
+                        Utils.NavIconSize,
+                        Color.argb(0, 0, 0, 0),
+                        toolbarIconColor,
+                        FontIcon.FLATICON
+                ));
+            }
+            if (this.mRightToolbarButton != null && this.mToolbarSettings.toolbarRightIcon != null) {
+                this.mRightToolbarLayout.setVisibility(View.VISIBLE);
+                this.mRightToolbarButton.setImageBitmap(FontIcon.imageForFontIdentifier(getActivity().getAssets(),
+                        this.mToolbarSettings.toolbarRightIcon,
+                        Utils.NavIconSize,
+                        Color.argb(0, 0, 0, 0),
+                        toolbarIconColor,
+                        FontIcon.FLATICON
+                ));
+            }
+
+            if (this.mTitleToolbarLabel != null) {
+                this.mTitleToolbarLabel.setText(mToolbarSettings.toolbarTitle);
+                try {
+                    Utils.setTextAppearanceTitle(getContext(), this.mTitleToolbarLabel, mToolbarSettings.getToolbarTitleFontSize());
+//                    Typeface type = Utils.getTypeFaceForFont(getActivity(), mToolbarSettings.getToolBarTitleFont());
+//                    this.mTitleToolbarLabel.setTypeface(type);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                this.mTitleToolbarLabel.setTextColor(toolbarTitleColor);
+            }
+
+            if (this.mToolbarSettings.toolbarType == ToolbarSettings.LEFT_MENU_BUTTON) {
+                if (this.mScreenDataStatus == ScreenDataStatus.ScreenDataStatusLoaded) {
+                    this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                } else {
+                    this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                }
+
+            } else {
+                this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            }
+
+            if (this.mScreenToolBarHidden == true) {
+                this.mToolbar.setVisibility(View.VISIBLE);
+            } else {
+                this.mActivityListener.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                this.mToolbar.setVisibility(View.GONE);
+            }
+
+        } catch (Exception ignored) {
+
         }
     }
 }

@@ -21,18 +21,16 @@
 
         <!-- [START firebase_service] -->
         <service
-            android:name=".TenpossMessagingService"
-            android:label="TenpossMessagingService"
-            android:process=":messageservice">
+            android:name=".StaffMessagingService"
+            android:label="TenpossMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
         <service
-            android:name=".TenpossInstanceIDService"
-            android:label="TenpossIDService"
-            android:process=":idservice">
+            android:name=".StaffInstanceIDService"
+            android:label="StaffInstanceIDService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
@@ -41,6 +39,7 @@
 
         <activity
             android:name=".MainActivity"
+            android:label="@string/app_name"
             android:launchMode="singleTop"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme">

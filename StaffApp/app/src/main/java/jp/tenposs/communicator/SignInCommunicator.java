@@ -11,28 +11,23 @@ import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.SignInInfo;
 
 /**
- * Created by ambient on 10/17/16.
+ * Created by ambient on 7/26/16.
  */
-
 public class SignInCommunicator extends TenpossCommunicator {
 
     public SignInCommunicator(TenpossCommunicatorListener listener) {
         super(listener);
-        mMethod = METHOD_POST;
-        mIncludeTokenHeader = false;
+        this.mMethod = METHOD_POST;
+        this.mAuthorizationMode = AUTH_BASIC;
     }
 
     @Override
     protected boolean request(Bundle bundle) {
-
-        String strUrl;
+        String strUrl = API_SIGN_IN;
         SignInInfo.Request requestData = (SignInInfo.Request) bundle.getSerializable(Key.RequestObject);
         bundle.putSerializable(Key.RequestFormData, requestData.getFormData());
-        strUrl = API_SIGN_IN;
-
-        int result = CommunicationCode.ConnectionSuccess.ordinal();
-        byte[] dataRequest = null;
-        OutputStream output = null;
+        int result;
+        OutputStream output;
 
         try {
             output = new ByteArrayOutputStream();
@@ -76,49 +71,3 @@ public class SignInCommunicator extends TenpossCommunicator {
         return true;
     }
 }
-
-
-/*
-        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-
-        OkHttpClient client = new OkHttpClient.Builder().build();
-        // login
-        String jsonContent = "{\"email\":\"quanlh218@gmail.com\",\"password\":\"123456\",\"source\":\"mobile\"}";
-        String url = "https://apistaffs.ten-po.com/login";
-        RequestBody body = RequestBody.create(JSON, jsonContent);
-        Request request = new Request.Builder()
-                .url(url)
-                .post(body)
-                .build();
-        String dataRes = "";
-        try {
-            Response response = client.newCall(request).execute();
-            dataRes = response.body().string();
-            System.out.println(dataRes);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        // end login
-
-        //set push key
-        com.google.gson.JsonParser jsonParser = new com.google.gson.JsonParser();
-        JsonObject jsonObject = jsonParser.parse(dataRes).getAsJsonObject();
-        String token = jsonObject.get("data").getAsJsonObject().get("token").getAsString();
-        String urlSetKey = "https://apistaffs.ten-po.com/set_push_key";
-        String jsonBodySetKey = "{\"client\":\"0\",\"key\":\"3423423\"}";
-        RequestBody bodySetKey = RequestBody.create(JSON, jsonBodySetKey);
-        Request request_set_key = new Request.Builder()
-                .url(urlSetKey)
-                .post(bodySetKey)
-                .header("Authorization", "Bearer " + token)
-                .build();
-        String dataResSetKey = "";
-        try {
-            Response responseSetKey = client.newCall(request_set_key).execute();
-            dataResSetKey = responseSetKey.body().string();
-            System.out.println(dataResSetKey);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        //end set push key
- */

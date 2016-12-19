@@ -8,13 +8,13 @@ import android.support.annotation.NonNull;
  */
 public class FragmentUserPrivacy extends FragmentWebView {
 
-    public static FragmentUserPrivacy newInstance(@NonNull String url) {
-        FragmentUserPrivacy gm = new FragmentUserPrivacy();
-        Bundle b = new Bundle();
-        b.putString(SCREEN_URL, url);
-        gm.setArguments(b);
-        return gm;
-    }
+//    public static FragmentUserPrivacy newInstance(@NonNull String url) {
+//        FragmentUserPrivacy gm = new FragmentUserPrivacy();
+//        Bundle b = new Bundle();
+//        b.putString(SCREEN_URL, url);
+//        gm.setArguments(b);
+//        return gm;
+//    }
 
     @Override
     protected boolean customClose() {

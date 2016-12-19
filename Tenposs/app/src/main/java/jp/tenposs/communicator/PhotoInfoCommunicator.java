@@ -23,9 +23,8 @@ public class PhotoInfoCommunicator extends TenpossCommunicator {
         String strUrl;
         PhotoInfo.Request requestData = (PhotoInfo.Request) bundle.getSerializable(Key.RequestObject);
         strUrl = API_PHOTO + requestData.makeParams();
-        int result = TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal();
-        byte[] dataRequest = null;
-        OutputStream output = null;
+        int result;
+        OutputStream output;
 
         try {
             output = new ByteArrayOutputStream();

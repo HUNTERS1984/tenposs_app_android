@@ -21,18 +21,20 @@ public class CouponRequestInfo {
 
         public class ResponseData implements Serializable {
             public ArrayList<RequestInfo> list_request;
+            public int total;
         }
     }
 
-    public class RequestInfo implements Serializable {
-        public int coupon_id;
-        public int app_user_id;
+    public static class RequestInfo implements Serializable {
+        public String coupon_id;
+        //public String code;
+        public String app_user_id;
         public String title;
         public String description;
         public String image_url;
         public String name;
-        public int user_use_date;
-        public int total;
+        public String user_use_date;
+
 
         public String getImageUrl() {
             return image_url;

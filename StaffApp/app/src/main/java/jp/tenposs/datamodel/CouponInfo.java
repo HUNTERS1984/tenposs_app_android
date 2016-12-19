@@ -16,6 +16,11 @@ public class CouponInfo {
         String sigInput() {
             return null;
         }
+
+        @Override
+        ArrayList<String> getAvailableParams() {
+            return null;
+        }
     }
 
     public class Response extends CommonResponse {

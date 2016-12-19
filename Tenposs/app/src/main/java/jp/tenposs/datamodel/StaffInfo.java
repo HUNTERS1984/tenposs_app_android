@@ -23,6 +23,11 @@ public class StaffInfo {
             //TODO: chua co spec
             return "";
         }
+
+        @Override
+        ArrayList<String> getAvailableParams() {
+            return null;
+        }
     }
 
     public class Response extends CommonResponse {

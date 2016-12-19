@@ -48,16 +48,11 @@
                     android:layout_width="?attr/actionBarSize"
                     android:layout_height="?attr/actionBarSize">
 
-                    <ImageView
-                        android:id="@+id/left_toolbar_image"
-                        android:layout_width="?attr/actionBarSize"
-                        android:layout_height="?attr/actionBarSize"
-                        android:layout_margin="@dimen/menu_icon_padding" />
-
                     <ImageButton
                         android:id="@+id/left_toolbar_button"
-                        android:layout_width="?attr/actionBarSize"
-                        android:layout_height="?attr/actionBarSize"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="8dp"
                         android:background="@android:color/transparent"
                         android:visibility="visible" />
 
@@ -69,20 +64,48 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1">
 
-                    <TextView
-                        android:id="@+id/title_toolbar_label"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_gravity="center_vertical"
-                        android:ellipsize="end"
-                        android:gravity="center"
-                        android:maxLines="1"
-                        android:paddingLeft="5dp"
-                        android:paddingRight="5dp"
-                        android:text="@string/sign_up_1"
-                        android:textAppearance="@style/TextAppearance_Medium"
-                        android:textColor="@android:color/white"
-                        android:visibility="visible" />
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/title_toolbar_label"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_gravity="center_vertical"
+                            android:layout_weight="1"
+                            android:ellipsize="end"
+                            android:gravity="center"
+                            android:maxLines="1"
+                            android:paddingLeft="5dp"
+                            android:paddingRight="5dp"
+                            android:text="@string/register"
+                            android:textAppearance="@style/TextAppearance_Medium"
+                            android:textColor="@android:color/white"
+                            android:visibility="visible" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="4dp"
+                                android:layout_marginRight="4dp"
+                                android:background="@drawable/nonselecteditem_dot" />
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="4dp"
+                                android:layout_marginRight="4dp"
+                                android:background="@drawable/selecteditem_dot" />
+                        </LinearLayout>
+                    </LinearLayout>
 
                 </FrameLayout>
 
@@ -93,15 +116,10 @@
                     android:visibility="invisible">
 
                     <ImageButton
-                        android:id="@+id/right_toolbar_image"
-                        android:layout_width="?attr/actionBarSize"
-                        android:layout_height="?attr/actionBarSize"
-                        android:layout_margin="@dimen/menu_icon_padding" />
-
-                    <ImageButton
                         android:id="@+id/right_toolbar_button"
-                        android:layout_width="?attr/actionBarSize"
-                        android:layout_height="?attr/actionBarSize"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="8dp"
                         android:background="@android:color/transparent" />
                 </RelativeLayout>
 
@@ -122,10 +140,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/top_separate"
-        android:layout_margin="@dimen/item_margin"
+        android:layout_margin="12dp"
         card_view:cardBackgroundColor="@android:color/white"
         card_view:cardCornerRadius="10dp">
-
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -135,72 +152,73 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/item_setting_height"
+                android:layout_height="44dp"
                 android:background="@android:color/white">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/item_setting_height"
+                    android:layout_height="44dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/attribute_label"
+                        android:id="@+id/gender_label"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginLeft="20dp"
+                        android:layout_marginBottom="12dp"
+                        android:layout_marginLeft="26dp"
+                        android:layout_marginTop="12dp"
                         android:layout_weight="5"
                         android:text="@string/attribute"
                         android:textAppearance="@android:style/TextAppearance.DeviceDefault"
                         android:textColor="@color/title_text_color" />
 
                     <EditText
-                        android:id="@+id/attribute_edit"
+                        android:id="@+id/gender_edit"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:layout_marginTop="12dp"
                         android:layout_weight="8"
                         android:background="@android:color/transparent"
                         android:maxLines="1" />
 
-
                     <ImageView
-                        android:id="@+id/attribute_select_image"
-                        android:layout_width="@dimen/item_setting_height"
-                        android:layout_height="@dimen/item_setting_height"
+                        android:id="@+id/gender_select_image"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
                         android:src="@drawable/down_arrow" />
                 </LinearLayout>
 
                 <Spinner
-                    android:id="@+id/attribute_spinner"
+                    android:id="@+id/gender_spinner"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_centerInParent="true"
                     android:visibility="invisible" />
 
                 <Button
-                    android:id="@+id/attribute_select_button"
+                    android:id="@+id/gender_select_button"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginRight="5dp"
                     android:background="@android:color/transparent" />
             </RelativeLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
-                android:layout_marginLeft="20dp"
+                android:layout_marginLeft="26dp"
                 android:background="@android:color/darker_gray" />
-
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/item_setting_height"
+                android:layout_height="44dp"
                 android:background="@android:color/white">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/item_setting_height"
+                    android:layout_height="44dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
@@ -209,7 +227,9 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginLeft="20dp"
+                        android:layout_marginBottom="12dp"
+                        android:layout_marginLeft="26dp"
+                        android:layout_marginTop="12dp"
                         android:layout_weight="5"
                         android:text="@string/age"
                         android:textAppearance="@android:style/TextAppearance.DeviceDefault"
@@ -219,6 +239,8 @@
                         android:id="@+id/age_edit"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:layout_marginTop="12dp"
                         android:layout_weight="8"
                         android:background="@android:color/transparent"
                         android:maxLines="1" />
@@ -226,8 +248,8 @@
 
                     <ImageView
                         android:id="@+id/age_select_image"
-                        android:layout_width="@dimen/item_setting_height"
-                        android:layout_height="@dimen/item_setting_height"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
                         android:src="@drawable/down_arrow" />
                 </LinearLayout>
 
@@ -256,11 +278,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/info_layout"
-        android:layout_marginLeft="@dimen/common_padding"
-        android:layout_marginRight="@dimen/common_padding"
-        android:layout_marginTop="@dimen/common_padding"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
         android:background="@drawable/restaurant_bg_button_sign_in"
-        android:text="@string/sign_up"
+        android:text="@string/registration"
         android:textColor="@android:color/white" />
 
     <TextView

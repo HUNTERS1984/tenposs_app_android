@@ -16,6 +16,11 @@ public class TopInfo {
         String sigInput() {
             return app_id + "" + time + "" + privateKey;
         }
+
+        @Override
+        ArrayList<String> getAvailableParams() {
+            return null;
+        }
     }
 
     public static class Response extends CommonResponse {

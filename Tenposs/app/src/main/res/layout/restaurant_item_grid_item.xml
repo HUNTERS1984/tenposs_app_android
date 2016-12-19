@@ -43,9 +43,8 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="item_title_label"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
-                android:textColor="@android:color/black"
-                android:textStyle="bold" />
+                android:textAppearance="@android:style/TextAppearance"
+                android:textColor="@android:color/black" />
 
             <TextView
                 android:id="@+id/item_category_label"
@@ -55,7 +54,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="item_category_label"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+                android:textAppearance="@android:style/TextAppearance.Small"
                 android:textColor="@color/grid_text_color" />
 
             <TextView
@@ -65,9 +64,8 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="item_price_label"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault"
-                android:textColor="@color/restaurant_text_color"
-                android:textStyle="bold" />
+                android:textAppearance="@android:style/TextAppearance.Small"
+                android:textColor="@color/restaurant_toolbar_icon_color" />
 
         </LinearLayout>
     </android.support.percent.PercentRelativeLayout>

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import jp.tenposs.communicator.TenpossCommunicator;
+import jp.tenposs.tenposs.BuildConfig;
 import jp.tenposs.utils.Utils;
 
 /**
@@ -19,6 +20,11 @@ public class ItemsInfo {
         String sigInput() {
             return app_id + "" + time + "" + menu_id + "" + privateKey;
 //            return menu_id + "" + pageindex + "" + pagesize + "" + privateKey + "" + time;
+        }
+
+        @Override
+        ArrayList<String> getAvailableParams() {
+            return null;
         }
     }
 
@@ -158,8 +164,13 @@ public class ItemsInfo {
         public String getCategory() {
             if (menu != null)
                 return menu;
-            else
-                return "";
+            else {
+                if (BuildConfig.DEBUG) {
+                    return "会席料理コース";
+                } else {
+                    return "";
+                }
+            }
         }
 
         public String getTitle() {
@@ -175,7 +186,13 @@ public class ItemsInfo {
                 description = description.replaceAll("\n\r", "\n");
                 return description;
             } else {
-                return "";
+                if (BuildConfig.DEBUG) {
+                    return "先付、お造り、焚き合わせ、お凌ぎ（松阪牛握り、松阪牛と鮪の裏巻寿司）、\n" +
+                            "冷菜、揚げ物（松阪牛の天ぷら他）、\n" +
+                            "焼き物（伊勢海老またはあわび(あわびは＋800円)";
+                } else {
+                    return "";
+                }
             }
         }
 

@@ -30,13 +30,17 @@ import java.util.List;
 import jp.tenposs.adapter.RecyclerItemWrapper;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.ScreenDataStatus;
-import jp.tenposs.utils.FlatIcon;
+import jp.tenposs.utils.FontIcon;
 import jp.tenposs.utils.Utils;
 
 /**
  * Created by ambient on 7/26/16.
  */
 public abstract class AbstractFragment extends Fragment {
+
+    public static int NavIconSize = 22;
+
+    public static int CatIconSize = 16;
 
     public interface MainActivityListener {
         void showScreen(int menuId, Serializable extras);
@@ -623,21 +627,24 @@ public abstract class AbstractFragment extends Fragment {
             //this.mToolbar.setBackgroundColor(this.mToolbarSettings.getToolbarBackgroundColor());
             this.mToolbar.setBackgroundColor(Color.WHITE);
             if (this.mLeftToolbarButton != null) {
-                this.mLeftToolbarButton.setImageBitmap(FlatIcon.fromFlatIcon(getActivity().getAssets(),
+                this.mLeftToolbarButton.setImageBitmap(FontIcon.imageForFontIdentifier(
+                        getActivity().getAssets(),
                         this.mToolbarSettings.toolbarLeftIcon,
-                        40,
+                        NavIconSize,
                         Color.argb(0, 0, 0, 0),
                         //this.mToolbarSettings.getToolbarIconColor()
-                        Color.argb(255, 20, 200, 200)
+                        Color.argb(255, 20, 200, 200),
+                        FontIcon.FLATICON
                 ));
             }
             if (this.mRightToolbarButton != null) {
-                this.mRightToolbarButton.setImageBitmap(FlatIcon.fromFlatIcon(getActivity().getAssets(),
+                this.mRightToolbarButton.setImageBitmap(FontIcon.imageForFontIdentifier(getActivity().getAssets(),
                         this.mToolbarSettings.toolbarRightIcon,
-                        40,
+                        NavIconSize,
                         Color.argb(0, 0, 0, 0),
                         //this.mToolbarSettings.getToolbarIconColor()
-                        Color.argb(255, 20, 200, 200)
+                        Color.argb(255, 20, 200, 200),
+                        FontIcon.FLATICON
                 ));
             }
 

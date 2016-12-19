@@ -19,18 +19,13 @@ public class SignUpInfo {
             HashMap<String, String> formData = new HashMap<>();
             try {
                 formData.put("app_id", app_id);
-                formData.put("time", Long.toString(time));
                 formData.put("email", email);
                 formData.put("password", password);
                 formData.put("name", name);
-                formData.put("sig", sig);
             } catch (Exception ignored) {
 
             }
             return formData;
         }
-    }
-
-    public class Response extends SignInInfo.Response {
     }
 }

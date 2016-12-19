@@ -17,16 +17,17 @@ import jp.tenposs.datamodel.PushInfo;
 public class GetPushSettingsCommunicator extends TenpossCommunicator {
     public GetPushSettingsCommunicator(TenpossCommunicatorListener listener) {
         super(listener);
+        this.mMethod = METHOD_GET;
+        this.mAuthorizationMode = AUTH_TOKEN;
     }
 
     @Override
     protected boolean request(Bundle bundle) {
         String strUrl;
-        PushInfo.RequestGet requestData = (PushInfo.RequestGet) bundle.getSerializable(Key.RequestObject);
-        strUrl = API_GET_PUSH_SETTINGS + requestData.makeParams();
-        int result = CommunicationCode.ConnectionSuccess.ordinal();
-        byte[] dataRequest = null;
-        OutputStream output = null;
+        PushInfo.Request request = (PushInfo.Request) bundle.getSerializable(Key.RequestObject);
+        strUrl = API_GET_PUSH_SETTING_FOR_USER + request.makeParams();
+        int result;
+        OutputStream output;
 
         try {
             output = new ByteArrayOutputStream();

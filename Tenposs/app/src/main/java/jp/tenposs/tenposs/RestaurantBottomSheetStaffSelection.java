@@ -2,7 +2,9 @@ package jp.tenposs.tenposs;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -71,12 +73,28 @@ public class RestaurantBottomSheetStaffSelection extends BottomSheetDialogFragme
         this.mCancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+//                RestaurantBottomSheetStaffSelection.this.setHideable(false);
+//                RestaurantBottomSheetStaffSelection.this.setState(BottomSheetBehavior.STATE_EXPANDED);
+
                 RestaurantBottomSheetStaffSelection.this.dismiss();
                 if (RestaurantBottomSheetStaffSelection.this.listener != null) {
                     RestaurantBottomSheetStaffSelection.this.listener.onCancel();
                 }
             }
         });
+//        final BottomSheetBehavior behavior = BottomSheetBehavior.from(root);
+//        behavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+//            @Override
+//            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+//                if (newState == BottomSheetBehavior.STATE_DRAGGING) {
+//                    behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+//                }
+//            }
+//
+//            @Override
+//            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+//            }
+//        });
         return root;
     }
 

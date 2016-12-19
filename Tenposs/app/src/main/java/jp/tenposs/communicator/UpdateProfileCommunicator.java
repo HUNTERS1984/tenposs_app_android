@@ -18,6 +18,7 @@ public class UpdateProfileCommunicator extends TenpossCommunicator {
     public UpdateProfileCommunicator(TenpossCommunicatorListener listener) {
         super(listener);
         this.mMethod = METHOD_POST_MULTIPART;
+        this.mAuthorizationMode = AUTH_TOKEN;
     }
 
     @Override

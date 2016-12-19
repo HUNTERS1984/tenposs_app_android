@@ -1,9 +1,11 @@
 package jp.tenposs.staffapp;
 
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.Network;
@@ -23,20 +25,27 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.widget.FrameLayout;
 
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 import junit.framework.Assert;
 
 import java.io.Serializable;
 import java.util.HashMap;
 
+import jp.tenposs.datamodel.CouponRequestInfo;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.utils.Utils;
 import jp.tenposs.view.LeftMenuView;
 
 public class MainActivity extends AppCompatActivity implements LeftMenuView.OnLeftMenuItemClickListener, AbstractFragment.MainActivityListener {
+
+    private BroadcastReceiver myReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            handleIntent(intent);
+        }
+    };
+
 
     private SharedPreferences mAppPreferences;
     private DrawerLayout mDrawerLayout;
@@ -65,6 +74,8 @@ public class MainActivity extends AppCompatActivity implements LeftMenuView.OnLe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        registerReceiver(myReceiver, new IntentFilter(StaffMessagingService.INTENT_FILTER));
+
         MainApplication.setContext(this.getApplicationContext());
 
         this.mAppPreferences = this.getSharedPreferences("settings", Context.MODE_PRIVATE);
@@ -86,6 +97,12 @@ public class MainActivity extends AppCompatActivity implements LeftMenuView.OnLe
         this.mLeftMenuView.setOnItemClickListener(this);
 
         checkNetworkConnection();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(myReceiver);
     }
 
     @Override
@@ -261,6 +278,88 @@ public class MainActivity extends AppCompatActivity implements LeftMenuView.OnLe
         }
     }
 
+    boolean intentHandled = false;
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        Log.v("MainActivity", "newIntent");
+        if (intentHandled == false) {
+            handleIntent(intent);
+            intentHandled = true;
+        }
+    }
+
+    void getCouponInformation(StaffMessagingService.CouponRequestObject requestInfo) {
+        CouponRequestInfo.RequestInfo info = new CouponRequestInfo.RequestInfo();
+        info.title = requestInfo.title;
+        info.image_url = "https://twitter.com/huyphuctt/profile_image?size=original";
+        info.name = "AAA";
+        showPopupCouponRequest(info);
+
+        /*Bundle params = new Bundle();
+        new CouponInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
+            @Override
+            public void completed(TenpossCommunicator request, Bundle responseParams) {
+                public class RequestInfo implements Serializable {
+                    public String coupon_id;
+                    public String code;
+                    public String app_user_id;
+                    public String title;
+                    public String description;
+                    public String image_url;
+                    public String name;
+                    public String user_use_date;
+                    public String getImageUrl() {
+                        return image_url;
+                    }
+                }
+                CouponRequestInfo.RequestInfo info = new CouponRequestInfo.RequestInfo();
+                showPopupCouponRequest(info);
+            }
+        }).execute(params);
+        */
+    }
+
+    private void handleIntent(Intent intent) {
+        HashMap<String, String> map = (HashMap<String, String>) intent.getSerializableExtra(StaffMessagingService.INTENT_DATA);
+        if (map != null) {
+            StaffMessagingService.CouponRequestObject requestObject = new StaffMessagingService.CouponRequestObject(map);
+
+            if (requestObject.type.compareTo("coupon_use") == 0) {
+                getCouponInformation(requestObject);
+            }
+            /*if (host.equalsIgnoreCase("play")) {
+                //Show player
+                showVideoPlayerParams = new HashMap<>();
+                for (String name : uri.getQueryParameterNames()) {
+                    String value = uri.getQueryParameter(name);
+                    showVideoPlayerParams.put(name, value);
+                }
+                if (path.contains("video")) {
+                    //Should play video
+                    showVideoPlayerParams.put("mode", "video");
+                    showVideoPlayerAfterCreated = true;
+
+                } else if (path.contains("playlist")) {
+                    //Should play playlist
+                    showVideoPlayerParams.put("mode", "playlist");
+                    showVideoPlayerAfterCreated = true;
+                } else if (path.contains("group")) {
+                    //Should play group
+                    showVideoPlayerParams.put("mode", "group");
+                    showVideoPlayerAfterCreated = true;
+
+                }
+
+                if (this.mHomeScreen != null && this.mHomeScreen.screenDataStatus == ScreenDataStatus.ScreenDataStatusLoaded) {
+                    showVideoPlayerWithParams();
+                }
+            }*/
+        }
+    }
+
 
     void exitActivity() {
         MainActivity.this.finish();
@@ -386,15 +485,12 @@ public class MainActivity extends AppCompatActivity implements LeftMenuView.OnLe
         }
 
         //Firebase initialize
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-        FirebaseMessaging.getInstance().subscribeToTopic("test");
         String token = FirebaseInstanceId.getInstance().getToken();
         if (token != null) {
             Utils.setPrefString(getApplicationContext(), Key.FireBaseTokenKey, token);
         } else {
             Utils.setPrefString(getApplicationContext(), Key.FireBaseTokenKey, "");
         }
-
     }
 
     void showSignInScreen() {
@@ -419,6 +515,12 @@ public class MainActivity extends AppCompatActivity implements LeftMenuView.OnLe
             fragmentQrScanner = new FragmentQrScanner();
         }
         showFragment(fragmentQrScanner, FragmentQrScanner.class.getCanonicalName(), true);
+    }
+
+    void showPopupCouponRequest(CouponRequestInfo.RequestInfo item) {
+        PopupCouponRequest popupCouponRequest = new PopupCouponRequest(this);
+        popupCouponRequest.setData(item);
+        popupCouponRequest.show();
     }
 
     protected void showProgress(String message) {

@@ -1,5 +1,6 @@
 package jp.tenposs.datamodel;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -7,7 +8,7 @@ import java.util.HashMap;
  */
 public class SetPushKeyInfo {
     public static class Request extends CommonRequest {
-        public int client = 0;   //string			o	0: android; 1:ios
+        public String client = "android";   //string			o	0: android; 1:ios
         public String key;         //integer			o	android or ios push key
 
 
@@ -16,16 +17,18 @@ public class SetPushKeyInfo {
             return token + "" + client + "" + key + "" + time;
         }
 
+        @Override
+        ArrayList<String> getAvailableParams() {
+            return null;
+        }
+
         public HashMap<String, String> getFormData() {
             generateSig();
             HashMap<String, String> formData = new HashMap<>();
             try {
                 formData.put("app_id", app_id);
-                formData.put("time", Long.toString(time));
-                formData.put("sig", sig);
-                formData.put("client", Integer.toString(client));
+                formData.put("client", client);
                 formData.put("key", key);
-                formData.put("token", token);
             } catch (Exception ignored) {
 
             }

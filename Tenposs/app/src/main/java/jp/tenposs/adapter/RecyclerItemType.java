@@ -4,7 +4,7 @@ package jp.tenposs.adapter;
  * Created by ambient on 7/29/16.
  */
 public enum RecyclerItemType {
-    RecyclerItemTypeNone,
+    RecyclerItemTypeStart,
 
     //DECORATION_NONE
     RecyclerItemTypeTop,
@@ -39,7 +39,9 @@ public enum RecyclerItemType {
     RecyclerItemTypeRestaurantGridStaff,
 
     RecyclerItemTypeRestaurantRecyclerHorizontal,
-    RecyclerItemTypeRestaurantRecyclerVertical,;
+    RecyclerItemTypeRestaurantRecyclerVertical,
+
+    RecyclerItemTypeEnd;
 
 
     public static RecyclerItemType fromInt(int recyclerItemType) {
@@ -48,7 +50,6 @@ public enum RecyclerItemType {
                 return type;
             }
         }
-        return RecyclerItemTypeNone;
-
+        return RecyclerItemTypeStart;
     }
 }

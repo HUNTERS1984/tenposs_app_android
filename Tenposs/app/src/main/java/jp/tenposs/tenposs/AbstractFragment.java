@@ -2,7 +2,7 @@ package jp.tenposs.tenposs;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,7 +24,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.facebook.CallbackManager;
 
@@ -33,11 +32,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jp.tenposs.adapter.RecyclerItemWrapper;
+import jp.tenposs.communicator.RefreshTokenCommunicator;
+import jp.tenposs.communicator.TenpossCommunicator;
 import jp.tenposs.datamodel.AppData;
 import jp.tenposs.datamodel.AppInfo;
+import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
+import jp.tenposs.datamodel.RefreshTokenInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.datamodel.SignInInfo;
+import jp.tenposs.datamodel.UserInfo;
 import jp.tenposs.utils.FontIcon;
 import jp.tenposs.utils.Utils;
 
@@ -46,33 +50,16 @@ import jp.tenposs.utils.Utils;
  */
 public abstract class AbstractFragment extends Fragment {
 
+
+    public interface TenpossCallback {
+        void onSuccess(Bundle params);
+
+        void onFailed(Bundle params);
+    }
+
     public static int iconSize = 25;
 
-    public interface MainActivityListener {
-        void updateUserInfo(SignInInfo.User userProfile);
-
-        AbstractFragment showScreen(int menuId, Serializable extras, String fragmentTag);
-
-        AppInfo.Response.ResponseData getAppInfo();
-
-        CallbackManager getCallbackManager();
-
-        void toggleMenu();
-
-        FragmentManager getFM();
-
-        void setDrawerLockMode(int mode);
-
-        void showFragment(AbstractFragment fragment, String fragmentTag, boolean animated);
-
-        void setSessionValue(String key, String value);
-
-        String getSessionValue(String key, String valueDefault);
-
-        void showFirstFragment();
-
-        void stopServices();
-    }
+    protected String Tag = this.getClass().getSimpleName();
 
     public static final int WIFI_SETTINGS = 0xDAD0;
     public static final int CAPTURE_IMAGE_REQUEST = 0xDAD1;
@@ -125,6 +112,57 @@ public abstract class AbstractFragment extends Fragment {
 
     public final static int DEFAULT_RECORD_PER_PAGE = 48;
 
+    public static final String SCREEN_URL = "SCREEN_URL";
+    public static final String SCREEN_TYPE = "SCREEN_TYPE";
+    public static final String SCREEN_DATA = "SCREEN_DATA";
+    public static final String SCREEN_DATA_ID = "SCREEN_DATA_ID";
+    public static final String SCREEN_TITLE = "SCREEN_TITLE";
+    public static final String SCREEN_PAGE_ITEMS = "SCREEN_PAGE_ITEMS";
+    public static final String SCREEN_DATA_ITEM_INDEX = "SCREEN_DATA_ITEM_INDEX";
+    public static final String SCREEN_DATA_SHOW_FROM_SIDE_MENU = "SCREEN_DATA_SHOW_FROM_SIDE_MENU";
+
+    public static final String SCREEN_DATA_PAGE_INDEX = "SCREEN_DATA_PAGE_INDEX";
+    public static final String SCREEN_DATA_PAGE_SIZE = "SCREEN_DATA_PAGE_SIZE";
+    public static final String SCREEN_DATA_PAGE_DATA = "SCREEN_DATA_PAGE_DATA";
+
+    public static final String APP_DATA = "APP_DATA";
+    public static final String APP_DATA_STORE_ID = "APP_DATA_STORE_ID";
+    public static final String SCREEN_DATA_STATUS = "SCREEN_DATA_STATUS";
+    public static final String STORE_INFO = "STORE_INFO";
+
+
+    final static int LOADING_STATUS_UNKNOWN = -1;
+    final static int LOADING_STATUS_REFRESH = 0;
+    final static int LOADING_STATUS_MORE = 1;
+
+    public interface MainActivityListener {
+        void updateUserInfo(UserInfo.User userProfile);
+
+        AbstractFragment showScreen(int menuId, Serializable extras, String fragmentTag, boolean showFromSideMenu);
+
+        AppInfo.Response.ApplicationInfo getAppInfo();
+
+        CallbackManager getCallbackManager();
+
+        void toggleMenu();
+
+        FragmentManager getFM();
+
+        void setDrawerLockMode(int mode);
+
+        void showFragment(AbstractFragment fragment, String fragmentTag, boolean animated);
+
+        void setSessionValue(String key, String value);
+
+        String getSessionValue(String key, String valueDefault);
+
+        void showFirstFragment();
+
+        void stopServices();
+
+        void logoutBecauseExpired();
+    }
+
     public class ToolbarSettings {
 
         static final int LEFT_MENU_BUTTON = 1;
@@ -159,14 +197,6 @@ public abstract class AbstractFragment extends Fragment {
                 return Color.WHITE;
             }
         }
-
-//        public int getMenuIconColor() {
-//            if (appSetting != null) {
-//                return appSetting.getMenuIconColor();
-//            } else {
-//                return Color.WHITE;
-//            }
-//        }
 
         public int getMenuBackgroundColor() {
             if (appSetting != null) {
@@ -218,29 +248,6 @@ public abstract class AbstractFragment extends Fragment {
 
     }
 
-    public static String SCREEN_DATA = "SCREEN_DATA";
-    public static String SCREEN_DATA_ID = "SCREEN_DATA_ID";
-    public static String SCREEN_TITLE = "SCREEN_TITLE";
-    public static String SCREEN_PAGE_ITEMS = "SCREEN_PAGE_ITEMS";
-    public static String SCREEN_DATA_ITEM_INDEX = "SCREEN_DATA_ITEM_INDEX";
-
-    public static String SCREEN_DATA_PAGE_INDEX = "SCREEN_DATA_PAGE_INDEX";
-    public static String SCREEN_DATA_PAGE_SIZE = "SCREEN_DATA_PAGE_SIZE";
-    public static String SCREEN_DATA_PAGE_DATA = "SCREEN_DATA_PAGE_DATA";
-
-    public static String APP_DATA = "APP_DATA";
-    public static String APP_DATA_STORE_ID = "APP_DATA_STORE_ID";
-    public static String SCREEN_DATA_STATUS = "SCREEN_DATA_STATUS";
-    public static String MAIN_SCREEN = "MAIN_SCREEN";
-    public static String STORE_INFO = "STORE_INFO";
-
-
-    final static int LOADING_STATUS_UNKNOWN = -1;
-    final static int LOADING_STATUS_REFRESH = 0;
-    final static int LOADING_STATUS_MORE = 1;
-
-    protected String Tag = this.getClass().getSimpleName();
-
     protected int mThumbImageSize = 320;
     protected int mFullImageSize = 1024;
 
@@ -256,26 +263,24 @@ public abstract class AbstractFragment extends Fragment {
     protected String mScreenTitle = "";
     public ToolbarSettings mToolbarSettings;
     protected ScreenDataStatus mScreenDataStatus = ScreenDataStatus.ScreenDataStatusUnload;
-    protected SharedPreferences mAppPreferences;
     protected MainActivityListener mActivityListener;
     protected MainApplication mApplication;
     List<RecyclerItemWrapper> mScreenDataItems = new ArrayList<>();
     boolean mScreenToolBarHidden = true;
-    boolean mFirstScreen = false;
 
     protected ViewGroup mFragmentContent;
     Toolbar mToolbar;
     ImageButton mLeftToolbarButton;
-    ImageView mLeftToolbarImage;
 
     TextView mTitleToolbarLabel;
     RelativeLayout mRightToolbarLayout;
     ImageButton mRightToolbarButton;
-    ImageView mRightToolbarImage;
 
     protected ProgressDialog mProgressDialog;
 
     boolean mBusy = false;
+
+    boolean mShowFromSideMenu = false;
 
     protected abstract boolean customClose();
 
@@ -350,12 +355,10 @@ public abstract class AbstractFragment extends Fragment {
         this.mToolbar = (Toolbar) view.findViewById(R.id.toolbar);
 
         this.mLeftToolbarButton = (ImageButton) view.findViewById(R.id.left_toolbar_button);
-        this.mLeftToolbarImage = (ImageView) view.findViewById(R.id.left_toolbar_image);
 
         this.mTitleToolbarLabel = (TextView) view.findViewById(R.id.title_toolbar_label);
 
         this.mRightToolbarLayout = (RelativeLayout) view.findViewById(R.id.right_toolbar_layout);
-        this.mRightToolbarImage = (ImageButton) view.findViewById(R.id.right_toolbar_image);
         this.mRightToolbarButton = (ImageButton) view.findViewById(R.id.right_toolbar_button);
 
         if (this.mLeftToolbarButton != null) {
@@ -470,6 +473,7 @@ public abstract class AbstractFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(SCREEN_DATA_STATUS, this.mScreenDataStatus.ordinal());
+        outState.putBoolean(SCREEN_DATA_SHOW_FROM_SIDE_MENU, this.mShowFromSideMenu);
         customSaveInstanceState(outState);
     }
 
@@ -510,24 +514,21 @@ public abstract class AbstractFragment extends Fragment {
             this.mActivityListener = (MainActivityListener) getActivity();
             this.mApplication = (MainApplication) getActivity().getApplication();
         }
-        if (this.mAppPreferences == null) {
-            this.mAppPreferences = getActivity().getSharedPreferences("settings", Context.MODE_PRIVATE);
-        }
     }
 
-    protected String getPrefString(String key) {
-        setupVariables();
-        return this.mAppPreferences.getString(key, "");
-    }
-
-    protected boolean setPref(String key, String value) {
-        setupVariables();
-        boolean ret;
-        SharedPreferences.Editor editor = this.mAppPreferences.edit();
-        editor.putString(key, value);
-        ret = editor.commit();
-        return ret;
-    }
+//    protected String getPrefString(String key) {
+//        setupVariables();
+//        return this.mAppPreferences.getString(key, "");
+//    }
+//
+//    protected boolean setPref(String key, String value) {
+//        setupVariables();
+//        boolean ret;
+//        SharedPreferences.Editor editor = this.mAppPreferences.edit();
+//        editor.putString(key, value);
+//        ret = editor.commit();
+//        return ret;
+//    }
 
 
     @Override
@@ -577,27 +578,55 @@ public abstract class AbstractFragment extends Fragment {
         }
     }
 
-    protected void errorWithMessage(Bundle response, String message) {
+    protected void errorWithMessage(Bundle response, String message, final AbstractFragment.TenpossCallback callback) {
         setRefreshing(false);
+        String msg = message;
         if (response != null) {
-            String msg = response.getString(Key.ResponseMessage);
-            Toast.makeText(this.getContext(), msg, Toast.LENGTH_SHORT).show();
+            msg = response.getString(Key.ResponseMessage);
+            //Toast.makeText(this.getContext(), msg, Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this.getContext(), message, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this.getContext(), message, Toast.LENGTH_SHORT).show();
         }
+
+        String possitive = getString(R.string.OK);
+        String negative = null;
+        if (callback != null) {
+            possitive = getString(R.string.retry);
+            negative = getString(R.string.cancel);
+        }
+        Utils.showAlert(getContext(), null, msg, possitive, negative, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case DialogInterface.BUTTON_POSITIVE: {
+                        if (callback != null) {
+                            callback.onSuccess(null);
+                        }
+                    }
+                    break;
+                    case DialogInterface.BUTTON_NEGATIVE: {
+                        if (callback != null) {
+                            callback.onFailed(null);
+                        }
+                    }
+                    break;
+
+                }
+            }
+        });
     }
 
     private void restoreSavedInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
 
-            if (savedInstanceState.containsKey(MAIN_SCREEN)) {
-                this.mFirstScreen = savedInstanceState.getBoolean(MAIN_SCREEN);
-            }
             if (savedInstanceState.containsKey(SCREEN_DATA_STATUS)) {
                 this.mScreenDataStatus = ScreenDataStatus.fromInt(savedInstanceState.getInt(SCREEN_DATA_STATUS));
             }
             if (savedInstanceState.containsKey(SCREEN_TITLE)) {
                 this.mScreenTitle = savedInstanceState.getString(SCREEN_TITLE);
+            }
+            if (savedInstanceState.containsKey(SCREEN_DATA_SHOW_FROM_SIDE_MENU)) {
+                this.mShowFromSideMenu = savedInstanceState.getBoolean(SCREEN_DATA_SHOW_FROM_SIDE_MENU);
             }
             loadSavedInstanceState(savedInstanceState);
         }
@@ -618,31 +647,37 @@ public abstract class AbstractFragment extends Fragment {
 
     protected void updateToolbar() {
         try {
-            this.mToolbar.setBackgroundColor(this.mToolbarSettings.getToolbarBackgroundColor());
+            int toolbarIconColor;
+            int toolbarTitleColor;
 
-            int color = this.mToolbarSettings.getToolbarIconColor();
             if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
-                color = Utils.getColor(getContext(), R.color.restaurant_text_color);
+                this.mToolbar.setBackgroundColor(Color.WHITE);
+                toolbarIconColor = Utils.getColor(getContext(), R.color.restaurant_toolbar_icon_color);
+                toolbarTitleColor = Utils.getColor(getContext(), R.color.restaurant_toolbar_text_color);
+            } else {
+                this.mToolbar.setBackgroundColor(this.mToolbarSettings.getToolbarBackgroundColor());
+                toolbarIconColor = this.mToolbarSettings.getToolbarIconColor();
+                toolbarTitleColor = this.mToolbarSettings.getToolbarTitleColor();
             }
 
             if (this.mLeftToolbarButton != null) {
-                this.mLeftToolbarImage.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-                this.mLeftToolbarImage.setImageBitmap(FontIcon.imageForFontIdentifier(getActivity().getAssets(),
+                this.mLeftToolbarButton.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                this.mLeftToolbarButton.setImageBitmap(FontIcon.imageForFontIdentifier(getActivity().getAssets(),
                         this.mToolbarSettings.toolbarLeftIcon,
                         Utils.NavIconSize,
                         Color.argb(0, 0, 0, 0),
-                        color,
+                        toolbarIconColor,
                         FontIcon.FLATICON
                 ));
             }
             if (this.mRightToolbarButton != null && this.mToolbarSettings.toolbarRightIcon != null) {
                 this.mRightToolbarLayout.setVisibility(View.VISIBLE);
-                this.mRightToolbarImage.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-                this.mRightToolbarImage.setImageBitmap(FontIcon.imageForFontIdentifier(getActivity().getAssets(),
+                this.mRightToolbarButton.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                this.mRightToolbarButton.setImageBitmap(FontIcon.imageForFontIdentifier(getActivity().getAssets(),
                         this.mToolbarSettings.toolbarRightIcon,
                         Utils.NavIconSize,
                         Color.argb(0, 0, 0, 0),
-                        color,
+                        toolbarIconColor,
                         FontIcon.FLATICON
                 ));
             } else if (this.mRightToolbarLayout != null) {
@@ -658,11 +693,7 @@ public abstract class AbstractFragment extends Fragment {
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
-                if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
-                    this.mTitleToolbarLabel.setTextColor(Color.BLACK);
-                } else {
-                    this.mTitleToolbarLabel.setTextColor(mToolbarSettings.getToolbarTitleColor());
-                }
+                this.mTitleToolbarLabel.setTextColor(toolbarTitleColor);
             }
 
             if (this.mToolbarSettings.toolbarType == ToolbarSettings.LEFT_MENU_BUTTON) {
@@ -689,8 +720,8 @@ public abstract class AbstractFragment extends Fragment {
     }
 
     boolean isSignedIn() {
-        String token = getPrefString(Key.TokenKey);
-        String userProfile = getPrefString(Key.UserProfile);
+        String token = Utils.getPrefString(getContext(), Key.TokenKey);
+        String userProfile = Utils.getPrefString(getContext(), Key.UserProfile);
         if (token.length() > 0 && userProfile.length() > 0) {
             return true;
         } else {
@@ -705,4 +736,34 @@ public abstract class AbstractFragment extends Fragment {
         }
         return !mBusy;
     }
+
+    protected void refreshToken(final AbstractFragment.TenpossCallback callback) {
+        RefreshTokenInfo.Request request = new RefreshTokenInfo.Request();
+        Bundle params = new Bundle();
+        request.access_refresh_token_href = Utils.getPrefString(getContext(), Key.RefreshTokenHref);
+        params.putSerializable(Key.RequestObject, request);
+        new RefreshTokenCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
+            @Override
+            public void completed(TenpossCommunicator request, Bundle responseParams) {
+                Utils.hideProgress();
+                int result = responseParams.getInt(Key.ResponseResult);
+                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                    if (resultApi == CommonResponse.ResultSuccess) {
+                        SignInInfo.Response response = (SignInInfo.Response) responseParams.get(Key.ResponseObject);
+                        Utils.setPrefString(getContext(), Key.TokenKey, response.data.token);
+                        Utils.setPrefString(getContext(), Key.RefreshToken, response.data.refresh_token);
+                        Utils.setPrefString(getContext(), Key.RefreshTokenHref, response.data.access_refresh_token_href);
+                        callback.onSuccess(responseParams);
+
+                    } else {
+                        callback.onFailed(responseParams);
+                    }
+                } else {
+                    callback.onFailed(responseParams);
+                }
+            }
+        }).execute(params);
+    }
+
 }

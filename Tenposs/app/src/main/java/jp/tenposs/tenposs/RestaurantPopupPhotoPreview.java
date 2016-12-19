@@ -75,8 +75,6 @@ public class RestaurantPopupPhotoPreview {
 
         Picasso ps = Picasso.with(mContext);
         ps.load(popupData)
-                .resize(fullImageSize, fullImageSize)
-                .centerInside()
                 .into(imageView);
     }
 
@@ -115,8 +113,6 @@ public class RestaurantPopupPhotoPreview {
             if (image.getImageUrl() != null) {
                 Picasso ps = Picasso.with(mContext);
                 ps.load(image.getImageUrl())
-                        .resize(fullImageSize, fullImageSize)
-                        .centerInside()
                         .into(itemThumbnail);
                                 /*new Target() {
                             @Override

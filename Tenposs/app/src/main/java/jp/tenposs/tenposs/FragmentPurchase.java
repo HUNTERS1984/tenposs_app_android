@@ -15,13 +15,13 @@ import jp.tenposs.datamodel.ScreenDataStatus;
 public class FragmentPurchase extends FragmentWebView {
     ItemsInfo.Item mScreenData;
 
-    public static FragmentPurchase newInstance(Serializable extras) {
-        FragmentPurchase gm = new FragmentPurchase();
-        Bundle b = new Bundle();
-        b.putSerializable(SCREEN_DATA, extras);
-        gm.setArguments(b);
-        return gm;
-    }
+//    public static FragmentPurchase newInstance(Serializable extras) {
+//        FragmentPurchase gm = new FragmentPurchase();
+//        Bundle b = new Bundle();
+//        b.putSerializable(SCREEN_DATA, extras);
+//        gm.setArguments(b);
+//        return gm;
+//    }
 
     @Override
     protected boolean customClose() {

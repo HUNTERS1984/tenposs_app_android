@@ -58,8 +58,6 @@ public class FilmstripAdapter extends PagerAdapter {
         if (image.getImageUrl() != null) {
             Picasso ps = Picasso.with(mContext);
             ps.load(image.getImageUrl())
-                    .resize(fullImageSize, fullImageSize)
-                    .centerInside()
                     .into(itemThumbnail);
         }
         final int itemPosition = position;

@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -34,6 +35,7 @@ public class FragmentCouponRequest extends AbstractFragment {
     SwipeRefreshLayout mSwipeRefreshLayout;
     ListView mListView;
     CouponRequestAdapter mListAdapter;
+    TextView mNoDataLabel;
 
     @Override
     protected boolean customClose() {
@@ -70,17 +72,22 @@ public class FragmentCouponRequest extends AbstractFragment {
         setRefreshing(false);
         this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
 
-        this.mListAdapter = new CouponRequestAdapter(this.getContext(), this.mScreenData.getItems());
-        this.mListView.setAdapter(this.mListAdapter);
-        this.mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                CouponRequestInfo.RequestInfo item = mScreenData.get(position);
-                //mActivityListener.showScreen(AbstractFragment.COUPON_DETAIL_SCREEN, item);
-                showPopupCouponRequest(item);
-            }
-        });
 
+        ArrayList<CouponRequestInfo.RequestInfo> items = this.mScreenData.getItems();
+        if (items == null || items.size() == 0) {
+            this.mNoDataLabel.setVisibility(View.VISIBLE);
+        } else {
+            this.mListAdapter = new CouponRequestAdapter(this.getContext(), items);
+            this.mListView.setAdapter(this.mListAdapter);
+            this.mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    CouponRequestInfo.RequestInfo item = mScreenData.get(position);
+                    showPopupCouponRequest(item);
+                }
+            });
+            this.mNoDataLabel.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -89,6 +96,7 @@ public class FragmentCouponRequest extends AbstractFragment {
         this.mRightToolbarButtonEx = (ImageButton) root.findViewById(R.id.right_toolbar_button_ex);
         this.mSwipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipe_refresh_layout);
         this.mListView = (ListView) root.findViewById(R.id.list_view);
+        this.mNoDataLabel = (TextView) root.findViewById(R.id.no_data_label);
         this.mRightToolbarButtonEx.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -144,7 +152,6 @@ public class FragmentCouponRequest extends AbstractFragment {
 
     void loadCouponRequest() {
         Bundle params = new Bundle();
-        params.putSerializable(Key.RequestObject, Utils.getPrefString(this.getContext(), Key.TokenKey));
         params.putString(Key.TokenKey, Utils.getPrefString(getContext(), Key.TokenKey));
 
         CouponRequestCommunicator communicator = new CouponRequestCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {

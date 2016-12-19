@@ -12,9 +12,9 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-import jp.tenposs.datamodel.CouponInfo;
 import jp.tenposs.datamodel.CouponRequestInfo;
 import jp.tenposs.staffapp.R;
+import jp.tenposs.utils.Utils;
 
 /**
  * Created by ambient on 10/17/16.
@@ -36,14 +36,12 @@ public class CouponRequestAdapter extends ArrayAdapter<CouponRequestInfo.Request
         TextView descriptionLabel = (TextView) convertView.findViewById(R.id.coupon_title_label);
         TextView timeLabel = (TextView) convertView.findViewById(R.id.time_label);
 
-        titleLabel.setText(coupon.title);
+        titleLabel.setText(coupon.name);
         descriptionLabel.setText(coupon.title);
-        timeLabel.setText("Just now");
+        timeLabel.setText(Utils.formatJapanDateTime(coupon.user_use_date));
 
         Picasso ps = Picasso.with(getContext());
         ps.load(coupon.getImageUrl())
-                .resize(320, 320)
-                .centerInside()
                 .into(imageView);
 
         return convertView;

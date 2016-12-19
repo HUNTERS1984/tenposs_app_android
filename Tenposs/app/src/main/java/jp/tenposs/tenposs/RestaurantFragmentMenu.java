@@ -78,12 +78,12 @@ public class RestaurantFragmentMenu
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.menu);
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && this.mFirstScreen == false) {
-            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
-            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
-        } else {
+        if (this.mShowFromSideMenu == true) {
             mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        } else {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
         }
     }
 
@@ -305,13 +305,26 @@ public class RestaurantFragmentMenu
                                     }
 
                                     previewScreenData();
+                                } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                                    refreshToken(new TenpossCallback() {
+                                        @Override
+                                        public void onSuccess(Bundle params) {
+                                            loadMenuItem();
+                                        }
+
+                                        @Override
+                                        public void onFailed(Bundle params) {
+                                            //Logout, then do something
+                                            mActivityListener.logoutBecauseExpired();
+                                        }
+                                    });
                                 } else {
                                     String strMessage = responseParams.getString(Key.ResponseMessage);
-                                    errorWithMessage(responseParams, strMessage);
+                                    errorWithMessage(responseParams, strMessage, null);
                                 }
                             } else {
                                 String strMessage = responseParams.getString(Key.ResponseMessage);
-                                errorWithMessage(responseParams, strMessage);
+                                errorWithMessage(responseParams, strMessage, null);
                             }
                         }
                     });
@@ -337,7 +350,7 @@ public class RestaurantFragmentMenu
         switch (item.itemType) {
             case RecyclerItemTypeRestaurantGridItem: {
                 ItemsInfo.Item itemData = (ItemsInfo.Item) item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(AbstractFragment.ITEM_SCREEN, itemData, null);
+                this.mActivityListener.showScreen(AbstractFragment.ITEM_SCREEN, itemData, null, false);
             }
             break;
 

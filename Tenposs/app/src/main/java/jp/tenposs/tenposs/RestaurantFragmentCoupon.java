@@ -21,7 +21,6 @@ import jp.tenposs.adapter.RestaurantCouponAdapter;
 import jp.tenposs.communicator.CouponInfoCommunicator;
 import jp.tenposs.communicator.StaffInfoCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
-import jp.tenposs.datamodel.AppData;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.CouponInfo;
 import jp.tenposs.datamodel.Key;
@@ -50,18 +49,18 @@ public class RestaurantFragmentCoupon
     int dotsCount;
     RestaurantCouponAdapter mViewPagerAdapter;
 
-    private RestaurantFragmentCoupon() {
-
-    }
-
-    public static RestaurantFragmentCoupon newInstance(String title, int storeId) {
-        RestaurantFragmentCoupon fragment = new RestaurantFragmentCoupon();
-        Bundle b = new Bundle();
-        b.putString(AbstractFragment.SCREEN_TITLE, title);
-        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
-        fragment.setArguments(b);
-        return fragment;
-    }
+//    private RestaurantFragmentCoupon() {
+//
+//    }
+//
+//    public static RestaurantFragmentCoupon newInstance(String title, int storeId) {
+//        RestaurantFragmentCoupon fragment = new RestaurantFragmentCoupon();
+//        Bundle b = new Bundle();
+//        b.putString(AbstractFragment.SCREEN_TITLE, title);
+//        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
+//        fragment.setArguments(b);
+//        return fragment;
+//    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -84,12 +83,12 @@ public class RestaurantFragmentCoupon
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.coupon);
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && this.mFirstScreen == false) {
-            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
-            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
-        } else {
+        if (this.mShowFromSideMenu == true) {
             mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        } else {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
         }
     }
 
@@ -182,10 +181,10 @@ public class RestaurantFragmentCoupon
 
     @Override
     boolean canCloseByBackpressed() {
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && this.mFirstScreen == false) {
-            return true;
-        } else {
+        if (this.mShowFromSideMenu == true) {
             return false;
+        } else {
+            return true;
         }
     }
 
@@ -257,13 +256,26 @@ public class RestaurantFragmentCoupon
                             if (resultApi == CommonResponse.ResultSuccess) {
                                 RestaurantFragmentCoupon.this.mScreenData = (CouponInfo.Response) responseParams.getSerializable(Key.ResponseObject);
                                 previewScreenData();
+                            } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                                refreshToken(new TenpossCallback() {
+                                    @Override
+                                    public void onSuccess(Bundle params) {
+                                        loadCouponsInfo();
+                                    }
+
+                                    @Override
+                                    public void onFailed(Bundle params) {
+                                        //Logout, then do something
+                                        mActivityListener.logoutBecauseExpired();
+                                    }
+                                });
                             } else {
                                 String strMessage = responseParams.getString(Key.ResponseMessage);
-                                errorWithMessage(responseParams, strMessage);
+                                errorWithMessage(responseParams, strMessage, null);
                             }
                         } else {
                             String strMessage = responseParams.getString(Key.ResponseMessage);
-                            errorWithMessage(responseParams, strMessage);
+                            errorWithMessage(responseParams, strMessage, null);
                         }
                     }
                 });
@@ -353,13 +365,26 @@ public class RestaurantFragmentCoupon
                                 if (resultApi == CommonResponse.ResultSuccess) {
                                     mStaffs = (StaffInfo.Response) responseParams.getSerializable(Key.ResponseObject);
                                     getStaffsIfNeeded();
+                                } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                                    refreshToken(new TenpossCallback() {
+                                        @Override
+                                        public void onSuccess(Bundle params) {
+                                            getStaffsIfNeeded();
+                                        }
+
+                                        @Override
+                                        public void onFailed(Bundle params) {
+                                            //Logout, then do something
+                                            mActivityListener.logoutBecauseExpired();
+                                        }
+                                    });
                                 } else {
                                     String strMessage = responseParams.getString(Key.ResponseMessage);
-                                    errorWithMessage(responseParams, strMessage);
+                                    errorWithMessage(responseParams, strMessage, null);
                                 }
                             } else {
                                 String strMessage = responseParams.getString(Key.ResponseMessage);
-                                errorWithMessage(responseParams, strMessage);
+                                errorWithMessage(responseParams, strMessage, null);
                             }
                         }
                     });

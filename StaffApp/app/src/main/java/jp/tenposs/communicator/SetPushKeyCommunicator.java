@@ -4,7 +4,6 @@ import android.os.Bundle;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
 
 import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
@@ -18,20 +17,16 @@ import jp.tenposs.datamodel.SetPushKeyInfo;
 public class SetPushKeyCommunicator extends TenpossCommunicator {
     public SetPushKeyCommunicator(TenpossCommunicatorListener listener) {
         super(listener);
-        mMethod = METHOD_POST;
+        this.mMethod = METHOD_POST;
+        this.mAuthorizationMode = AUTH_TOKEN;
     }
 
     @Override
     protected boolean request(Bundle bundle) {
-        HashMap<String, String> header = new HashMap<>();
-        String token = bundle.getString(Key.RequestObject);
-        header.put("Authorization", "Bearer " + token);
-        bundle.putSerializable(Key.RequestHeader, header);
-
-        String strUrl = API_SETPUSHKEY;
+        String strUrl = API_SET_PUSH_KEY_FOR_STAFF;
         SetPushKeyInfo.Request requestData = (SetPushKeyInfo.Request) bundle.getSerializable(Key.RequestObject);
         bundle.putSerializable(Key.RequestFormData, requestData.getFormData());
-        int result = CommunicationCode.ConnectionSuccess.ordinal();
+        int result;
         OutputStream output;
 
         try {

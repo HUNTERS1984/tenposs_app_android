@@ -2,7 +2,6 @@ package jp.tenposs.tenposs;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -53,7 +52,7 @@ import java.util.List;
 import java.util.Locale;
 
 import jp.tenposs.communicator.InstagramAPI;
-import jp.tenposs.communicator.SignOutCommunicator;
+import jp.tenposs.communicator.SocialProfileCancelCommunicator;
 import jp.tenposs.communicator.SocialProfileCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
 import jp.tenposs.communicator.UpdateProfileCommunicator;
@@ -62,11 +61,10 @@ import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.ScreenDataStatus;
-import jp.tenposs.datamodel.SignInInfo;
-import jp.tenposs.datamodel.SignOutInfo;
 import jp.tenposs.datamodel.SocialProfileInfo;
-import jp.tenposs.datamodel.SocialSigninInfo;
+import jp.tenposs.datamodel.SocialSignInInfo;
 import jp.tenposs.datamodel.UpdateProfileInfo;
+import jp.tenposs.datamodel.UserInfo;
 import jp.tenposs.utils.CropUtil;
 import jp.tenposs.utils.Utils;
 import jp.tenposs.view.CircleImageView;
@@ -120,7 +118,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
     TextView mLinkWithInstagram;
     Button mLinkInstagramButton;
 
-    SignInInfo.User mScreenData;
+    UserInfo.User mScreenData;
 
     CallbackManager mCallbackManager;
     ProfileTracker mProfileTracker;
@@ -135,17 +133,17 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
     String lastProvince;
     String selectedProvince = "";
 
-    private FragmentEditProfile() {
-
-    }
-
-    public static FragmentEditProfile newInstance(int storeId) {
-        FragmentEditProfile fragment = new FragmentEditProfile();
-        Bundle b = new Bundle();
-        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
-        fragment.setArguments(b);
-        return fragment;
-    }
+//    private FragmentEditProfile() {
+//
+//    }
+//
+//    public static FragmentEditProfile newInstance(int storeId) {
+//        FragmentEditProfile fragment = new FragmentEditProfile();
+//        Bundle b = new Bundle();
+//        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
+//        fragment.setArguments(b);
+//        return fragment;
+//    }
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
@@ -374,7 +372,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
                         @Override
                         protected void onCurrentProfileChanged(Profile profile, Profile profile2) {
                             linkWithSocialAccount(getString(R.string.msg_link_with_facebook),
-                                    SocialSigninInfo.FACEBOOK,
+                                    SocialSignInInfo.FACEBOOK,
                                     profile2.getId(),
                                     token,
                                     profile2.getName(),
@@ -384,7 +382,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
                     };
                 } else {
                     linkWithSocialAccount(getString(R.string.msg_link_with_facebook),
-                            SocialSigninInfo.FACEBOOK,
+                            SocialSignInInfo.FACEBOOK,
                             profile.getId(),
                             token,
                             profile.getName(),
@@ -400,7 +398,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
             @Override
             public void onError(FacebookException exception) {
                 // App code
-                System.out.print("FragmentSignIn " + exception.getMessage());
+                Utils.log(Tag, exception.getMessage());
             }
         });
 
@@ -413,7 +411,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
                 String secretKey = token.secret;
 
                 linkWithSocialAccount(getString(R.string.msg_link_with_twitter),
-                        SocialSigninInfo.TWITTER,
+                        SocialSignInInfo.TWITTER,
                         Long.toString(result.data.getId()),
                         twitterToken,//token
                         result.data.getUserName(),
@@ -436,7 +434,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
             public void onSuccess() {
                 //mInstagramAPI.fetchUserName();
                 linkWithSocialAccount(getString(R.string.msg_link_with_instagram),
-                        SocialSigninInfo.INSTAGRAM,
+                        SocialSignInInfo.INSTAGRAM,
                         mInstagramAPI.getId(),
                         mInstagramAPI.getAccessToken(),
                         mInstagramAPI.getUserName(),
@@ -527,8 +525,8 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
         this.mLinkTwitterButton.setOnClickListener(this);
         this.mLinkInstagramButton.setOnClickListener(this);
 
-        String userProfile = getPrefString(Key.UserProfile);
-        this.mScreenData = (SignInInfo.User) CommonObject.fromJSONString(userProfile, SignInInfo.User.class, null);
+        String userProfile = Utils.getPrefString(getContext(), Key.UserProfile);
+        this.mScreenData = (UserInfo.User) CommonObject.fromJSONString(userProfile, UserInfo.User.class, null);
 
         return root;
     }
@@ -541,7 +539,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
     @Override
     void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
         if (savedInstanceState.containsKey(SCREEN_DATA)) {
-            this.mScreenData = (SignInInfo.User) savedInstanceState.getSerializable(SCREEN_DATA);
+            this.mScreenData = (UserInfo.User) savedInstanceState.getSerializable(SCREEN_DATA);
         }
     }
 
@@ -667,75 +665,14 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
         if (url.contains("http://") == true || url.contains("https://") == true) {
 
             ps.load(this.mScreenData.profile.getImageUrl())
-                    .resize(mFullImageSize, 640)
-                    .centerInside()
-                    .placeholder(R.drawable.no_avatar)
+                    .placeholder(R.drawable.no_avatar_gray)
                     .into(mUserAvatarImage);
         } else {
             File f = new File(this.mScreenData.profile.getImageUrl());
             ps.load(f)
-                    .resize(mFullImageSize, 640)
-                    .centerInside()
-                    .placeholder(R.drawable.no_avatar)
+                    .placeholder(R.drawable.no_avatar_gray)
                     .into(mUserAvatarImage);
         }
-    }
-
-    void performSignOut() {
-        Utils.showAlert(this.getContext(),
-                getString(R.string.info),
-                getString(R.string.msg_sign_out_confirm),
-                getString(R.string.yes),
-                getString(R.string.no),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case DialogInterface.BUTTON_POSITIVE: {
-                                SignOutCommunicator communicator = new SignOutCommunicator(
-                                        new TenpossCommunicator.TenpossCommunicatorListener() {
-                                            @Override
-                                            public void completed(TenpossCommunicator request, Bundle responseParams) {
-                                                if (isAdded() == false) {
-                                                    return;
-                                                }
-                                                Utils.hideProgress();
-                                                int result = responseParams.getInt(Key.ResponseResult);
-                                                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
-                                                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
-                                                    if (resultApi == CommonResponse.ResultSuccess ||
-                                                            resultApi == CommonResponse.ResultErrorInvalidToken) {
-                                                        //clear token and user profile
-                                                        setPref(Key.TokenKey, "");
-                                                        setPref(Key.UserProfile, "");
-                                                        mActivityListener.updateUserInfo(null);
-                                                        close();
-                                                    } else {
-                                                        String strMessage = responseParams.getString(Key.ResponseMessage);
-                                                        errorWithMessage(responseParams, strMessage);
-                                                    }
-                                                } else {
-                                                    String strMessage = responseParams.getString(Key.ResponseMessage);
-                                                    errorWithMessage(responseParams, strMessage);
-                                                }
-                                            }
-                                        });
-                                Bundle params = new Bundle();
-                                SignOutInfo.Request request = new SignOutInfo.Request();
-                                request.token = getPrefString(Key.TokenKey);
-                                params.putSerializable(Key.RequestObject, request);
-                                Utils.showProgress(getContext(), getString(R.string.msg_signing_out));
-                                communicator.execute(params);
-                            }
-                            break;
-
-                            case DialogInterface.BUTTON_NEGATIVE: {
-                                //Do nothing
-                            }
-                            break;
-                        }
-                    }
-                });
     }
 
     @Override
@@ -759,24 +696,38 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
             imm.showSoftInput(this.mEmailEdit, InputMethodManager.SHOW_IMPLICIT);
 
         } else if (v == this.mLinkFacebookButton) {
-            Profile profile = Profile.getCurrentProfile();
-            String token = getPrefString(Key.FacebookTokenKey);
-            if (profile != null && token.length() > 0) {
-                // user has logged in
-                linkWithSocialAccount(getString(R.string.msg_link_with_facebook),
-                        SocialSigninInfo.FACEBOOK,
-                        profile.getId(),
-                        token,
-                        profile.getName(),
-                        null);
+            if (mScreenData.profile.facebook_status == 0) {
+                Profile profile = Profile.getCurrentProfile();
+                String token = Utils.getPrefString(getContext(), Key.FacebookTokenKey);
+                if (profile != null && token.length() > 0) {
+                    // user has logged in
+                    linkWithSocialAccount(getString(R.string.msg_link_with_facebook),
+                            SocialSignInInfo.FACEBOOK,
+                            profile.getId(),
+                            token,
+                            profile.getName(),
+                            null);
+                } else {
+                    this.mFacebookLogin.performClick();
+                }
             } else {
-                this.mFacebookLogin.performClick();
+                Utils.setPrefString(getContext(), Key.FacebookTokenKey, "");
+                disconnectSocialAccount(SocialSignInInfo.FACEBOOK);
             }
         } else if (v == this.mLinkTwitterButton) {
-            this.mTwitterLogin.performClick();
+            if (mScreenData.profile.twitter_status == 0) {
+                this.mTwitterLogin.performClick();
+            } else {
+                disconnectSocialAccount(SocialSignInInfo.TWITTER);
+            }
 
         } else if (v == this.mLinkInstagramButton) {
-            connectOrDisconnectUser();
+            if (mScreenData.profile.instagram_status == 0) {
+                connectInstagram();
+            } else {
+                mInstagramAPI.resetAccessToken();
+                disconnectSocialAccount(SocialSignInInfo.INSTAGRAM);
+            }
 
         } else if (v == this.mGenderButton) {
             this.mGenderSpinner.performClick();
@@ -787,16 +738,70 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
         }
     }
 
-    void disconnectSocialAccount(String socialType) {
+    void disconnectSocialAccount(final String socialType) {
+        Bundle params = new Bundle();
+        SocialProfileInfo.Request request = new SocialProfileInfo.Request();
+        request.social_type = socialType;
+        SocialProfileCancelCommunicator communicator = new SocialProfileCancelCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
+            @Override
+            public void completed(TenpossCommunicator request, Bundle responseParams) {
+                if (isAdded() == false) {
+                    return;
+                }
+                Utils.hideProgress();
+                int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                if (resultApi == CommonResponse.ResultSuccess) {
+                    //update user profile
+                    if (socialType.equalsIgnoreCase(SocialSignInInfo.FACEBOOK) == true) {
+                        mScreenData.profile.facebook_status = 0;
 
+                    } else if (socialType.equalsIgnoreCase(SocialSignInInfo.TWITTER) == true) {
+                        mScreenData.profile.twitter_status = 0;
+
+                    } else if (socialType.equalsIgnoreCase(SocialSignInInfo.INSTAGRAM) == true) {
+                        mScreenData.profile.instagram_status = 0;
+                    }
+                    Utils.setPrefString(getContext(), Key.UserProfile, CommonObject.toJSONString(mScreenData, mScreenData.getClass()));
+                    updateLinkButton();
+                } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                    refreshToken(new TenpossCallback() {
+                        @Override
+                        public void onSuccess(Bundle params) {
+                            disconnectSocialAccount(socialType);
+                        }
+
+                        @Override
+                        public void onFailed(Bundle params) {
+                            //Logout, then do something
+                            mActivityListener.logoutBecauseExpired();
+                        }
+                    });
+                } else {
+                    String strMessage = responseParams.getString(Key.ResponseMessage);
+                    errorWithMessage(responseParams, strMessage, new TenpossCallback() {
+                        @Override
+                        public void onSuccess(Bundle params) {
+                            disconnectSocialAccount(socialType);
+                        }
+
+                        @Override
+                        public void onFailed(Bundle params) {
+                            //TODO:
+                        }
+                    });
+                }
+            }
+        });
+
+        communicator.execute(params);
     }
 
-    void linkWithSocialAccount(String message,
+    void linkWithSocialAccount(final String message,
                                final String socialType,
-                               String socialId,
-                               String socialToken,
-                               String socialName,
-                               String socialSecret) {
+                               final String socialId,
+                               final String socialToken,
+                               final String socialName,
+                               final String socialSecret) {
         Bundle params = new Bundle();
         SocialProfileInfo.Request request = new SocialProfileInfo.Request();
 
@@ -806,7 +811,8 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
         request.social_secret = socialSecret;//twitter secret (used for twitter only)
         request.nickname = socialName;
 
-        request.token = getPrefString(Key.TokenKey);
+        request.token = Utils.getPrefString(getContext(), Key.TokenKey);
+        params.putString(Key.TokenKey, Utils.getPrefString(getContext(), Key.TokenKey));
         params.putSerializable(Key.RequestObject, request);
         SocialProfileCommunicator communicator = new SocialProfileCommunicator(
                 new TenpossCommunicator.TenpossCommunicatorListener() {
@@ -820,21 +826,43 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
                         if (resultApi == CommonResponse.ResultSuccess) {
                             //update user profile
 
-                            if (socialType.equalsIgnoreCase(SocialSigninInfo.FACEBOOK) == true) {
+                            if (socialType.equalsIgnoreCase(SocialSignInInfo.FACEBOOK) == true) {
                                 mScreenData.profile.facebook_status = 1;
 
-                            } else if (socialType.equalsIgnoreCase(SocialSigninInfo.TWITTER) == true) {
+                            } else if (socialType.equalsIgnoreCase(SocialSignInInfo.TWITTER) == true) {
                                 mScreenData.profile.twitter_status = 1;
 
-                            } else if (socialType.equalsIgnoreCase(SocialSigninInfo.INSTAGRAM) == true) {
+                            } else if (socialType.equalsIgnoreCase(SocialSignInInfo.INSTAGRAM) == true) {
                                 mScreenData.profile.instagram_status = 1;
                             }
-                            setPref(Key.UserProfile, CommonObject.toJSONString(mScreenData, mScreenData.getClass()));
+                            Utils.setPrefString(getContext(), Key.UserProfile, CommonObject.toJSONString(mScreenData, mScreenData.getClass()));
                             updateLinkButton();
+                        } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                            refreshToken(new TenpossCallback() {
+                                @Override
+                                public void onSuccess(Bundle params) {
+                                    linkWithSocialAccount(message, socialType, socialId, socialToken, socialName, socialSecret);
+                                }
 
+                                @Override
+                                public void onFailed(Bundle params) {
+                                    //Logout, then do something
+                                    mActivityListener.logoutBecauseExpired();
+                                }
+                            });
                         } else {
                             String strMessage = responseParams.getString(Key.ResponseMessage);
-                            errorWithMessage(responseParams, strMessage);
+                            errorWithMessage(responseParams, strMessage, new TenpossCallback() {
+                                @Override
+                                public void onSuccess(Bundle params) {
+                                    linkWithSocialAccount(message, socialType, socialId, socialToken, socialName, socialSecret);
+                                }
+
+                                @Override
+                                public void onFailed(Bundle params) {
+                                    //TODO:
+                                }
+                            });
                         }
                     }
                 }
@@ -860,7 +888,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
     void updateProfile(final String gender, final String userName, final String address, final Uri avatar) {
         Bundle params = new Bundle();
         UpdateProfileInfo.Request request = new UpdateProfileInfo.Request();
-        request.token = getPrefString(Key.TokenKey);
+        request.token = Utils.getPrefString(getContext(), Key.TokenKey);
 
         if (userName != null) {
             request.username = userName;
@@ -879,6 +907,7 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
         }
 
         params.putSerializable(Key.RequestObject, request);
+        params.putString(Key.TokenKey, Utils.getPrefString(getContext(), Key.TokenKey));
         UpdateProfileCommunicator communicator = new UpdateProfileCommunicator(
                 new TenpossCommunicator.TenpossCommunicatorListener() {
                     @Override
@@ -901,16 +930,28 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
                                 mScreenData.profile.setImageFile(avatar.getPath());
                             }
 
-                            setPref(Key.UserProfile, CommonObject.toJSONString(mScreenData, mScreenData.getClass()));
+                            Utils.setPrefString(getContext(), Key.UserProfile, CommonObject.toJSONString(mScreenData, mScreenData.getClass()));
 
                             mApplication.remove(Key.UpdateProfileAvatar);
 
                             mActivityListener.updateUserInfo(mScreenData);
                             close();
+                        } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                            refreshToken(new TenpossCallback() {
+                                @Override
+                                public void onSuccess(Bundle params) {
+                                    updateProfile(gender, userName, address, avatar);
+                                }
 
+                                @Override
+                                public void onFailed(Bundle params) {
+                                    //Logout, then do something
+                                    mActivityListener.logoutBecauseExpired();
+                                }
+                            });
                         } else {
                             String strMessage = responseParams.getString(Key.ResponseMessage);
-                            errorWithMessage(responseParams, strMessage);
+                            errorWithMessage(responseParams, strMessage, null);
                         }
                     }
                 }
@@ -921,30 +962,30 @@ public class FragmentEditProfile extends AbstractFragment implements View.OnClic
     }
 
 
-    private void connectOrDisconnectUser() {
-        if (mInstagramAPI.hasAccessToken()) {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(
-                    getContext());
-            builder.setMessage("Disconnect from Instagram?")
-                    .setCancelable(false)
-                    .setPositiveButton("Yes",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog,
-                                                    int id) {
-                                    mInstagramAPI.resetAccessToken();
-                                }
-                            })
-                    .setNegativeButton("No",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog,
-                                                    int id) {
-                                    dialog.cancel();
-                                }
-                            });
-            final AlertDialog alert = builder.create();
-            alert.show();
-        } else {
-            mInstagramAPI.authorize();
-        }
+    private void connectInstagram() {
+//        if (mInstagramAPI.hasAccessToken()) {
+//            final AlertDialog.Builder builder = new AlertDialog.Builder(
+//                    getContext());
+//            builder.setMessage("Disconnect from Instagram?")
+//                    .setCancelable(false)
+//                    .setPositiveButton("Yes",
+//                            new DialogInterface.OnClickListener() {
+//                                public void onClick(DialogInterface dialog,
+//                                                    int id) {
+//                                    mInstagramAPI.resetAccessToken();
+//                                }
+//                            })
+//                    .setNegativeButton("No",
+//                            new DialogInterface.OnClickListener() {
+//                                public void onClick(DialogInterface dialog,
+//                                                    int id) {
+//                                    dialog.cancel();
+//                                }
+//                            });
+//            final AlertDialog alert = builder.create();
+//            alert.show();
+//        } else {
+        mInstagramAPI.authorize();
+//        }
     }
 }

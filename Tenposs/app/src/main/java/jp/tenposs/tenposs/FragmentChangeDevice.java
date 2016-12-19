@@ -15,14 +15,14 @@ import jp.tenposs.datamodel.ScreenDataStatus;
  */
 public class FragmentChangeDevice extends AbstractFragment implements View.OnClickListener {
 
-    private FragmentChangeDevice() {
-
-    }
-
-    public static FragmentChangeDevice newInstance(Serializable extras) {
-        FragmentChangeDevice fragment = new FragmentChangeDevice();
-        return fragment;
-    }
+//    private FragmentChangeDevice() {
+//
+//    }
+//
+//    public static FragmentChangeDevice newInstance(Serializable extras) {
+//        FragmentChangeDevice fragment = new FragmentChangeDevice();
+//        return fragment;
+//    }
 
     @Override
     protected boolean customClose() {

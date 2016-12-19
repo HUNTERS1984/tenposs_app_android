@@ -18,12 +18,13 @@ public class SetPushSettingsCommunicator extends TenpossCommunicator {
     public SetPushSettingsCommunicator(TenpossCommunicatorListener listener) {
         super(listener);
         mMethod = METHOD_POST;
+        mAuthorizationMode = AUTH_TOKEN;
     }
 
     @Override
     protected boolean request(Bundle bundle) {
-        String strUrl = API_SET_PUSH_SETTINGS;
-        PushInfo.RequestSet requestData = (PushInfo.RequestSet) bundle.getSerializable(Key.RequestObject);
+        String strUrl = API_SET_PUSH_SETTING_FOR_USER;
+        PushInfo.Request requestData = (PushInfo.Request) bundle.getSerializable(Key.RequestObject);
         bundle.putSerializable(Key.RequestFormData, requestData.getFormData());
         int result = CommunicationCode.ConnectionSuccess.ordinal();
         OutputStream output;

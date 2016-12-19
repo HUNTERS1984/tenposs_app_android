@@ -19,6 +19,11 @@ public class PhotoInfo {
         String sigInput() {
             return app_id + "" + time + "" + category_id + "" + privateKey;
         }
+
+        @Override
+        ArrayList<String> getAvailableParams() {
+            return null;
+        }
     }
 
     public class Response extends CommonResponse {

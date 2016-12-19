@@ -16,6 +16,11 @@ public class MenuInfo {
             return app_id + "" + time + "" + store_id + "" + privateKey;
 //            return store_id + "" + privateKey + "" + time;
         }
+
+        @Override
+        ArrayList<String> getAvailableParams() {
+            return null;
+        }
     }
 
     public class Response extends CommonResponse {

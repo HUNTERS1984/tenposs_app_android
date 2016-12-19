@@ -18,7 +18,6 @@ import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.PushInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
-import jp.tenposs.datamodel.SignOutInfo;
 import jp.tenposs.utils.Utils;
 import jp.tenposs.view.SwitchButton;
 
@@ -30,28 +29,29 @@ import jp.tenposs.view.SwitchButton;
 public class FragmentSetting extends AbstractFragment implements View.OnClickListener {
 
     Button mEditProfileButton;
-    SwitchButton mReceivePushSwitch;
+    SwitchButton mReceiveNewsSwitch;
     SwitchButton mReceiveCouponSwitch;
+
+    SwitchButton mReceiveChatSwitch;
+    SwitchButton mReceiveRankSwitch;
+
     Button mIssueButton;
     Button mCompanyInfoButton;
     Button mUserPrivacyButton;
+    ViewGroup mSignOutLayout;
     Button mSignOutButton;
 
     PushInfo.Response mScreenData;
     PushInfo.Response mScreenDataTemp;
 
-    private FragmentSetting() {
-
-    }
-
-    public static FragmentSetting newInstance(String title, int storeId) {
-        FragmentSetting fragment = new FragmentSetting();
-        Bundle b = new Bundle();
-        b.putString(AbstractFragment.SCREEN_TITLE, title);
-        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
-        fragment.setArguments(b);
-        return fragment;
-    }
+//    public static FragmentSetting newInstance(String title, int storeId) {
+//        FragmentSetting fragment = new FragmentSetting();
+//        Bundle b = new Bundle();
+//        b.putString(AbstractFragment.SCREEN_TITLE, title);
+//        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
+//        fragment.setArguments(b);
+//        return fragment;
+//    }
 
 
     @Override
@@ -70,12 +70,12 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.setting);
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
-            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
-            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
-        } else {
+        if (this.mShowFromSideMenu == true) {
             mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        } else {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
         }
     }
 
@@ -94,14 +94,17 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
         this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
 
         if (isSignedIn() == true) {
-            this.mReceivePushSwitch.setEnabled(true);
+            this.mReceiveNewsSwitch.setEnabled(true);
             this.mReceiveCouponSwitch.setEnabled(true);
 
-            this.mReceivePushSwitch.setChecked(this.mScreenData.data.push_setting.isAtLeastOneEnable());
-            this.mReceiveCouponSwitch.setChecked(this.mScreenData.data.push_setting.isCouponEnable());
+            this.mReceiveNewsSwitch.setChecked(this.mScreenData.data.isNewsEnable());
+            this.mReceiveCouponSwitch.setChecked(this.mScreenData.data.isCouponEnable());
+            this.mSignOutLayout.setVisibility(View.VISIBLE);
         } else {
-            this.mReceivePushSwitch.setEnabled(false);
+            this.mSignOutLayout.setVisibility(View.GONE);
+            this.mReceiveNewsSwitch.setEnabled(false);
             this.mReceiveCouponSwitch.setEnabled(false);
+
         }
 
         updateToolbar();
@@ -111,16 +114,17 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View mRoot = inflater.inflate(R.layout.fragment_setting, null);
         this.mEditProfileButton = (Button) mRoot.findViewById(R.id.edit_profile_button);
-        this.mReceivePushSwitch = (SwitchButton) mRoot.findViewById(R.id.receive_push_switch);
+        this.mReceiveNewsSwitch = (SwitchButton) mRoot.findViewById(R.id.receive_news_switch);
         this.mReceiveCouponSwitch = (SwitchButton) mRoot.findViewById(R.id.receive_coupon_switch);
         this.mIssueButton = (Button) mRoot.findViewById(R.id.issue_button);
         this.mCompanyInfoButton = (Button) mRoot.findViewById(R.id.company_info_button);
         this.mUserPrivacyButton = (Button) mRoot.findViewById(R.id.user_privacy_button);
+        this.mSignOutLayout = (ViewGroup) mRoot.findViewById(R.id.sign_out_layout);
         this.mSignOutButton = (Button) mRoot.findViewById(R.id.sign_out_button);
 
         this.mEditProfileButton.setOnClickListener(this);
 
-        this.mReceivePushSwitch.setOnClickListener(this);
+        this.mReceiveNewsSwitch.setOnClickListener(this);
         this.mReceiveCouponSwitch.setOnClickListener(this);
 
         this.mIssueButton.setOnClickListener(this);
@@ -143,9 +147,9 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
                 Bundle params = new Bundle();
 
                 Utils.showProgress(getContext(), getString(R.string.msg_loading));
-                PushInfo.RequestGet request = new PushInfo.RequestGet();
-                request.token = getPrefString(Key.TokenKey);
+                PushInfo.Request request = new PushInfo.Request();
                 params.putSerializable(Key.RequestObject, request);
+                params.putString(Key.TokenKey, Utils.getPrefString(getContext(), Key.TokenKey));
                 GetPushSettingsCommunicator communicator = new GetPushSettingsCommunicator(
                         new TenpossCommunicator.TenpossCommunicatorListener() {
                             @Override
@@ -168,11 +172,11 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
                                         previewScreenData();
                                     } else {
                                         String strMessage = responseParams.getString(Key.ResponseMessage);
-                                        errorWithMessage(responseParams, strMessage);
+                                        errorWithMessage(responseParams, strMessage, null);
                                     }
                                 } else {
                                     String strMessage = responseParams.getString(Key.ResponseMessage);
-                                    errorWithMessage(responseParams, strMessage);
+                                    errorWithMessage(responseParams, strMessage, null);
                                 }
                             }
                         }
@@ -216,23 +220,27 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
     @Override
     public void onClick(View v) {
         if (v == this.mEditProfileButton) {
-            this.mActivityListener.showScreen(AbstractFragment.PROFILE_SCREEN, null, null);
+            if (isSignedIn() == true) {
+                this.mActivityListener.showScreen(AbstractFragment.PROFILE_SCREEN, null, null, false);
+            } else {
+                this.mActivityListener.showScreen(AbstractFragment.SIGN_IN_SCREEN, null, null, false);
+            }
 
         } else if (v == this.mIssueButton) {
-            this.mActivityListener.showScreen(AbstractFragment.CHANGE_DEVICE_SCREEN, null, null);
+            this.mActivityListener.showScreen(AbstractFragment.CHANGE_DEVICE_SCREEN, null, null, false);
 
         } else if (v == this.mCompanyInfoButton) {
-            this.mActivityListener.showScreen(AbstractFragment.COMPANY_INFO_SCREEN, null, null);
+            this.mActivityListener.showScreen(AbstractFragment.COMPANY_INFO_SCREEN, null, null, false);
 
         } else if (v == this.mUserPrivacyButton) {
-            this.mActivityListener.showScreen(AbstractFragment.USER_PRIVACY_SCREEN, null, null);
-        } else if (v == this.mReceivePushSwitch) {
+            this.mActivityListener.showScreen(AbstractFragment.USER_PRIVACY_SCREEN, null, null, false);
+        } else if (v == this.mReceiveNewsSwitch) {
             this.mScreenDataTemp = this.mScreenData.copy();
-            this.mScreenDataTemp.data.push_setting.enableAll(this.mReceivePushSwitch.isChecked());
+            this.mScreenDataTemp.data.enableNews(this.mReceiveNewsSwitch.isChecked());
             updatePushSettings();
         } else if (v == this.mReceiveCouponSwitch) {
             this.mScreenDataTemp = this.mScreenData.copy();
-            this.mScreenDataTemp.data.push_setting.enableCoupon(this.mReceiveCouponSwitch.isChecked());
+            this.mScreenDataTemp.data.enableCoupon(this.mReceiveCouponSwitch.isChecked());
             updatePushSettings();
         } else if (v == this.mSignOutButton) {
             //TODO:
@@ -244,13 +252,14 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
         Utils.showProgress(getContext(), getString(R.string.msg_updating));
 
         Bundle params = new Bundle();
-        PushInfo.RequestSet request = new PushInfo.RequestSet();
-        request.token = getPrefString(Key.TokenKey);
-        request.chat = this.mScreenDataTemp.data.push_setting.isChatEnable() ? 1 : 0;
-        request.news = this.mScreenDataTemp.data.push_setting.isNewsEnable() ? 1 : 0;
-        request.coupon = this.mScreenDataTemp.data.push_setting.isCouponEnable() ? 1 : 0;
-        request.ranking = this.mScreenDataTemp.data.push_setting.isRankingEnable() ? 1 : 0;
+        PushInfo.Request request = new PushInfo.Request();
+        request.token = Utils.getPrefString(getContext(), Key.TokenKey);
+        request.chat = this.mScreenDataTemp.data.isChatEnable() ? 1 : 0;
+        request.news = this.mScreenDataTemp.data.isNewsEnable() ? 1 : 0;
+        request.coupon = this.mScreenDataTemp.data.isCouponEnable() ? 1 : 0;
+        request.ranking = this.mScreenDataTemp.data.isRankingEnable() ? 1 : 0;
 
+        params.putString(Key.TokenKey, Utils.getPrefString(getContext(), Key.TokenKey));
         params.putSerializable(Key.RequestObject, request);
         SetPushSettingsCommunicator communicator = new SetPushSettingsCommunicator(
                 new TenpossCommunicator.TenpossCommunicatorListener() {
@@ -265,14 +274,26 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
                             int resultApi = responseParams.getInt(Key.ResponseResultApi);
                             if (resultApi == CommonResponse.ResultSuccess) {
                                 mScreenData = mScreenDataTemp.copy();
+                            } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                                refreshToken(new TenpossCallback() {
+                                    @Override
+                                    public void onSuccess(Bundle params) {
+                                        updatePushSettings();
+                                    }
 
+                                    @Override
+                                    public void onFailed(Bundle params) {
+                                        //Logout, then do something
+                                        mActivityListener.logoutBecauseExpired();
+                                    }
+                                });
                             } else {
                                 String strMessage = responseParams.getString(Key.ResponseMessage);
-                                errorWithMessage(responseParams, strMessage);
+                                errorWithMessage(responseParams, strMessage, null);
                             }
                         } else {
                             String strMessage = responseParams.getString(Key.ResponseMessage);
-                            errorWithMessage(responseParams, strMessage);
+                            errorWithMessage(responseParams, strMessage, null);
                         }
                         reloadSwitch();
                     }
@@ -283,13 +304,13 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
 
     private void reloadSwitch() {
         if (isSignedIn() == true && this.mScreenData != null) {
-            this.mReceivePushSwitch.setEnabled(true);
+            this.mReceiveNewsSwitch.setEnabled(true);
             this.mReceiveCouponSwitch.setEnabled(true);
 
-            this.mReceivePushSwitch.setChecked(this.mScreenData.data.push_setting.isAtLeastOneEnable());
-            this.mReceiveCouponSwitch.setChecked(this.mScreenData.data.push_setting.isCouponEnable());
+            this.mReceiveNewsSwitch.setChecked(this.mScreenData.data.isNewsEnable());
+            this.mReceiveCouponSwitch.setChecked(this.mScreenData.data.isCouponEnable());
         } else {
-            this.mReceivePushSwitch.setEnabled(false);
+            this.mReceiveNewsSwitch.setEnabled(false);
             this.mReceiveCouponSwitch.setEnabled(false);
         }
     }
@@ -321,18 +342,16 @@ public class FragmentSetting extends AbstractFragment implements View.OnClickLis
                                                         mActivityListener.showFirstFragment();
                                                     } else {
                                                         String strMessage = responseParams.getString(Key.ResponseMessage);
-                                                        errorWithMessage(responseParams, strMessage);
+                                                        errorWithMessage(responseParams, strMessage, null);
                                                     }
                                                 } else {
                                                     String strMessage = responseParams.getString(Key.ResponseMessage);
-                                                    errorWithMessage(responseParams, strMessage);
+                                                    errorWithMessage(responseParams, strMessage, null);
                                                 }
                                             }
                                         });
                                 Bundle params = new Bundle();
-                                SignOutInfo.Request request = new SignOutInfo.Request();
-                                request.token = Utils.getPrefString(MainApplication.getContext(), Key.TokenKey);
-                                params.putSerializable(Key.RequestObject, request);
+                                params.putString(Key.TokenKey, Utils.getPrefString(getContext(), Key.TokenKey));
                                 Utils.showProgress(getContext(), getString(R.string.msg_signing_out));
                                 communicator.execute(params);
                             }

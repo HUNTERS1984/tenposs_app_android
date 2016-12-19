@@ -11,7 +11,7 @@ import jp.tenposs.datamodel.CouponInfo;
 import jp.tenposs.datamodel.Key;
 
 /**
- * Created by ambient on 10/17/16.
+ * Created by ambient on 9/2/16.
  */
 
 public class CouponInfoCommunicator extends TenpossCommunicator {

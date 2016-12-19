@@ -23,9 +23,8 @@ public class ItemRelatedCommunicator extends TenpossCommunicator {
         String strUrl;
         ItemRelatedInfo.Request requestData = (ItemRelatedInfo.Request) bundle.getSerializable(Key.RequestObject);
         strUrl = API_ITEMS_RELATED + requestData.makeParams();
-        int result = CommunicationCode.ConnectionSuccess.ordinal();
-        byte[] dataRequest = null;
-        OutputStream output = null;
+        int result;
+        OutputStream output;
 
         try {
             output = new ByteArrayOutputStream();

@@ -9,7 +9,7 @@ import jp.tenposs.datamodel.CommonObject;
 import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.SignInInfo;
-import jp.tenposs.datamodel.SocialSigninInfo;
+import jp.tenposs.datamodel.SocialSignInInfo;
 
 /**
  * Created by ambient on 8/21/16.
@@ -18,14 +18,15 @@ public class SocialSignInCommunicator extends TenpossCommunicator {
     public SocialSignInCommunicator(TenpossCommunicatorListener listener) {
         super(listener);
         mMethod = METHOD_POST;
+        mAuthorizationMode = AUTH_BASIC;
     }
 
     @Override
     protected boolean request(Bundle bundle) {
         String strUrl = API_SOCIAL_SIGN_IN;
-        SocialSigninInfo.Request requestData = (SocialSigninInfo.Request) bundle.getSerializable(Key.RequestObject);
+        SocialSignInInfo.Request requestData = (SocialSignInInfo.Request) bundle.getSerializable(Key.RequestObject);
         bundle.putSerializable(Key.RequestFormData, requestData.getFormData());
-        int result = CommunicationCode.ConnectionSuccess.ordinal();
+        int result;
         OutputStream output;
 
         try {
@@ -35,6 +36,7 @@ public class SocialSignInCommunicator extends TenpossCommunicator {
             bundle.putInt(Key.ResponseResult, CommunicationCode.GeneralError.ordinal());
             return false;
         }
+
         result = request(strUrl, output, bundle);
         if (result == CommunicationCode.ConnectionSuccess.ordinal()) {
             String strResponse = output.toString();

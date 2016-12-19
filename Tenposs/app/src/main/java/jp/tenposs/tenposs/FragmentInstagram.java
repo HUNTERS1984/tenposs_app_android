@@ -29,14 +29,14 @@ public class FragmentInstagram extends AbstractFragment {
     final static String redirectUri = "https://ten-po.com/";
     WebView mWebView;
 
-    private FragmentInstagram() {
-
-    }
-
-    public static FragmentInstagram newInstance(Serializable extras) {
-        FragmentInstagram fragment = new FragmentInstagram();
-        return fragment;
-    }
+//    private FragmentInstagram() {
+//
+//    }
+//
+//    public static FragmentInstagram newInstance(Serializable extras) {
+//        FragmentInstagram fragment = new FragmentInstagram();
+//        return fragment;
+//    }
 
 
     @Override

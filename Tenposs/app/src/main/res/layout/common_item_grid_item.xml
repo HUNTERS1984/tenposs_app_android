@@ -44,7 +44,7 @@
             android:maxLines="1"
             android:padding="5dip"
             android:text="item_title_label"
-            android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+            android:textAppearance="@android:style/TextAppearance"
             android:textColor="@color/grid_text_color" />
 
         <TextView
@@ -56,7 +56,7 @@
             android:maxLines="1"
             android:padding="5dip"
             android:text="item_price_label"
-            android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+            android:textAppearance="@android:style/TextAppearance.Small"
             android:textColor="@color/grid_text_color" />
 
     </LinearLayout>

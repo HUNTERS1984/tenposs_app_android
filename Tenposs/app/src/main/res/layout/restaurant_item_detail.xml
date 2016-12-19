@@ -25,7 +25,6 @@
         android:layout_margin="10dp"
         android:ellipsize="end"
         android:maxLines="3"
-        android:text="先付、お造り、焚き合わせ、お凌ぎ（松阪牛握り、松阪牛と鮪の裏巻寿司"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault"
         android:textColor="@color/title_text_color" />
 
@@ -33,9 +32,8 @@
         android:id="@+id/more_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
         android:background="@android:color/transparent"
         android:text="@string/more"
-        android:textColor="@color/restaurant_text_color" />
+        android:textColor="@color/restaurant_toolbar_icon_color" />
 
 </jp.tenposs.view.ProductDetail>

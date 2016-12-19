@@ -1,6 +1,8 @@
 package jp.tenposs.tenposs;
 
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -9,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import junit.framework.Assert;
 
@@ -37,6 +40,7 @@ import jp.tenposs.datamodel.PhotoInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.datamodel.TopInfo;
 import jp.tenposs.listener.OnCommonItemClickListener;
+import jp.tenposs.utils.Utils;
 
 
 /**
@@ -53,6 +57,7 @@ public class FragmentTop
     RecyclerView mRecyclerView;
     AbstractRecyclerAdapter mRecyclerAdapter;
     SwipeRefreshLayout mSwipeRefreshLayout;
+    TextView mNoDataLabel;
 
     @Override
     protected boolean customClose() {
@@ -61,9 +66,14 @@ public class FragmentTop
 
     @Override
     protected void customToolbarInit() {
-        mToolbarSettings.toolbarTitle = AppData.sharedInstance().mAppInfo.data.name;
-        mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
-        mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        mToolbarSettings.toolbarTitle = AppData.sharedInstance().mAppInfo.getAppName();
+        if (this.mShowFromSideMenu == true) {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        } else {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+        }
     }
 
     @Override
@@ -89,33 +99,43 @@ public class FragmentTop
     @Override
     protected void previewScreenData() {
         this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
-        mScreenDataItems = new ArrayList<>();
-        for (AppInfo.TopComponent component : AppData.sharedInstance().mAppInfo.data.top_components) {
-            buildItemForComponent(component);
-        }
-
-        this.mSwipeRefreshLayout.setRefreshing(false);
-
-        if (this.mRecyclerAdapter == null) {
-            GridLayoutManager manager = new GridLayoutManager(getActivity(), mSpanCount);//);
-            if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
-                this.mRecyclerAdapter = new RestaurantAdapter(getActivity(), this, this);
-                manager.setSpanSizeLookup(new GridSpanSizeLookup(mRecyclerAdapter));
-                this.mRecyclerView.setLayoutManager(manager);
-                this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.restaurant_item_spacing));
-            } else {
-                this.mRecyclerAdapter = new CommonAdapter(getActivity(), this, this);
-                manager.setSpanSizeLookup(new GridSpanSizeLookup(mRecyclerAdapter));
-                this.mRecyclerView.setLayoutManager(manager);
-                this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.common_item_spacing));
+        if (this.mScreenData != null) {
+            mScreenDataItems = new ArrayList<>();
+            for (AppInfo.TopComponent component : AppData.sharedInstance().mAppInfo.getTopComponents()) {
+                buildItemForComponent(component);
             }
 
+            this.mSwipeRefreshLayout.setRefreshing(false);
 
-            this.mRecyclerView.setAdapter(mRecyclerAdapter);
+            if (this.mRecyclerAdapter == null) {
+                GridLayoutManager manager = new GridLayoutManager(getActivity(), mSpanCount);//);
+                if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+                    this.mRecyclerAdapter = new RestaurantAdapter(getActivity(), this, this);
+                    manager.setSpanSizeLookup(new GridSpanSizeLookup(mRecyclerAdapter));
+                    this.mRecyclerView.setLayoutManager(manager);
+                    this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.restaurant_item_spacing));
+                } else {
+                    this.mRecyclerAdapter = new CommonAdapter(getActivity(), this, this);
+                    manager.setSpanSizeLookup(new GridSpanSizeLookup(mRecyclerAdapter));
+                    this.mRecyclerView.setLayoutManager(manager);
+                    this.mRecyclerView.addItemDecoration(new MarginDecoration(getActivity(), R.dimen.common_item_spacing));
+                }
+
+                this.mRecyclerView.setAdapter(mRecyclerAdapter);
+            } else {
+                this.mRecyclerAdapter.notifyDataSetChanged();
+            }
+
+            if (mScreenDataItems.size() > 0) {
+                this.mNoDataLabel.setVisibility(View.GONE);
+            } else {
+                this.mNoDataLabel.setVisibility(View.VISIBLE);
+            }
         } else {
-            this.mRecyclerAdapter.notifyDataSetChanged();
+            this.mNoDataLabel.setVisibility(View.VISIBLE);
         }
-        this.mToolbarSettings.appSetting = AppData.sharedInstance().mAppInfo.data.app_setting;
+
+        this.mToolbarSettings.appSetting = AppData.sharedInstance().mAppInfo.getAppSetting();
 
         updateToolbar();
     }
@@ -125,6 +145,7 @@ public class FragmentTop
         View mRoot = inflater.inflate(R.layout.fragment_recycler_view_refresh, null);
         this.mRecyclerView = (RecyclerView) mRoot.findViewById(R.id.recycler_view);
         this.mSwipeRefreshLayout = (SwipeRefreshLayout) mRoot.findViewById(R.id.swipe_refresh_layout);
+        this.mNoDataLabel = (TextView) mRoot.findViewById(R.id.no_data_label);
         this.mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -209,40 +230,102 @@ public class FragmentTop
             case RecyclerItemTypeTop: {
                 if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
                     int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
-                    this.mActivityListener.showScreen(screenId, null, null);
+                    this.mActivityListener.showScreen(screenId, null, null, false);
                 }
             }
             break;
 
             case RecyclerItemTypeHeader: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
-                this.mActivityListener.showScreen(screenId, null, null);
+                this.mActivityListener.showScreen(screenId, null, null, false);
             }
             break;
 
             case RecyclerItemTypeList: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(screenId, extras, null);
+                this.mActivityListener.showScreen(screenId, extras, null, false);
 
             }
             break;
 
             case RecyclerItemTypeStore: {
                 //Do nothing
+                TopInfo.Contact contact = (TopInfo.Contact)
+                        item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
+
+                String type = extraData.getString(RecyclerItemWrapper.ITEM_TYPE);
+                if (type != null) {
+                    try {
+                        if (type.compareTo("show_map") == 0) {
+                            Uri gmmIntentUri = Uri.parse("geo:" + contact.getLocation());
+                            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                            mapIntent.setPackage("com.google.android.apps.maps");
+                            if (mapIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+                                startActivity(mapIntent);
+                            } else {
+                                String url = "http://maps.google.com?q=" + contact.getLocation();
+                                Intent intent = new Intent(Intent.ACTION_VIEW);
+                                intent.setData(Uri.parse(url));
+                                startActivity(intent);
+                            }
+                        } else if (type.compareTo("call_phone") == 0) {
+                            Intent intent = new Intent(Intent.ACTION_DIAL);
+                            intent.setData(Uri.parse("tel:" + contact.tel));
+                            startActivity(intent);
+
+                            /*Utils.setPrefString(getContext(), Key.PHONE_NUMBER, contact.tel);
+                            if (ActivityCompat.checkSelfPermission(this.getActivity(), android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                                // Should we show an explanation?
+                                if (ActivityCompat.shouldShowRequestPermissionRationale(this.getActivity(), android.Manifest.permission.CALL_PHONE)) {
+                                    // Show an explanation to the user *asynchronously* -- don't block
+                                    // this thread waiting for the user's response! After the user
+                                    // sees the explanation, try again to request the permission.
+                                    Utils.showAlert(
+                                            getContext(),
+                                            null,
+                                            "'" + getString(R.string.app_name) + "' need to access 'CALL_PHONE' permission to complete this action.",
+                                            null,
+                                            getString(R.string.ok),
+                                            new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    ActivityCompat.requestPermissions(getActivity(),
+                                                            new String[]{android.Manifest.permission.CALL_PHONE},
+                                                            MainActivity.CALL_PHONE_REQUEST);
+                                                }
+                                            });
+                                } else {
+                                    // No explanation needed, we can request the permission.
+                                    ActivityCompat.requestPermissions((Activity) this.mActivityListener,
+                                            new String[]{android.Manifest.permission.CALL_PHONE},
+                                            MainActivity.CALL_PHONE_REQUEST);
+                                }
+                                return;
+                            } else {
+                                Intent intent = new Intent(Intent.ACTION_CALL);
+                                intent.setData(Uri.parse("tel:" + contact.tel));
+                                this.startActivity(intent);
+                            }*/
+                        }
+                    } catch (Exception ignored) {
+                        Utils.log(ignored);
+                    }
+                }
+
             }
             break;
 
             case RecyclerItemTypeGridItem: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(screenId, extras, null);
+                this.mActivityListener.showScreen(screenId, extras, null, false);
             }
             break;
 
             case RecyclerItemTypeFooter: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
-                this.mActivityListener.showScreen(screenId, null, null);
+                this.mActivityListener.showScreen(screenId, null, null, false);
             }
             break;
 
@@ -250,7 +333,7 @@ public class FragmentTop
             case RecyclerItemTypeRestaurantRecyclerVertical: {
                 int screenId = extraData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 Serializable extras = extraData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(screenId, extras, null);
+                this.mActivityListener.showScreen(screenId, extras, null, false);
             }
             break;
 
@@ -278,14 +361,49 @@ public class FragmentTop
                             if (resultApi == CommonResponse.ResultSuccess) {
                                 FragmentTop.this.mScreenData = (TopInfo.Response) responseParams.getSerializable(Key.ResponseObject);
                                 loadNewsCategory();
+                            } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                                refreshToken(new TenpossCallback() {
+                                    @Override
+                                    public void onSuccess(Bundle params) {
+                                        loadTopInfo();
+                                    }
 
+                                    @Override
+                                    public void onFailed(Bundle params) {
+                                        //Logout, then do something
+                                        mActivityListener.logoutBecauseExpired();
+                                    }
+                                });
                             } else {
+
                                 String strMessage = responseParams.getString(Key.ResponseMessage);
-                                errorWithMessage(responseParams, strMessage);
+                                errorWithMessage(responseParams, strMessage, new TenpossCallback() {
+                                    @Override
+                                    public void onSuccess(Bundle params) {
+                                        loadTopInfo();
+                                    }
+
+                                    @Override
+                                    public void onFailed(Bundle params) {
+                                        previewScreenData();
+
+                                    }
+                                });
                             }
                         } else {
                             String strMessage = responseParams.getString(Key.ResponseMessage);
-                            errorWithMessage(responseParams, strMessage);
+                            errorWithMessage(responseParams, strMessage, new TenpossCallback() {
+                                @Override
+                                public void onSuccess(Bundle params) {
+                                    loadTopInfo();
+                                }
+
+                                @Override
+                                public void onFailed(Bundle params) {
+                                    previewScreenData();
+
+                                }
+                            });
                         }
                     }
                 });
@@ -312,13 +430,26 @@ public class FragmentTop
                             if (resultApi == CommonResponse.ResultSuccess) {
                                 mNewsCategory = (NewsCategoryInfo.Response) responseParams.getSerializable(Key.ResponseObject);
                                 previewScreenData();
+                            } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                                refreshToken(new TenpossCallback() {
+                                    @Override
+                                    public void onSuccess(Bundle params) {
+                                        loadNewsCategory();
+                                    }
+
+                                    @Override
+                                    public void onFailed(Bundle params) {
+                                        //Logout, then do something
+                                        mActivityListener.logoutBecauseExpired();
+                                    }
+                                });
                             } else {
                                 String strMessage = responseParams.getString(Key.ResponseMessage);
-                                errorWithMessage(responseParams, strMessage);
+                                errorWithMessage(responseParams, strMessage, null);
                             }
                         } else {
                             String strMessage = responseParams.getString(Key.ResponseMessage);
-                            errorWithMessage(responseParams, strMessage);
+                            errorWithMessage(responseParams, strMessage, null);
                         }
                     }
                 });
@@ -388,7 +519,8 @@ public class FragmentTop
                             extras = new Bundle();
                             extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.MENU_SCREEN);
                             extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
-
+                            extras.putInt(RecyclerItemWrapper.ITEM_BACKGROUND, R.drawable.bg_button);
+                            extras.putInt(RecyclerItemWrapper.ITEM_TEXT_COLOR, R.color.button_text_color);
                             mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
                         }
                     }
@@ -443,7 +575,8 @@ public class FragmentTop
                             extras = new Bundle();
                             extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.PHOTO_SCREEN);
                             extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
-
+                            extras.putInt(RecyclerItemWrapper.ITEM_BACKGROUND, R.drawable.bg_button);
+                            extras.putInt(RecyclerItemWrapper.ITEM_TEXT_COLOR, R.color.button_text_color);
                             mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
                         }
                     }
@@ -498,7 +631,8 @@ public class FragmentTop
                             extras = new Bundle();
                             extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_SCREEN);
                             extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
-
+                            extras.putInt(RecyclerItemWrapper.ITEM_BACKGROUND, R.drawable.bg_button);
+                            extras.putInt(RecyclerItemWrapper.ITEM_TEXT_COLOR, R.color.button_text_color);
                             mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
                         }
                     }
@@ -527,7 +661,8 @@ public class FragmentTop
                         extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.RESERVE_SCREEN);
                         extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.reserve));
                         extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, contact);
-
+                        extras.putInt(RecyclerItemWrapper.ITEM_BACKGROUND, R.drawable.bg_button_2);
+                        extras.putInt(RecyclerItemWrapper.ITEM_TEXT_COLOR, R.color.colorNavBackground);
                         mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
                     }
                 }

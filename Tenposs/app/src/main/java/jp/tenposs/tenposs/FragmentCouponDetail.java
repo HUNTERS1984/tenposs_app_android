@@ -14,9 +14,14 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Date;
 
+import jp.tenposs.communicator.TenpossCommunicator;
+import jp.tenposs.communicator.UseCouponCommunicator;
+import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.CouponInfo;
+import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.utils.Utils;
 import jp.tenposs.view.AspectRatioImageView;
@@ -44,17 +49,17 @@ public class FragmentCouponDetail extends AbstractFragment {
     CouponInfo.Coupon mScreenData;
 
 
-    private FragmentCouponDetail() {
-
-    }
-
-    public static FragmentCouponDetail newInstance(Serializable extras) {
-        FragmentCouponDetail fragment = new FragmentCouponDetail();
-        Bundle b = new Bundle();
-        b.putSerializable(AbstractFragment.SCREEN_DATA, extras);
-        fragment.setArguments(b);
-        return fragment;
-    }
+//    private FragmentCouponDetail() {
+//
+//    }
+//
+//    public static FragmentCouponDetail newInstance(Serializable extras) {
+//        FragmentCouponDetail fragment = new FragmentCouponDetail();
+//        Bundle b = new Bundle();
+//        b.putSerializable(AbstractFragment.SCREEN_DATA, extras);
+//        fragment.setArguments(b);
+//        return fragment;
+//    }
 
     @Override
     protected boolean customClose() {
@@ -95,7 +100,46 @@ public class FragmentCouponDetail extends AbstractFragment {
 
         Date current = new Date();
         Date endDate = this.mScreenData.getEndDate();
-        if (isSignedIn() == true && endDate != null && current.before(endDate)) {
+
+        boolean before = false;
+
+        if (endDate != null) {
+            Calendar currentCalendar = Calendar.getInstance();
+            currentCalendar.setTime(current);
+
+            Calendar endCalendar = Calendar.getInstance();
+            endCalendar.setTime(endDate);
+
+            int currentDay = currentCalendar.get(Calendar.DATE);
+            int currentMoth = currentCalendar.get(Calendar.MONTH);
+            int currentYear = currentCalendar.get(Calendar.YEAR);
+
+            int endDay = endCalendar.get(Calendar.DATE);
+            int endMoth = endCalendar.get(Calendar.MONTH);
+            int endYear = endCalendar.get(Calendar.YEAR);
+
+            if (endYear > currentYear) {
+                before = true;
+            } else if (endYear == currentYear) {
+                if (endMoth > currentMoth) {
+                    before = true;
+                } else if (endMoth == currentMoth) {
+                    if (endDay > currentDay) {
+                        before = true;
+                    } else if (endDay > currentDay) {
+                        before = true;
+                    } else {
+                        before = false;
+                    }
+                } else {
+                    before = false;
+                }
+            } else {
+                before = false;
+            }
+        }
+
+        if (isSignedIn() == true && before) {
             this.mTakeAdvantageOfCouponLayout.setVisibility(View.VISIBLE);
             this.mCouponCannotUseLayout.setVisibility(View.GONE);
         } else {
@@ -137,9 +181,6 @@ public class FragmentCouponDetail extends AbstractFragment {
         this.mTakeAdvantageOfCouponButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Use coupon
-                //generate barcode
-                //show Popup
                 PopupUseCoupon popupUseCoupon = new PopupUseCoupon(getContext());
                 popupUseCoupon.setData(mScreenData);
                 popupUseCoupon.show();
@@ -173,5 +214,57 @@ public class FragmentCouponDetail extends AbstractFragment {
     @Override
     boolean canCloseByBackpressed() {
         return true;
+    }
+
+    void requestUseCoupon() {
+        Utils.showProgress(getContext(), getString(R.string.msg_requesting));
+        Bundle params = new Bundle();
+        //TODO:params.
+        new UseCouponCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
+            @Override
+            public void completed(TenpossCommunicator request, Bundle responseParams) {
+                //Utils.hideProgress();
+//                if (isAdded() == false) {
+//                    return;
+//                }
+//                int result = responseParams.getInt(Key.ResponseResult);
+//                if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+//                    int resultApi = responseParams.getInt(Key.ResponseResultApi);
+//                    if (resultApi == CommonResponse.ResultSuccess) {
+//                        FragmentCoupon.this.mScreenData = (CouponInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+//                        previewScreenData();
+//                    } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+//                        refreshToken(new TenpossCallback() {
+//                            @Override
+//                            public void onSuccess(Bundle params) {
+//                                loadCouponsInfo();
+//                            }
+//
+//                            @Override
+//                            public void onFailed(Bundle params) {
+//                                //Logout, then do something
+//                                mActivityListener.logoutBecauseExpired();
+//                            }
+//                        });
+//                    } else {
+//                        String strMessage = responseParams.getString(Key.ResponseMessage);
+//                        errorWithMessage(responseParams, strMessage, null);
+//                    }
+//                } else {
+//                    String strMessage = responseParams.getString(Key.ResponseMessage);
+//                    errorWithMessage(responseParams, strMessage, null);
+//                }
+            }
+        }).execute(params);
+    }
+
+    void couponAccepted() {
+        //PopupCouponAccepted popupCouponAccepted = new PopupCouponAccepted(this.mContext);
+        //popupCouponAccepted.show();
+    }
+
+    void couponRejected() {
+        //PopupCouponRejected popupCouponRejected = new PopupCouponRejected(this.mContext);
+        //popupCouponRejected.show();
     }
 }

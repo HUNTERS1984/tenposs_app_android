@@ -20,6 +20,8 @@ public class Key {
     public static String UserProfile = "UserProfile";
     public static String FireBaseTokenKey = "FireBaseTokenKey";
     public static String TokenKey = "TokenKey";
+    public static String RefreshToken = "RefreshToken";
+    public static String RefreshTokenHref = "RefreshTokenHref";
 
     public static String FacebookTokenKey = "FacebookTokenKey";
 
@@ -31,6 +33,7 @@ public class Key {
     public static String UpdateProfileAvatar = "UpdateProfileAvatar";
 
     public static String PushSettings = "PushSettings";
+    public static String PHONE_NUMBER = "PHONE_NUMBER";
 //    public static String UpdateProfileName = "UpdateProfileName";
 //    public static String UpdateProfileGender = "UpdateProfileGender";
 //    public static String UpdateProfileAddress = "UpdateProfileAddress";

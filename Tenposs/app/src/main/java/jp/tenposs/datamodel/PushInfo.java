@@ -1,5 +1,6 @@
 package jp.tenposs.datamodel;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -8,15 +9,7 @@ import java.util.HashMap;
 
 public class PushInfo {
 
-    public static class RequestGet extends CommonRequest {
-
-        @Override
-        String sigInput() {
-            return app_id + "" + time + "" + privateKey;
-        }
-    }
-
-    public static class RequestSet extends CommonRequest {
+    public static class Request extends CommonRequest {
         public int ranking;
         public int news;
         public int coupon;
@@ -27,19 +20,26 @@ public class PushInfo {
             return app_id + "" + time + "" + privateKey;
         }
 
+        @Override
+        ArrayList<String> getAvailableParams() {
+            ArrayList<String> arr = new ArrayList<>();
+            arr.add("app_id");
+            return arr;
+        }
+
         public HashMap<String, String> getFormData() {
             generateSig();
             HashMap<String, String> formData = new HashMap<>();
             try {
-//                formData.put("app_id", app_id);
-                formData.put("token", token);
+                formData.put("app_id", app_id);
+//                formData.put("token", token);
 
                 formData.put("ranking", Integer.toString(ranking));
                 formData.put("news", Integer.toString(news));
                 formData.put("coupon", Integer.toString(coupon));
                 formData.put("chat", Integer.toString(chat));
-                formData.put("time", Long.toString(time));
-                formData.put("sig", sig);
+//                formData.put("time", Long.toString(time));
+//                formData.put("sig", sig);
             } catch (Exception ignored) {
 
             }
@@ -55,11 +55,50 @@ public class PushInfo {
         public ResponseData data;
 
         public class ResponseData {
+            int ranking;
+            int news;
+            int coupon;
+            int chat;
+
             public ResponseData() {
-                this.push_setting = new PushSettings();
+                this.ranking = 0;
+                this.news = 0;
+                this.coupon = 0;
+                this.chat = 0;
             }
 
-            public PushSettings push_setting;
+            public boolean isRankingEnable() {
+                return ranking == 1;
+            }
+
+            public boolean isNewsEnable() {
+                return news == 1;
+            }
+
+            public boolean isCouponEnable() {
+                return coupon == 1;
+            }
+
+            public boolean isChatEnable() {
+                return chat == 1;
+            }
+
+
+            public void enableRanking(boolean isChecked) {
+                ranking = (isChecked == true) ? 1 : 0;
+            }
+
+            public void enableChat(boolean isChecked) {
+                chat = (isChecked == true) ? 1 : 0;
+            }
+
+            public void enableCoupon(boolean isChecked) {
+                coupon = (isChecked == true) ? 1 : 0;
+            }
+
+            public void enableNews(boolean isChecked) {
+                news = (isChecked == true) ? 1 : 0;
+            }
         }
 
         public Response copy() {
@@ -68,63 +107,6 @@ public class PushInfo {
             } catch (Exception ignored) {
                 return this;
             }
-        }
-    }
-
-    public static class PushSettings {
-        int ranking;
-        int news;
-        int coupon;
-        int chat;
-
-        public PushSettings() {
-            this.ranking = 0;
-            this.news = 0;
-            this.coupon = 0;
-            this.chat = 0;
-        }
-
-        public boolean isAtLeastOneEnable() {
-            return (ranking == 1) ||
-                    (news == 1) ||
-                    (coupon == 1) ||
-                    (chat == 1);
-        }
-
-        public boolean isRankingEnable() {
-            return ranking == 1;
-        }
-
-        public boolean isNewsEnable() {
-            return news == 1;
-        }
-
-        public boolean isCouponEnable() {
-            return coupon == 1;
-        }
-
-        public boolean isChatEnable() {
-            return chat == 1;
-        }
-
-        public void enableAll(boolean isChecked) {
-            ranking = chat = coupon = news = (isChecked == true) ? 1 : 0;
-        }
-
-        public void enableRanking(boolean isChecked) {
-            ranking = (isChecked == true) ? 1 : 0;
-        }
-
-        public void enableChat(boolean isChecked) {
-            chat = (isChecked == true) ? 1 : 0;
-        }
-
-        public void enableCoupon(boolean isChecked) {
-            coupon = (isChecked == true) ? 1 : 0;
-        }
-
-        public void enableNews(boolean isChecked) {
-            news = (isChecked == true) ? 1 : 0;
         }
     }
 }

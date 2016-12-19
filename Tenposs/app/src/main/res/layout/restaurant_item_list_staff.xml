@@ -48,7 +48,7 @@
             android:maxLines="1"
             android:text="item_category_label"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault"
-            android:textColor="@color/restaurant_text_color" />
+            android:textColor="@color/restaurant_toolbar_icon_color" />
     </LinearLayout>
 
     <Button
@@ -59,7 +59,7 @@
         android:layout_centerVertical="true"
         android:background="@drawable/restaurant_bg_link_button"
         android:text="@string/choice"
-        android:textColor="@color/restaurant_text_color" />
+        android:textColor="@color/restaurant_toolbar_icon_color" />
 
     <LinearLayout>
 

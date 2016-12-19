@@ -17,14 +17,13 @@ public class SignOutCommunicator extends TenpossCommunicator {
     public SignOutCommunicator(TenpossCommunicatorListener listener) {
         super(listener);
         mMethod = METHOD_POST;
+        mAuthorizationMode = AUTH_TOKEN;
     }
 
     @Override
     protected boolean request(Bundle bundle) {
         String strUrl = API_SIGN_OUT;
-        SignOutInfo.Request requestData = (SignOutInfo.Request) bundle.getSerializable(Key.RequestObject);
-        bundle.putSerializable(Key.RequestFormData, requestData.getFormData());
-        int result = CommunicationCode.ConnectionSuccess.ordinal();
+        int result;
         OutputStream output;
 
         try {

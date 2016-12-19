@@ -18,6 +18,7 @@ public class SignInCommunicator extends TenpossCommunicator {
     public SignInCommunicator(TenpossCommunicatorListener listener) {
         super(listener);
         this.mMethod = METHOD_POST;
+        this.mAuthorizationMode = AUTH_BASIC;
     }
 
     @Override
@@ -25,7 +26,7 @@ public class SignInCommunicator extends TenpossCommunicator {
         String strUrl = API_SIGN_IN;
         SignInInfo.Request requestData = (SignInInfo.Request) bundle.getSerializable(Key.RequestObject);
         bundle.putSerializable(Key.RequestFormData, requestData.getFormData());
-        int result = CommunicationCode.ConnectionSuccess.ordinal();
+        int result;
         OutputStream output;
 
         try {

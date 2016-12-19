@@ -113,31 +113,11 @@ public class RestaurantFragmentItemDetail extends AbstractFragment implements Re
             mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeRestaurantProductInfo, mSpanCount, extras));
 
 
-            //title TODO
-//            extras = new Bundle();
-//            extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, mScreenData);
-//            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeProductTitle, mSpanCount, extras));
-
-            //Detail 1
+            //Detail
             extras = new Bundle();
             extras.putSerializable(RecyclerItemWrapper.ITEM_CATEGORY, "商品詳細");
             extras.putSerializable(RecyclerItemWrapper.ITEM_DESCRIPTION, mScreenData.getDescription());
             mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeRestaurantProductDetail, mSpanCount, extras));
-
-
-            //Detail 2
-            extras = new Bundle();
-            extras.putSerializable(RecyclerItemWrapper.ITEM_CATEGORY, "サイズ");
-            extras.putSerializable(RecyclerItemWrapper.ITEM_DESCRIPTION, "先付、お造り、焚き合わせ、お凌ぎ（松阪牛握り、松阪牛と鮪の裏巻寿司）、\n" +
-                    "冷菜、揚げ物（松阪牛の天ぷら他）、\n" +
-                    "焼き物（伊勢海老またはあわび(あわびは＋800円)");
-            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeRestaurantProductDetail, mSpanCount, extras));
-
-
-//            //Description
-//            extras = new Bundle();
-//            extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, mScreenData);
-//            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeProductDescription, mSpanCount, extras));
 
             //Related
             if (mRelatedItems != null && mRelatedItems.size() > 0) {
@@ -165,6 +145,8 @@ public class RestaurantFragmentItemDetail extends AbstractFragment implements Re
                 if (this.mTotalRelatedItems > this.mRelatedItems.size()) {
                     extras = new Bundle();
                     extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.more));
+                    extras.putInt(RecyclerItemWrapper.ITEM_BACKGROUND, R.drawable.bg_button);
+                    extras.putInt(RecyclerItemWrapper.ITEM_TEXT_COLOR, R.color.button_text_color);
                     mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
                 }
             }
@@ -206,7 +188,7 @@ public class RestaurantFragmentItemDetail extends AbstractFragment implements Re
 
     void loadItemDetail() {
         ItemDetailInfo.Request requestParams = new ItemDetailInfo.Request();
-        requestParams.token = getPrefString(Key.TokenKey);
+        requestParams.token = Utils.getPrefString(getContext(), Key.TokenKey);
         requestParams.item_id = this.mScreenDataId;
 
         Bundle params = new Bundle();
@@ -228,13 +210,26 @@ public class RestaurantFragmentItemDetail extends AbstractFragment implements Re
                         mRelatedItems = response.data.items_related;
                         mTotalRelatedItems = response.data.total_items_related;
                         previewScreenData();
+                    } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                        refreshToken(new TenpossCallback() {
+                            @Override
+                            public void onSuccess(Bundle params) {
+                                loadItemDetail();
+                            }
+
+                            @Override
+                            public void onFailed(Bundle params) {
+                                //Logout, then do something
+                                mActivityListener.logoutBecauseExpired();
+                            }
+                        });
                     } else {
                         String strMessage = responseParams.getString(Key.ResponseMessage);
-                        errorWithMessage(responseParams, strMessage);
+                        errorWithMessage(responseParams, strMessage, null);
                     }
                 } else {
                     String strMessage = responseParams.getString(Key.ResponseMessage);
-                    errorWithMessage(responseParams, strMessage);
+                    errorWithMessage(responseParams, strMessage, null);
                 }
             }
         });
@@ -243,7 +238,7 @@ public class RestaurantFragmentItemDetail extends AbstractFragment implements Re
 
     void loadItemRelated() {
         ItemRelatedInfo.Request requestParams = new ItemRelatedInfo.Request();
-        requestParams.token = getPrefString(Key.TokenKey);
+        requestParams.token = Utils.getPrefString(getContext(), Key.TokenKey);
         requestParams.item_id = this.mScreenDataId;
         requestParams.pageindex = this.mPageIndex;
         requestParams.pagesize = this.mPageSize;
@@ -265,13 +260,26 @@ public class RestaurantFragmentItemDetail extends AbstractFragment implements Re
                         ItemRelatedInfo.Response response = (ItemRelatedInfo.Response) responseParams.getSerializable(Key.ResponseObject);
                         mRelatedItems = response.data.items;
                         previewScreenData();
+                    } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                        refreshToken(new TenpossCallback() {
+                            @Override
+                            public void onSuccess(Bundle params) {
+                                loadItemRelated();
+                            }
+
+                            @Override
+                            public void onFailed(Bundle params) {
+                                //Logout, then do something
+                                mActivityListener.logoutBecauseExpired();
+                            }
+                        });
                     } else {
                         String strMessage = responseParams.getString(Key.ResponseMessage);
-                        errorWithMessage(responseParams, strMessage);
+                        errorWithMessage(responseParams, strMessage, null);
                     }
                 } else {
                     String strMessage = responseParams.getString(Key.ResponseMessage);
-                    errorWithMessage(responseParams, strMessage);
+                    errorWithMessage(responseParams, strMessage, null);
                 }
             }
         });
@@ -379,7 +387,7 @@ public class RestaurantFragmentItemDetail extends AbstractFragment implements Re
                 //showPurchase
                 int screenId = extraData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 Serializable extras = extraData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(screenId, extras, null);
+                this.mActivityListener.showScreen(screenId, extras, null, false);
             }
             break;
 
@@ -401,7 +409,7 @@ public class RestaurantFragmentItemDetail extends AbstractFragment implements Re
             case RecyclerItemTypeFooter: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
-                this.mActivityListener.showScreen(screenId, extras, null);
+                this.mActivityListener.showScreen(screenId, extras, null, false);
             }
             break;
 

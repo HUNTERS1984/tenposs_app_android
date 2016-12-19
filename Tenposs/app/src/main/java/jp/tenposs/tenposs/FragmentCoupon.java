@@ -43,18 +43,18 @@ public class FragmentCoupon extends AbstractFragment implements RecyclerDataSour
 
     CouponInfo.Response mScreenData = null;
 
-    private FragmentCoupon() {
-
-    }
-
-    public static FragmentCoupon newInstance(String title, int storeId) {
-        FragmentCoupon fragment = new FragmentCoupon();
-        Bundle b = new Bundle();
-        b.putString(AbstractFragment.SCREEN_TITLE, title);
-        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
-        fragment.setArguments(b);
-        return fragment;
-    }
+//    private FragmentCoupon() {
+//
+//    }
+//
+//    public static FragmentCoupon newInstance(String title, int storeId) {
+//        FragmentCoupon fragment = new FragmentCoupon();
+//        Bundle b = new Bundle();
+//        b.putString(AbstractFragment.SCREEN_TITLE, title);
+//        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
+//        fragment.setArguments(b);
+//        return fragment;
+//    }
 
 
     @Override
@@ -78,12 +78,13 @@ public class FragmentCoupon extends AbstractFragment implements RecyclerDataSour
     @Override
     protected void customToolbarInit() {
         mToolbarSettings.toolbarTitle = getString(R.string.coupon);
-        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate && this.mFirstScreen == false) {
-            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
-            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
-        } else {
+
+        if (this.mShowFromSideMenu == true) {
             mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        } else {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
         }
     }
 
@@ -237,7 +238,7 @@ public class FragmentCoupon extends AbstractFragment implements RecyclerDataSour
             case RecyclerItemTypeList: {
                 int id = item.itemData.getInt(RecyclerItemWrapper.ITEM_ID);
                 CouponInfo.Coupon coupon = this.mScreenData.getItemById(id);
-                this.mActivityListener.showScreen(AbstractFragment.COUPON_DETAIL_SCREEN, coupon, null);
+                this.mActivityListener.showScreen(AbstractFragment.COUPON_DETAIL_SCREEN, coupon, null, false);
             }
             break;
 
@@ -290,13 +291,26 @@ public class FragmentCoupon extends AbstractFragment implements RecyclerDataSour
                             if (resultApi == CommonResponse.ResultSuccess) {
                                 FragmentCoupon.this.mScreenData = (CouponInfo.Response) responseParams.getSerializable(Key.ResponseObject);
                                 previewScreenData();
+                            } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                                refreshToken(new TenpossCallback() {
+                                    @Override
+                                    public void onSuccess(Bundle params) {
+                                        loadCouponsInfo();
+                                    }
+
+                                    @Override
+                                    public void onFailed(Bundle params) {
+                                        //Logout, then do something
+                                        mActivityListener.logoutBecauseExpired();
+                                    }
+                                });
                             } else {
                                 String strMessage = responseParams.getString(Key.ResponseMessage);
-                                errorWithMessage(responseParams, strMessage);
+                                errorWithMessage(responseParams, strMessage, null);
                             }
                         } else {
                             String strMessage = responseParams.getString(Key.ResponseMessage);
-                            errorWithMessage(responseParams, strMessage);
+                            errorWithMessage(responseParams, strMessage, null);
                         }
                     }
                 });
