@@ -1,39 +1,54 @@
 package jp.tenposs.tenposs;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.support.annotation.NonNull;
 
-import jp.tenposs.datamodel.AppSettings;
+import jp.tenposs.communicator.TenpossCommunicator;
+import jp.tenposs.datamodel.AppData;
+import jp.tenposs.datamodel.CommonObject;
+import jp.tenposs.datamodel.Key;
+import jp.tenposs.datamodel.ScreenDataStatus;
+import jp.tenposs.datamodel.UserInfo;
+import jp.tenposs.utils.Utils;
 
 /**
  * Created by ambient on 8/4/16.
  */
-public class FragmentChat extends AbstractFragment {
-    @Override
-    protected void customClose() {
+public class FragmentChat extends FragmentWebView {
 
+//    private FragmentChat() {
+//
+//    }
+//
+//    public static FragmentChat newInstance(String title, int storeId) {
+//        FragmentChat fragment = new FragmentChat();
+//        Bundle b = new Bundle();
+//        b.putString(AbstractFragment.SCREEN_TITLE, title);
+//        b.putInt(AbstractFragment.APP_DATA_STORE_ID, storeId);
+//        fragment.setArguments(b);
+//        return fragment;
+//    }
+
+    @Override
+    protected boolean customClose() {
+        return false;
     }
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings = new ToolbarSettings();
-        toolbarSettings.toolbarTitle = "Chat";
-        toolbarSettings.toolbarIcon = "ti-menu";
-        toolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        mToolbarSettings.toolbarTitle = getString(R.string.chat);
 
-        toolbarSettings.settings = new AppSettings.Settings();
-        toolbarSettings.settings.fontColor = "#00CECB";
-
-        toolbarSettings.titleSettings = new AppSettings.Settings();
-        toolbarSettings.titleSettings.fontColor = "#000000";
-        toolbarSettings.titleSettings.fontSize = 20;
+        if (this.mShowFromSideMenu == true) {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        } else {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+        }
     }
 
     @Override
-    protected void startup() {
+    protected void clearScreenData() {
 
     }
 
@@ -44,17 +59,48 @@ public class FragmentChat extends AbstractFragment {
 
     @Override
     protected void previewScreenData() {
+        this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
+        updateToolbar();
+        try {
+            String userProfile = Utils.getPrefString(getContext(), Key.UserProfile);
+            UserInfo.User user = (UserInfo.User) CommonObject.fromJSONString(userProfile, UserInfo.User.class, null);
+            String url = TenpossCommunicator.WEB_ADDRESS + "/chat/screen/" + user.id;
+            this.mWebView.loadUrl(url);
+        } catch (Exception ignored) {
+
+        }
+    }
+
+    @Override
+    protected void customResume() {
+        previewScreenData();
+    }
+
+    @Override
+    void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
+        super.loadSavedInstanceState(savedInstanceState);
+        if (savedInstanceState.containsKey(APP_DATA_STORE_ID)) {
+            this.mStoreId = savedInstanceState.getInt(APP_DATA_STORE_ID);
+        }
+    }
+
+    @Override
+    void customSaveInstanceState(Bundle outState) {
+        super.customSaveInstanceState(outState);
+        outState.putInt(APP_DATA_STORE_ID, this.mStoreId);
+    }
+
+    @Override
+    void setRefreshing(boolean refreshing) {
 
     }
 
     @Override
-    protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View mRoot = inflater.inflate(R.layout.fragment_chat, null);
-        return mRoot;
-    }
-
-    @Override
-    void loadSavedInstanceState(@Nullable Bundle savedInstanceState) {
-
+    boolean canCloseByBackpressed() {
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

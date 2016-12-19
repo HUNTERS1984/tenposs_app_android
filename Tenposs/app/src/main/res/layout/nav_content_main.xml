@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:circle="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <LinearLayout
+        android:id="@+id/main_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorMenuBackground"
+        android:background="@color/colorPrimaryDark"
         android:orientation="vertical">
 
 
@@ -16,37 +18,66 @@
             android:gravity="center_vertical"
             android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-            <LinearLayout
+            <RelativeLayout
                 android:id="@+id/user_info_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:visibility="gone">
+                android:visibility="visible">
 
-                <ImageView
+                <jp.tenposs.view.CircleImageView
                     android:id="@+id/user_avatar_image"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="10dip"
-                    android:paddingTop="@dimen/nav_header_vertical_spacing"
-                    android:src="@android:drawable/sym_def_app_icon" />
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="@dimen/item_margin"
+                    android:layout_marginRight="@dimen/item_margin"
+                    android:src="@drawable/no_avatar_gray"
+                    circle:border_color="#d6dade"
+                    circle:border_width="1.5dip"
+                    circle:fill_color="@android:color/transparent" />
 
-                <TextView
-                    android:id="@+id/user_name_label"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="@dimen/nav_header_vertical_spacing"
-                    android:text="@string/username"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
-            </LinearLayout>
+                    android:layout_height="match_parent"
+                    android:layout_toRightOf="@id/user_avatar_image"
+                    android:gravity="center"
+                    android:orientation="vertical">
 
-            <Button
-                android:id="@+id/signin_button"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#00FFFFFF"
-                android:text="Sign In" />
+                    <TextView
+                        android:id="@+id/user_name_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/item_margin"
+                        android:layout_marginRight="@dimen/item_margin"
+                        android:text="@string/username"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textColor="@android:color/white" />
+
+                    <TextView
+                        android:id="@+id/email_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/item_margin"
+                        android:layout_marginRight="@dimen/item_margin"
+                        android:text="abs@gmail.com"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textColor="@android:color/darker_gray"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/user_info_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/transparent" />
+
+                <Button
+                    android:id="@+id/sign_in_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/transparent"
+                    android:visibility="gone" />
+            </RelativeLayout>
 
         </RelativeLayout>
 
@@ -56,6 +87,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
+            android:divider="@null"
             android:scrollbars="vertical" />
 
     </LinearLayout>

@@ -23,10 +23,9 @@ public class ReserveInfoCommunicator extends TenpossCommunicator {
     protected boolean request(Bundle bundle) {
         String strUrl;
         ReserveInfo.Request requestData = (ReserveInfo.Request) bundle.getSerializable(Key.RequestObject);
-        strUrl = API_ADDRESS + API_RESERVE + requestData.makeParams("GET");
-        int result = TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal();
-        byte[] dataRequest = null;
-        OutputStream output = null;
+        strUrl = API_RESERVE + requestData.makeParams();
+        int result;
+        OutputStream output;
 
         try {
             output = new ByteArrayOutputStream();
@@ -35,10 +34,13 @@ public class ReserveInfoCommunicator extends TenpossCommunicator {
             bundle.putInt(Key.ResponseResult, TenpossCommunicator.CommunicationCode.GeneralError.ordinal());
             return false;
         }
-        result = request(strUrl, output, dataRequest, bundle);
+        result = request(strUrl, output, bundle);
         if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
             String strResponse = output.toString();
-            ReserveInfo.Response response = (ReserveInfo.Response) CommonObject.fromJSONString(strResponse, ReserveInfo.Response.class, null);
+            CommonResponse response = (ReserveInfo.Response) CommonObject.fromJSONString(strResponse, ReserveInfo.Response.class, null);
+            if (response == null) {
+                response = (CommonResponse) CommonObject.fromJSONString(strResponse, CommonResponse.class, null);
+            }
             if (response != null) {
                 bundle.putInt(Key.ResponseResult, TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal());
                 bundle.putInt(Key.ResponseResultApi, response.code);

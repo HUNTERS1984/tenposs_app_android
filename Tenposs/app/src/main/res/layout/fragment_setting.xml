@@ -6,73 +6,438 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="jp.tenposs.tenposs.FragmentSetting">
+    tools:context="jp.tenposs.tenposs.FragmentSignUp">
 
-    <View
+    <Button
+        android:id="@+id/mask_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/white" />
+        android:background="@color/tab_color"
+        android:stateListAnimator="@null" />
 
-    <WebView
-        android:id="@+id/web_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1" />
-
-    <LinearLayout
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/darker_gray"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:visibility="gone">
+        android:theme="@style/AppTheme.NoActionBar">
 
-        <ImageButton
-            android:id="@+id/back_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dip"
-            android:layout_marginLeft="10dip"
-            android:layout_marginRight="10dip"
-            android:layout_marginTop="10dip" />
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorNavBackground"
+            android:contentInsetLeft="0dp"
+            android:contentInsetStart="0dp"
+            android:subtitleTextColor="@color/colorNavSubTextColor"
+            android:textAlignment="center"
+            android:titleTextColor="@color/colorNavTextColor"
+            android:visibility="visible"
+            app:contentInsetLeft="0dp"
+            app:contentInsetStart="0dp"
+            app:popupTheme="@style/AppTheme.PopupOverlay">
 
-        <ImageButton
-            android:id="@+id/forward_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dip"
-            android:layout_marginLeft="10dip"
-            android:layout_marginRight="10dip"
-            android:layout_marginTop="10dip" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
 
-        <ImageButton
-            android:id="@+id/refresh_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dip"
-            android:layout_marginLeft="10dip"
-            android:layout_marginRight="10dip"
-            android:layout_marginTop="10dip" />
+                <RelativeLayout
+                    android:layout_width="?attr/actionBarSize"
+                    android:layout_height="?attr/actionBarSize">
 
-        <ProgressBar
-            android:id="@+id/loading_indicator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="invisible" />
+                    <ImageButton
+                        android:id="@+id/left_toolbar_button"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="8dp"
+                        android:background="@android:color/transparent"
+                        android:visibility="visible" />
+
+                </RelativeLayout>
+
+                <FrameLayout
+                    android:id="@+id/nav_center"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/title_toolbar_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center_vertical"
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="5dp"
+                        android:text="@string/setting"
+                        android:textAppearance="@style/TextAppearance_Medium"
+                        android:textColor="@android:color/black"
+                        android:visibility="visible" />
+
+                </FrameLayout>
+
+                <RelativeLayout
+                    android:id="@+id/right_toolbar_layout"
+                    android:layout_width="?attr/actionBarSize"
+                    android:layout_height="?attr/actionBarSize"
+                    android:visibility="invisible">
+
+                    <ImageButton
+                        android:id="@+id/right_toolbar_button"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="8dp"
+                        android:background="@android:color/transparent" />
+                </RelativeLayout>
+
+            </LinearLayout>
+        </android.support.v7.widget.Toolbar>
+    </android.support.design.widget.AppBarLayout>
+
+    <View
+        android:id="@+id/top_separate"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dip"
+        android:layout_below="@id/app_bar"
+        android:background="@color/colorSeparate" />
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/top_separate">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="right"
-            android:orientation="horizontal">
+            android:background="@android:color/white"
+            android:orientation="vertical">
 
-            <Button
-                android:id="@+id/done_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Done" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/item_setting_height"
+                    android:layout_centerVertical="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="10dp"
+                        android:layout_weight="1"
+                        android:text="@string/edit_profile"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+                        android:textColor="@color/title_text_color" />
+
+                    <ImageView
+                        android:id="@+id/edit_profile_image"
+                        android:layout_width="@dimen/item_setting_height"
+                        android:layout_height="@dimen/item_setting_height"
+                        android:src="@drawable/right_arrow" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/edit_profile_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_button_setting" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="10dp"
+                android:background="@android:color/darker_gray" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/item_setting_height"
+                    android:layout_centerVertical="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="10dp"
+                        android:layout_weight="1"
+                        android:text="@string/receive_push"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+                        android:textColor="@color/title_text_color" />
+
+                    <jp.tenposs.view.SwitchButton
+                        android:id="@+id/receive_news_switch"
+                        style="@style/SwitchButtonStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:swAnimationDuration="300"
+                        app:swBackDrawable="@drawable/ios_back_drawable"
+                        app:swBackMeasureRatio="1.4"
+                        app:swThumbDrawable="@drawable/ios_thumb_selector"
+                        app:swThumbMarginBottom="-8dp"
+                        app:swThumbMarginLeft="-5dp"
+                        app:swThumbMarginRight="-5dp"
+                        app:swThumbMarginTop="-2.5dp" />
+                    <!--<Switch-->
+                    <!--android:id="@+id/receive_push_switch"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:textOff="@string/off"-->
+                    <!--android:textOn="@string/on" />-->
+                </LinearLayout>
+
+                <!--<Button-->
+                <!--android:id="@+id/notify_button"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:background="@drawable/bg_button_setting"-->
+                <!--android:visibility="invisible" />-->
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="10dp"
+                android:background="@android:color/darker_gray" />
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/item_setting_height"
+                    android:layout_centerVertical="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="10dp"
+                        android:layout_weight="1"
+                        android:text="@string/receive_coupon_information"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+                        android:textColor="@color/title_text_color" />
+
+                    <jp.tenposs.view.SwitchButton
+                        android:id="@+id/receive_coupon_switch"
+                        style="@style/SwitchButtonStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:swAnimationDuration="300"
+                        app:swBackDrawable="@drawable/ios_back_drawable"
+                        app:swBackMeasureRatio="1.4"
+                        app:swThumbDrawable="@drawable/ios_thumb_selector"
+                        app:swThumbMarginBottom="-8dp"
+                        app:swThumbMarginLeft="-5dp"
+                        app:swThumbMarginRight="-5dp"
+                        app:swThumbMarginTop="-2.5dp" />
+                    <!--<Switch-->
+                    <!--android:id="@+id/receive_coupon_switch"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:textOff="@string/off"-->
+                    <!--android:textOn="@string/on" />-->
+                </LinearLayout>
+
+                <!--<Button-->
+                <!--android:id="@+id/receive_button"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:background="@android:color/transparent"-->
+                <!--android:visibility="invisible" />-->
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="10dp"
+                android:background="@android:color/darker_gray" />
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/item_setting_height"
+                    android:layout_centerVertical="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="10dp"
+                        android:layout_weight="1"
+                        android:text="@string/issue_the_takeover_code_during_the_model_change"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+                        android:textColor="@color/title_text_color" />
+
+                    <ImageView
+                        android:id="@+id/issue_image"
+                        android:layout_width="@dimen/item_setting_height"
+                        android:layout_height="@dimen/item_setting_height"
+                        android:src="@drawable/right_arrow" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/issue_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_button_setting" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="10dp"
+                android:background="@android:color/darker_gray" />
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/item_setting_height"
+                    android:layout_centerVertical="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="10dp"
+                        android:layout_weight="1"
+                        android:text="@string/company_info"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+                        android:textColor="@color/title_text_color" />
+
+                    <ImageView
+                        android:id="@+id/company_image"
+                        android:layout_width="@dimen/item_setting_height"
+                        android:layout_height="@dimen/item_setting_height"
+                        android:src="@drawable/right_arrow" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/company_info_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_button_setting" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="10dp"
+                android:background="@android:color/darker_gray" />
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/item_setting_height"
+                    android:layout_centerVertical="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="10dp"
+                        android:layout_weight="1"
+                        android:text="@string/user_privacy"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+                        android:textColor="@color/title_text_color" />
+
+                    <ImageView
+                        android:id="@+id/careers_image"
+                        android:layout_width="@dimen/item_setting_height"
+                        android:layout_height="@dimen/item_setting_height"
+                        android:src="@drawable/right_arrow" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/user_privacy_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_button_setting" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="10dp"
+                android:background="@android:color/darker_gray" />
+
+
+            <RelativeLayout
+                android:id="@+id/sign_out_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/item_setting_height"
+                    android:layout_centerVertical="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="10dp"
+                        android:layout_weight="1"
+                        android:text="@string/sign_out"
+                        android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+                        android:textColor="@color/title_text_color" />
+
+                    <ImageView
+                        android:id="@+id/sign_out_image"
+                        android:layout_width="@dimen/item_setting_height"
+                        android:layout_height="@dimen/item_setting_height"
+                        android:src="@drawable/right_arrow" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/sign_out_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_button_setting" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray" />
+
         </LinearLayout>
-
-    </LinearLayout>
+    </ScrollView>
 </RelativeLayout>

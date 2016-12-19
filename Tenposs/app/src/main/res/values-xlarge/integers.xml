@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="span_count">24</integer>
+    <integer name="span_large_items">4</integer>
+    <integer name="span_small_items">6</integer>
+</resources>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <declare-styleable name="SwitchButton">
+        <attr name="swThumbDrawable" format="reference" />
+        <attr name="swThumbColor" format="color|reference" />
+        <attr name="swThumbMargin" format="dimension|reference" />
+        <attr name="swThumbMarginTop" format="dimension|reference" />
+        <attr name="swThumbMarginBottom" format="dimension|reference" />
+        <attr name="swThumbMarginLeft" format="dimension|reference" />
+        <attr name="swThumbMarginRight" format="dimension|reference" />
+        <attr name="swThumbWidth" format="dimension|reference" />
+        <attr name="swThumbHeight" format="dimension|reference" />
+        <attr name="swThumbRadius" format="dimension|reference" />
+        <attr name="swBackRadius" format="dimension|reference" />
+        <attr name="swBackDrawable" format="reference" />
+        <attr name="swBackColor" format="color|reference" />
+        <attr name="swFadeBack" format="boolean" />
+        <attr name="swBackMeasureRatio" format="float" />
+        <attr name="swAnimationDuration" format="integer" />
+        <attr name="swTintColor" format="color|reference" />
+        <attr name="swTextOn" format="string" />
+        <attr name="swTextOff" format="string" />
+        <attr name="swTextMarginH" format="dimension" />
+        <attr name="swAutoAdjustTextPosition" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="CircularProgressBar">
+        <attr name="cpb_progress" format="integer" />
+        <attr name="cpb_progressbar_color" format="color" />
+        <attr name="cpb_background_progressbar_color" format="color" />
+        <attr name="cpb_progressbar_width" format="dimension" />
+        <attr name="cpb_background_progressbar_width" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="PagerSlidingTabStrip">
+        <attr name="pstsIndicatorColor" format="color" />
+        <attr name="pstsUnderlineColor" format="color" />
+        <attr name="pstsDividerColor" format="color" />
+        <attr name="pstsIndicatorHeight" format="dimension" />
+        <attr name="pstsUnderlineHeight" format="dimension" />
+        <attr name="pstsDividerPadding" format="dimension" />
+        <attr name="pstsTabPaddingLeftRight" format="dimension" />
+        <attr name="pstsScrollOffset" format="dimension" />
+        <attr name="pstsTitleSize" format="dimension" />
+        <attr name="pstsTabBackground" format="reference" />
+        <attr name="pstsShouldExpand" format="boolean" />
+        <attr name="pstsTextAllCaps" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="GridLayoutManagerEx">
+        <attr name="numColumns" format="integer" />
+        <attr name="numRows" format="integer" />
+    </declare-styleable>
+
+
+    <declare-styleable name="twowayview_TwoWayLayoutManager">
+        <attr name="android:orientation" tools:ignore="ResourceName" />
+    </declare-styleable>
+
+    <declare-styleable name="twowayview_TwoWayView">
+        <attr name="twowayview_layoutManager" format="string" />
+    </declare-styleable>
+
+    <declare-styleable name="twowayview_GridLayoutManager">
+        <attr name="twowayview_numColumns" format="integer" />
+        <attr name="twowayview_numRows" format="integer" />
+    </declare-styleable>
+
+    <declare-styleable name="twowayview_SpacingItemDecoration">
+        <attr name="android:verticalSpacing" tools:ignore="ResourceName" />
+        <attr name="android:horizontalSpacing" tools:ignore="ResourceName" />
+    </declare-styleable>
+
+    <declare-styleable name="twowayview_DividerItemDecoration">
+        <attr name="android:divider" tools:ignore="ResourceName" />
+        <attr name="twowayview_verticalDivider" format="reference" />
+        <attr name="twowayview_horizontalDivider" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="twowayview_StaggeredGridViewChild">
+        <attr name="twowayview_span" format="integer" />
+    </declare-styleable>
+
+    <declare-styleable name="twowayview_SpannableGridViewChild">
+        <attr name="twowayview_colSpan" format="integer" />
+        <attr name="twowayview_rowSpan" format="integer" />
+    </declare-styleable>
+
+</resources>

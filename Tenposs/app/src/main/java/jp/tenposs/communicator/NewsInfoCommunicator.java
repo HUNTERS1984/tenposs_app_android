@@ -23,13 +23,12 @@ public class NewsInfoCommunicator extends TenpossCommunicator {
     protected boolean request(Bundle bundle) {
         String strUrl;
         NewsInfo.Request requestData = (NewsInfo.Request) bundle.getSerializable(Key.RequestObject);
-        strUrl = API_ADDRESS + API_NEWS + requestData.makeParams("GET");
-//        String strUrl = bundle.getString(GammaKey.KeyRequestURL);
+        strUrl = API_NEWS + requestData.makeParams();
+//        String strUrl = mBundle.getString(GammaKey.KeyRequestURL);
         //http://54.153.78.127/api/news?store_id=1&pageindex=1&pagesize=20
         //String strUrl = "http://ec2-54-204-210-230.compute-1.amazonaws.com/tenposs/api/public/index.php/api/v1/news?store_id=1&token=7aef1eea1f967d7f8fbcb8cbe4639dd0&time=23423432423&sig=6a2383b4296f4b0c48883a3f8aae3522274d6237932f14f712aac12d057ce0qeqweq48&pageindex=1&pagesize=20";
-        int result = TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal();
-        byte[] dataRequest = null;
-        OutputStream output = null;
+        int result;
+        OutputStream output;
 
         try {
             output = new ByteArrayOutputStream();
@@ -38,10 +37,13 @@ public class NewsInfoCommunicator extends TenpossCommunicator {
             bundle.putInt(Key.ResponseResult, TenpossCommunicator.CommunicationCode.GeneralError.ordinal());
             return false;
         }
-        result = request(strUrl, output, dataRequest, bundle);
+        result = request(strUrl, output, bundle);
         if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
             String strResponse = output.toString();
-            NewsInfo.Response response = (NewsInfo.Response) CommonObject.fromJSONString(strResponse, NewsInfo.Response.class, null);
+            CommonResponse response = (NewsInfo.Response) CommonObject.fromJSONString(strResponse, NewsInfo.Response.class, null);
+            if (response == null) {
+                response = (CommonResponse) CommonObject.fromJSONString(strResponse, CommonResponse.class, null);
+            }
             if (response != null) {
                 bundle.putInt(Key.ResponseResult, TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal());
                 bundle.putInt(Key.ResponseResultApi, response.code);

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black"
+    android:orientation="vertical">
+
+    <ImageButton
+        android:id="@+id/close_button"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/btn_close" />
+
+
+    <android.support.percent.PercentRelativeLayout
+        android:id="@+id/pager_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true">
+
+        <LinearLayout
+            android:layout_centerInParent="true"
+            android:background="@android:color/black"
+            android:paddingBottom="5dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:paddingTop="5dp"
+            app:layout_aspectRatio="150%"
+            app:layout_widthPercent="100%">
+
+            <jp.tenposs.view.ZoomableImageView
+                android:id="@+id/item_thumbnail"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop" />
+
+        </LinearLayout>
+    </android.support.percent.PercentRelativeLayout>
+
+    <TextView
+        android:id="@+id/title_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/detail_label"
+        android:padding="10dp"
+        android:text="松阪牛コース 椿"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:id="@+id/detail_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:padding="10dp"
+        android:text="先付、お造り、焚き合わせ、お凌ぎ（松阪牛握り、松阪牛と鮪の裏巻寿司）、冷菜、揚げ物（松阪牛の天ぷら他）、焼き物（伊勢海老またはあわび(あわびは＋800円)"
+        android:textColor="@android:color/white" />
+
+</RelativeLayout>

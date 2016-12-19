@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="jp.tenposs.tenposs.FragmentSignUp">
+
+    <Button
+        android:id="@+id/mask_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/tab_color"
+        android:stateListAnimator="@null" />
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.NoActionBar">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorNavBackground"
+            android:contentInsetLeft="0dp"
+            android:contentInsetStart="0dp"
+            android:subtitleTextColor="@color/colorNavSubTextColor"
+            android:textAlignment="center"
+            android:titleTextColor="@color/colorNavTextColor"
+            android:visibility="visible"
+            app:contentInsetLeft="0dp"
+            app:contentInsetStart="0dp"
+            app:popupTheme="@style/AppTheme.PopupOverlay">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <RelativeLayout
+                    android:layout_width="?attr/actionBarSize"
+                    android:layout_height="?attr/actionBarSize">
+
+                    <ImageButton
+                        android:id="@+id/left_toolbar_button"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="8dp"
+                        android:background="@android:color/transparent"
+                        android:visibility="visible" />
+
+                </RelativeLayout>
+
+                <FrameLayout
+                    android:id="@+id/nav_center"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/title_toolbar_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center_vertical"
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="5dp"
+                        android:text="@string/sign_up_1"
+                        android:textAppearance="@style/TextAppearance_Medium"
+                        android:textColor="@android:color/black"
+                        android:visibility="visible" />
+
+                </FrameLayout>
+
+                <RelativeLayout
+                    android:id="@+id/right_toolbar_layout"
+                    android:layout_width="?attr/actionBarSize"
+                    android:layout_height="?attr/actionBarSize"
+                    android:visibility="invisible">
+
+                    <ImageButton
+                        android:id="@+id/right_toolbar_button"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="8dp"
+                        android:background="@android:color/transparent" />
+                </RelativeLayout>
+
+            </LinearLayout>
+        </android.support.v7.widget.Toolbar>
+    </android.support.design.widget.AppBarLayout>
+
+    <View
+        android:id="@+id/top_separate"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dip"
+        android:layout_below="@id/app_bar"
+        android:background="@color/colorSeparate" />
+
+    <View
+        android:id="@+id/center_separate"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dip"
+        android:layout_below="@id/top_separate"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:background="@color/colorSeparate" />
+
+    <LinearLayout
+        android:id="@+id/info_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/center_separate"
+        android:background="@android:color/white"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/email_edit"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/item_setting_height"
+            android:layout_marginLeft="@dimen/item_margin"
+            android:background="@android:color/transparent"
+            android:hint="@string/email_address"
+            android:inputType="textEmailAddress"
+            android:maxLines="1"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dip"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@color/colorSeparate" />
+
+        <EditText
+            android:id="@+id/name_edit"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/item_setting_height"
+            android:layout_marginLeft="@dimen/item_margin"
+            android:background="@android:color/transparent"
+            android:hint="@string/user_name"
+            android:inputType="textPersonName"
+            android:maxLines="1"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dip"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@color/colorSeparate" />
+
+        <EditText
+            android:id="@+id/password_edit"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/item_setting_height"
+            android:layout_marginLeft="@dimen/item_margin"
+            android:background="@android:color/transparent"
+            android:hint="@string/password"
+            android:inputType="textPassword"
+            android:maxLines="1"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dip"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@color/colorSeparate" />
+
+        <EditText
+            android:id="@+id/password_confirm_edit"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/item_setting_height"
+            android:layout_marginLeft="@dimen/item_margin"
+            android:background="@android:color/transparent"
+            android:hint="@string/password_confirm"
+            android:inputType="textPassword"
+            android:maxLines="1"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/next_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/info_layout"
+        android:layout_marginLeft="@dimen/common_padding"
+        android:layout_marginRight="@dimen/common_padding"
+        android:layout_marginTop="@dimen/common_padding"
+        android:background="@drawable/bg_button_ex"
+        android:text="@string/next"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:id="@+id/go_to_sign_in_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/next_button"
+        android:layout_marginLeft="@dimen/common_padding"
+        android:layout_marginRight="@dimen/common_padding"
+        android:layout_marginTop="@dimen/common_padding"
+        android:gravity="center"
+        android:hint="@string/already_sign_up"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+        android:textColor="@color/title_text_color" />
+
+
+</RelativeLayout>

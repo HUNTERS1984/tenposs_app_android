@@ -27,7 +27,152 @@
     <declare-styleable name="CircleImageView">
         <attr name="border_width" format="dimension" />
         <attr name="border_color" format="color" />
+        <attr name="fill_color" format="color" />
         <attr name="border_overlay" format="boolean" />
     </declare-styleable>
 
+    <style name="NormalDialog" parent="android:Theme.Dialog"></style>
+
+    <style name="FullScreenDialog" parent="android:Theme.Dialog">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <!-- No backgrounds, titles or window float -->
+        <item name="android:windowBackground">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">false</item>
+
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+
+    <style name="CustomDialog" parent="android:Theme.Dialog">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
+    <declare-styleable name="AspectRatioImageView">
+        <attr name="image_aspect_ratio" format="float" />
+        <attr name="image_dimension_to_adjust" format="integer" />
+
+    </declare-styleable>
+    <declare-styleable name="AspectRatioLayout">
+        <attr name="aspect_ratio" format="float" />
+
+    </declare-styleable>
+
+
+    <attr name="cropImageStyle" format="reference" />
+
+    <declare-styleable name="CropImageView">
+        <attr name="highlightColor" format="reference|color" />
+        <attr name="showThirds" format="boolean" />
+        <attr name="showCircle" format="boolean" />
+        <attr name="showHandles">
+            <enum name="changing" value="0" />
+            <enum name="always" value="1" />
+            <enum name="never" value="2" />
+        </attr>
+    </declare-styleable>
+    <declare-styleable name="RoundCornerImageView">
+        <attr name="riv_corner_radius" format="dimension" />
+        <attr name="riv_corner_radius_top_left" format="dimension" />
+        <attr name="riv_corner_radius_top_right" format="dimension" />
+        <attr name="riv_corner_radius_bottom_left" format="dimension" />
+        <attr name="riv_corner_radius_bottom_right" format="dimension" />
+        <attr name="riv_border_width" format="dimension" />
+        <attr name="riv_border_color" format="color" />
+        <attr name="riv_mutate_background" format="boolean" />
+        <attr name="riv_oval" format="boolean" />
+        <attr name="android:scaleType" />
+        <attr name="riv_tile_mode">
+            <enum name="clamp" value="0" />
+            <enum name="repeat" value="1" />
+            <enum name="mirror" value="2" />
+        </attr>
+        <attr name="riv_tile_mode_x">
+            <enum name="clamp" value="0" />
+            <enum name="repeat" value="1" />
+            <enum name="mirror" value="2" />
+        </attr>
+        <attr name="riv_tile_mode_y">
+            <enum name="clamp" value="0" />
+            <enum name="repeat" value="1" />
+            <enum name="mirror" value="2" />
+        </attr>
+    </declare-styleable>
+
+
+    <style name="TextAppearance_Micro">
+        <item name="android:textSize">11sp</item>
+    </style>
+
+    <style name="TextAppearance_Small">
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="TextAppearance_Medium">
+
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="TextAppearance_Large">
+        <item name="android:textSize">22sp</item>
+    </style>
+
+    <style name="TextAppearance_ExtraLarge">
+        <item name="android:textSize">26sp</item>
+    </style>
+
+    <style name="TextAppearance_Micro_Bold">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">11sp</item>
+    </style>
+
+    <style name="TextAppearance_Small_Bold">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="TextAppearance_Medium_Bold">
+
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="TextAppearance_Large_Bold">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">22sp</item>
+    </style>
+
+    <style name="TextAppearance_ExtraLarge_Bold">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">26sp</item>
+    </style>
+
+    <style name="SwitchButtonStyle">
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+    </style>
+
+    <style name="SwitchButtonMD">
+        <item name="swThumbDrawable">@drawable/sw_thumb</item>
+        <item name="swBackColor">@color/switch_button_back_color</item>
+        <item name="swBackMeasureRatio">1.45</item>
+        <item name="swThumbMarginLeft">-16dp</item>
+        <item name="swThumbMarginTop">-14dp</item>
+        <item name="swThumbMarginRight">-16dp</item>
+        <item name="swThumbMarginBottom">-14dp</item>
+        <item name="swThumbWidth">@dimen/sw_thumb_ripple_size</item>
+        <item name="swThumbHeight">@dimen/sw_thumb_ripple_size</item>
+    </style>
+
+    <style name="TwoWayViewBase">
+        <item name="android:background">#FFFFFF</item>
+    </style>
+
+    <style name="TwoWayView" parent="TwoWayViewBase">
+        <item name="android:orientation">vertical</item>
+        <item name="android:scrollbars">vertical</item>
+    </style>
 </resources>

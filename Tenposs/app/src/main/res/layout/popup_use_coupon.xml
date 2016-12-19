@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/top_separate"
+        android:layout_margin="20dp"
+        android:background="@drawable/bg_round_corner_coupon"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/coupon_qr_image"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_margin="40dp"
+            android:background="@android:color/white" />
+
+        <ImageView
+            android:id="@+id/separate_view"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:background="@drawable/dash" />
+
+        <TextView
+            android:id="@+id/coupon_content_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:gravity="center"
+            android:text="Use Promotion Code"
+            android:textColor="#99FFFFFF" />
+
+        <TextView
+            android:id="@+id/coupon_detail_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="40% Off"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+            android:textColor="@android:color/white"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/use_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:background="@drawable/btn_use_coupon"
+            android:text="@string/use_coupon" />
+
+    </LinearLayout>
+
+    <!--<LinearLayout-->
+    <!--android:id="@+id/pager_layout"-->
+    <!--android:background="@drawable/rectangle"-->
+    <!--android:paddingBottom="5dp"-->
+    <!--android:paddingLeft="5dp"-->
+    <!--android:paddingRight="5dp"-->
+    <!--android:paddingTop="5dp"-->
+    <!--android:visibility="gone"-->
+    <!--app:layout_aspectRatio="100%"-->
+    <!--app:layout_widthPercent="100%">-->
+
+    <!--<ImageView-->
+    <!--android:id="@+id/item_thumbnail"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:scaleType="centerCrop"-->
+    <!--android:src="@drawable/login_bg" />-->
+
+    <!--</LinearLayout>-->
+
+    <!--<ImageButton-->
+    <!--android:id="@+id/close_button"-->
+    <!--android:layout_width="50dp"-->
+    <!--android:layout_height="50dp"-->
+    <!--android:layout_below="@+id/pager_layout"-->
+    <!--android:layout_centerHorizontal="true"-->
+    <!--android:layout_marginTop="30dp"-->
+    <!--android:background="@drawable/btn_close"-->
+    <!--android:visibility="gone" />-->
+
+</android.support.percent.PercentRelativeLayout>

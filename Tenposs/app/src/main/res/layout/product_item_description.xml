@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jp.tenposs.view.ProductDescription xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/product_description"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/top_separate"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dip"
+        android:layout_below="@id/app_bar"
+        android:background="@color/colorSeparate" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/common_padding"
+        android:layout_marginRight="@dimen/common_padding"
+        android:layout_marginTop="@dimen/common_padding"
+        android:background="@color/tab_color"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/product_detail_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_tab_button"
+            android:text="@string/product_details"
+            android:textColor="@color/category_text_color" />
+
+        <Button
+            android:id="@+id/product_size_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:text="@string/size"
+            android:textColor="@color/description_text_color" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/product_description_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/common_padding"
+        android:layout_marginLeft="@dimen/common_padding"
+        android:layout_marginRight="@dimen/common_padding"
+        android:layout_marginTop="@dimen/common_padding"
+        android:text="説明が入ります説明が入ります説明が入ります説明が入り ます説明が入ります説明が入ります説明が入ります説明が 入ります説明が入ります説明が入ります説明が入ります説 明が入ります説明が入ります説明が入ります説明が入りま す説明が入ります。説明が入ります説明が入ります説明が 入ります説明が入ります説明が入ります説明が入ります説 明が入ります説明が入ります。説明が入ります説明が入り ます説明が入ります説明が入ります説明が入ります説明が 入ります説明が入ります説明が入ります"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+        android:textColor="@color/title_text_color"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/no_data_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/common_padding"
+        android:layout_marginTop="@dimen/common_padding"
+        android:gravity="center"
+        android:text="@string/no_data"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+        android:textColor="@android:color/black"
+        android:visibility="gone" />
+
+    <WebView
+        android:id="@+id/web_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/common_padding"
+        android:background="@android:color/white" />
+
+</jp.tenposs.view.ProductDescription>

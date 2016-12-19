@@ -1,21 +1,265 @@
 <resources>
-    <string name="app_name">Tenposs</string>
+    <string name="app_name" translatable="false">Tenposs</string>
 
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <!--Untranslatable-->
+    <string name="facebook_app_id" translatable="false">570059106506930</string>
+    <string name="fb_login_protocol_scheme" translatable="false">fb570059106506930</string>
+    <string name="facebook" translatable="false">Facebook</string>
+    <string name="twitter" translatable="false">Twitter</string>
+    <string name="instagram" translatable="false">Instagram</string>
 
-    <string name="action_settings">Settings</string>
+    <!--Text in design file-->
+    <string name="home"><![CDATA[ホーム]]></string>
+    <string name="menu"><![CDATA[メニュー]]></string>
+    <string name="reserve"><![CDATA[予約]]></string>
+    <string name="news"><![CDATA[ニュース]]></string>
+    <string name="photo_gallery"><![CDATA[フォトギャラリー]]></string>
+    <string name="staff"><![CDATA[スタッフ]]></string>
+    <string name="coupon"><![CDATA[クーポン]]></string>
+    <string name="chat"><![CDATA[チャット]]></string>
+    <string name="setting"><![CDATA[設定]]></string>
+    <string name="username"><![CDATA[ユーザー名]]></string>
 
-    <string name="home">Home</string>
-    <string name="menu">Menu</string>
-    <string name="reserve">Reserve</string>
-    <string name="news">News</string>
-    <string name="photo_gallery">Photo Gallery</string>
-    <string name="staff">Staff</string>
-    <string name="coupon">Coupon</string>
-    <string name="chat">Chat</string>
-    <string name="setting">Setting</string>
-    <string name="username">Username</string>
-    <string name="image_description">Image Description</string>
+    <string name="more"><![CDATA[もっと見る]]></string>
+    <string name="collapse"><![CDATA[崩壊]]></string>
+
+    <string name="category_text"><![CDATA[カテゴリー]]></string>
+
+    <!--Settings Screen-->
+    <string name="profile"><![CDATA[プロフィール]]></string>
+    <string name="edit_profile"><![CDATA[プロフィール編集]]></string>
+    <string name="receive_push"><![CDATA[お知らせを受け取る]]></string>
+    <string name="receive_coupon_information"><![CDATA[クーポン情報を受け取る]]></string>
+    <string name="issue_the_takeover_code_during_the_model_change"><![CDATA[機種変更時引継ぎコード発行]]></string>
+    <string name="company_info"><![CDATA[逼営会社]]></string>
+    <string name="user_privacy"><![CDATA[採用情報]]></string>
+
+    <string name="sign_in"><![CDATA[ログイン]]></string>
+    <string name="email_address"><![CDATA[メールアドレス]]></string>
+    <string name="password"><![CDATA[パスワード]]></string>
+    <string name="password_confirm"><![CDATA[パスワード (確認)]]></string>
+
+    <string name="change_avatar"><![CDATA[プロフィール写真を変更]]></string>
+    <string name="user_id"><![CDATA[ユーザーID]]></string>
+    <string name="user_name"><![CDATA[ユーザー名]]></string>
+
+    <string name="gender"><![CDATA[性别]]></string>
+    <string name="province"><![CDATA[都道府桌]]></string>
+
+    <string name="sign_in_with_facebook"><![CDATA[Facebook ではじめる]]></string>
+    <string name="sign_in_with_twitter"><![CDATA[Twitter ではじめる]]></string>
+    <string name="sign_in_with_email"><![CDATA[メールアドレスではじめる]]></string>
+    <string name="skip"><![CDATA[スキップ]]></string>
+
+
+    <string name="already_sign_up"><![CDATA[すでに会員の方は、<a href=\'about:blank\'>こちらへ。</a>]]></string>
+
+    <string name="reserve_by_phone"><![CDATA[電話で予約する]]></string>
+    <string name="staff_description"><![CDATA[自己韶介]]></string>
+    <string name="staff_profile"><![CDATA[プロフィール]]></string>
+    <string name="product_details"><![CDATA[商品詳細]]></string>
+    <string name="size"><![CDATA[サイズ]]></string>
+    <string name="purchase"><![CDATA[商品購入ペ一ジへ]]></string>
+
+    <string name="copy_one"><![CDATA[コピ一]]></string>
+    <string name="coupon_type"><![CDATA[クーポンタイプ]]></string>
+    <string name="validity"><![CDATA[有効期間]]></string>
+    <string name="take_advantage_of_this_coupon"><![CDATA[このクーボンを利用す\n(※ Instagramこ移動します。)]]></string>
+    <string name="this_coupon_cannot_use"><![CDATA[このクーポンは使用できません]]></string>
+    <string name="staff_unknown_button"><![CDATA[テキストが入ります]]></string>
+    <string name="hash_tag_copied"><![CDATA[ハッシユタグをコピーしました]]></string>
+
+    <string name="link"><![CDATA[連撈]]></string>
+
+    <!--Text need verify(transalated by Google-->
+    <string name="disconnect"><![CDATA[非接続]]></string>
+    <string name="close"><![CDATA[閉じる]]></string>
+    <string name="cancel"><![CDATA[キャンセル]]></string>
+    <string name="yes"><![CDATA[はい]]></string>
+    <string name="no"><![CDATA[いいえ]]></string>
+    <string name="on"><![CDATA[オン]]></string>
+    <string name="off"><![CDATA[オフ]]></string>
+    <string name="exit"><![CDATA[エグジット]]></string>
+    <string name="warning"><![CDATA[警告]]></string>
+    <string name="error"><![CDATA[エラー]]></string>
+    <string name="info"><![CDATA[通知]]></string>
+
+    <string name="sign_up_1"><![CDATA[新規会員登録 (1/2)]]></string>
+    <string name="sign_up_2"><![CDATA[新規会員登録 (2/2)]]></string>
+    <string name="sign_up"><![CDATA[新規会員]]></string>
+    <string name="sign_out"><![CDATA[ログアウト]]></string>
+    <string name="undefined"><![CDATA[未定義]]></string>
+    <string name="gender_male"><![CDATA[男性]]></string>
+    <string name="gender_female"><![CDATA[女性]]></string>
+
+    <string name="image_description"><![CDATA[画像記述]]></string>
+    <string name="not_sign_up"><![CDATA[アカウントを持っていない、<a href=\'about:blank\'>こちらへ。</a>]]></string>
+    <string name="msg_input_a_valid_email_address"><![CDATA[有効なメールアドレスを入力してください]]></string>
+    <string name="msg_input_name"><![CDATA[ユーザ名を入力してください]]></string>
+    <string name="msg_input_password_confirm"><![CDATA[確認パスワードを入力してください]]></string>
+    <string name="msg_input_correct_confirm_password"><![CDATA[確認パスワードが正しくありません]]></string>
+    <string name="msg_input_password"><![CDATA[パスワードを入力してください]]></string>
+    <string name="msg_exit_confirm"><![CDATA[アプリを完了しますか？]]></string>
+    <string name="msg_sign_out_confirm"><![CDATA[アプリをログアウトしますか？]]></string>
+    <string name="msg_unable_to_sign_out"><![CDATA[ログアウトすることはできません]]></string>
+    <string name="msg_unable_to_sign_in"><![CDATA[ログインできません]]></string>
+    <string name="msg_unable_to_sign_up"><![CDATA[新規会員登録できません]]></string>
+    <string name="msg_not_sign_in"><![CDATA[まだログインしていません！]]></string>
+
+    <string name="msg_enter_email_and_name"><![CDATA[メールとユーザ名を入力してください]]></string>
+    <string name="msg_invalid_response_data"><![CDATA[データエラー]]></string>
+
+    <string name="msg_select_gender"><![CDATA[Please select gender]]></string>
+    <string name="msg_select_age"><![CDATA[Please select age]]></string>
+
+    <string name="msg_requesting">Requesting...</string>
+
+    <!-- Hokkaidō -->
+    <string name="hokkaido"><![CDATA[北海道]]></string>
+    <!-- Tōhoku -->
+    <string name="aomori"><![CDATA[青森県]]></string>
+    <string name="iwate"><![CDATA[岩手県]]></string>
+    <string name="miyagi"><![CDATA[宮城県]]></string>
+    <string name="akita"><![CDATA[秋田県]]></string>
+    <string name="yamagata"><![CDATA[山形県]]></string>
+    <string name="fukushima"><![CDATA[福島県]]></string>
+    <!-- Kantō -->
+    <string name="ibaraki"><![CDATA[茨城県]]></string>
+    <string name="tochigi"><![CDATA[栃木県]]></string>
+    <string name="gunma"><![CDATA[群馬県]]></string>
+    <string name="saitama"><![CDATA[埼玉県]]></string>
+    <string name="chiba"><![CDATA[千葉県]]></string>
+    <string name="tokyo"><![CDATA[東京都]]></string>
+    <string name="kanagawa"><![CDATA[神奈川県]]></string>
+    <!-- Chūbu -->
+    <string name="niigata"><![CDATA[新潟県]]></string>
+    <string name="toyama"><![CDATA[富山県]]></string>
+    <string name="ishikawa"><![CDATA[石川県]]></string>
+    <string name="fukui"><![CDATA[福井県]]></string>
+    <string name="yamanashi"><![CDATA[山梨県]]></string>
+    <string name="nagano"><![CDATA[長野県]]></string>
+    <string name="gifi"><![CDATA[岐阜県]]></string>
+    <string name="shizouka"><![CDATA[静岡県]]></string>
+    <string name="aichi"><![CDATA[愛知県]]></string>
+    <!-- Kansai -->
+    <string name="mie"><![CDATA[三重県]]></string>
+    <string name="shiga"><![CDATA[滋賀県]]></string>
+    <string name="kyoto"><![CDATA[京都府]]></string>
+    <string name="osaka"><![CDATA[大阪府]]></string>
+    <string name="hyogo"><![CDATA[兵庫県]]></string>
+    <string name="nara"><![CDATA[奈良県]]></string>
+    <string name="wakayama"><![CDATA[和歌山県]]></string>
+    <!-- Chūgoku -->
+    <string name="tottori"><![CDATA[鳥取県]]></string>
+    <string name="shimane"><![CDATA[島根県]]></string>
+    <string name="okayama"><![CDATA[岡山県]]></string>
+    <string name="hiroshima"><![CDATA[広島県]]></string>
+    <string name="yamaguchi"><![CDATA[山口県]]></string>
+    <!-- Shikoku -->
+    <string name="tokushima"><![CDATA[徳島県]]></string>
+    <string name="kagawa"><![CDATA[香川県]]></string>
+    <string name="ehime"><![CDATA[愛媛県]]></string>
+    <string name="kochi"><![CDATA[高知県]]></string>
+    <!-- Kyūshū -->
+    <string name="fukuoka"><![CDATA[福岡県]]></string>
+    <string name="saga"><![CDATA[佐賀県]]></string>
+    <string name="nagasaki"><![CDATA[長崎県]]></string>
+    <string name="kumamoto"><![CDATA[熊本県]]></string>
+    <string name="oita"><![CDATA[大分県]]></string>
+    <string name="miyazaki"><![CDATA[宮崎県]]></string>
+    <string name="kogoshima"><![CDATA[鹿児島県]]></string>
+    <string name="okinawa"><![CDATA[沖縄県]]></string>
+
+    <!--Text need translate-->
+    <string name="ok"><![CDATA[OK]]></string>
+    <string name="retry"><![CDATA[リトライ]]></string>
+    <string name="try_again"><![CDATA[再度お試しください]]></string>
+
+    <string name="title_select_avatar_image"><![CDATA[アバターを選択]]></string>
+    <string name="title_select_or_capture_picture"><![CDATA[写真を撮るまたはギャラリーから選択]]></string>
+
+    <string name="msg_signing_in"><![CDATA[ログイン中…]]></string>
+    <string name="msg_signing_up"><![CDATA[登録中…]]></string>
+    <string name="msg_signing_out"><![CDATA[ログアウト中…]]></string>
+    <string name="msg_updating_profile"><![CDATA[プロフィールを更新中…]]></string>
+    <string name="msg_loading_profile"><![CDATA[ちょっとお待ちください…]]></string>
+    <string name="msg_please_wait"><![CDATA[ちょっとお待ちください…]]></string>
+    <string name="msg_saving"><![CDATA[保存中…]]></string>
+    <string name="msg_connection_required"><![CDATA[ネットワークに接続できません]]></string>
+    <string name="msg_connection_timedout_try_again"><![CDATA[サーバーに接続できません。]]></string>
+    <string name="msg_starting_up"><![CDATA[起動中…]]></string>
+    <string name="msg_loading"><![CDATA[ちょっとお待ちください…]]></string>
+    <string name="msg_link_with_facebook"><![CDATA[ちょっとお待ちください…]]></string>
+    <string name="msg_link_with_twitter"><![CDATA[ちょっとお待ちください…]]></string>
+    <string name="msg_link_with_instagram"><![CDATA[ちょっとお待ちください…]]></string>
+    <string name="msg_no_content"><![CDATA[データがありません]]></string>
+    <string name="msg_save_profile_confirm"><![CDATA[データが変更されています。保存しますか？]]></string>
+    <string name="msg_updating"><![CDATA[Updating…]]></string>
+
+    <string name="msg_operation_succesfully">Operation completed succesfully!</string>
+    <string name="msg_error_not_registered_on_server">No character is registered on server</string>
+    <string name="msg_error_point_is_not_enough">Point is not enough</string>
+    <string name="msg_error_user_is_not_validated">User is not validated.</string>
+    <string name="msg_error_user_already_exist">User already exist.</string>
+    <string name="msg_error_method_is_not_valid">Method is not valid.</string>
+    <string name="msg_error_invalid_token">Invalid token</string>
+    <string name="msg_error_exception">Exception catch</string>
+    <string name="msg_error_db">DB connection/execute error</string>
+    <string name="msg_error_parameters_count">Parameters is not enough</string>
+    <string name="msg_error_parameters_type">Parameter is not correct</string>
+    <string name="msg_error_parameter_value">Parameter\'s value is not correct</string>
+    <string name="msg_error_unknown">Unknown error</string>
+
+    <string name="msg_error_email_is_not_correct">Email not correct</string>
+    <string name="msg_error_address_is_not_exist">Address is not exits</string>
+    <string name="msg_error_cannot_send_email">Can not send email</string>
+    <string name="msg_error_account_is_not_active">Account is not active</string>
+    <string name="msg_error_time_expire">Time expire</string>
+    <string name="msg_error_signature_missing">Parameter sig not exist</string>
+    <string name="msg_error_signature_invalid">Parameter sig is not valid</string>
+    <!--Newly added-->
+
+    <string name="change_device_title"><![CDATA[引き継ぎコード発行]]></string>
+    <string name="change_device_label_1"><![CDATA[引き継ぎコードを発行しました。]]></string>
+    <string name="change_device_label_2"><![CDATA[引き継ぎコードは、必ずメモして大切に保管して下さい。他端末へのデータの移行は、起動後画面の「引き継ぎ」から行 えます。]]></string>
+    <string name="change_device_button_left"><![CDATA[閉じる]]></string>
+    <string name="change_device_button_right"><![CDATA[新規で発行]]></string>
+    <string name="share_title"><![CDATA[友達を招待して特典をGET!]]></string>
+    <string name="share_top"><![CDATA[あなたの招待コード]]></string>
+    <string name="next"><![CDATA[次へ]]></string>
+    <string name="attribute"><![CDATA[属性]]></string>
+    <string name="age"><![CDATA[年代]]></string>
+    <string name="register"><![CDATA[登録]]></string>
+    <string name="registration"><![CDATA[登録する]]></string>
+    <string name="register_here"><![CDATA[こちらの内容で登録]]></string>
+
+    <!--Newly added (unchecked)-->
+    <string name="msg_cannot_regist_on_this_device"><![CDATA[ごめんなさい！あなたは、このデバイスに登録することはできません。]]></string>
+    <string name="msg_password_at_least_6"><![CDATA[パスワードは少なくとも6文字でなければなりません。]]></string>
+    <string name="msg_processing">Processing...</string>
+
+    <string name="use"><![CDATA[使う]]></string>
+    <string name="use_coupon"><![CDATA[Use Coupon]]></string>
+    <string name="done"><![CDATA[Done]]></string>
+    <string name="no_data"><![CDATA[データなし]]></string>
+    <string name="related"><![CDATA[関連]]></string>
+    <string name="birthday"><![CDATA[Birthday]]></string>
+    <string name="phone"><![CDATA[電話]]></string>
+    <string name="choose_staff"><![CDATA[スタッフを選ぶ]]></string>
+    <string name="share_info"><![CDATA[友人や知人にアプリを紹介すると1000マイルをプレゼント致します。\n方法は簡単、アプリの紹介コードを下のSNSから紹介するだけです。]]></string>
+    <string name="direction"><![CDATA[道順]]></string>
+    <string name="choice"><![CDATA[選択]]></string>
+    <string name="reference_code"><![CDATA[紹介コード]]></string>
+    <string name="my_page"><![CDATA[マイページ]]></string>
+    <string name="phone_number">電話番号</string>
+    <string name="OK">OK</string>
+
+    <string name="coupon_detail">COUPON DETAIL</string>
+    <string name="coupon_request">COUPON REQUEST</string>
+    <string name="qr_reader">QR READER</string>
+    <string name="coupon_content">USE PROMOTION CODE</string>
+    <string name="coupon_off_detail">40% OFF</string>
+    <string name="accept">Accept</string>
+    <string name="reject">Reject</string>
 
 </resources>

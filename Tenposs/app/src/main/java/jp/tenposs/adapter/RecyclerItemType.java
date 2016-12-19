@@ -4,16 +4,45 @@ package jp.tenposs.adapter;
  * Created by ambient on 7/29/16.
  */
 public enum RecyclerItemType {
-    RecyclerItemTypeNone,
+    RecyclerItemTypeStart,
 
-    RecyclerItemTypeTopItem,
+    //DECORATION_NONE
+    RecyclerItemTypeTop,
 
     RecyclerItemTypeHeader,
-    RecyclerItemTypeItemList,
-    RecyclerItemTypeItemStore,
-    RecyclerItemTypeItemGrid,
-    RecyclerItemTypeItemGridImageOnly,
-    RecyclerItemTypeFooter;
+    RecyclerItemTypeFooter,
+
+    RecyclerItemTypeGridImage,
+    RecyclerItemTypeGridItem,
+    RecyclerItemTypeGridStaff,
+
+    RecyclerItemTypeList,
+    RecyclerItemTypeListDivider,
+
+    RecyclerItemTypeStore,
+
+    ///Product
+    RecyclerItemTypeProductImage,
+    RecyclerItemTypeProductTitle,
+    RecyclerItemTypeProductDescription,
+
+    /**
+     * Restaurant Template
+     */
+    RecyclerItemTypeRestaurantNewsTop,
+
+    RecyclerItemTypeRestaurantProductInfo,
+    RecyclerItemTypeRestaurantProductDetail,
+
+    RecyclerItemTypeRestaurantGridImage,
+    RecyclerItemTypeRestaurantGridItem,
+    RecyclerItemTypeRestaurantGridStaff,
+
+    RecyclerItemTypeRestaurantRecyclerHorizontal,
+    RecyclerItemTypeRestaurantRecyclerVertical,
+
+    RecyclerItemTypeEnd;
+
 
     public static RecyclerItemType fromInt(int recyclerItemType) {
         for (RecyclerItemType type : RecyclerItemType.values()) {
@@ -21,7 +50,6 @@ public enum RecyclerItemType {
                 return type;
             }
         }
-        return RecyclerItemTypeNone;
-
+        return RecyclerItemTypeStart;
     }
 }

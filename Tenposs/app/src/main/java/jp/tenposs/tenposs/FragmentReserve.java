@@ -1,57 +1,73 @@
 package jp.tenposs.tenposs;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.support.annotation.NonNull;
 
 import java.util.Locale;
 
 import jp.tenposs.communicator.ReserveInfoCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;
-import jp.tenposs.datamodel.AppSettings;
+import jp.tenposs.datamodel.AppData;
+import jp.tenposs.datamodel.CommonResponse;
 import jp.tenposs.datamodel.Key;
-import jp.tenposs.datamodel.MenuInfo;
 import jp.tenposs.datamodel.ReserveInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;
+import jp.tenposs.datamodel.TopInfo;
+import jp.tenposs.utils.Utils;
 
 /**
  * Created by ambient on 7/29/16.
  */
-public class FragmentReserve extends AbstractFragment {
-    WebView webView;
-ReserveInfo.Response screenData;
-    @Override
-    protected void customClose() {
+public class FragmentReserve extends FragmentWebView {
+    ReserveInfo.Reserve mScreenData;
+    TopInfo.Contact mStoreInfo;
 
+
+//    public static FragmentReserve newInstance(@NonNull TopInfo.Contact storeInfo) {
+//        FragmentReserve gm = new FragmentReserve();
+//        Bundle b = new Bundle();
+//        b.putSerializable(STORE_INFO, storeInfo);
+//        gm.setArguments(b);
+//        return gm;
+//    }
+
+    @Override
+    protected boolean customClose() {
+        return false;
     }
 
     @Override
     protected void customToolbarInit() {
-        toolbarSettings = new ToolbarSettings();
-        toolbarSettings.toolbarTitle = "Reserve";
-        toolbarSettings.toolbarIcon = "ti-menu";
-        toolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
-
-        toolbarSettings.settings = new AppSettings.Settings();
-        toolbarSettings.settings.fontColor = "#00CECB";
-
-        toolbarSettings.titleSettings = new AppSettings.Settings();
-        toolbarSettings.titleSettings.fontColor = "#000000";
-        toolbarSettings.titleSettings.fontSize = 20;
+        mToolbarSettings.toolbarTitle = getString(R.string.reserve);
+        if (this.mShowFromSideMenu == true) {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
+        } else {
+            mToolbarSettings.toolbarLeftIcon = "flaticon-back";
+            mToolbarSettings.toolbarType = ToolbarSettings.LEFT_BACK_BUTTON;
+        }
     }
 
     @Override
-    protected void startup() {
-        if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
+    protected void clearScreenData() {
+
+    }
+
+
+    @Override
+    protected void reloadScreenData() {
+
+    }
+
+    @Override
+    protected void customResume() {
+        if (this.mScreenDataStatus == ScreenDataStatus.ScreenDataStatusUnload) {
             //load needed data
-            this.screenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
+            this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoading;
             loadReserveInfo();
 
-        } else if (this.screenDataStatus == ScreenDataStatus.ScreenDataStatusLoading) {
+        } else if (this.mScreenDataStatus == ScreenDataStatus.ScreenDataStatusLoading) {
             //just waiting
 
         } else {
@@ -61,54 +77,112 @@ ReserveInfo.Response screenData;
     }
 
     @Override
-    protected void reloadScreenData() {
+    void loadSavedInstanceState(@NonNull Bundle savedInstanceState) {
+        super.loadSavedInstanceState(savedInstanceState);
+
+        if (savedInstanceState.containsKey(SCREEN_DATA) == true) {
+            this.mScreenData = (ReserveInfo.Reserve) savedInstanceState.getSerializable(SCREEN_DATA);
+        }
+        if (savedInstanceState.containsKey(STORE_INFO) == true) {
+            this.mStoreInfo = (TopInfo.Contact) savedInstanceState.getSerializable(STORE_INFO);
+        }
+    }
+
+    @Override
+    void customSaveInstanceState(Bundle outState) {
+        super.customSaveInstanceState(outState);
+        if (this.mScreenData != null) {
+            outState.putSerializable(SCREEN_DATA, this.mScreenData);
+        }
+
+        if (this.mStoreInfo != null) {
+            outState.putSerializable(STORE_INFO, this.mStoreInfo);
+        }
+    }
+
+    @Override
+    void setRefreshing(boolean refreshing) {
 
     }
 
     @Override
-    protected void previewScreenData() {
-        String strUrl = screenData.data.reserve.reserve_url.toLowerCase(Locale.US);
-        String strTemp= screenData.data.reserve.reserve_url.toLowerCase(Locale.US);
-
-        if (strTemp.contains("http://") == false && strTemp.contains("https://") == false)
-            strUrl  = "http://" + strUrl ;
-
-        this.webView.loadUrl(strUrl);
-        //this.webView.loadUrl("http://tabelog.com");
-    }
-
-    @Override
-    protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View mRoot = inflater.inflate(R.layout.fragment_reserve, null);
-        this.webView = (WebView) mRoot.findViewById(R.id.web_view);
-        this.webView.getSettings().setJavaScriptEnabled(true);
-        this.webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(final WebView view, final String url) {
-                return false;
-            }
-        });
-        return mRoot;
-    }
-
-    @Override
-    void loadSavedInstanceState(@Nullable Bundle savedInstanceState) {
-
+    boolean canCloseByBackpressed() {
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     void loadReserveInfo() {
         ReserveInfo.Request requestParams = new ReserveInfo.Request();
-        requestParams.store_id = 1;
+        if (mStoreInfo != null) {
+            requestParams.store_id = mStoreInfo.id;
+        } else {
+            requestParams.store_id = this.mStoreId;
+        }
 
         Bundle params = new Bundle();
         params.putSerializable(Key.RequestObject, requestParams);
-        ReserveInfoCommunicator communicator = new ReserveInfoCommunicator(new TenpossCommunicator.TenpossCommunicatorListener() {
-            @Override
-            public void completed(TenpossCommunicator request, Bundle responseParams) {
-                screenData = (ReserveInfo.Response) responseParams.getSerializable(Key.ResponseObject);
-                previewScreenData();
-            }
-        });
+        ReserveInfoCommunicator communicator = new ReserveInfoCommunicator(
+                new TenpossCommunicator.TenpossCommunicatorListener() {
+                    @Override
+                    public void completed(TenpossCommunicator request, Bundle responseParams) {
+                        if (isAdded() == false) {
+                            return;
+                        }
+                        int result = responseParams.getInt(Key.ResponseResult);
+                        if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
+                            int resultApi = responseParams.getInt(Key.ResponseResultApi);
+                            if (resultApi == CommonResponse.ResultSuccess) {
+                                ReserveInfo.Response response = (ReserveInfo.Response) responseParams.getSerializable(Key.ResponseObject);
+                                if (response.data.reserve.size() > 0) {
+                                    mScreenData = response.data.reserve.get(0);
+                                    String strUrl = mScreenData.reserve_url.toLowerCase(Locale.US);
+                                    String strTemp = mScreenData.reserve_url.toLowerCase(Locale.US);
+
+                                    if (strTemp.contains("http://") == false && strTemp.contains("https://") == false)
+                                        mUrl = "http://" + strUrl;
+                                    else
+                                        mUrl = strUrl;
+
+                                    previewScreenData();
+                                } else if (resultApi == CommonResponse.ResultErrorTokenExpire) {
+                                    refreshToken(new TenpossCallback() {
+                                        @Override
+                                        public void onSuccess(Bundle params) {
+                                            loadReserveInfo();
+                                        }
+
+                                        @Override
+                                        public void onFailed(Bundle params) {
+                                            //Logout, then do something
+                                            mActivityListener.logoutBecauseExpired();
+                                        }
+                                    });
+                                } else {
+                                    Utils.showAlert(getContext(),
+                                            getString(R.string.error),
+                                            getString(R.string.msg_invalid_response_data),
+                                            getString(R.string.close),
+                                            null,
+                                            new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+
+                                                }
+                                            });
+                                }
+                            } else {
+                                String strMessage = responseParams.getString(Key.ResponseMessage);
+                                errorWithMessage(responseParams, strMessage, null);
+                            }
+                        } else {
+                            String strMessage = responseParams.getString(Key.ResponseMessage);
+                            errorWithMessage(responseParams, strMessage, null);
+                        }
+                    }
+                });
         communicator.execute(params);
     }
 }

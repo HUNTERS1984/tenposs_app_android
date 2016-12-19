@@ -22,10 +22,9 @@ public class MenuInfoCommunicator extends TenpossCommunicator {
     protected boolean request(Bundle bundle) {
         String strUrl;
         MenuInfo.Request requestData = (MenuInfo.Request) bundle.getSerializable(Key.RequestObject);
-        strUrl = API_ADDRESS + API_MENU + requestData.makeParams("GET");
-        int result = TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal();
-        byte[] dataRequest = null;
-        OutputStream output = null;
+        strUrl = API_MENU + requestData.makeParams();
+        int result;
+        OutputStream output;
 
         try {
             output = new ByteArrayOutputStream();
@@ -34,10 +33,13 @@ public class MenuInfoCommunicator extends TenpossCommunicator {
             bundle.putInt(Key.ResponseResult, TenpossCommunicator.CommunicationCode.GeneralError.ordinal());
             return false;
         }
-        result = request(strUrl, output, dataRequest, bundle);
+        result = request(strUrl, output, bundle);
         if (result == TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal()) {
             String strResponse = output.toString();
-            MenuInfo.Response response = (MenuInfo.Response) CommonObject.fromJSONString(strResponse, MenuInfo.Response.class, null);
+            CommonResponse response = (MenuInfo.Response) CommonObject.fromJSONString(strResponse, MenuInfo.Response.class, null);
+            if (response == null) {
+                response = (CommonResponse) CommonObject.fromJSONString(strResponse, CommonResponse.class, null);
+            }
             if (response != null) {
                 bundle.putInt(Key.ResponseResult, TenpossCommunicator.CommunicationCode.ConnectionSuccess.ordinal());
                 bundle.putInt(Key.ResponseResultApi, response.code);

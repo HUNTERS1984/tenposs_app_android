@@ -18,13 +18,14 @@ public final class SharedPreferencesHelper {
         return context.getSharedPreferences(PREFERENCE_NAME, MODE_PRIVATE);
     }
 
-    public static void save(Context context, String key, String value){
+    public static void save(Context context, String key, String value) {
         SharedPreferences shared = getSharedPreferences(context);
         SharedPreferences.Editor edit = shared.edit();
-        edit.putString(key , value);
+        edit.putString(key, value);
         edit.apply();
     }
-    public static String get(Context context, String key){
+
+    public static String get(Context context, String key) {
         SharedPreferences shared = getSharedPreferences(context);
         return shared.getString(key, "");
     }

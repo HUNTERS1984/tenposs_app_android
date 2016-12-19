@@ -1,0 +1,109 @@
+<resources>
+    <!--
+    <string name="home">Home</string>
+    <string name="menu">Menu</string>
+    <string name="reserve">Reserve</string>
+    <string name="news">News</string>
+    <string name="photo_gallery">Photo Gallery</string>
+    <string name="staff">Staff</string>
+    <string name="coupon">Coupon</string>
+    <string name="chat">Chat</string>
+    <string name="setting">Setting</string>
+    <string name="username">Username</string>
+    <string name="image_description">Image Description</string>
+    <string name="more">More</string>
+    -->
+
+    <!--Settings Screen-->
+    <!--
+    <string name="edit_profile">Edit Profile</string>
+    <string name="receive_push">Receive Push</string>
+    <string name="receive_coupon_information">Receive coupon information</string>
+    <string name="issue_the_takeover_code_during_the_model_change">Issue the takeover code during the model change</string>
+    <string name="company_info">Company Info</string>
+    <string name="user_privacy">User Privacy</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="password">Password</string>
+    <string name="password_confirm">Password (Confirm)</string>
+
+    <string name="name">Name</string>
+    <string name="email">Email</string>
+    <string name="gender">Gender</string>
+    <string name="province">Province</string>
+    <string name="purchase">Purchase</string>
+    <string name="sign_in_with_facebook">Sign in with Facebook</string>
+    <string name="sign_in_with_twitter">Sign in with Twitter</string>
+    <string name="sign_in_with_email">Sign in with Email</string>
+    <string name="skip">Skip</string>
+    <string name="back">Back</string>
+    <string name="ok">OK</string>
+    <string name="input_a_valid_email_address">Please input a valid email address</string>
+    <string name="input_name">Please input name</string>
+    <string name="input_password">Please input \'password\'</string>
+    <string name="input_password_confirm">Please re-input your password</string>
+    <string name="input_correct_confirm_password">Password not match</string>
+    <string name="not_sign_up"><![CDATA[Don\'t have account, <a href=\'about:blank\'>sign up</a> here.]]></string>
+    <string name="already_sign_up"><![CDATA[If you already members, <a href=\'about:blank\'>sign in</a> here.]]></string>
+    <string name="link_with_facebook">Link with Facebook account</string>
+    <string name="link_with_twitter">Link with Twitter account</string>
+    <string name="link_with_instagram">Link with Instagram account</string>
+    <string name="link">Link</string>
+    <string name="sign_out">Sign out</string>
+    <string name="cancel">Cancel</string>
+    <string name="msg_exit_confirm">Are you sure you want to exit?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="msg_sign_out_confirm">Are you sure you want to sign out?</string>
+    <string name="on">On</string>
+    <string name="off">Off</string>
+
+    <string name="hokkaido">Hokkaidō</string>
+    <string name="aomori">Aomori</string>
+    <string name="iwate">Iwate</string>
+    <string name="miyagi">Miyagi</string>
+    <string name="akita">Akita</string>
+    <string name="yamagata">Yamagata</string>
+    <string name="fukushima">Fukushima</string>
+    <string name="ibaraki">Ibaraki</string>
+    <string name="tochigi">Tochigi</string>
+    <string name="gunma">Gunma</string>
+    <string name="saitama">Saitama</string>
+    <string name="chiba">Chiba</string>
+    <string name="tokyo">Tōkyō</string>
+    <string name="kanagawa">Kanagawa</string>
+    <string name="niigata">Niigata</string>
+    <string name="toyama">Toyama</string>
+    <string name="ishikawa">Ishikawa</string>
+    <string name="fukui">Fukui</string>
+    <string name="yamanashi">Yamanashi</string>
+    <string name="nagano">Nagano</string>
+    <string name="gifi">Gifu</string>
+    <string name="shizouka">Shizuoka</string>
+    <string name="aichi">Aichi</string>
+    <string name="mie">Mie</string>
+    <string name="shiga">Shiga</string>
+    <string name="kyoto">Kyōto</string>
+    <string name="osaka">Ōsaka</string>
+    <string name="hyogo">Hyōgo</string>
+    <string name="nara">Nara</string>
+    <string name="wakayama">Wakayama</string>
+    <string name="tottori">Tottori</string>
+    <string name="shimane">Shimane</string>
+    <string name="okayama">Okayama</string>
+    <string name="hiroshima">Hiroshima</string>
+    <string name="yamaguchi">Yamaguchi</string>
+    <string name="tokushima">Tokushima</string>
+    <string name="kagawa">Kagawa</string>
+    <string name="ehime">Ehime</string>
+    <string name="kochi">Kōchi</string>
+    <string name="fukuoka">Fukuoka</string>
+    <string name="saga">Saga</string>
+    <string name="nagasaki">Nagasaki</string>
+    <string name="kumamoto">Kumamoto</string>
+    <string name="oita">Ōita</string>
+    <string name="miyazaki">Miyazaki</string>
+    <string name="kogoshima">Kagoshima</string>
+    <string name="okinawa">Okinawa</string>
+    -->
+</resources>

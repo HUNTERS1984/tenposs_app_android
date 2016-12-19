@@ -6,6 +6,29 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
-    <dimen name="item_margin">8dp</dimen>
+    <dimen name="item_margin">16dp</dimen>
+    <dimen name="item_setting_height">50dp</dimen>
+    <dimen name="nav_button_size">50dp</dimen>
+    <dimen name="common_padding">16dp</dimen>
+    <dimen name="shadow_size">8dip</dimen>
+    <dimen name="sw_thumb_ripple_size">42dp</dimen>
+    <dimen name="sw_thumb_solid_inset">11dp</dimen>
+    <dimen name="sw_thumb_shadow_inset">11dp</dimen>
+    <dimen name="sw_thumb_shadow_inset_top">11dp</dimen>
+    <dimen name="sw_thumb_shadow_inset_bottom">10dp</dimen>
+
+    <dimen name="sw_thumb_solid_size">20dp</dimen>
+    <dimen name="sw_thumb_shadow_size">21dp</dimen>
+    <dimen name="sw_thumb_shadow_offset">2dp</dimen>
+
+    <dimen name="default_stroke_width">7dp</dimen>
+    <dimen name="default_background_stroke_width">3dp</dimen>
+    <dimen name="menu_icon_padding">15dp</dimen>
+
+    <dimen name="restaurant_item_margin">20dp</dimen>
+    <dimen name="coupon_fragment_margin">-50dp</dimen>
+
+    <dimen name="common_item_spacing">8dp</dimen>
+    <dimen name="restaurant_item_spacing">6dp</dimen>
 
 </resources>
