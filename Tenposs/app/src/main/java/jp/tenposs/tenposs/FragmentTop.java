@@ -66,7 +66,7 @@ public class FragmentTop
 
     @Override
     protected void customToolbarInit() {
-        mToolbarSettings.toolbarTitle = AppData.sharedInstance().mAppInfo.getAppName();
+        mToolbarSettings.toolbarTitle = AppData.sharedInstance().mAppInfo.getAppSetting().getTitle();
         if (this.mShowFromSideMenu == true) {
             mToolbarSettings.toolbarLeftIcon = "flaticon-main-menu";
             mToolbarSettings.toolbarType = ToolbarSettings.LEFT_MENU_BUTTON;
@@ -617,7 +617,8 @@ public class FragmentTop
                             extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_DETAILS_SCREEN);
                             extras.putString(RecyclerItemWrapper.ITEM_CATEGORY, item.getCategory());
                             extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.getTitle());
-                            extras.putString(RecyclerItemWrapper.ITEM_PRICE, item.getDescription());
+                            extras.putString(RecyclerItemWrapper.ITEM_PRICE, item.getPrice());
+                            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.getDescription());
                             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
                             extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
 

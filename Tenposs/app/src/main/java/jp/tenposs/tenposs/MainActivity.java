@@ -616,7 +616,7 @@ public class MainActivity extends AppCompatActivity
             fragmentSignIn = new FragmentSignIn();
             Bundle bundle = new Bundle();
             bundle.putBoolean(AbstractFragment.SCREEN_TYPE, showToolbar);
-            bundle.putString(AbstractFragment.SCREEN_TITLE, AppData.sharedInstance().mAppInfo.getAppName());
+            bundle.putString(AbstractFragment.SCREEN_TITLE, AppData.sharedInstance().mAppInfo.getAppSetting().getTitle());
             fragmentSignIn.setArguments(bundle);
         }
         showFragment(fragmentSignIn, FragmentSignIn.class.getCanonicalName(), true);

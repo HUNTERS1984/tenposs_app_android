@@ -17,6 +17,7 @@ import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.listener.OnCommonItemClickListener;
 import jp.tenposs.utils.Utils;
 import jp.tenposs.view.AspectRatioImageView;
+import okhttp3.internal.Util;
 
 /**
  * Created by ambient on 8/24/16.
@@ -77,7 +78,7 @@ public class FragmentNewsDetail
         this.mNewsTitleLabel.setText(mScreenData.getTitle());
         this.mNewsCategoryLabel.setText(mScreenData.getCategory());
         this.mNewsDateLabel.setText(Utils.formatDateTime(this.mScreenData.getLastModifyDate(), "yyyy-MM-dd", "yyyy.MM.dd"));
-        this.mNewsDescriptionLabel.setText(this.mScreenData.getDescription());
+        Utils.setTextViewHTML(this.mNewsDescriptionLabel, this.mScreenData.getDescription(), null);
 
         mToolbarSettings.toolbarTitle = mScreenData.getTitle();
 

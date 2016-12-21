@@ -395,7 +395,7 @@ public class CommonAdapter extends AbstractRecyclerAdapter<CommonAdapter.CommonV
                         if (itemDescriptionLabel != null) {
                             String itemDescription = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_DESCRIPTION);
                             if (itemDescription != null) {
-                                itemDescriptionLabel.setText(itemDescription);
+                                Utils.setTextViewHTML(itemDescriptionLabel, itemDescription, null);
                             } else {
                                 itemDescriptionLabel.setVisibility(View.GONE);
                             }

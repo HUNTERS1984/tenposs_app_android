@@ -186,6 +186,10 @@ public class AppInfo {
             user_privacy = "";
         }
 
+        public String getTitle() {
+            return title;
+        }
+
         public int getToolbarIconColor() {
             return Utils.colorFromHex(this.menu_icon_color, Color.WHITE);
         }
