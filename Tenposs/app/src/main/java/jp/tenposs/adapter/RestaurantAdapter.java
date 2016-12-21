@@ -708,6 +708,7 @@ public class RestaurantAdapter
                             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
                             extras.putString(RecyclerItemWrapper.ITEM_CATEGORY, item.getCategory());
                             extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.getTitle());
+                            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.getDescription());
                             extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
 
                             dataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeList, 1, extras));

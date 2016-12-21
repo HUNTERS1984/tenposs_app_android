@@ -118,7 +118,7 @@ public abstract class TenpossCommunicator extends AsyncTask<Bundle, Integer, Bun
         ConnectionErrorReadInput, // cannot read response from the server.
         ConnectionErrorWriteOutput, // cannot save to output
 
-        ConnectionSuccess;
+        ConnectionSuccess
     }
 
     public interface TenpossCommunicatorListener {
