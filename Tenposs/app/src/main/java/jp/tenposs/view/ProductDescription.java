@@ -70,7 +70,8 @@ public class ProductDescription
         mProductDetailButton.setOnClickListener(this);
         mProductSizeButton.setOnClickListener(this);
 
-        mProductDescriptionLabel.setText(mViewData.getDescription());
+        Utils.setTextViewHTML(mProductDescriptionLabel, mViewData.getDescription(), null);
+//        mProductDescriptionLabel.setText(mViewData.getDescription());
 
         if (this.mViewData.hasSizes() == true) {
 //            if (mAdapter == null) {

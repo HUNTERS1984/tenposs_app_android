@@ -323,6 +323,13 @@ public class FragmentTop
             }
             break;
 
+            case RecyclerItemTypeGridImage: {
+                int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
+                Serializable extras = item.itemData.getSerializable(RecyclerItemWrapper.ITEM_OBJECT);
+                this.mActivityListener.showScreen(screenId, extras, null, false);
+            }
+            break;
+
             case RecyclerItemTypeFooter: {
                 int screenId = item.itemData.getInt(RecyclerItemWrapper.ITEM_SCREEN_ID);
                 this.mActivityListener.showScreen(screenId, null, null, false);
