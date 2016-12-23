@@ -156,6 +156,7 @@ public class CommonAdapter extends AbstractRecyclerAdapter<CommonAdapter.CommonV
         TextView itemTitleLabel;
         TextView itemDescriptionLabel;
         TextView itemPriceLabel;
+        TextView itemCreateDateTimeLabel;
 
         //Store
         ImageView mapImage;
@@ -233,6 +234,7 @@ public class CommonAdapter extends AbstractRecyclerAdapter<CommonAdapter.CommonV
                     itemTitleLabel = (TextView) this.mRow.findViewById(R.id.item_title_label);
                     itemDescriptionLabel = (TextView) this.mRow.findViewById(R.id.item_description_label);
                     itemPriceLabel = (TextView) this.mRow.findViewById(R.id.item_price_label);
+                    itemCreateDateTimeLabel = (TextView) this.mRow.findViewById(R.id.item_create_date_time_label);
                 }
                 break;
 
@@ -407,6 +409,15 @@ public class CommonAdapter extends AbstractRecyclerAdapter<CommonAdapter.CommonV
                                 itemPriceLabel.setText(itemPrice);
                             } else {
                                 itemPriceLabel.setVisibility(View.GONE);
+                            }
+                        }
+
+                        if (itemCreateDateTimeLabel != null) {
+                            String itemCreateDateTime = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_CREATE_DATE_TIME);
+                            if (itemCreateDateTime != null) {
+                                itemCreateDateTimeLabel.setText(Utils.formatDateTime(itemCreateDateTime, "yyyy-MM-dd HH:mm:ss", "MM月dd日 HH時mm分"));
+                            } else {
+                                itemCreateDateTimeLabel.setVisibility(View.GONE);
                             }
                         }
                     }

@@ -3,7 +3,6 @@ package jp.tenposs.tenposs;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
-import java.io.Serializable;
 import java.util.Locale;
 
 import jp.tenposs.datamodel.ItemsInfo;

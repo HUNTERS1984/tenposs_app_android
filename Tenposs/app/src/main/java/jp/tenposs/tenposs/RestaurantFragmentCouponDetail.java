@@ -1,10 +1,8 @@
 package jp.tenposs.tenposs;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +12,6 @@ import android.widget.TextView;
 
 import com.google.zxing.WriterException;
 import com.squareup.picasso.Picasso;
-
-import java.io.Serializable;
 
 import jp.tenposs.datamodel.CouponInfo;
 import jp.tenposs.datamodel.ScreenDataStatus;

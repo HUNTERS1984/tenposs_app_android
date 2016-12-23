@@ -1,7 +1,6 @@
 package jp.tenposs.adapter;
 
 import android.content.Context;
-import android.text.Html;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -81,6 +80,7 @@ public class VerticalAdapter extends AbstractRecyclerAdapter<VerticalAdapter.Ver
         private TextView itemDescriptionLabel;
         private TextView itemCategoryLabel;
         private TextView itemPriceLabel;
+        private TextView itemCreateDateTimeLabel;
 
         public VerticalViewHolder(View v, RecyclerItemType itemType, Context context, OnCommonItemClickListener l) {
             super(v, itemType, context, l);
@@ -96,6 +96,7 @@ public class VerticalAdapter extends AbstractRecyclerAdapter<VerticalAdapter.Ver
                 itemTitleLabel = (TextView) this.mRow.findViewById(R.id.item_title_label);
                 itemDescriptionLabel = (TextView) this.mRow.findViewById(R.id.item_description_label);
                 itemPriceLabel = (TextView) this.mRow.findViewById(R.id.item_price_label);
+                itemCreateDateTimeLabel = (TextView) this.mRow.findViewById(R.id.item_create_date_time_label);
             }
         }
 
@@ -140,6 +141,15 @@ public class VerticalAdapter extends AbstractRecyclerAdapter<VerticalAdapter.Ver
                     String itemPrice = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_PRICE);
                     if (itemPrice != null) {
                         itemPriceLabel.setText(itemPrice);
+                    } else {
+                        itemPriceLabel.setVisibility(View.GONE);
+                    }
+                }
+
+                if (itemCreateDateTimeLabel != null) {
+                    String itemCreateDateTime = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_CREATE_DATE_TIME);
+                    if (itemCreateDateTime != null) {
+                        itemCreateDateTimeLabel.setText(Utils.formatDateTime(itemCreateDateTime, "yyyy-MM-dd HH:mm:ss", "MM月dd日 HH時mm分"));
                     } else {
                         itemPriceLabel.setVisibility(View.GONE);
                     }

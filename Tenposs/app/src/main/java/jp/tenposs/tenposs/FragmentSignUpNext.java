@@ -16,8 +16,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import java.io.Serializable;
-
 import jp.tenposs.communicator.CompleteProfileCommunicator;
 import jp.tenposs.communicator.SignUpCommunicator;
 import jp.tenposs.communicator.TenpossCommunicator;

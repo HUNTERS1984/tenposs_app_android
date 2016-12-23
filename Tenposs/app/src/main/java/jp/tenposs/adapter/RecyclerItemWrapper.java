@@ -25,6 +25,7 @@ public class RecyclerItemWrapper {
     public final static String ITEM_ROW_SPAN = "ITEM_ROW_SPAN";
     public final static String ITEM_COLUMN_SPAN = "ITEM_COLUMN_SPAN";
     public final static String ITEM_LAYOUT_SPAN_ABLE = "ITEM_LAYOUT_SPAN_ABLE";
+    public final static String ITEM_CREATE_DATE_TIME = "ITEM_CREATE_DATE_TIME";
 
 
     public RecyclerItemType itemType;

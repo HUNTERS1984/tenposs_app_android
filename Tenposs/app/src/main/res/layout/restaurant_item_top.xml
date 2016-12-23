@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
     android:orientation="vertical">
 
     <RelativeLayout
@@ -34,52 +35,71 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="70dp"
+        android:background="@color/menu_top_item"
         android:orientation="horizontal">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:gravity="center"
             android:orientation="vertical">
 
             <Button
                 android:id="@+id/coupon_button"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="@dimen/item_menu_top_size"
+                android:layout_height="@dimen/item_menu_top_size"
+                android:layout_marginTop="5dp"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentTop="true"
                 android:background="@drawable/restaurant_ic_coupon" />
 
             <TextView
                 android:id="@+id/coupon_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="5dp"
                 android:text="@string/coupon"
                 android:textColor="@color/green_dark" />
-        </LinearLayout>
+        </RelativeLayout>
 
-        <LinearLayout
+        <View android:layout_width="1dp"
+              android:layout_height="match_parent"
+              android:background="@color/colorSeparate"/>
+
+        <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:gravity="center"
             android:orientation="vertical">
 
             <Button
                 android:id="@+id/chat_button"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="@dimen/item_menu_top_size"
+                android:layout_height="@dimen/item_menu_top_size"
+                android:layout_marginTop="5dp"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentTop="true"
                 android:background="@drawable/restaurant_ic_chat" />
 
             <TextView
                 android:id="@+id/chat_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="5dp"
                 android:text="@string/chat"
                 android:textColor="@color/green_dark" />
-        </LinearLayout>
+        </RelativeLayout>
 
-        <LinearLayout
+        <View android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/colorSeparate"/>
+
+        <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -88,19 +108,29 @@
 
             <Button
                 android:id="@+id/phone_button"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="@dimen/item_menu_top_size"
+                android:layout_height="@dimen/item_menu_top_size"
+                android:layout_marginTop="5dp"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentTop="true"
                 android:background="@drawable/restaurant_ic_phone" />
 
             <TextView
                 android:id="@+id/phone_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="5dp"
                 android:text="@string/phone"
                 android:textColor="@color/green_dark" />
-        </LinearLayout>
+        </RelativeLayout>
 
-        <LinearLayout
+        <View android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/colorSeparate"/>
+
+        <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -109,16 +139,22 @@
 
             <Button
                 android:id="@+id/direction_button"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="@dimen/item_menu_top_size"
+                android:layout_height="@dimen/item_menu_top_size"
+                android:layout_marginTop="5dp"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentTop="true"
                 android:background="@drawable/restaurant_ic_direction" />
 
             <TextView
                 android:id="@+id/direction_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="5dp"
                 android:text="@string/direction"
                 android:textColor="@color/green_dark" />
-        </LinearLayout>
+        </RelativeLayout>
     </LinearLayout>
 </LinearLayout>

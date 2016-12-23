@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import jp.tenposs.adapter.RecyclerItemWrapper;
 import jp.tenposs.tenposs.R;
+import jp.tenposs.utils.Utils;
 
 /**
  * Created by ambient on 8/29/16.
@@ -49,7 +50,7 @@ public class ProductDetail
         mMoreButton = (Button) findViewById(R.id.more_button);
 
         mHeaderLabel.setText(extras.getString(RecyclerItemWrapper.ITEM_CATEGORY));
-        mDetailLabel.setText(extras.getString(RecyclerItemWrapper.ITEM_DESCRIPTION));
+        Utils.setTextViewHTML(mDetailLabel, extras.getString(RecyclerItemWrapper.ITEM_DESCRIPTION), null);
 
 
         if (mShowMore == -1) {

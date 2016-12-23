@@ -17,7 +17,6 @@ import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.listener.OnCommonItemClickListener;
 import jp.tenposs.utils.Utils;
 import jp.tenposs.view.AspectRatioImageView;
-import okhttp3.internal.Util;
 
 /**
  * Created by ambient on 8/24/16.

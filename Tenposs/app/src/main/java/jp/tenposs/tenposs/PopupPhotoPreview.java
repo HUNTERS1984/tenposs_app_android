@@ -17,8 +17,8 @@ import com.squareup.picasso.Picasso;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import jp.tenposs.datamodel.Key;
 import jp.tenposs.datamodel.CommonItem;
+import jp.tenposs.datamodel.Key;
 import jp.tenposs.listener.OnCommonItemClickListener;
 import jp.tenposs.view.ZoomableImageView;
 

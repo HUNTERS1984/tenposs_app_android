@@ -13,8 +13,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.io.Serializable;
-
 import jp.tenposs.datamodel.AppData;
 import jp.tenposs.datamodel.ScreenDataStatus;
 import jp.tenposs.datamodel.SignUpInfo;

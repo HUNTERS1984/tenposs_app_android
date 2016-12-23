@@ -215,6 +215,7 @@ public class RestaurantAdapter
         TextView itemCategoryLabel;
         TextView itemTitleLabel;
         TextView itemPriceLabel;
+        TextView itemCreateDateTimeLabel;
 
         //Store
         ImageView mapImage;
@@ -322,6 +323,7 @@ public class RestaurantAdapter
                     this.itemTitleLabel = (TextView) this.mRow.findViewById(R.id.item_title_label);
                     this.itemDescriptionLabel = (TextView) this.mRow.findViewById(R.id.item_description_label);
                     this.itemPriceLabel = (TextView) this.mRow.findViewById(R.id.item_price_label);
+                    this.itemCreateDateTimeLabel = (TextView) this.mRow.findViewById(R.id.item_create_date_time_label);
                 }
                 break;
 
@@ -570,7 +572,7 @@ public class RestaurantAdapter
                     if (itemDescriptionLabel != null) {
                         String itemDescription = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_DESCRIPTION);
                         if (itemDescription != null) {
-                            itemDescriptionLabel.setText(itemDescription);
+                            Utils.setTextViewHTML(itemDescriptionLabel, itemDescription, null);
                         } else {
                             itemDescriptionLabel.setVisibility(View.GONE);
                         }
@@ -582,6 +584,24 @@ public class RestaurantAdapter
                             itemPriceLabel.setText(itemPrice);
                         } else {
                             itemPriceLabel.setVisibility(View.GONE);
+                        }
+                    }
+
+                    if (itemCreateDateTimeLabel != null) {
+                        String itemCreateDateTime = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_CREATE_DATE_TIME);
+                        if (itemCreateDateTime != null) {
+                            itemCreateDateTimeLabel.setText(Utils.formatDateTime(itemCreateDateTime, "yyyy-MM-dd HH:mm:ss", "MM月dd日 HH時mm分"));
+                        } else {
+                            itemCreateDateTimeLabel.setVisibility(View.GONE);
+                        }
+                    }
+
+                    if (itemCreateDateTimeLabel != null) {
+                        String itemCreateDateTime = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_CREATE_DATE_TIME);
+                        if (itemCreateDateTime != null) {
+                            itemCreateDateTimeLabel.setText(Utils.formatDateTime(itemCreateDateTime, "yyyy-MM-dd HH:mm:ss", "MM月dd日 HH時mm分"));
+                        } else {
+                            itemCreateDateTimeLabel.setVisibility(View.GONE);
                         }
                     }
                 }
@@ -631,7 +651,7 @@ public class RestaurantAdapter
                         try {
                             NewsInfo.News news = (NewsInfo.News) this.mViewPagerData.get(0);
                             this.itemTitleLabel.setText(news.getTitle());
-                            this.itemDescriptionLabel.setText(news.getDescription());
+                            Utils.setTextViewHTML(this.itemDescriptionLabel, news.getDescription(), null);
 
                             this.itemPriceLabel.setText(Utils.formatDateTime(news.getCreatedDate(), "yyyy-MM-dd hh:mm", "M月d日 hh時mm分"));
                         } catch (Exception ignored) {
@@ -708,7 +728,8 @@ public class RestaurantAdapter
                             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
                             extras.putString(RecyclerItemWrapper.ITEM_CATEGORY, item.getCategory());
                             extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.getTitle());
-                            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.getDescription());
+//                            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.getDescription());
+                            extras.putSerializable(RecyclerItemWrapper.ITEM_CREATE_DATE_TIME, item.getLastModifyDate());
                             extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
 
                             dataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeList, 1, extras));

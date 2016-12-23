@@ -624,9 +624,10 @@ public class FragmentTop
                             extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.NEWS_DETAILS_SCREEN);
                             extras.putString(RecyclerItemWrapper.ITEM_CATEGORY, item.getCategory());
                             extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.getTitle());
-                            extras.putString(RecyclerItemWrapper.ITEM_PRICE, item.getPrice());
-                            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.getDescription());
+//                            extras.putString(RecyclerItemWrapper.ITEM_PRICE, item.getPrice());
+//                            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.getDescription());
                             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
+                            extras.putString(RecyclerItemWrapper.ITEM_CREATE_DATE_TIME, item.getLastModifyDate());
                             extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
 
                             mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeList, mSpanCount, extras));

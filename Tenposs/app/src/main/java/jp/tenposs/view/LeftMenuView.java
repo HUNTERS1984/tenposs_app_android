@@ -26,7 +26,6 @@ import java.util.Locale;
 import jp.tenposs.datamodel.AppData;
 import jp.tenposs.datamodel.AppInfo;
 import jp.tenposs.datamodel.Key;
-import jp.tenposs.datamodel.SignInInfo;
 import jp.tenposs.datamodel.UserInfo;
 import jp.tenposs.tenposs.AbstractFragment;
 import jp.tenposs.tenposs.R;

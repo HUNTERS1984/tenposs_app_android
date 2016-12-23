@@ -31,4 +31,6 @@
     <dimen name="common_item_spacing">8dp</dimen>
     <dimen name="restaurant_item_spacing">6dp</dimen>
 
+    <dimen name="item_menu_top_size">35dp</dimen>
+
 </resources>

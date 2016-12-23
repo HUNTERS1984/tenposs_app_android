@@ -82,5 +82,17 @@
             android:text="item_description_label"
             android:textAppearance="@android:style/TextAppearance.Small"
             android:textColor="@color/description_text_color" />
+
+        <TextView
+            android:id="@+id/item_create_date_time_label"
+            android:layout_width="match_parent"
+            android:layout_height="0dip"
+            android:layout_marginTop="5dip"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="3"
+            android:text="item_create_date_time_label"
+            android:textAppearance="@android:style/TextAppearance.Small"
+            android:textColor="@color/description_text_color" />
     </LinearLayout>
 </android.support.percent.PercentRelativeLayout>
