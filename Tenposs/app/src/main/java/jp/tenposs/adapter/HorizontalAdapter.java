@@ -11,6 +11,7 @@ import com.squareup.picasso.Picasso;
 
 import jp.tenposs.listener.OnCommonItemClickListener;
 import jp.tenposs.tenposs.R;
+import jp.tenposs.utils.Utils;
 
 /**
  * Created by ambient on 11/12/16.
@@ -123,7 +124,7 @@ public class HorizontalAdapter
             if (itemDescriptionLabel != null) {
                 String itemDescription = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_DESCRIPTION);
                 if (itemDescription != null) {
-                    itemDescriptionLabel.setText(itemDescription);
+                    Utils.setTextViewHTML(itemDescriptionLabel, itemDescription, null);
                 } else {
                     itemDescriptionLabel.setVisibility(View.GONE);
                 }

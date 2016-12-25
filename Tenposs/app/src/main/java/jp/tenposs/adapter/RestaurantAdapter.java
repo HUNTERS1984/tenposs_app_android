@@ -832,7 +832,7 @@ public class RestaurantAdapter
                 NewsInfo.News news = (NewsInfo.News) this.mViewPagerData.get(position);
 
                 this.itemTitleLabel.setText(news.getTitle());
-                this.itemDescriptionLabel.setText(news.getDescription());
+                Utils.setTextViewHTML(this.itemDescriptionLabel, news.getDescription(), null);
                 this.itemPriceLabel.setText(news.getCreatedDate());
             }
         }
