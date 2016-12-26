@@ -151,8 +151,8 @@ public class ProductDescription
                 "    <head>\n" +
                 "        <meta charset=\"utf-8\">\n" +
                 "        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n" +
-                "        <link href=\"https://m.ten-po.com/css/bootstrap.min.css\" rel=\"stylesheet\">\n" +
-                "        <link href=\"https://m.ten-po.com/css/reset.css\" rel=\"stylesheet\">\n" +
+                "        <link href=\"https://m.ten-po.com/assets/themes/default/css/reset.css\" rel=\"stylesheet\">\n" +
+                "        <link href=\"https://m.ten-po.com/assets/themes/default/css/bootstrap.min.css\" rel=\"stylesheet\">\n" +
                 "        <body>\n" +
                 "            <table class=\"table table-bordered\">\n" +
                 "                <thead>\n" +

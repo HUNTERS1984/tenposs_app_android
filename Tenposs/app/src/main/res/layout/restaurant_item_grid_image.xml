@@ -5,7 +5,12 @@
     android:orientation="vertical"
     android:padding="1dp">
 
-
+    <ProgressBar
+        android:id="@+id/progress_bar_loading_coupon"
+        style="?android:attr/progressBarStyleLargeInverse"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" />
     <!--android:background="@drawable/bg_drop_shadow"-->
 
     <ImageView

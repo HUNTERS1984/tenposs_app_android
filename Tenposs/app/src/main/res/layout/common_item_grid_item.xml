@@ -20,6 +20,13 @@
         app:layout_aspectRatio="100%"
         app:layout_widthPercent="100%">
 
+        <ProgressBar
+            android:id="@+id/progress_bar_loading_coupon"
+            style="?android:attr/progressBarStyleLargeInverse"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+
         <ImageView
             android:id="@+id/item_image"
             android:layout_width="match_parent"

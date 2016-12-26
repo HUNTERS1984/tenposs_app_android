@@ -587,14 +587,6 @@ public class RestaurantAdapter
                         }
                     }
 
-                    if (itemCreateDateTimeLabel != null) {
-                        String itemCreateDateTime = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_CREATE_DATE_TIME);
-                        if (itemCreateDateTime != null) {
-                            itemCreateDateTimeLabel.setText(Utils.formatDateTime(itemCreateDateTime, "yyyy-MM-dd HH:mm:ss", "MM月dd日 HH時mm分"));
-                        } else {
-                            itemCreateDateTimeLabel.setVisibility(View.GONE);
-                        }
-                    }
 
                     if (itemCreateDateTimeLabel != null) {
                         String itemCreateDateTime = itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_CREATE_DATE_TIME);
@@ -728,7 +720,7 @@ public class RestaurantAdapter
                             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
                             extras.putString(RecyclerItemWrapper.ITEM_CATEGORY, item.getCategory());
                             extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.getTitle());
-//                            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.getDescription());
+                            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.getDescription());
                             extras.putSerializable(RecyclerItemWrapper.ITEM_CREATE_DATE_TIME, item.getLastModifyDate());
                             extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
 

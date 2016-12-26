@@ -7,7 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.io.Serializable;
@@ -50,15 +52,24 @@ public class FilmstripAdapter extends PagerAdapter {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View root = inflater.inflate(R.layout.common_film_strip_item, null);
 
-        ImageView itemThumbnail;
-
-        itemThumbnail = (ImageView) root.findViewById(R.id.item_thumbnail);
+        ImageView itemThumbnail = (ImageView) root.findViewById(R.id.item_thumbnail);
+        final ProgressBar progressBar = (ProgressBar)root.findViewById(R.id.progress_bar_loading_coupon) ;
 
         CommonItem image = getItem(position);
         if (image.getImageUrl() != null) {
             Picasso ps = Picasso.with(mContext);
             ps.load(image.getImageUrl())
-                    .into(itemThumbnail);
+                    .into(itemThumbnail, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            progressBar.setVisibility(View.GONE);
+                        }
+
+                        @Override
+                        public void onError() {
+                            progressBar.setVisibility(View.VISIBLE);
+                        }
+                    });
         }
         final int itemPosition = position;
         root.setOnClickListener(new View.OnClickListener() {
