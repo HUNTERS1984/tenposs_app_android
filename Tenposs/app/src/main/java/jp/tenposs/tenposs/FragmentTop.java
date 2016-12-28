@@ -627,7 +627,7 @@ public class FragmentTop
 //                            extras.putString(RecyclerItemWrapper.ITEM_PRICE, item.getPrice());
                             extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.getDescription());
                             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
-                            extras.putString(RecyclerItemWrapper.ITEM_CREATE_DATE_TIME, item.getLastModifyDate());
+//                            extras.putString(RecyclerItemWrapper.ITEM_CREATE_DATE_TIME, item.getLastModifyDate());
                             extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
 
                             mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeList, mSpanCount, extras));

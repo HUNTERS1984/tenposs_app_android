@@ -86,7 +86,7 @@ public class FragmentCouponDetail extends AbstractFragment {
         mToolbarSettings.toolbarTitle = mScreenData.getTitle();
 
         Picasso ps = Picasso.with(getContext());
-        ps.load(mScreenData.getImageUrl()).into(mCouponImage);
+        ps.load(mScreenData.getImageUrl()).fit().centerCrop().into(mCouponImage);
 
         this.mCouponIdLabel.setText("ID" + Integer.toString(mScreenData.id));
         this.mCouponTypeLabel.setText(mScreenData.getCategory());

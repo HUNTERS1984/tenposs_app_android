@@ -53,6 +53,8 @@ public class ProductInfo extends LinearLayout {
 
             Picasso ps = Picasso.with(mContext);
             ps.load(extras.getString(RecyclerItemWrapper.ITEM_IMAGE))
+                    .fit()
+                    .centerCrop()
                     .into(mItemImage);
         } catch (Exception ignored) {
             ignored.printStackTrace();

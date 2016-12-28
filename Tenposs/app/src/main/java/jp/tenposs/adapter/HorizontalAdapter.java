@@ -96,9 +96,10 @@ public class HorizontalAdapter
         public void configureCell(int itemPosition, RecyclerItemWrapper itemDataWrapper) {
             Picasso ps = Picasso.with(mContext);
             ps.load(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_IMAGE))
+                    .fit()
 //                            .resize(thumbImageSize, thumbImageSize)
                     .placeholder(R.drawable.drop)
-//                            .centerCrop()
+                    .centerCrop()
                     .into(itemImage);
 
             itemInfoLayout.setVisibility(View.VISIBLE);

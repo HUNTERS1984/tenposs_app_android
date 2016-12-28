@@ -44,6 +44,8 @@ public class RestaurantNewsAdapter extends PagerAdapter {
         if (image.getImageUrl() != null) {
             Picasso ps = Picasso.with(mContext);
             ps.load(image.getImageUrl())
+                    .fit()
+                    .centerCrop()
                     .into(itemThumbnail);
         }
         container.addView(root);

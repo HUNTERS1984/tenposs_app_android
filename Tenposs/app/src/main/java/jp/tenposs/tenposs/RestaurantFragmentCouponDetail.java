@@ -91,7 +91,7 @@ public class RestaurantFragmentCouponDetail extends AbstractFragment {
             @Override
             public void run() {
                 Picasso ps = Picasso.with(getContext());
-                ps.load(mScreenData.getImageUrl()).into(mCouponImage);
+                ps.load(mScreenData.getImageUrl()).fit().centerCrop().into(mCouponImage);
 
                 try {
                     Utils.generateQRCode("ABCXYZ", mBarcodeImage, 200);

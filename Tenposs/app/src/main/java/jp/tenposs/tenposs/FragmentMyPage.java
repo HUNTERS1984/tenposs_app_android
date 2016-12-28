@@ -363,11 +363,15 @@ public class FragmentMyPage extends AbstractFragment {
         if (url.contains("http://") == true || url.contains("https://") == true) {
             ps.load(this.mScreenData.profile.getImageUrl())
                     .placeholder(R.drawable.mypage_no_avatar)
+                    .fit()
+                    .centerCrop()
                     .into(mUserAvatarImage);
         } else {
             File f = new File(this.mScreenData.profile.getImageUrl());
             ps.load(f)
                     .placeholder(R.drawable.no_avatar_gray)
+                    .fit()
+                    .centerCrop()
                     .into(mUserAvatarImage);
         }
     }

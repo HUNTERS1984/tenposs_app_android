@@ -224,7 +224,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/gender"
-                        android:textColor="@color/title_text_color" />
+                        android:textColor="@color/staff_title" />
 
                     <TextView
                         android:id="@+id/gender_value_label"
@@ -235,6 +235,11 @@
 
                 </LinearLayout>
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_margin="5dp"
+                    android:background="@color/staff_info_separate"/>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -248,7 +253,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/phone_number"
-                        android:textColor="@color/title_text_color" />
+                        android:textColor="@color/staff_title" />
 
                     <TextView
                         android:id="@+id/price_value_label"
@@ -258,6 +263,12 @@
                         android:textColor="@color/title_text_color" />
 
                 </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_margin="5dp"
+                    android:background="@color/staff_info_separate"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -272,7 +283,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/age"
-                        android:textColor="@color/title_text_color" />
+                        android:textColor="@color/staff_title" />
 
                     <TextView
                         android:id="@+id/birthday_value_label"
@@ -282,6 +293,12 @@
                         android:textColor="@color/title_text_color" />
 
                 </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_margin="5dp"
+                    android:background="@color/staff_info_separate"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -296,7 +313,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/phone_number"
-                        android:textColor="@color/title_text_color" />
+                        android:textColor="@color/staff_title" />
 
                     <TextView
                         android:id="@+id/phone_value_label"

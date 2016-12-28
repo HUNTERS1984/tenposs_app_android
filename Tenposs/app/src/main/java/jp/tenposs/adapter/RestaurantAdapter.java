@@ -364,7 +364,7 @@ public class RestaurantAdapter
                     this.itemCategoryLabel = (TextView) this.mRow.findViewById(R.id.item_category_label);
                     this.itemTitleLabel = (TextView) this.mRow.findViewById(R.id.item_title_label);
                     this.itemDescriptionLabel = (TextView) this.mRow.findViewById(R.id.item_description_label);
-                    this.itemPriceLabel = (TextView) this.mRow.findViewById(R.id.item_create_date_label);
+                    this.itemCreateDateTimeLabel = (TextView) this.mRow.findViewById(R.id.item_create_date_label);
                 }
                 break;
 
@@ -478,6 +478,8 @@ public class RestaurantAdapter
 
                     ps.load(url)
                             .placeholder(R.drawable.drop)
+                            .fit()
+                            .centerCrop()
                             .into(mapImage);
 
                     mapButton.setOnClickListener(new View.OnClickListener() {
@@ -645,7 +647,7 @@ public class RestaurantAdapter
                             this.itemTitleLabel.setText(news.getTitle());
                             Utils.setTextViewHTML(this.itemDescriptionLabel, news.getDescription(), null);
 
-                            this.itemPriceLabel.setText(Utils.formatDateTime(news.getCreatedDate(), "yyyy-MM-dd hh:mm", "M月d日 hh時mm分"));
+                            this.itemCreateDateTimeLabel.setText(Utils.formatDateTime(news.getLastModifyDate(), "yyyy-MM-dd hh:mm:ss", "M月d日 hh時mm分"));
                         } catch (Exception ignored) {
 
                         }
@@ -720,7 +722,7 @@ public class RestaurantAdapter
                             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, item.getImageUrl());
                             extras.putString(RecyclerItemWrapper.ITEM_CATEGORY, item.getCategory());
                             extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.getTitle());
-                            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.getDescription());
+//                            extras.putString(RecyclerItemWrapper.ITEM_DESCRIPTION, item.getDescription());
                             extras.putSerializable(RecyclerItemWrapper.ITEM_CREATE_DATE_TIME, item.getLastModifyDate());
                             extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, item);
 
@@ -825,7 +827,7 @@ public class RestaurantAdapter
 
                 this.itemTitleLabel.setText(news.getTitle());
                 Utils.setTextViewHTML(this.itemDescriptionLabel, news.getDescription(), null);
-                this.itemPriceLabel.setText(news.getCreatedDate());
+                this.itemCreateDateTimeLabel.setText(Utils.formatDateTime(news.getLastModifyDate(), "yyyy-MM-dd hh:mm:ss", "M月d日 hh時mm分"));
             }
         }
 

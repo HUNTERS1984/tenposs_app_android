@@ -41,5 +41,7 @@
     <color name="restaurant_toolbar_text_color">#000000</color>
 
     <color name="menu_top_item">#FFFFFF</color>
+    <color name="staff_info_separate">#EEEEEE</color>
+    <color name="staff_title">#D3D3DE</color>
 
 </resources>

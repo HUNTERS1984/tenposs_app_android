@@ -305,6 +305,8 @@ public class CommonAdapter extends AbstractRecyclerAdapter<CommonAdapter.CommonV
 
                     ps.load(url)
                             .placeholder(R.drawable.drop)
+                            .fit()
+                            .centerCrop()
                             .into(mapImage);
 
                     mapButton.setOnClickListener(new View.OnClickListener() {
@@ -371,6 +373,8 @@ public class CommonAdapter extends AbstractRecyclerAdapter<CommonAdapter.CommonV
                     Picasso ps = Picasso.with(mContext);
                     ps.load(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_IMAGE))
                             .placeholder(R.drawable.drop)
+                            .fit()
+                            .centerCrop()
                             .into(itemImage);
 
                     if (itemInfoLayout != null) {

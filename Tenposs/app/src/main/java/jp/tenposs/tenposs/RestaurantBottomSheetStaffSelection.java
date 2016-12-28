@@ -146,6 +146,8 @@ public class RestaurantBottomSheetStaffSelection extends BottomSheetDialogFragme
             Picasso ps = Picasso.with(mContext);
             ps.load(staff.getImageUrl())
                     .placeholder(R.drawable.drop)
+                    .fit()
+                    .centerCrop()
                     .into(holder.itemImage);
 
             holder.itemTitleLabel.setText(staff.name);

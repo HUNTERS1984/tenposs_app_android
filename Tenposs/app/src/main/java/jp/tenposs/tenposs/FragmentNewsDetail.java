@@ -72,6 +72,8 @@ public class FragmentNewsDetail
         this.mScreenDataStatus = ScreenDataStatus.ScreenDataStatusLoaded;
         Picasso ps = Picasso.with(getContext());
         ps.load(mScreenData.getImageUrl())
+                .fit()
+                .centerCrop()
                 .into(this.mNewsImage);
 
         this.mNewsTitleLabel.setText(mScreenData.getTitle());

@@ -106,6 +106,8 @@ public class VerticalAdapter extends AbstractRecyclerAdapter<VerticalAdapter.Ver
                 Picasso ps = Picasso.with(mContext);
                 ps.load(itemDataWrapper.itemData.getString(RecyclerItemWrapper.ITEM_IMAGE))
                         .placeholder(R.drawable.drop)
+                        .fit()
+                        .centerCrop()
                         .into(itemImage);
 
                 itemInfoLayout.setVisibility(View.VISIBLE);

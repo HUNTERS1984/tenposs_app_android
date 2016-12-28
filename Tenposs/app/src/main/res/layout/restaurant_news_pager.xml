@@ -43,6 +43,7 @@
             android:id="@+id/item_description_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:enabled="false"
             android:ellipsize="end"
             android:maxLines="3"
             android:padding="5dip"

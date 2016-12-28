@@ -292,11 +292,15 @@ public class LeftMenuView extends FrameLayout {
         if (url.contains("http://") == true || url.contains("https://") == true) {
             ps.load(this.mUserProfile.profile.getImageUrl())
                     .placeholder(R.drawable.no_avatar_gray)
+                    .fit()
+                    .centerCrop()
                     .into(mUserAvatarImage);
         } else {
             File f = new File(this.mUserProfile.profile.getImageUrl());
             ps.load(f)
                     .placeholder(R.drawable.no_avatar_gray)
+                    .fit()
+                    .centerCrop()
                     .into(mUserAvatarImage);
         }
     }
