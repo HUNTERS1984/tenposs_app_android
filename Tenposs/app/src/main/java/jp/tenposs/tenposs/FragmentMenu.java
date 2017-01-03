@@ -126,7 +126,7 @@ public class FragmentMenu extends AbstractFragment implements View.OnClickListen
             int rowIndex = 0;
             int itemSpanCount = 0;
             for (ItemsInfo.Item item : mCurrentItem.data.items) {
-                item.menu = this.mCurrentMenu.name;
+                item.menu_name = this.mCurrentMenu.name;
                 Bundle extras = new Bundle();
                 extras.putInt(RecyclerItemWrapper.ITEM_ID, item.id);
                 extras.putString(RecyclerItemWrapper.ITEM_TITLE, item.getTitle());

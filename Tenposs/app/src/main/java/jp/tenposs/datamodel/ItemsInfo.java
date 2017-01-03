@@ -52,7 +52,7 @@ public class ItemsInfo {
         public String deleted_at;
         public String item_link;
         public String coupon_id;
-        public String menu;
+        public String menu_name;
 
         ArrayList<ItemSize> size;
 
@@ -162,8 +162,8 @@ public class ItemsInfo {
         }
 
         public String getCategory() {
-            if (menu != null)
-                return menu;
+            if (menu_name != null)
+                return menu_name;
             else {
                 if (BuildConfig.DEBUG) {
                     return "会席料理コース";

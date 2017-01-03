@@ -52,7 +52,7 @@ public class StaffInfo {
         public String updated_at;
         public String deleted_at;
         public String staff_category_id;
-        public String staff_category = "";
+        public StaffCategory staff_categories = new StaffCategory();
 
         @Override
         public String getImageUrl() {
@@ -61,7 +61,7 @@ public class StaffInfo {
 
         @Override
         public String getCategory() {
-            return null;
+            return staff_categories.name;
         }
 
         @Override
@@ -89,5 +89,13 @@ public class StaffInfo {
             String itemPrice = Utils.aToCurrency(price);
             return "¥ " + itemPrice;
         }
+    }
+
+    public class StaffCategory implements Serializable
+    {
+        public int id;
+        public String name = "";
+        public String store_id;
+        public String deleted_at;
     }
 }

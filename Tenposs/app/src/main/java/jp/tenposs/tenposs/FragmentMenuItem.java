@@ -64,7 +64,7 @@ public class FragmentMenuItem extends AbstractFragment implements RecyclerDataSo
         ItemsInfo.Item item = (ItemsInfo.Item) extras;
         b.putInt(AbstractFragment.SCREEN_DATA_ID, item.id);
         b.putString(AbstractFragment.SCREEN_TITLE, item.getTitle());
-        b.putString(ITEM_CATEGORY, item.menu);
+        b.putString(ITEM_CATEGORY, item.menu_name);
         fragment.setArguments(b);
         return fragment;
     }
@@ -211,7 +211,7 @@ public class FragmentMenuItem extends AbstractFragment implements RecyclerDataSo
                     if (resultApi == CommonResponse.ResultSuccess) {
                         ItemDetailInfo.Response response = (ItemDetailInfo.Response) responseParams.getSerializable(Key.ResponseObject);
                         mScreenData = response.data.items;
-                        mScreenData.menu = mItemCategory;
+                        mScreenData.menu_name = mItemCategory;
                         mRelatedItems = response.data.items_related;
                         mTotalRelatedItems = response.data.total_items_related;
                         previewScreenData();

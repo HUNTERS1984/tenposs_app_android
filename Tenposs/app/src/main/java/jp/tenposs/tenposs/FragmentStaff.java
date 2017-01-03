@@ -131,7 +131,7 @@ public class FragmentStaff extends AbstractFragment implements View.OnClickListe
             mScreenDataItems = new ArrayList<>();
 
             for (StaffInfo.Staff staff : mCurrentItem.data.staffs) {
-                staff.staff_category = this.mCurrentStaffCat.name;
+                staff.staff_categories.name = this.mCurrentStaffCat.name;
                 Bundle extras = new Bundle();
                 extras.putInt(RecyclerItemWrapper.ITEM_ID, staff.id);
                 extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.STAFF_DETAIL_SCREEN);

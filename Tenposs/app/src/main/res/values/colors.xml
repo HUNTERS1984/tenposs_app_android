@@ -43,5 +43,6 @@
     <color name="menu_top_item">#FFFFFF</color>
     <color name="staff_info_separate">#EEEEEE</color>
     <color name="staff_title">#D3D3DE</color>
+    <color name="news_title_text_color">#3CB963</color>
 
 </resources>

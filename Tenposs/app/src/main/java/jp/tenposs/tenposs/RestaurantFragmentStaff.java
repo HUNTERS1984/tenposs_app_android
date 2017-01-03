@@ -112,17 +112,18 @@ public class RestaurantFragmentStaff
             extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.STAFF_DETAIL_SCREEN);
             extras.putString(RecyclerItemWrapper.ITEM_IMAGE, staff.getImageUrl());
             extras.putString(RecyclerItemWrapper.ITEM_TITLE, staff.getTitle());
+            extras.putString(RecyclerItemWrapper.ITEM_CATEGORY, staff.getCategory());
             extras.putString(RecyclerItemWrapper.ITEM_PRICE, staff.getDescription());
             extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, staff);
 
             extras.putInt(RecyclerItemWrapper.ITEM_ROW, rowIndex);
-            itemSpanCount += this.mSpanCount / this.mSpanSmallItems;
+            itemSpanCount += this.mSpanCount / this.mSpanLargeItems;// this.mSpanSmallItems;
             if (itemSpanCount == this.mSpanCount) {
                 rowIndex++;
                 itemSpanCount = 0;
             }
 
-            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeRestaurantGridStaff, mSpanCount / mSpanSmallItems, extras));
+            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeRestaurantGridStaff, mSpanCount / mSpanLargeItems, extras));
         }
 
         if (this.mRecyclerAdapter == null) {

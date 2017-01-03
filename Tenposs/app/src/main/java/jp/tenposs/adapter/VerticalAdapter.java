@@ -135,7 +135,7 @@ public class VerticalAdapter extends AbstractRecyclerAdapter<VerticalAdapter.Ver
                     if (itemDescription != null) {
                         Utils.setTextViewHTML(itemDescriptionLabel, itemDescription, null);
                     } else {
-                        itemDescriptionLabel.setVisibility(View.GONE);
+                        itemDescriptionLabel.setVisibility(View.INVISIBLE);
                     }
                 }
 
@@ -144,7 +144,7 @@ public class VerticalAdapter extends AbstractRecyclerAdapter<VerticalAdapter.Ver
                     if (itemPrice != null) {
                         itemPriceLabel.setText(itemPrice);
                     } else {
-                        itemPriceLabel.setVisibility(View.GONE);
+                        itemPriceLabel.setVisibility(View.INVISIBLE);
                     }
                 }
 
