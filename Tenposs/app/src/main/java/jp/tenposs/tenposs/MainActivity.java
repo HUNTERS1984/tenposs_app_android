@@ -822,15 +822,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     void showPhotoPreviewScreen(Serializable extras) {
-//        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
-//            RestaurantPopupPhotoPreview photoPreview = new RestaurantPopupPhotoPreview(this);
-//            photoPreview.setData(extras);
-//            photoPreview.show();
-//        } else {
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            RestaurantPopupPhotoPreview photoPreview = new RestaurantPopupPhotoPreview(this);
+            photoPreview.setData(extras);
+            photoPreview.show();
+        } else {
             PopupPhotoPreview photoPreview = new PopupPhotoPreview(this);
             photoPreview.setData(extras);
             photoPreview.show();
-//        }
+        }
     }
 
     AbstractFragment showCouponScreen(int storeId, String fragmentTag, boolean showFromSideMenu) {

@@ -59,7 +59,7 @@ public class NewsInfo {
         public int new_category_id;
 
         String image_url;
-        String category = "";
+        NewsCat news_cat = new NewsCat();
 
         String deleted_at;
         String updated_at;
@@ -85,19 +85,19 @@ public class NewsInfo {
         public void setCategory(ArrayList<NewsCategoryInfo.Category> categories) {
             for (NewsCategoryInfo.Category category : categories) {
                 if (category.id == this.new_category_id) {
-                    this.category = category.name;
+                    this.news_cat.name = category.name;
                     break;
                 }
             }
         }
 
         public void setCategory(String category) {
-            this.category = category;
+            this.news_cat.name = category;
         }
 
         public String getCategory() {
-            if (this.category != null) {
-                return this.category;
+            if (this.news_cat.name != null) {
+                return this.news_cat.name;
             } else {
                 return "カテゴリー";
             }
@@ -131,5 +131,12 @@ public class NewsInfo {
 
     public class Message implements Serializable {
         public String message;
+    }
+
+    public class NewsCat implements  Serializable {
+        public int id;
+        public String name;
+        public String store_id;
+        public String deleted_at;
     }
 }

@@ -645,7 +645,8 @@ public class RestaurantAdapter
                         try {
                             NewsInfo.News news = (NewsInfo.News) this.mViewPagerData.get(0);
                             this.itemTitleLabel.setText(news.getTitle());
-                            Utils.setTextViewHTML(this.itemDescriptionLabel, news.getDescription(), null);
+                            this.itemCategoryLabel.setText(news.getCategory());
+//                            Utils.setTextViewHTML(this.itemDescriptionLabel, news.getDescription(), null);
 
                             this.itemCreateDateTimeLabel.setText(Utils.formatDateTime(news.getLastModifyDate(), "yyyy-MM-dd hh:mm:ss", "M月d日 hh時mm分"));
                         } catch (Exception ignored) {

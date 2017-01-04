@@ -50,7 +50,7 @@
             android:lines="1"
             android:text="item_title_label"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
-            android:textColor="@color/news_title_text_color" />
+            android:textColor="@android:color/black" />
 
         <TextView
             android:id="@+id/item_category_label"
@@ -60,7 +60,8 @@
             android:ellipsize="end"
             android:lines="1"
             android:text="item_category_label"
-            android:textAppearance="@android:style/TextAppearance.DeviceDefault" />
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+            android:textColor="@color/grid_text_color" />
 
         <TextView
             android:id="@+id/item_price_label"

@@ -47,7 +47,8 @@
         android:layout_above="@id/detail_label"
         android:padding="10dp"
         android:text="松阪牛コース 椿"
-        android:textColor="@android:color/white" />
+        android:textColor="@android:color/white"
+        android:visibility="invisible"/>
 
     <TextView
         android:id="@+id/detail_label"
@@ -58,6 +59,7 @@
         android:ellipsize="end"
         android:padding="10dp"
         android:text="先付、お造り、焚き合わせ、お凌ぎ（松阪牛握り、松阪牛と鮪の裏巻寿司）、冷菜、揚げ物（松阪牛の天ぷら他）、焼き物（伊勢海老またはあわび(あわびは＋800円)"
-        android:textColor="@android:color/white" />
+        android:textColor="@android:color/white"
+        android:visibility="invisible"/>
 
 </RelativeLayout>

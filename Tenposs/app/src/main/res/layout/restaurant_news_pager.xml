@@ -40,14 +40,14 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/item_description_label"
+            android:id="@+id/item_category_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:enabled="false"
             android:ellipsize="end"
             android:maxLines="3"
             android:padding="5dip"
-            android:text="item_description_label"
+            android:text="item_category_label"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault"
             android:textColor="@color/grid_text_color" />
 
