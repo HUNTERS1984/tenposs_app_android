@@ -2,10 +2,12 @@ package jp.tenposs.tenposs;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -30,6 +32,7 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
     Button mStaffProfileButton;
     TextView mStaffDescriptionLabel;
     LinearLayout mStaffProfileLayout;
+    FrameLayout mStaffContentLayout;
     TextView mGenderValueLabel;
     TextView mPriceValueLabel;
     TextView mBirthdayValueLabel;
@@ -125,24 +128,38 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
     protected View onCustomCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_staff_detail, null);
         this.mStaffImage = (AspectRatioImageView) root.findViewById(R.id.staff_image);
+        this.mStaffContentLayout = (FrameLayout)root.findViewById(R.id.staff_detail_content);
+
         this.mStaffCategoryLabel = (TextView) root.findViewById(R.id.staff_category_label);
         this.mStaffTitleLabel = (TextView) root.findViewById(R.id.staff_title_label);
         this.mUnknownStaffButon = (Button) root.findViewById(R.id.unknown_staff_button);
-        this.mStaffDescriptionButton = (Button) root.findViewById(R.id.staff_description_button);
-        this.mStaffProfileButton = (Button) root.findViewById(R.id.staff_profile_button);
-        this.mStaffDescriptionLabel = (TextView) root.findViewById(R.id.staff_description_label);
-        this.mStaffProfileLayout = (LinearLayout) root.findViewById(R.id.staff_profile_layout);
-
-        this.mGenderValueLabel = (TextView) root.findViewById(R.id.gender_value_label);
-        this.mPriceValueLabel = (TextView) root.findViewById(R.id.price_value_label);
-        this.mBirthdayValueLabel = (TextView) root.findViewById(R.id.birthday_value_label);
-        this.mPhoneValueLabel = (TextView) root.findViewById(R.id.phone_value_label);
 
         this.mMoreButton = (Button) root.findViewById(R.id.more_button);
-
-        this.mStaffDescriptionButton.setOnClickListener(this);
-        this.mStaffProfileButton.setOnClickListener(this);
         this.mMoreButton.setOnClickListener(this);
+
+        View staffContent;
+        if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
+            staffContent = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_staff_detail_restaurant_des_layout, container);
+        } else {
+            staffContent = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_staff_detail_restaurant_des_layout, container);
+
+            this.mStaffDescriptionButton = (Button) root.findViewById(R.id.staff_description_button);
+            this.mStaffProfileButton = (Button) root.findViewById(R.id.staff_profile_button);
+
+            this.mStaffDescriptionButton.setOnClickListener(this);
+            this.mStaffProfileButton.setOnClickListener(this);
+        }
+
+        if(staffContent != null) {
+            this.mStaffDescriptionLabel = (TextView) staffContent.findViewById(R.id.staff_description_label);
+            this.mGenderValueLabel = (TextView) staffContent.findViewById(R.id.gender_value_label);
+            this.mPriceValueLabel = (TextView) staffContent.findViewById(R.id.price_value_label);
+            this.mBirthdayValueLabel = (TextView) staffContent.findViewById(R.id.birthday_value_label);
+            this.mPhoneValueLabel = (TextView) staffContent.findViewById(R.id.phone_value_label);
+            this.mStaffProfileLayout = (LinearLayout) staffContent.findViewById(R.id.staff_profile_layout);
+        }
+        this.mStaffContentLayout.addView(staffContent);
+
         return root;
     }
 
