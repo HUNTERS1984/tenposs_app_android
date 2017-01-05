@@ -35,7 +35,7 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
     FrameLayout mStaffContentLayout;
     TextView mGenderValueLabel;
     TextView mPriceValueLabel;
-    TextView mBirthdayValueLabel;
+//    TextView mBirthdayValueLabel;
     TextView mPhoneValueLabel;
     Button mMoreButton;
 
@@ -94,7 +94,9 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
         this.mStaffCategoryLabel.setText(mScreenData.staff_categories.name);
         Utils.setTextViewHTML(this.mStaffDescriptionLabel, this.mScreenData.introduction, null);
 
-        showDescriptionOrProfile();
+        if (AppData.sharedInstance().getTemplate() != AppData.TemplateId.RestaurantTemplate) {
+            showDescriptionOrProfile();
+        }
 
         try {
             if (Utils.atoi(this.mScreenData.gender) == 0) {
@@ -111,10 +113,10 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
         } catch (Exception ignored) {
         }
 
-        try {
-            this.mBirthdayValueLabel.setText(Utils.formatDateTime(this.mScreenData.birthday, "yyyy-MM-dd", "yyyy.MM.dd"));
-        } catch (Exception ignored) {
-        }
+//        try {
+//            this.mBirthdayValueLabel.setText(Utils.formatDateTime(this.mScreenData.birthday, "yyyy-MM-dd", "yyyy.MM.dd"));
+//        } catch (Exception ignored) {
+//        }
         try {
             this.mPhoneValueLabel.setText(Utils.formatPhone(this.mScreenData.tel));
         } catch (Exception ignored) {
@@ -139,12 +141,12 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
 
         View staffContent;
         if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
-            staffContent = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_staff_detail_restaurant_des_layout, container);
+            staffContent = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_staff_detail_restaurant_des_layout, null);
         } else {
-            staffContent = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_staff_detail_restaurant_des_layout, container);
+            staffContent = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_staff_detail_common_des_layout, null);
 
-            this.mStaffDescriptionButton = (Button) root.findViewById(R.id.staff_description_button);
-            this.mStaffProfileButton = (Button) root.findViewById(R.id.staff_profile_button);
+            this.mStaffDescriptionButton = (Button) staffContent.findViewById(R.id.staff_description_button);
+            this.mStaffProfileButton = (Button) staffContent.findViewById(R.id.staff_profile_button);
 
             this.mStaffDescriptionButton.setOnClickListener(this);
             this.mStaffProfileButton.setOnClickListener(this);
@@ -154,7 +156,7 @@ public class FragmentStaffDetail extends AbstractFragment implements View.OnClic
             this.mStaffDescriptionLabel = (TextView) staffContent.findViewById(R.id.staff_description_label);
             this.mGenderValueLabel = (TextView) staffContent.findViewById(R.id.gender_value_label);
             this.mPriceValueLabel = (TextView) staffContent.findViewById(R.id.price_value_label);
-            this.mBirthdayValueLabel = (TextView) staffContent.findViewById(R.id.birthday_value_label);
+//            this.mBirthdayValueLabel = (TextView) staffContent.findViewById(R.id.birthday_value_label);
             this.mPhoneValueLabel = (TextView) staffContent.findViewById(R.id.phone_value_label);
             this.mStaffProfileLayout = (LinearLayout) staffContent.findViewById(R.id.staff_profile_layout);
         }

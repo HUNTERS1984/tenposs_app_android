@@ -651,28 +651,29 @@ public class FragmentTop
             if (mScreenData.data.contact != null && mScreenData.data.contact.size() > 0) {
                 if (component != null) {
 //                        //TODO:
-//                    if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
-//
-//                    } else {
-                    for (TopInfo.Contact contact : mScreenData.data.contact.data) {
-                        //TopInfo.Contact contact = mScreenData.data.contact.data.get(0);
-                        /**
-                         * Content
-                         */
-                        extras = new Bundle();
-                        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, contact);
-                        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeStore, mSpanCount, extras));
+                    if (AppData.sharedInstance().getTemplate() == AppData.TemplateId.RestaurantTemplate) {
 
-                        /**
-                         * Footer
-                         */
-                        extras = new Bundle();
-                        extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.RESERVE_SCREEN);
-                        extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.reserve));
-                        extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, contact);
-                        extras.putInt(RecyclerItemWrapper.ITEM_BACKGROUND, R.drawable.bg_button_2);
-                        extras.putInt(RecyclerItemWrapper.ITEM_TEXT_COLOR, R.color.colorNavBackground);
-                        mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
+                    } else {
+//                        for (TopInfo.Contact contact : mScreenData.data.contact.data) {
+                            TopInfo.Contact contact = mScreenData.data.contact.data.get(0);
+                            /**
+                             * Content
+                             */
+                            extras = new Bundle();
+                            extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, contact);
+                            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeStore, mSpanCount, extras));
+
+                            /**
+                             * Footer
+                             */
+                            extras = new Bundle();
+                            extras.putInt(RecyclerItemWrapper.ITEM_SCREEN_ID, AbstractFragment.RESERVE_SCREEN);
+                            extras.putString(RecyclerItemWrapper.ITEM_TITLE, getString(R.string.reserve));
+                            extras.putSerializable(RecyclerItemWrapper.ITEM_OBJECT, contact);
+                            extras.putInt(RecyclerItemWrapper.ITEM_BACKGROUND, R.drawable.bg_button_2);
+                            extras.putInt(RecyclerItemWrapper.ITEM_TEXT_COLOR, R.color.colorNavBackground);
+                            mScreenDataItems.add(new RecyclerItemWrapper(RecyclerItemType.RecyclerItemTypeFooter, mSpanCount, extras));
+//                        }
                     }
                 }
             }
